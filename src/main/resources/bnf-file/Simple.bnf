@@ -1,0 +1,11 @@
+<simple-filter> := <int-attribute-column> <bool-symbol> <number>;
+<simple-filter> := <int-attribute-column> <math-symbol> <number>;
+<simple-filter> := <int-attribute-column> <bool-symbol> <int-attribute-column>;
+<simple-filter> := <int-attribute-column> <math-symbol> <int-attribute-column>;
+<simple-filter> := <int-attribute-column> sort by <int-attribute-column>;
+
+<math-calc> := <number> <math-symbol> <number>;
+
+<number> := ^-?[0-9]+\.?[0-9]*;
+<bool-symbol> := > | < | = | !=;
+<math-symbol> := + | - | * | / | ^;

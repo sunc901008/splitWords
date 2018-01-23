@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'idea'
+    id 'war'
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+ext {
+    luceneGroup = 'org.apache.lucene'
+    luceneVersion = '4.10.0'
+
+    springGroup = 'org.springframework'
+    springVersion = '4.2.4.RELEASE'
+}
+
+mainClassName = 'org.wltea.analyzer.sample.IKAnalzyerDemo'
+
+dependencies {
+    compile "$luceneGroup:lucene-core:$luceneVersion"
+    compile "$luceneGroup:lucene-queryparser:$luceneVersion"
+    compile "$luceneGroup:lucene-analyzers-common:$luceneVersion"
+
+    compile "com.alibaba:fastjson:1.2.35"
+
+    compile "$springGroup:spring-context:$springVersion"
+    compile "$springGroup:spring-context-support:$springVersion"
+    compile "$springGroup:spring-tx:$springVersion"
+    compile "$springGroup:spring-jdbc:$springVersion"
+    compile "$springGroup:spring-webmvc:$springVersion"
+    compile "$springGroup:spring-oxm:$springVersion"
+
+    compile "$springGroup:spring-websocket:$springVersion"
+    compile "$springGroup:spring-messaging:$springVersion"
+
+    compile "log4j:log4j:1.2.17"
+
+}
