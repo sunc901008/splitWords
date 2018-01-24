@@ -1,14 +1,15 @@
 package focus.search.bnf.tokens;
 
-public class NumberTerminalToken extends TerminalToken {
-    public static final String NUMBER = "<number>";
+public class IntegerTerminalToken extends TerminalToken {
+
+    public static final String INTEGER = "<integer>";
 
     /**
      * Creates a new non terminal token
      *
      * @param label The token's label
      */
-    public NumberTerminalToken(String label) {
+    public IntegerTerminalToken(String label) {
         super(label);
     }
 
@@ -20,7 +21,7 @@ public class NumberTerminalToken extends TerminalToken {
         String val = tok.getName();
         try {
             //noinspection ResultOfMethodCallIgnored
-            Float.parseFloat(val);
+            Integer.parseInt(val);
         } catch (NumberFormatException e) {
             return false;
         }
@@ -32,7 +33,7 @@ public class NumberTerminalToken extends TerminalToken {
     public boolean match(final String s) {
         try {
             //noinspection ResultOfMethodCallIgnored
-            Float.parseFloat(s);
+            Integer.parseInt(s);
         } catch (NumberFormatException e) {
             return false;
         }

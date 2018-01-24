@@ -23,15 +23,8 @@ public class TerminalToken extends Token {
     }
 
     @Override
-    public int match(final String s) {
-        String name = getName();
-        if (s.length() < name.length()) {
-            return -1;
-        }
-        if (getName().compareTo(s.substring(0, getName().length())) == 0) {
-            return getName().length();
-        }
-        return 0;
+    public boolean match(final String s) {
+        return getName().equalsIgnoreCase(s);
     }
 
 }

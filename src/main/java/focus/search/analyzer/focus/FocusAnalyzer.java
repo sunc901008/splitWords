@@ -1,10 +1,8 @@
 package focus.search.analyzer.focus;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
+import focus.search.meta.Column;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -13,76 +11,23 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class FocusAnalyzer {
 
     private static IKAnalyzer analyzer;
-
-    public static void main(String[] args) throws IOException {
-
-        String table1 = "{\"table\":\"USERS_ORACLE\", \"columns\":[\"id\",\"views\"]}";
-/*
-        JSONObject json = new JSONObject();
-        json.put("type","init");
-        System.out.println(json);
-
-        json = new JSONObject();
-        json.put("type","table");
-        json.put("table", table1);
-        System.out.println(json);
-
-        json = new JSONObject();
-
-        json.put("type","table");
-        json.put("table", table2);
-        System.out.println(json);
-
-        json = new JSONObject();
-
-        json.put("type","reset");
-        System.out.println(json);
-
-        json = new JSONObject();
-
-        json.put("type","keyword");
-        System.out.println(json);
-
-        json = new JSONObject();
-
-        json.put("type","split");
-        json.put("input", "年龄的最大值>4部门");
-        System.out.println(json);
-*/
-
-        init();
-
-//        Dictionary.addWords(makeDict(JSON.parseObject(table1)));
-//        Dictionary.addWords(makeDict(JSON.parseObject(table2)));
-//
-//        String str1 = "年龄的最大值>4部门";
-//        List<FocusTokens> tokens = test(str1);
-//        tokens.forEach(token -> System.out.println(token.toJson()));
-
-//        Dictionary.reset();
-//        Dictionary.addWords(MyDictionary.dictionaries);
-//
-//        Dictionary.addWords(makeDict(JSON.parseObject(table1)));
-//
-        List<FocusTokens> tokens = test("3+5", "english");
-        System.out.println(JSON.toJSONString(tokens));
-
-    }
 
     public static void init() {
         analyzer = new IKAnalyzer();
         Dictionary.addWords(FocusKWDict.dictionaries);
     }
 
-    public static void addTable(JSONObject json) {
+    public static void addTable(List<Column> columns) {
         if (analyzer == null)
             init();
-        Dictionary.addWords(makeDict(json));
+        Dictionary.addWords(makeDict(columns));
     }
 
     public static void reset() {
@@ -90,7 +35,11 @@ public class FocusAnalyzer {
         Dictionary.addWords(FocusKWDict.dictionaries);
     }
 
-    public static List<FocusTokens> test(String str, String language) throws IOException {
+    public static Queue<FocusTokens> test(String str, String language) throws IOException {
+
+        if (analyzer == null) {
+            init();
+        }
 
         TokenStream ts = analyzer.tokenStream("focus", new StringReader(str));
         analyzer.loadSegmenters(language);
@@ -104,24 +53,22 @@ public class FocusAnalyzer {
         // 重置TokenStream（重置StringReader）
         ts.reset();
         // 迭代获取分词结果
-        List<FocusTokens> tokens = new ArrayList<>();
+        Queue<FocusTokens> tokens = new LinkedList<>();
         while (ts.incrementToken()) {
             FocusTokens token = new FocusTokens(term.toString(), type.type(), offset.startOffset(), offset.endOffset());
             analyzer.getSuggestions().forEach(token::addSuggestions);
             analyzer.getAmbiguity().forEach(token::addAmbiguities);
-            tokens.add(token);
+            tokens.offer(token);
         }
         // 关闭TokenStream（关闭StringReader）
         ts.close();
         return tokens;
     }
 
-    private static List<FocusKWDict> makeDict(JSONObject json) {
-        String tblName = json.getString("table");
-        JSONArray columns = json.getJSONArray("columns");
+    private static List<FocusKWDict> makeDict(List<Column> columns) {
         List<FocusKWDict> list = new ArrayList<>();
-        for (Object obj : columns) {
-            FocusKWDict dict = new FocusKWDict(obj.toString(), "columnName", tblName);
+        for (Column col : columns) {
+            FocusKWDict dict = new FocusKWDict(col.getName(), "columnName", col.getTblName());
             list.add(dict);
         }
         return list;

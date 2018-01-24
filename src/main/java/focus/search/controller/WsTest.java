@@ -38,11 +38,11 @@ public class WsTest extends TextWebSocketHandler {
         String input = params.getString("input");
         Object msg = "success";
         switch (type) {
-            case "init":
-                FocusAnalyzer.init();
-                break;
+//            case "init":
+//                FocusAnalyzer.init();
+//                break;
             case "table":
-                FocusAnalyzer.addTable(params.getJSONObject("table"));
+//                FocusAnalyzer.addTable(params.getJSONObject("table"));
                 break;
             case "reset":
                 FocusAnalyzer.reset();

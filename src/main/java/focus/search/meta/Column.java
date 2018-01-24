@@ -9,11 +9,15 @@ public class Column {
     private int id;
     private String name;
     private String tblName;
+    private String dataType;
+    private String colType;
+    private int tblId;
 
-    public Column(int id, String name, String tblName) {
+    public Column(int id, String name, String dataType, String colType) {
         this.id = id;
         this.name = name;
-        this.tblName = tblName;
+        this.dataType = dataType;
+        this.colType = colType;
     }
 
     public int getId() {
@@ -38,5 +42,29 @@ public class Column {
 
     public void setTblName(String tblName) {
         this.tblName = tblName;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getColType() {
+        return colType;
+    }
+
+    public void setColType(String colType) {
+        this.colType = colType;
+    }
+
+    public int getTblId() {
+        return tblId;
+    }
+
+    public void setTblId(int tblId) {
+        this.tblId = tblId;
     }
 }

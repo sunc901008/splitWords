@@ -43,11 +43,23 @@ public class BnfRule implements Serializable {
     static BnfRule parseRule(String input) throws InvalidRuleException {
         BnfRule out = new BnfRule();
         String[] lr = input.split("\\s*:=\\s*");
+        String lhs = lr[0].trim();
+        out.setLeftHandSide(new NonTerminalToken(lhs));
+        if (lhs.equals(NumberTerminalToken.NUMBER)) {
+            TokenString alternative_to_add = new TokenString();
+            alternative_to_add.add(new NumberTerminalToken(lhs));
+            out.addAlternative(alternative_to_add);
+            return out;
+        }
+        if (lhs.equals(IntegerTerminalToken.INTEGER)) {
+            TokenString alternative_to_add = new TokenString();
+            alternative_to_add.add(new IntegerTerminalToken(lhs));
+            out.addAlternative(alternative_to_add);
+            return out;
+        }
         if (lr.length != 2) {
             throw new InvalidRuleException("Cannot find left- and right-hand side of BNF rule");
         }
-        String lhs = lr[0].trim();
-        out.setLeftHandSide(new NonTerminalToken(lhs));
         if (lr[1].startsWith("^") && !lr[1].equals("^")) {
             // This is a regex line
             String regex = unescapeString(lr[1]);
@@ -116,7 +128,9 @@ public class BnfRule implements Serializable {
      * @param ts The alternative to add
      */
     public void addAlternative(final TokenString ts) {
-        m_alternatives.add(ts);
+        if (!exist(ts)) {
+            m_alternatives.add(ts);
+        }
     }
 
     /**

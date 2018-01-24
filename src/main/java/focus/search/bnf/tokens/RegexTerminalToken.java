@@ -39,12 +39,9 @@ public class RegexTerminalToken extends TerminalToken {
     }
 
     @Override
-    public int match(final String s) {
+    public boolean match(final String s) {
         Matcher matcher = m_pattern.matcher(s);
-        if (matcher.find()) {
-            return matcher.end();
-        }
-        return -1;
+        return matcher.find();
     }
 
     @Override

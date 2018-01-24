@@ -1,4 +1,28 @@
-<simple-filter> := <int-attribute-column> <bool-symbol> <number>;
+<question> := <question> <phrase-or-filter>;
 
-<number> := ^-?[0-9]+\.?[0-9]*;
+<phrase-or-filter> := <phrase> |
+                      <filter>;
+
+<phrase> := <top-n> <int-measure-column> |
+            <bottom-n> <int-measure-column>;
+
+<top-n> := top <integer> |
+           top;
+
+<bottom-n> := bottom <integer> |
+           bottom;
+
+<filter> := <simple-filter> |
+            <number-keyword-filter>;
+
+<simple-filter> := <int-measure-column> <bool-symbol> <number>;
+
+<number-keyword-filter> := <number-keyword> <bool-symbol> <number>;
+
+<number-keyword> ::= sum <measure-column> |
+                     average <measure-column>;
+
+<measure-column> := <int-measure-column> |
+                    <float-measure-column>;
+
 <bool-symbol> := > | < | = | !=;

@@ -53,11 +53,10 @@ public final class IKSegmenter {
     }
 
     public void loadSegmenters(String language) {
-        if ("english".equals(language)) {
-            // 英文
-            // 处理字母的子分词器
-            segmenters.add(new LetterSegmenter());
-        } else {
+        // 英文
+        // 处理字母的子分词器
+        segmenters.add(new LetterSegmenter());
+        if (!"english".equals(language)) {
             // 中文
             // 处理中文数量词的子分词器
             segmenters.add(new CN_QuantifierSegmenter());

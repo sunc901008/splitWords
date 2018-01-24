@@ -35,6 +35,6 @@ public abstract class Token implements Serializable {
 
     public abstract boolean matches(final Token tok);
 
-    public abstract int match(final String s);
+    public abstract boolean match(final String s);
 
 }

@@ -1,6 +1,5 @@
 package focus.search.bnf;
 
-
 import focus.search.bnf.exception.InvalidGrammarException;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.NonTerminalToken;
@@ -12,41 +11,20 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.*;
 
-
 public class BnfParser implements Serializable {
-    /**
-     * Dummy UID
-     */
-    private static final long serialVersionUID = 1L;
 
     /**
      * The list of parsing rules
      */
-    private LinkedList<BnfRule> m_rules;
+    private LinkedList<BnfRule> m_rules = new LinkedList<>();
 
-
-    /**
-     */
-    public BnfParser() {
-        super();
-        m_rules = new LinkedList<>();
-    }
-
-    /**
-     * Creates a new parser by reading its grammar from the contents of
-     * some input stream
-     *
-     * @param is The input stream to read from
-     * @throws InvalidGrammarException Thrown if the grammar to read is invalid
-     */
     public BnfParser(InputStream is) throws InvalidGrammarException {
-        this();
         Scanner s = new Scanner(is);
         setGrammar(s);
     }
 
     public LinkedList<BnfRule> getM_rules() {
-        return m_rules;
+        return this.m_rules;
     }
 
     protected BnfRule getRule(String rule_name) {
@@ -66,35 +44,14 @@ public class BnfParser implements Serializable {
     }
 
     public void setGrammar(String grammar) throws InvalidGrammarException {
-        List<BnfRule> rules = getRules(grammar);
-        addRules(rules);
+        setGrammar(new Scanner(grammar));
     }
 
-    /**
-     */
     public void setGrammar(Scanner scanner) throws InvalidGrammarException {
         List<BnfRule> rules = getRules(scanner);
         addRules(rules);
     }
 
-
-    /**
-     * Converts a string into a list of grammar rules
-     *
-     * @param grammar The string containing the grammar to be used
-     * @return A list of grammar rules
-     * @throws InvalidGrammarException Thrown if the grammar string is invalid
-     */
-    public static List<BnfRule> getRules(String grammar) throws InvalidGrammarException {
-        if (grammar == null) {
-            throw new InvalidGrammarException("Null argument given");
-        }
-        Scanner s = new Scanner(grammar);
-        return getRules(s);
-    }
-
-    /**
-     */
     public static List<BnfRule> getRules(Scanner scanner) throws InvalidGrammarException {
         List<BnfRule> rules = new LinkedList<>();
         StringBuilder current_rule_builder = new StringBuilder();
@@ -131,28 +88,17 @@ public class BnfParser implements Serializable {
         return rules;
     }
 
-    /**
-     * Returns the list of alternative rules
-     *
-     * @param rule_name The rule you need the alternatives
-     * @return a list of strings representing the alternatives
-     */
-    public /*@NotNull*/ List<String> getAlternatives(String rule_name) {
-        for (BnfRule rule : m_rules) {
-            String lhs = rule.getLeftHandSide().getName();
-            if (rule_name.compareTo(lhs) == 0) {
-                List<String> alternatives = new ArrayList<>();
-                for (TokenString alt : rule.getAlternatives()) {
-                    alternatives.add(alt.toString());
-                }
-                return alternatives;
+    public List<String> getAlternatives(String rule_name) {
+        List<String> alternatives = new ArrayList<>();
+        BnfRule rule = getRule(rule_name);
+        if (rule != null) {
+            for (TokenString alt : rule.getAlternatives()) {
+                alternatives.add(alt.toString());
             }
         }
-        return new ArrayList<>(0);
+        return alternatives;
     }
 
-    /**
-     */
     public void addRule(BnfRule rule) {
         NonTerminalToken r_left = rule.getLeftHandSide();
         boolean exist = false;
@@ -169,21 +115,19 @@ public class BnfParser implements Serializable {
             m_rules.add(rule);
     }
 
-    /**
-     */
-    public void addRules(Collection<BnfRule> rules) {
+    private void addRules(Collection<BnfRule> rules) {
         for (BnfRule rule : rules) {
             addRule(rule);
         }
     }
 
-    private BnfRule getRule(final Token tok) {
+    public BnfRule getRule(final Token tok) {
         if (tok == null) {
             return null;
         }
         for (BnfRule rule : m_rules) {
             NonTerminalToken lhs = rule.getLeftHandSide();
-            if (lhs != null && lhs.toString().compareTo(tok.toString()) == 0) {
+            if (lhs != null && lhs.toString().equals(tok.toString())) {
                 return rule;
             }
         }
@@ -192,8 +136,15 @@ public class BnfParser implements Serializable {
 
     public List<TerminalToken> getTerminalTokens() {
         List<TerminalToken> out = new ArrayList<>();
+        List<String> exist = new ArrayList<>();
         for (BnfRule rule : m_rules) {
-            out.addAll(rule.getTerminalTokens());
+            for (TerminalToken tt : rule.getTerminalTokens()) {
+                if (exist.contains(tt.getName())) {
+                    continue;
+                }
+                exist.add(tt.getName());
+                out.add(tt);
+            }
         }
         return out;
     }

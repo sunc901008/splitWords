@@ -25,8 +25,8 @@ public class NonTerminalToken extends Token {
     }
 
     @Override
-    public int match(String s) {
-        return 0;
+    public boolean match(String s) {
+        return false;
     }
 
 }

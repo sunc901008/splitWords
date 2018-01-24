@@ -6,6 +6,5 @@
 
 <math-calc> := <number> <math-symbol> <number>;
 
-<number> := ^-?[0-9]+\.?[0-9]*;
 <bool-symbol> := > | < | = | !=;
 <math-symbol> := + | - | * | / | ^;
