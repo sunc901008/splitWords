@@ -7,6 +7,7 @@ import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusTokens;
 import focus.search.bnf.BnfRule;
 import focus.search.bnf.FocusParser;
+import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.NonTerminalToken;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.bnf.tokens.TokenString;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 public class Home {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InvalidRuleException {
         // column info
         List<Column> columns = new ArrayList<>();
         Column col1 = new Column(42, "views", "int", "measure");
@@ -60,11 +61,16 @@ public class Home {
 
         String language = "english";
         List<FocusTokens> tokens = FocusAnalyzer.test(question, language);
+
         System.out.println("分词:\n\t" + JSON.toJSONString(tokens) + "\n");
 
         List<TerminalToken> terminals = FocusParser.getTerminalTokens();
         System.out.println("最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n");
 
+
+
+        System.out.print(FocusParser.rules(tokens.get(0)));
+/*
         int ubound = tokens.size() - 1;
 
         int error = -1;
@@ -95,7 +101,7 @@ public class Home {
             System.out.println("suggest token:\n\t" + JSON.toJSONString(sug) + "\n");
         } else {
             System.out.println("post to bi data:\n\t" + search(question));
-        }
+        }*/
 
     }
 

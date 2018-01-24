@@ -1,4 +1,4 @@
-<question> := <question> <phrase-or-filter>;
+<question> := <phrase-or-filter>;
 
 <phrase-or-filter> := <phrase> |
                       <filter>;
@@ -26,3 +26,5 @@
                     <float-measure-column>;
 
 <bool-symbol> := > | < | = | !=;
+<integer> := 1;
+<number> := 1;

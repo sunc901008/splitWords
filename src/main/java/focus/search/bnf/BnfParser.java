@@ -127,7 +127,7 @@ public class BnfParser implements Serializable {
         }
         for (BnfRule rule : m_rules) {
             NonTerminalToken lhs = rule.getLeftHandSide();
-            if (lhs != null && lhs.toString().equals(tok.toString())) {
+            if (lhs != null && lhs.getName().equals(tok.getName())) {
                 return rule;
             }
         }

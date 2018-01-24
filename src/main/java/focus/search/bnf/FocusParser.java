@@ -1,6 +1,7 @@
 package focus.search.bnf;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusTokens;
 import focus.search.bnf.exception.InvalidGrammarException;
@@ -50,7 +51,7 @@ public class FocusParser {
     }
 
     private static void parse(String question, String language) throws IOException, InvalidRuleException {
-        Queue<FocusTokens> tokens = FocusAnalyzer.test(question, language);
+        List<FocusTokens> tokens = FocusAnalyzer.test(question, language);
         for (FocusTokens ft : tokens) {
             Set<String> ams = ft.getAmbiguities();
             if (ams != null && ams.size() > 1) {
@@ -61,12 +62,16 @@ public class FocusParser {
         parse(parser.getM_rules().getFirst(), tokens, question);
     }
 
-    private static void parse(BnfRule rule, Queue<FocusTokens> tokens, String question) throws IOException, InvalidRuleException {
-        FocusTokens ft = tokens.poll();
+    private static void parse(BnfRule rule, List<FocusTokens> tokens, String question) throws IOException, InvalidRuleException {
+        FocusTokens ft = tokens.remove(0);
         List<BnfRule> rules = rules(rule, ft);
-        while (!tokens.isEmpty()) {
+        for (BnfRule br : rules) {
 
         }
+    }
+
+    public static List<BnfRule> rules(FocusTokens ft) throws IOException, InvalidRuleException {
+        return rules(parser.getM_rules().getFirst(), ft);
     }
 
     private static List<BnfRule> rules(BnfRule rule, FocusTokens ft) throws IOException, InvalidRuleException {
@@ -86,7 +91,7 @@ public class FocusParser {
                 } else {
                     BnfRule newRule = getRule(token);
                     if (newRule == null) {
-                        throw new InvalidRuleException("Cannot find rule for token " + token);
+                        throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
                     }
                     rules.addAll(rules(newRule, ft));
                 }
