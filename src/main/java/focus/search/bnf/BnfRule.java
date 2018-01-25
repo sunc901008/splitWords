@@ -22,7 +22,7 @@ public class BnfRule implements Serializable {
     /**
      * A list of token strings that for all the possible cases of that rule
      */
-    private List<TokenString> m_alternatives;
+    private List<TokenString> m_alternatives = new ArrayList<>();
 
     /**
      * The left-hand side of the rule. Since we deal with BNF grammars, this
@@ -34,7 +34,6 @@ public class BnfRule implements Serializable {
      * Creates a new empty BNF rule
      */
     public BnfRule() {
-        m_alternatives = new ArrayList<>();
     }
 
     /**
@@ -187,6 +186,21 @@ public class BnfRule implements Serializable {
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder out = new StringBuilder();
+        out.append(m_leftHandSide).append(" := ");
+        boolean first = true;
+        for (TokenString alt : m_alternatives) {
+            if (!first) {
+                out.append(" | ");
+            }
+            first = false;
+            out.append(alt);
+        }
+        return out.toString();
     }
 
 }

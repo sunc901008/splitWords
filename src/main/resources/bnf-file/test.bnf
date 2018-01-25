@@ -1,16 +1,9 @@
-<year-to-date> :=
-     本年截至目前 |
-     本年截至目前的 |
-     本年截至目前为止 |
-     本年截至目前为止的 |
-     本年 |
-     当年 |
-     今年;
+<question> := <simple-filter>;
 
-<quarter-to-date> ::=
-  本季度截至目前 |
-  本季度截至目前的 |
-  本季度截至目前为止 |
-  本季度截至目前为止的 |
-  当季度截至目前 |
-  本季度;
+<simple-filter> := <int-measure-column> <bool-symbol> <number> |
+                   <int-measure-column> <math-symbol> <number>;
+
+<bool-symbol> := > | < | = | !=;
+<math-symbol> := + | - | * | /;
+<integer> := 1;
+<number> := 1;

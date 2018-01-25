@@ -4,8 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
-import focus.search.analyzer.focus.FocusTokens;
+import focus.search.analyzer.focus.FocusToken;
 import focus.search.bnf.BnfRule;
+import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.NonTerminalToken;
@@ -43,14 +44,14 @@ public class Home {
         // add bnf rule
         for (Column col : columns) {
             BnfRule br0 = new BnfRule();
-            br0.setLeftHandSide(new NonTerminalToken("<table-int-attribute-column>"));
+            br0.setLeftHandSide(new NonTerminalToken("<table-int-measure-column>"));
             TokenString alternative_to_add0 = new TokenString();
             alternative_to_add0.add(new TerminalToken(col.getTblName() + " " + col.getName()));
             br0.addAlternative(alternative_to_add0);
             FocusParser.addRule(br0);
 
             BnfRule br1 = new BnfRule();
-            br1.setLeftHandSide(new NonTerminalToken("<int-attribute-column>"));
+            br1.setLeftHandSide(new NonTerminalToken("<int-measure-column>"));
             TokenString alternative_to_add1 = new TokenString();
             alternative_to_add1.add(new TerminalToken(col.getName()));
             br1.addAlternative(alternative_to_add1);
@@ -60,16 +61,29 @@ public class Home {
         String question = "views>5";
 
         String language = "english";
-        List<FocusTokens> tokens = FocusAnalyzer.test(question, language);
+        List<FocusToken> tokens = FocusAnalyzer.test(question, language);
 
         System.out.println("分词:\n\t" + JSON.toJSONString(tokens) + "\n");
 
         List<TerminalToken> terminals = FocusParser.getTerminalTokens();
         System.out.println("最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n");
 
+        System.out.println("------------------------");
+        FocusInst focusNode = FocusParser.parse("views");
+        System.out.println("views:\n\t" + focusNode.toString() + "\n");
 
+        System.out.println("------------------------");
+        BnfRule rule = FocusParser.getRule("<int-measure-column>");
+        System.out.println("rule:\n\t" + JSON.toJSONString(rule) + "\n");
 
-        System.out.print(FocusParser.rules(tokens.get(0)));
+//        for (BnfRule bnfRule : list) {
+//            System.out.println(bnfRule.getLeftHandSide().getName());
+//            bnfRule.getAlternatives().forEach(alt -> {
+//                alt.forEach(ts -> {
+//                    System.out.println("\t" + ts.getName());
+//                });
+//            });
+//        }
 /*
         int ubound = tokens.size() - 1;
 
@@ -81,7 +95,7 @@ public class Home {
             }
         }
 
-        FocusTokens last = tokens.get(ubound);
+        FocusToken last = tokens.get(ubound);
         List<String> sug = getSuggests(terminals, tokens.get(ubound).getWord().toLowerCase());
 
         if (sug.size() == 0 && !last.getType().equals("number")) {

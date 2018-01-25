@@ -10,7 +10,7 @@ import java.util.Set;
  * date: 2018/1/19
  * description:
  */
-public class FocusTokens {
+public class FocusToken {
 
     private String word;
     private String type;
@@ -19,7 +19,7 @@ public class FocusTokens {
     private Set<FocusSuggestions> suggestions;
     private Set<String> ambiguities;
 
-    public FocusTokens(String word, String type, int start, int end) {
+    public FocusToken(String word, String type, int start, int end) {
         this.word = word;
         this.type = type;
         this.start = start;

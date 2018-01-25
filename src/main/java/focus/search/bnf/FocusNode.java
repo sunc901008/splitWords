@@ -1,7 +1,8 @@
 package focus.search.bnf;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import focus.search.analyzer.focus.FocusToken;
 
 /**
  * creator: sunc
@@ -10,25 +11,17 @@ import java.util.List;
  */
 public class FocusNode {
 
-    private List<FocusNode> children = new ArrayList<>();
-
     private String value;
 
-    private String type;
+    private boolean isTerminal = false;
+
+    private FocusToken ft;
 
     public FocusNode() {
     }
 
     public FocusNode(String value) {
         this.value = value;
-    }
-
-    public List<FocusNode> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<FocusNode> children) {
-        this.children = children;
     }
 
     public String getValue() {
@@ -39,11 +32,27 @@ public class FocusNode {
         this.value = value;
     }
 
-    public String getType() {
-        return type;
+    public boolean isTerminal() {
+        return isTerminal;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTerminal(boolean terminal) {
+        isTerminal = terminal;
+    }
+
+    public FocusToken getFt() {
+        return ft;
+    }
+
+    public void setFt(FocusToken ft) {
+        this.ft = ft;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("value", value);
+        json.put("isTerminal", isTerminal);
+        json.put("FocusToken", JSON.parseObject(JSON.toJSONString(ft)));
+        return json;
     }
 }

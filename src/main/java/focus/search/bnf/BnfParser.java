@@ -27,7 +27,7 @@ public class BnfParser implements Serializable {
         return this.m_rules;
     }
 
-    protected BnfRule getRule(String rule_name) {
+    public BnfRule getRule(String rule_name) {
         if (rule_name.startsWith(NonTerminalToken.s_leftSymbol) && !rule_name.endsWith(NonTerminalToken.s_rightSymbol)) {
             return null;
         }

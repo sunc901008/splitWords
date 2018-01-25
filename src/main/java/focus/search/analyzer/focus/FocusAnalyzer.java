@@ -35,7 +35,7 @@ public class FocusAnalyzer {
         Dictionary.addWords(FocusKWDict.dictionaries);
     }
 
-    public static List<FocusTokens> test(String str, String language) throws IOException {
+    public static List<FocusToken> test(String str, String language) throws IOException {
 
         if (analyzer == null) {
             init();
@@ -53,9 +53,9 @@ public class FocusAnalyzer {
         // 重置TokenStream（重置StringReader）
         ts.reset();
         // 迭代获取分词结果
-        List<FocusTokens> tokens = new LinkedList<>();
+        List<FocusToken> tokens = new LinkedList<>();
         while (ts.incrementToken()) {
-            FocusTokens token = new FocusTokens(term.toString(), type.type(), offset.startOffset(), offset.endOffset());
+            FocusToken token = new FocusToken(term.toString(), type.type(), offset.startOffset(), offset.endOffset());
             analyzer.getSuggestions().forEach(token::addSuggestions);
             analyzer.getAmbiguity().forEach(token::addAmbiguities);
             tokens.add(token);
