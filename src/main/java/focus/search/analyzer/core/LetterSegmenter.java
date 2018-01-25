@@ -1,5 +1,8 @@
 package focus.search.analyzer.core;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 英文字符及阿拉伯数字子分词器
  */
@@ -7,6 +10,9 @@ class LetterSegmenter implements ISegmenter {
 
     // 子分词器标签
     private static final String SEGMENTER_NAME = "LETTER_SEGMENTER";
+
+    // 常用连接符
+    public static final List<Character> CONNECT_SYMBOL = Arrays.asList('_', '@', '\'');
 
     /*
      * 词元的开始位置， 同时作为子分词器状态标识 当start > -1 时，标识当前的分词器正在处理字符

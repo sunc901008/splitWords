@@ -16,7 +16,9 @@ import focus.search.meta.Column;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * creator: sunc
@@ -69,12 +71,19 @@ public class Home {
         System.out.println("最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n");
 
         System.out.println("------------------------");
-        FocusInst focusNode = FocusParser.parse("views");
-        System.out.println("views:\n\t" + focusNode.toString() + "\n");
+        FocusInst focusInst = FocusParser.parse("user");
+        System.out.println("解析:\n\t" + focusInst.toJSON().toJSONString() + "\n");
 
-        System.out.println("------------------------");
-        BnfRule rule = FocusParser.getRule("<int-measure-column>");
-        System.out.println("rule:\n\t" + JSON.toJSONString(rule) + "\n");
+        if (focusInst.isSuggestion()) {
+            Set<String> suggestions = new HashSet<>();
+            focusInst.getFocusPhrases().forEach(focusPhrase -> suggestions.add(focusPhrase.getFirstNode().getValue()));
+            System.out.println("------------------------");
+            System.out.println("提示:\n\t" + JSON.toJSONString(suggestions) + "\n");
+        }
+//
+//        System.out.println("------------------------");
+//        BnfRule rule = FocusParser.getRule("<int-measure-column>");
+//        System.out.println("rule:\n\t" + JSON.toJSONString(rule) + "\n");
 
 //        for (BnfRule bnfRule : list) {
 //            System.out.println(bnfRule.getLeftHandSide().getName());

@@ -23,7 +23,7 @@ class CharacterUtil {
         if (input >= '0' && input <= '9') {
             return CHAR_ARABIC;
 
-        } else if ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z')) {
+        } else if ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') || LetterSegmenter.CONNECT_SYMBOL.contains(input)) {
             return CHAR_ENGLISH;
 
         } else if (input == ' ') {// 空格不处理

@@ -24,7 +24,7 @@ public class TerminalToken extends Token {
 
     @Override
     public boolean match(final String s) {
-        return getName().equalsIgnoreCase(s);
+        return getName().toLowerCase().startsWith(s.toLowerCase());
     }
 
 }

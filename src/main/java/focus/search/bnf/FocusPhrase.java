@@ -31,6 +31,8 @@ public class FocusPhrase {
     }
 
     public FocusNode getFirstNode() {
+        if (focusNodes.isEmpty())
+            return null;
         return focusNodes.get(0);
     }
 
@@ -61,9 +63,9 @@ public class FocusPhrase {
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("instName", instName);
-        json.put("focusNodes", focusNodes);
-//        JSONArray jsonArray = new JSONArray();
-//        focusNodes.forEach(f -> jsonArray.add(f.toJSON()));
+        JSONArray jsonArray = new JSONArray();
+        focusNodes.forEach(f -> jsonArray.add(f.toJSON()));
+        json.put("focusNodes", jsonArray);
         return json;
     }
 

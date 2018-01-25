@@ -1,7 +1,13 @@
 <question> := <simple-filter>;
 
-<simple-filter> := <int-measure-column> <bool-symbol> <number> |
-                   <int-measure-column> <math-symbol> <number>;
+<simple-filter> := <all-int-measure-column> <symbol> <number> |
+                   <all-int-measure-column>;
+
+<symbol> := <bool-symbol> |
+            <math-symbol>;
+
+<all-int-measure-column> := <int-measure-column> |
+                            <table-int-measure-column>;
 
 <bool-symbol> := > | < | = | !=;
 <math-symbol> := + | - | * | /;

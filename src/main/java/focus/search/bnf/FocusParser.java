@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
+import focus.search.base.Constant;
 import focus.search.bnf.exception.InvalidGrammarException;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
@@ -75,12 +76,32 @@ public class FocusParser {
     private static FocusInst parse(List<FocusToken> tokens) throws InvalidRuleException {
         FocusInst fi = new FocusInst();
         FocusToken focusToken = tokens.get(0);
-        List<BnfRule> rules = parse(parser.getM_rules(), focusToken.getWord());
+
+        List<FocusPhrase> focusPhrases = focusPhrases(focusToken.getWord());
+        if (focusPhrases == null) {
+            return null;
+        }
+
+        fi.setFocusPhrases(focusPhrases);
+
+        if (!fi.firstNode().getValue().equals(focusToken.getWord())) {
+            fi.setType(Constant.SUGGESTION);
+        }
+
+        return fi;
+    }
+
+    private static List<FocusPhrase> focusPhrases(String word) throws InvalidRuleException {
+        List<BnfRule> rules = parse(parser.getM_rules(), word);
+
+        System.out.println("*****************************");
+        System.out.println(JSON.toJSONString(rules));
+        System.out.println("*****************************");
+
         if (rules.size() == 0) {
             return null;
         }
         BnfRule rule = rules.remove(0);
-
         List<FocusPhrase> focusPhrases = new ArrayList<>();
         List<BnfRule> removes = new ArrayList<>();
         for (TokenString alt : rule.getAlternatives()) {
@@ -99,34 +120,27 @@ public class FocusParser {
         }
         rules.removeAll(removes);
 
-        System.out.println("*****************************");
-        System.out.println(JSON.toJSONString(rules));
-        System.out.println("*****************************");
-
-        int loop = focusPhrases.size();
-        while (loop > 0) {
-            FocusPhrase focusPhrase = focusPhrases.remove(0);
-            FocusNode fn = focusPhrase.getFirstNode();
-            BnfRule br = findRule(rules, fn.getValue());
-            removes.add(br);
-            for (TokenString ts : br.getAlternatives()) {
-                FocusPhrase newFp = new FocusPhrase(focusPhrase.getInstName());
-                for (Token token : ts) {
-                    FocusNode newFn = new FocusNode(token.getName());
-                    newFp.addPn(newFn);
+        while (!rules.isEmpty()) {
+            int loop = focusPhrases.size();
+            while (loop > 0) {
+                FocusPhrase focusPhrase = focusPhrases.remove(0);
+                FocusNode fn = focusPhrase.getFirstNode();
+                BnfRule br = findRule(rules, fn.getValue());
+                removes.add(br);
+                for (TokenString ts : br.getAlternatives()) {
+                    FocusPhrase newFp = new FocusPhrase(focusPhrase.getInstName());
+                    for (Token token : ts) {
+                        FocusNode newFn = new FocusNode(token.getName());
+                        newFp.addPn(newFn);
+                    }
+                    newFp.addPns(focusPhrase.subNodes(1));
+                    focusPhrases.add(newFp);
                 }
-                newFp.addPns(focusPhrase.subNodes(1));
-                focusPhrases.add(newFp);
+                loop--;
             }
-            loop--;
+            rules.removeAll(removes);
         }
-        rules.removeAll(removes);
-        System.out.println("*****************************");
-        System.out.println(JSON.toJSONString(rules));
-        System.out.println("*****************************");
-
-        fi.setFocusPhrases(focusPhrases);
-        return fi;
+        return focusPhrases;
     }
 
     private static BnfRule findRule(List<BnfRule> rules, Token token) throws InvalidRuleException {
