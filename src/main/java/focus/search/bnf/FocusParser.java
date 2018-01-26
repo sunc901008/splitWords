@@ -24,6 +24,7 @@ import java.util.Set;
 public class FocusParser {
     private static String file3 = System.getProperty("user.dir") + "/src/main/resources/bnf-file/test.bnf";
     private static BnfParser parser = null;
+    private static final int MAX_RULE_LOOP = 5;
 
     static {
         init();
@@ -61,7 +62,8 @@ public class FocusParser {
 
     private static FocusInst parse(String question, String language) throws IOException, InvalidRuleException {
         List<FocusToken> tokens = FocusAnalyzer.test(question, language);
-        for (FocusToken ft : tokens) {
+        List<FocusToken> copyTokens = new ArrayList<>(tokens);
+        for (FocusToken ft : copyTokens) {
             Set<String> ams = ft.getAmbiguities();
             if (ams != null && ams.size() > 1) {
                 System.out.println("ambiguity:\t" + ft.getStart() + "-" + ft.getEnd() + "," + ft.getWord() + "," + JSON.toJSONString(ams));
@@ -69,11 +71,32 @@ public class FocusParser {
             }
         }
         FocusInst fi = new FocusInst();
-        fi.addPfs(parse(tokens));
+        int flag = 0;
+        int position = 0;
+        int error = 0;
+        while (flag >= 0) {
+            if (flag > 0) {
+                copyTokens = copyTokens.subList(flag, copyTokens.size());
+            }
+            FocusSubInst fsi = parse(copyTokens);
+            if (fsi == null) {
+                fi.position = tokens.get(position).getStart();
+                break;
+            }
+            flag = fsi.getIndex();
+            fi.addPfs(fsi.getFps());
+            error = position;
+            position = position + flag;
+        }
+        if (error < position) {
+            FocusSubInst fsi = parse(tokens.subList(error, position));
+            assert fsi != null;
+            fi.addPfs(fsi.getFps());
+        }
         return fi;
     }
 
-    private static List<FocusPhrase> parse(List<FocusToken> tokens) throws InvalidRuleException {
+    private static FocusSubInst parse(List<FocusToken> tokens) throws InvalidRuleException {
         FocusToken focusToken = tokens.get(0);
 
         List<FocusPhrase> focusPhrases = focusPhrases(focusToken);
@@ -84,23 +107,68 @@ public class FocusParser {
         for (int i = 1; i < tokens.size(); i++) {
             FocusToken ft = tokens.get(i);
             List<BnfRule> rules = parseRules(ft.getWord());
+            List<FocusPhrase> tmp = new ArrayList<>(focusPhrases);
+            replace(rules, focusPhrases, ft, i);
+            if (same(tmp, focusPhrases)) {// 识别后的规则无变化，则表示识别结束
+                FocusSubInst fsi = new FocusSubInst();
+                fsi.setIndex(i);
+                for (FocusPhrase fp : tmp) {
+                    if (fp.size() == i) {
+                        fsi.addFps(fp);
+                    }
+                }
+                return fsi;
+            } else {
+                List<FocusPhrase> remove = new ArrayList<>();
+                for (FocusPhrase fp : focusPhrases) {
+                    if (fp.size() <= i) {
+                        remove.add(fp);
+                    }
+                }
+                focusPhrases.removeAll(remove);
+            }
 
-            if (!replace(rules, focusPhrases, ft, i)) {
-                System.out.println("*************error****************");
-                System.out.println("index:" + i + " position:" + ft.getStart() + " token:" + JSON.toJSONString(ft));
-                System.out.println("*************error****************");
-                break;
+        }
+
+        FocusSubInst fsi = new FocusSubInst();
+        fsi.setIndex(-1);
+        for (FocusPhrase fp : focusPhrases) {
+            if (fp.size() == tokens.size()) {
+                fsi.addFps(fp);
+            }
+        }
+        if (fsi.isEmpty()) {
+            for (FocusPhrase fp : focusPhrases) {
+                if (fp.size() > tokens.size()) {
+                    fsi.addFps(fp);
+                }
             }
         }
 
-        return focusPhrases;
+//        FocusToken ft = tokens.get(tokens.size() - 1);
+//        List<BnfRule> rules = parseRules(ft.getWord());
+//        replace(rules, focusPhrases, ft, tokens.size() - 1);
+
+        return fsi;
     }
 
-    private static boolean replace(List<BnfRule> rules, List<FocusPhrase> focusPhrases, FocusToken focusToken, int position) {
-        List<FocusPhrase> tmp = new ArrayList<>();
+    private static boolean same(List<FocusPhrase> o1, List<FocusPhrase> o2) {
+        if (o1.size() != o2.size()) {
+            return false;
+        }
+        for (int i = 0; i < o1.size(); i++) {
+            if (!o1.get(i).toJSON().equals(o2.get(i).toJSON())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void replace(List<BnfRule> rules, List<FocusPhrase> focusPhrases, FocusToken focusToken, int position) {
         List<BnfRule> removes = new ArrayList<>();
-        boolean match = false;
-        while (!rules.isEmpty()) {
+        int max_rule = 1;
+        while (!rules.isEmpty() && max_rule < MAX_RULE_LOOP) {
+            max_rule++;
             int loop = focusPhrases.size();
             while (loop > 0 && !focusPhrases.isEmpty()) {
                 FocusPhrase focusPhrase = focusPhrases.remove(0);
@@ -113,7 +181,6 @@ public class FocusParser {
                     try {
                         br = findRule(rules, fn.getValue());
                     } catch (InvalidRuleException e) {
-                        tmp.add(focusPhrase);
                         loop--;
                         continue;
                     }
@@ -138,46 +205,44 @@ public class FocusParser {
             }
 
             // filter phrase
-            if (!focusPhrases.isEmpty()) {// 部分规则能够匹配
-                List<FocusPhrase> fps0 = new ArrayList<>();// 需要过滤掉的规则
-                List<FocusPhrase> fps1 = new ArrayList<>();// 可能要过滤掉的规则
-                match = false;
-                for (FocusPhrase fp : focusPhrases) {
-                    if (fp.size() < position) {
-                        fps0.add(fp);
-                    } else if (fp.size() == position) {
-                        fps1.add(fp);
-                    } else {
-                        match = true;
-                    }
-                }
-                focusPhrases.removeAll(fps0);
-                fps0.clear();
-                if (match) {
-                    focusPhrases.removeAll(fps1);
-                    fps1.clear();
-                }
-                tmp.clear();
-            } else {// 没有规则能够匹配
-                match = false;
-                focusPhrases.clear();
-                focusPhrases.addAll(tmp);
-                break;
-            }
+//            if (!focusPhrases.isEmpty()) {// 部分规则能够匹配
+//                List<FocusPhrase> fps0 = new ArrayList<>();// 需要过滤掉的规则
+//                List<FocusPhrase> fps1 = new ArrayList<>();// 可能要过滤掉的规则
+//                boolean match = false;
+//                for (FocusPhrase fp : focusPhrases) {
+//                    if (fp.size() < position) {
+//                        fps0.add(fp);
+//                    } else if (fp.size() == position) {
+//                        fps1.add(fp);
+//                    } else {
+//                        match = true;
+//                    }
+//                }
+//                focusPhrases.removeAll(fps0);
+//                fps0.clear();
+//                if (match) {
+//                    focusPhrases.removeAll(fps1);
+//                    fps1.clear();
+//                }
+//                tmp.clear();
+//            } else {// 没有规则能够匹配
+//                focusPhrases.clear();
+//                focusPhrases.addAll(tmp);
+//                break;
+//            }
 
             rules.removeAll(removes);
             removes.clear();
         }
-        return match;
     }
 
     private static List<FocusPhrase> focusPhrases(FocusToken focusToken) throws InvalidRuleException {
         String word = focusToken.getWord();
         List<BnfRule> rules = parseRules(parser.getM_rules(), word);
 
-        System.out.println("*****************************");
-        System.out.println(JSON.toJSONString(rules));
-        System.out.println("*****************************");
+//        System.out.println("*****************************");
+//        System.out.println(JSON.toJSONString(rules));
+//        System.out.println("*****************************");
 
         if (rules.size() == 0) {
             return null;

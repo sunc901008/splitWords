@@ -16,6 +16,9 @@ public class FocusInst {
 
     private List<FocusPhrase> focusPhrases = new ArrayList<>();
 
+    // 记录出错位置
+    public int position = -1;
+
     public List<FocusPhrase> getFocusPhrases() {
         return focusPhrases;
     }
@@ -24,6 +27,12 @@ public class FocusInst {
         if (focusPhrases.isEmpty())
             return null;
         return focusPhrases.get(0).getFirstNode();
+    }
+
+    public FocusPhrase lastFocusPhrase() {
+        if (focusPhrases.isEmpty())
+            return null;
+        return focusPhrases.get(focusPhrases.size() - 1);
     }
 
     public void setFocusPhrases(List<FocusPhrase> focusPhrases) {
@@ -43,6 +52,7 @@ public class FocusInst {
         JSONArray jsonArray = new JSONArray();
         focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
         json.put("focusPhrases", jsonArray);
+        json.put("position", position);
         return json;
     }
 
