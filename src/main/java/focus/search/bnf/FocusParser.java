@@ -24,7 +24,7 @@ import java.util.Set;
 public class FocusParser {
     private static String file3 = System.getProperty("user.dir") + "/src/main/resources/bnf-file/test.bnf";
     private static BnfParser parser = null;
-    private static final int MAX_RULE_LOOP = 5;
+    private static final int MAX_RULE_LOOP = 10;
 
     static {
         init();
