@@ -76,18 +76,17 @@ class LetterSegmenter implements ISegmenter {
             }
         } else {// 当前的分词器正在处理字符
             if (CharacterUtil.CHAR_ARABIC == context.getCurrentCharType()
-                    || CharacterUtil.CHAR_ENGLISH == context.getCurrentCharType()) {
+                    || CharacterUtil.CHAR_ENGLISH == context.getCurrentCharType()
+                    || CharacterUtil.CHAR_USELESS == context.getCurrentCharType()) {
                 // 记录下可能的结束位置
                 this.end = context.getCursor();
 
-            } else if (CharacterUtil.CHAR_USELESS == context.getCurrentCharType()) {
-                // 记录下可能的结束位置
-                this.end = context.getCursor();
             } else {
                 // 遇到非Letter字符，输出词元
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start
-                        + 1, Lexeme.TYPE_LETTER);
-                context.addLexeme(newLexeme);
+                if (isMixLetter(String.valueOf(context.getSegmentBuff(), this.start, this.end - this.start + 1))) {
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_LETTER);
+                    context.addLexeme(newLexeme);
+                }
                 this.start = -1;
                 this.end = -1;
             }
@@ -97,9 +96,10 @@ class LetterSegmenter implements ISegmenter {
         if (context.isBufferConsumed()) {
             if (this.start != -1 && this.end != -1) {
                 // 缓冲以读完，输出词元
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start
-                        + 1, Lexeme.TYPE_LETTER);
-                context.addLexeme(newLexeme);
+                if (isMixLetter(String.valueOf(context.getSegmentBuff(), this.start, this.end - this.start + 1))) {
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_LETTER);
+                    context.addLexeme(newLexeme);
+                }
                 this.start = -1;
                 this.end = -1;
             }
@@ -107,6 +107,25 @@ class LetterSegmenter implements ISegmenter {
 
         // 判断是否锁定缓冲区
         return !(this.start == -1 && this.end == -1);
+    }
+
+    private boolean isMixLetter(String text) {
+        boolean letter = false;
+        boolean unLetter = false;
+        for (char input : text.toCharArray()) {
+            if (input == ' ') {
+                return letter && unLetter;
+            }
+            // 含有非英文字符
+            if ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') || LetterSegmenter.CONNECT_SYMBOL.contains(input)) {
+                letter = true;
+            } else {
+                unLetter = true;
+            }
+            if (letter && unLetter)
+                return true;
+        }
+        return false;
     }
 
     /**

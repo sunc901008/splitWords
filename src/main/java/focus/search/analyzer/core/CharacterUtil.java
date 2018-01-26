@@ -20,7 +20,7 @@ class CharacterUtil {
      * @return int CharacterUtil定义的字符类型常量
      */
     static int identifyCharType(char input) {
-        if (input >= '0' && input <= '9') {
+        if (input >= '0' && input <= '9' || PunctuationSegmenter.Num_Connector == input) {
             return CHAR_ARABIC;
 
         } else if ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') || LetterSegmenter.CONNECT_SYMBOL.contains(input)) {

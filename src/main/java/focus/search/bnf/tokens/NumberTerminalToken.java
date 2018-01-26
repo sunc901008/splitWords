@@ -30,6 +30,9 @@ public class NumberTerminalToken extends TerminalToken {
 
     @Override
     public boolean match(final String s) {
+        if (!s.contains(".")) {
+            return false;
+        }
         try {
             //noinspection ResultOfMethodCallIgnored
             Float.parseFloat(s);

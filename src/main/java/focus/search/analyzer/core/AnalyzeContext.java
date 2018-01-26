@@ -212,13 +212,12 @@ class AnalyzeContext {
     void outputToResult() throws IOException {
         int index = 0;
         for (; index <= this.cursor; ) {
-            // 跳过非CJK字符
             if (CharacterUtil.CHAR_USELESS == this.charTypes[index]) {
                 index++;
                 continue;
             }
 
-            AnalyzeContext context = new AnalyzeContext();
+//            AnalyzeContext context = new AnalyzeContext();
             // 从pathMap找出对应index位置的LexemePath
             LexemePath path = this.pathMap.get(index);
             if (path != null) {
@@ -227,23 +226,23 @@ class AnalyzeContext {
                 while (l != null) {
                     // 将index移至lexeme后
                     index = l.getBegin() + l.getLength();
-                    if (l.getType() != null) {
-                        String text = String.valueOf(this.segmentBuff, l.getBegin(), l.getLength());
-                        context.fillBuffer(new StringReader(text));
-                        context.initCursor();
-                        do {
-                            focusSegmenter.analyze(context);
-                            if (context.needRefillBuffer()) {
-                                break;
-                            }
-                        } while (context.moveCursor());
-                        Lexeme tmp = context.orgLexemes.peekFirst();
-                        context.reset();
-                        focusSegmenter.reset();
-                        for (String ambiguity : tmp.getAmbiguity()) {
-                            l.addAmbiguity(ambiguity);
-                        }
-                    }
+//                    if (l.getType() != null) {
+//                        String text = String.valueOf(this.segmentBuff, l.getBegin(), l.getLength());
+//                        context.fillBuffer(new StringReader(text));
+//                        context.initCursor();
+//                        do {
+//                            focusSegmenter.analyze(context);
+//                            if (context.needRefillBuffer()) {
+//                                break;
+//                            }
+//                        } while (context.moveCursor());
+//                        Lexeme tmp = context.orgLexemes.peekFirst();
+//                        context.reset();
+//                        focusSegmenter.reset();
+//                        for (String ambiguity : tmp.getAmbiguity()) {
+//                            l.addAmbiguity(ambiguity);
+//                        }
+//                    }
                     this.results.add(l);
                     l = path.pollFirst();
                     if (l != null) {
@@ -256,37 +255,37 @@ class AnalyzeContext {
             } else {// pathMap中找不到index对应的LexemePath
                 // 错误提示
                 String text = String.valueOf(this.segmentBuff, index, available - index);
-                context.fillBuffer(new StringReader(text));
-                context.initCursor();
-                boolean suggest = true;
-                do {
-                    focusSegmenter.analyze(context);
-                    if (focusSegmenter.getTmpHits().size() == 0) {
-                        suggest = false;
-                    }
-                    if (context.needRefillBuffer()) {
-                        break;
-                    }
-                } while (context.moveCursor());
-                context.reset();
+//                context.fillBuffer(new StringReader(text));
+//                context.initCursor();
+//                boolean suggest = true;
+//                do {
+//                    focusSegmenter.analyze(context);
+//                    if (focusSegmenter.getTmpHits().size() == 0) {
+//                        suggest = false;
+//                    }
+//                    if (context.needRefillBuffer()) {
+//                        break;
+//                    }
+//                } while (context.moveCursor());
+//                context.reset();
 
                 Lexeme singleCharLexeme = new Lexeme(this.buffOffset, index, available - index, Lexeme.TYPE_ERROR);
 
-                if (suggest) {
-                    singleCharLexeme.setLexemeType(Lexeme.TYPE_SUGGEST);
-                    List<String> exist = new ArrayList<>();
-                    for (Hit hit : focusSegmenter.getTmpHits()) {
-                        for (FocusSuggestions fs : hit.getSuggestions()) {
-                            if (exist.contains(fs.getWord() + "_" + fs.getType())) {
-                                continue;
-                            }
-                            exist.add(fs.getWord() + "_" + fs.getType());
-                            fs.setWord(text + fs.getWord());
-                            singleCharLexeme.addSuggestion(fs);
-                        }
-                    }
-                    exist.clear();
-                }
+//                if (suggest) {
+//                    singleCharLexeme.setLexemeType(Lexeme.TYPE_SUGGEST);
+//                    List<String> exist = new ArrayList<>();
+//                    for (Hit hit : focusSegmenter.getTmpHits()) {
+//                        for (FocusSuggestions fs : hit.getSuggestions()) {
+//                            if (exist.contains(fs.getWord() + "_" + fs.getType())) {
+//                                continue;
+//                            }
+//                            exist.add(fs.getWord() + "_" + fs.getType());
+//                            fs.setWord(text + fs.getWord());
+//                            singleCharLexeme.addSuggestion(fs);
+//                        }
+//                    }
+//                    exist.clear();
+//                }
                 focusSegmenter.reset();
 
                 this.results.add(singleCharLexeme);

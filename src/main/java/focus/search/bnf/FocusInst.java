@@ -16,16 +16,6 @@ public class FocusInst {
 
     private List<FocusPhrase> focusPhrases = new ArrayList<>();
 
-    private String type = Constant.INSTRUCTION;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public List<FocusPhrase> getFocusPhrases() {
         return focusPhrases;
     }
@@ -40,12 +30,12 @@ public class FocusInst {
         this.focusPhrases = focusPhrases;
     }
 
-    public void addPfs(FocusPhrase focusPhrase) {
+    public void addPf(FocusPhrase focusPhrase) {
         this.focusPhrases.add(focusPhrase);
     }
 
-    public boolean isSuggestion() {
-        return Constant.SUGGESTION.equals(type);
+    public void addPfs(List<FocusPhrase> focusPhrases) {
+        this.focusPhrases.addAll(focusPhrases);
     }
 
     public JSONObject toJSON() {

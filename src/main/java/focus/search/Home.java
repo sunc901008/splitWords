@@ -60,7 +60,7 @@ public class Home {
             FocusParser.addRule(br1);
         }
 
-        String question = "views>5";
+        String question = "views>6 id";
 
         String language = "english";
         List<FocusToken> tokens = FocusAnalyzer.test(question, language);
@@ -70,20 +70,34 @@ public class Home {
         List<TerminalToken> terminals = FocusParser.getTerminalTokens();
         System.out.println("最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n");
 
+//        System.out.println("------------------------");
+//        BnfRule rule0 = FocusParser.getRule("<symbol>");
+//
+//        System.out.println("rule0:\n\t" + JSON.toJSONString(rule0) + "\n");
+
+
         System.out.println("------------------------");
-        FocusInst focusInst = FocusParser.parse("user");
+        FocusInst focusInst = FocusParser.parse(question);
         System.out.println("解析:\n\t" + focusInst.toJSON().toJSONString() + "\n");
 
-        if (focusInst.isSuggestion()) {
-            Set<String> suggestions = new HashSet<>();
-            focusInst.getFocusPhrases().forEach(focusPhrase -> suggestions.add(focusPhrase.getFirstNode().getValue()));
-            System.out.println("------------------------");
-            System.out.println("提示:\n\t" + JSON.toJSONString(suggestions) + "\n");
-        }
+//        if (focusInst.isSuggestion()) {
+//            Set<String> suggestions = new HashSet<>();
+//            focusInst.getFocusPhrases().forEach(focusPhrase -> suggestions.add(focusPhrase.getFirstNode().getValue()));
+//            System.out.println("------------------------");
+//            System.out.println("提示:\n\t" + JSON.toJSONString(suggestions) + "\n");
+//        }
+
+//        System.out.println("------------------------");
+//        List<BnfRule> rule = FocusParser.parseRules(">");
+//        System.out.println(">:\n\t" + JSON.toJSONString(rule) + "\n");
 //
 //        System.out.println("------------------------");
-//        BnfRule rule = FocusParser.getRule("<int-measure-column>");
-//        System.out.println("rule:\n\t" + JSON.toJSONString(rule) + "\n");
+//        List<BnfRule> rule1 = FocusParser.parseRules("4.0");
+//        System.out.println("4.0:\n\t" + JSON.toJSONString(rule1) + "\n");
+//
+//        System.out.println("------------------------");
+//        List<BnfRule> rule2 = FocusParser.parseRules("id");
+//        System.out.println("id:\n\t" + JSON.toJSONString(rule2) + "\n");
 
 //        for (BnfRule bnfRule : list) {
 //            System.out.println(bnfRule.getLeftHandSide().getName());

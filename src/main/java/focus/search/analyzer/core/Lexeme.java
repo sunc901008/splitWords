@@ -38,7 +38,8 @@ public class Lexeme implements Comparable<Lexeme> {
     public static final String SUGGEST = "suggest";
     public static final int TYPE_ERROR = -1;
 
-    public static final String ARABIC = "number";
+    public static final String INTEGER = "integer";
+    public static final String NUMBER = "number";
 
     // 词元的起始位移
     private int offset;
@@ -229,7 +230,13 @@ public class Lexeme implements Comparable<Lexeme> {
                 return "ENGLISH";
 
             case TYPE_ARABIC:
-                return ARABIC;
+                try {
+                    //noinspection ResultOfMethodCallIgnored
+                    Integer.parseInt(lexemeText);
+                } catch (NumberFormatException e) {
+                    return NUMBER;
+                }
+                return INTEGER;
 
             case TYPE_LETTER:
                 return "LETTER";
@@ -247,7 +254,7 @@ public class Lexeme implements Comparable<Lexeme> {
                 return "COUNT";
 
             case TYPE_CNUM:
-                return ARABIC;
+                return NUMBER;
 
 //            case TYPE_CQUAN:
 //                return "TYPE_CQUAN";

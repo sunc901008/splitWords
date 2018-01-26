@@ -8,7 +8,7 @@ class PunctuationSegmenter implements ISegmenter {
     // 子分词器标签
     private static final String SEGMENTER_NAME = "PUNCTUATION_SEGMENTER";
     // 数字符号
-    private static final char Num_Connector = '.';
+    public static final char Num_Connector = '.';
 
     /*
      * 符号起始位置
@@ -87,8 +87,7 @@ class PunctuationSegmenter implements ISegmenter {
         if (context.isBufferConsumed()) {
             if (this.punctuationStart != -1 && this.punctuationEnd != -1) {
                 // 生成已切分的词元
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.punctuationStart, this.punctuationEnd
-                        - this.punctuationStart + 1, Lexeme.TYPE_PUNC);
+                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.punctuationStart, this.punctuationEnd - this.punctuationStart + 1, Lexeme.TYPE_PUNC);
                 context.addLexeme(newLexeme);
                 this.punctuationStart = -1;
                 this.punctuationEnd = -1;
@@ -116,15 +115,7 @@ class PunctuationSegmenter implements ISegmenter {
                 this.arabicEnd = context.getCursor();
             } else {
                 // 判断是否是数字连接符号
-                if (context.getCurrentChar() != Num_Connector) {
-                    // //遇到非Arabic字符,输出词元
-                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.arabicStart, this.arabicEnd
-                            - this.arabicStart + 1, Lexeme.TYPE_ARABIC);
-                    context.addLexeme(newLexeme);
-                    this.arabicStart = -1;
-                    this.arabicEnd = -1;
-                }
-                // 不输出数字，但不标记结束
+                addLexeme(context);
             }
         }
 
@@ -132,16 +123,32 @@ class PunctuationSegmenter implements ISegmenter {
         if (context.isBufferConsumed()) {
             if (this.arabicStart != -1 && this.arabicEnd != -1) {
                 // 生成已切分的词元
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.arabicStart, this.arabicEnd
-                        - this.arabicStart + 1, Lexeme.TYPE_ARABIC);
-                context.addLexeme(newLexeme);
-                this.arabicStart = -1;
-                this.arabicEnd = -1;
+                addLexeme(context);
             }
         }
 
         // 判断是否锁定缓冲区
         return !(this.arabicStart == -1 && this.arabicEnd == -1);
+    }
+
+    private void addLexeme(AnalyzeContext context) {
+        Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.arabicStart, this.arabicEnd - this.arabicStart + 1, Lexeme.TYPE_ARABIC);
+
+        newLexeme.setType(getType(String.valueOf(context.getSegmentBuff(), newLexeme.getBegin(), newLexeme.getLength())));
+
+        context.addLexeme(newLexeme);
+        this.arabicStart = -1;
+        this.arabicEnd = -1;
+    }
+
+    private String getType(String text) {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            return "number";
+        }
+        return "integer";
     }
 
 }

@@ -2,6 +2,7 @@ package focus.search.bnf;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  */
 public class FocusPhrase {
     private String instName;
+    private String type = Constant.SUGGESTION;
     private List<FocusNode> focusNodes = new ArrayList<>();
 
     public FocusPhrase() {
@@ -20,6 +22,14 @@ public class FocusPhrase {
 
     public FocusPhrase(String instName) {
         this.instName = instName;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getInstName() {
@@ -31,9 +41,17 @@ public class FocusPhrase {
     }
 
     public FocusNode getFirstNode() {
-        if (focusNodes.isEmpty())
-            return null;
-        return focusNodes.get(0);
+        return getNode(0);
+    }
+
+    public FocusNode getNode(int index) {
+        if (focusNodes.size() > index)
+            return focusNodes.get(index);
+        return null;
+    }
+
+    public boolean isSuggestion() {
+        return Constant.SUGGESTION.equals(type);
     }
 
     public List<FocusNode> subNodes(int begin) {
@@ -66,6 +84,7 @@ public class FocusPhrase {
         JSONArray jsonArray = new JSONArray();
         focusNodes.forEach(f -> jsonArray.add(f.toJSON()));
         json.put("focusNodes", jsonArray);
+        json.put("type", type);
         return json;
     }
 
