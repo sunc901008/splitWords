@@ -60,7 +60,7 @@ public class Home {
             FocusParser.addRule(br1);
         }
 
-        String question = "views>6 id";
+        String question = "views>5";
 
         String language = "english";
         List<FocusToken> tokens = FocusAnalyzer.test(question, language);
