@@ -1,11 +1,11 @@
 <question> := <simple-filter> |
-              <top-n> <all-int-measure-column>;
+              <top-n>;
 
 <simple-filter> := <all-int-measure-column> <symbol> <integer> |
                    <all-int-measure-column>;
 
-<top-n> := top <integer> |
-           top;
+<top-n> := top <integer> <all-int-measure-column> |
+           top <all-int-measure-column>;
 
 <symbol> := <bool-symbol> |
             <math-symbol>;

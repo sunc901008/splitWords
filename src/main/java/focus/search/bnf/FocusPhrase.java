@@ -44,10 +44,20 @@ public class FocusPhrase {
         return getNode(0);
     }
 
+    public FocusNode getLastNode() {
+        return getNode(size() - 1);
+    }
+
     public FocusNode getNode(int index) {
-        if (focusNodes.size() > index)
+        if (focusNodes.size() > index && index >= 0)
             return focusNodes.get(index);
         return null;
+    }
+
+    public void removeNode(int index) {
+        if (focusNodes.size() > index) {
+            this.focusNodes.remove(index);
+        }
     }
 
     public boolean isSuggestion() {
@@ -68,6 +78,10 @@ public class FocusPhrase {
 
     public void addPn(FocusNode fn) {
         this.focusNodes.add(fn);
+    }
+
+    public void addPn(int index, FocusNode fn) {
+        this.focusNodes.add(index, fn);
     }
 
     public void addPns(List<FocusNode> focusNodes) {
