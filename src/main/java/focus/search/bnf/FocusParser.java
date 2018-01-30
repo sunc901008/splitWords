@@ -9,9 +9,10 @@ import focus.search.bnf.exception.InvalidGrammarException;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.*;
 import focus.search.instruction.InstructionBuild;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,8 @@ import java.util.Set;
  * description:
  */
 public class FocusParser {
-    private static String file3 = System.getProperty("user.dir") + "/src/main/resources/bnf-file/test.bnf";
+
+    private static String file3 = "bnf-file/test.bnf";
     private static BnfParser parser = null;
     private static final int MAX_RULE_LOOP = 10;
 
@@ -34,8 +36,9 @@ public class FocusParser {
     private static void init() {
         if (parser == null)
             try {
-                parser = new BnfParser(new FileInputStream(file3));
-            } catch (InvalidGrammarException | FileNotFoundException e) {
+                ResourceLoader resolver = new DefaultResourceLoader();
+                parser = new BnfParser(new FileInputStream(resolver.getResource(file3).getFile()));
+            } catch (InvalidGrammarException | IOException e) {
                 e.printStackTrace();
             }
     }
@@ -79,9 +82,7 @@ public class FocusParser {
                     FocusNode tmpNode = focusPhrase.getNode(sug);
                     if (!tmpNode.isTerminal()) {
                         System.out.println("------------------------");
-                        String value = tmpNode.getValue();
-                        System.out.println("提示:\n\t" + value + "\n");
-
+                        System.out.println("输入不完整:\n\t提示:" + tmpNode.getValue() + "\n");
                     }
                     sug++;
                 }
@@ -92,7 +93,7 @@ public class FocusParser {
             }
         } else {
             System.out.println("------------------------");
-            System.out.println("错误:\n\t" + question.substring(focusInst.position) + "\n");
+            System.out.println("错误:\n\t" + "位置: " + focusInst.position + "\t错误: " + question.substring(focusInst.position) + "\n");
             FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
             int sug = 0;
             if (focusPhrase != null)
@@ -100,7 +101,7 @@ public class FocusParser {
                     FocusNode tmpNode = focusPhrase.getNode(sug);
                     if (!tmpNode.isTerminal()) {
                         System.out.println("------------------------");
-                        System.out.println("应该输入:\n\t" + tmpNode.getValue() + "\n");
+                        System.out.println("输入不完整:\n\t提示:" + tmpNode.getValue() + "\n");
                     }
                     sug++;
                 }
@@ -167,6 +168,9 @@ public class FocusParser {
                 }
                 return fsi;
             } else {
+                if (focusPhrases.isEmpty()) {
+                    focusPhrases = tmp;
+                }
                 List<FocusPhrase> remove = new ArrayList<>();
                 for (FocusPhrase fp : focusPhrases) {
                     if (fp.size() <= i) {
@@ -258,33 +262,6 @@ public class FocusParser {
                 }
                 loop--;
             }
-
-            // filter phrase
-//            if (!focusPhrases.isEmpty()) {// 部分规则能够匹配
-//                List<FocusPhrase> fps0 = new ArrayList<>();// 需要过滤掉的规则
-//                List<FocusPhrase> fps1 = new ArrayList<>();// 可能要过滤掉的规则
-//                boolean match = false;
-//                for (FocusPhrase fp : focusPhrases) {
-//                    if (fp.size() < position) {
-//                        fps0.add(fp);
-//                    } else if (fp.size() == position) {
-//                        fps1.add(fp);
-//                    } else {
-//                        match = true;
-//                    }
-//                }
-//                focusPhrases.removeAll(fps0);
-//                fps0.clear();
-//                if (match) {
-//                    focusPhrases.removeAll(fps1);
-//                    fps1.clear();
-//                }
-//                tmp.clear();
-//            } else {// 没有规则能够匹配
-//                focusPhrases.clear();
-//                focusPhrases.addAll(tmp);
-//                break;
-//            }
 
             rules.removeAll(removes);
             removes.clear();

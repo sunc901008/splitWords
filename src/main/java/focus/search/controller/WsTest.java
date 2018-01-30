@@ -2,6 +2,7 @@ package focus.search.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.DefaultModel;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.bnf.FocusInst;
@@ -28,6 +29,12 @@ public class WsTest extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         logger.info("someone connected to server.");
         users.add(session);
+
+        List<TerminalToken> terminals = FocusParser.getTerminalTokens();
+        String msg = "最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n";
+        System.out.println(msg);
+        session.sendMessage(new TextMessage(msg));
+
     }
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
@@ -37,8 +44,11 @@ public class WsTest extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException, InvalidRuleException {
-        JSONObject params = JSON.parseObject(message.getPayload());
-        String input = params.getString("input");
+        String input = message.getPayload();
+        if ("columns".equals(input)) {
+            session.sendMessage(new TextMessage(JSON.toJSONString(DefaultModel.columns())));
+            return;
+        }
         parse(input, session);
     }
 
@@ -46,11 +56,6 @@ public class WsTest extends TextWebSocketHandler {
         List<FocusToken> tokens = FocusAnalyzer.test(question, "english");
 
         String msg = "分词:\n\t" + JSON.toJSONString(tokens) + "\n";
-        System.out.println(msg);
-        session.sendMessage(new TextMessage(msg));
-
-        List<TerminalToken> terminals = FocusParser.getTerminalTokens();
-        msg = "最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n";
         System.out.println(msg);
         session.sendMessage(new TextMessage(msg));
 
@@ -68,8 +73,7 @@ public class WsTest extends TextWebSocketHandler {
                     FocusNode tmpNode = focusPhrase.getNode(sug);
                     if (!tmpNode.isTerminal()) {
                         System.out.println("------------------------");
-                        String value = tmpNode.getValue();
-                        msg = "提示:\n\t" + value + "\n";
+                        msg = "输入不完整:\n\t提示:" + tmpNode.getValue() + "\n";
                         System.out.println(msg);
                         session.sendMessage(new TextMessage(msg));
 
@@ -96,7 +100,7 @@ public class WsTest extends TextWebSocketHandler {
                     FocusNode tmpNode = focusPhrase.getNode(sug);
                     if (!tmpNode.isTerminal()) {
                         System.out.println("------------------------");
-                        msg = "应该输入:\n\t" + tmpNode.getValue() + "\n";
+                        msg = "输入不完整:\n\t提示:" + tmpNode.getValue() + "\n";
                         System.out.println(msg);
                         session.sendMessage(new TextMessage(msg));
                     }

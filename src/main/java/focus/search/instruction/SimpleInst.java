@@ -44,4 +44,8 @@ class SimpleInst extends CommonFunc {
         return instructions;
     }
 
+//    static JSONArray singleCol(){
+//        add_column_for_measure
+//    }
+
 }

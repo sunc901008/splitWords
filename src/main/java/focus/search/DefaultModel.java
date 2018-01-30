@@ -19,18 +19,7 @@ import java.util.List;
 public final class DefaultModel {
 
     static void defaultRules() {
-        // column info
-        List<Column> columns = new ArrayList<>();
-        Column col1 = new Column(42, "views", "int", "measure");
-        col1.setTblName("USERS_ORACLE");
-        columns.add(col1);
-        Column col2 = new Column(41, "id", "int", "measure");
-        col2.setTblName("USERS_ORACLE");
-        columns.add(col2);
-        Column col3 = new Column(45, "displayname", "string", "attribute");
-        col3.setTblName("USERS_ORACLE");
-        columns.add(col3);
-
+        List<Column> columns = columns();
         // add split words
         FocusAnalyzer.addTable(columns);
 
@@ -47,6 +36,21 @@ public final class DefaultModel {
             br.addAlternative(alternative_to_add1);
             FocusParser.addRule(br);
         }
+    }
+
+    public static List<Column> columns() {
+        // column info
+        List<Column> columns = new ArrayList<>();
+        Column col1 = new Column(12, "views", "int", "measure");
+        col1.setTblName("users");
+        columns.add(col1);
+        Column col2 = new Column(15, "id", "int", "measure");
+        col2.setTblName("users");
+        columns.add(col2);
+        Column col3 = new Column(11, "displayname", "string", "attribute");
+        col3.setTblName("users");
+        columns.add(col3);
+        return columns;
     }
 
 }

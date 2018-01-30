@@ -15,7 +15,7 @@ public class Home {
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
         DefaultModel.defaultRules();
-        String question = "id>4 top views";
+        String question = "id)";
         FocusParser.parse(question);
 
     }

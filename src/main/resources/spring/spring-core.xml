@@ -6,6 +6,7 @@
 		  http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
     <bean id="searchTest" class="focus.search.controller.WsTest"/>
+    <bean id="init" class="focus.search.DefaultModel" init-method="defaultRules"/>
     <websocket:handlers allowed-origins="*">
         <websocket:mapping path="/ws/test" handler="searchTest"/>
     </websocket:handlers>
