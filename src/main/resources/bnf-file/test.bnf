@@ -1,11 +1,16 @@
 <question> := <simple-filter> |
-              <top-n>;
+              <top-n> |
+              <sort-by>;
 
 <simple-filter> := <all-int-measure-column> <symbol> <integer> |
                    <all-int-measure-column>;
 
 <top-n> := top <integer> <all-int-measure-column> |
            top <all-int-measure-column>;
+
+<sort-by> := sort by <all-int-measure-column> |
+             sort by <all-int-measure-column> desc |
+             sort by <all-int-measure-column> asc;
 
 <symbol> := <bool-symbol> |
             <math-symbol>;

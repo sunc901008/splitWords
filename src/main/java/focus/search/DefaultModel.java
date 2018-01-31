@@ -31,10 +31,22 @@ public final class DefaultModel {
             } else {
                 br.setLeftHandSide(new NonTerminalToken("<string-attribute-column>"));
             }
-            TokenString alternative_to_add1 = new TokenString();
-            alternative_to_add1.add(new TerminalToken(col));
-            br.addAlternative(alternative_to_add1);
+            TokenString alternative_to_add = new TokenString();
+            alternative_to_add.add(new TerminalToken(col));
+            br.addAlternative(alternative_to_add);
             FocusParser.addRule(br);
+
+            BnfRule br1 = new BnfRule();
+            if (col.getColType().equalsIgnoreCase("measure")) {
+                br1.setLeftHandSide(new NonTerminalToken("<table-int-measure-column>"));
+            } else {
+                br1.setLeftHandSide(new NonTerminalToken("<table-string-attribute-column>"));
+            }
+            TokenString alternative_to_add1 = new TokenString();
+            alternative_to_add1.add(new TerminalToken(col.getTblName()));
+            alternative_to_add1.add(new TerminalToken(col));
+            br1.addAlternative(alternative_to_add1);
+            FocusParser.addRule(br1);
         }
     }
 

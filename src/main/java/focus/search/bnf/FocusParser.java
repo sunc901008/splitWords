@@ -25,18 +25,14 @@ import java.util.Set;
  */
 public class FocusParser {
 
-    private static String file3 = "bnf-file/test.bnf";
     private static BnfParser parser = null;
     private static final int MAX_RULE_LOOP = 10;
-
-    static {
-        init();
-    }
 
     private static void init() {
         if (parser == null)
             try {
                 ResourceLoader resolver = new DefaultResourceLoader();
+                String file3 = "bnf-file/test.bnf";
                 parser = new BnfParser(new FileInputStream(resolver.getResource(file3).getFile()));
             } catch (InvalidGrammarException | IOException e) {
                 e.printStackTrace();
@@ -157,29 +153,37 @@ public class FocusParser {
             FocusToken ft = tokens.get(i);
             List<BnfRule> rules = parseRules(ft.getWord());
             List<FocusPhrase> tmp = new ArrayList<>(focusPhrases);
-            replace(rules, focusPhrases, ft, i);
-            if (same(tmp, focusPhrases)) {// 识别后的规则无变化，则表示识别结束
-                FocusSubInst fsi = new FocusSubInst();
-                fsi.setIndex(i);
+            if (rules.isEmpty()) {
+                focusPhrases.clear();
                 for (FocusPhrase fp : tmp) {
-                    if (fp.size() == i) {
-                        fsi.addFps(fp);
+                    if (fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+                        focusPhrases.add(fp);
                     }
                 }
-                return fsi;
             } else {
-                if (focusPhrases.isEmpty()) {
-                    focusPhrases = tmp;
-                }
-                List<FocusPhrase> remove = new ArrayList<>();
-                for (FocusPhrase fp : focusPhrases) {
-                    if (fp.size() <= i) {
-                        remove.add(fp);
+                replace(rules, focusPhrases, ft, i);
+                if (same(tmp, focusPhrases)) {// 识别后的规则无变化，则表示识别结束
+                    FocusSubInst fsi = new FocusSubInst();
+                    fsi.setIndex(i);
+                    for (FocusPhrase fp : tmp) {
+                        if (fp.size() == i) {
+                            fsi.addFps(fp);
+                        }
                     }
+                    return fsi;
+                } else {
+                    if (focusPhrases.isEmpty()) {
+                        focusPhrases = tmp;
+                    }
+                    List<FocusPhrase> remove = new ArrayList<>();
+                    for (FocusPhrase fp : focusPhrases) {
+                        if (fp.size() <= i) {
+                            remove.add(fp);
+                        }
+                    }
+                    focusPhrases.removeAll(remove);
                 }
-                focusPhrases.removeAll(remove);
             }
-
         }
 
         FocusSubInst fsi = new FocusSubInst();
