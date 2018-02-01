@@ -23,7 +23,7 @@ public class TerminalToken extends Token {
     }
 
     public TerminalToken(final Column column) {
-        super(column.getName());
+        super(column.getColumnDisplayName());
         this.column = column;
     }
 

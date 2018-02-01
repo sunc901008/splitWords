@@ -28,7 +28,7 @@ class SimpleInst extends CommonFunc {
         if (col == null) {
             throw new InvalidRuleException("Build instruction fail!!!");
         }
-        json1.put("column", col.getId());
+        json1.put("column", col.getColumnId());
         json1.put("operator", focusPhrase.getNode(1).getValue());
         FocusToken t = focusPhrase.getNode(2).getFt();
         if (t.getType().equalsIgnoreCase("integer")) {
@@ -56,7 +56,7 @@ class SimpleInst extends CommonFunc {
         if (col == null) {
             throw new InvalidRuleException("Build instruction fail!!!");
         }
-        json1.put("column", col.getId());
+        json1.put("column", col.getColumnId());
         instructions.add(json1);
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);

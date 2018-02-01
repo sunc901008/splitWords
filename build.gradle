@@ -39,6 +39,7 @@ dependencies {
     compile "$springGroup:spring-websocket:$springVersion"
     compile "$springGroup:spring-messaging:$springVersion"
 
+    compile "org.slf4j:slf4j-api:1.7.21"
     compile "log4j:log4j:1.2.17"
 
 }

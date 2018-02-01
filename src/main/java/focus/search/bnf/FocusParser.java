@@ -15,6 +15,7 @@ import org.springframework.core.io.ResourceLoader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -56,8 +57,7 @@ public class FocusParser {
         return parser.getRule(name);
     }
 
-    public static JSONObject parse(String question) throws IOException, InvalidRuleException {
-        JSONObject res = new JSONObject();
+    public static void parse(String question) throws IOException, InvalidRuleException {
         String language = "english";
         List<FocusToken> tokens = FocusAnalyzer.test(question, language);
 
@@ -70,6 +70,7 @@ public class FocusParser {
         FocusInst focusInst = parse(question, language);
         System.out.println("解析:\n\t" + focusInst.toJSON().toJSONString() + "\n");
 
+        System.out.println("question:\n\t" + question);
         if (focusInst.position < 0) {
             FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
             if (focusPhrase.isSuggestion()) {
@@ -89,20 +90,21 @@ public class FocusParser {
             }
         } else {
             System.out.println("------------------------");
-            System.out.println("错误:\n\t" + "位置: " + focusInst.position + "\t错误: " + question.substring(focusInst.position) + "\n");
-            FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
-            int sug = 0;
-            if (focusPhrase != null)
-                while (sug < focusPhrase.size()) {
-                    FocusNode tmpNode = focusPhrase.getNode(sug);
-                    if (!tmpNode.isTerminal()) {
-                        System.out.println("------------------------");
-                        System.out.println("输入不完整:\n\t提示:" + tmpNode.getValue() + "\n");
-                    }
-                    sug++;
+            int tokenPosition = focusInst.position;
+            int strPosition = tokens.get(focusInst.position).getStart();
+            System.out.println("错误:\n\t" + "位置: " + strPosition + "\t错误: " + question.substring(strPosition) + "\n");
+            Set<String> sug = new HashSet<>();
+            for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
+                if (!focusPhrase.isSuggestion()) {
+                    tokenPosition = tokenPosition - focusPhrase.size();
+                    continue;
                 }
+                sug.add("\n\t提示: " + focusPhrase.getNode(tokenPosition).getValue() + "\n");
+            }
+            System.out.println("------------------------");
+            sug.forEach(System.out::println);
+
         }
-        return res;
     }
 
     public static FocusInst parse(String question, String language) throws IOException, InvalidRuleException {
@@ -125,18 +127,24 @@ public class FocusParser {
             }
             FocusSubInst fsi = parse(copyTokens);
             if (fsi == null) {
-                fi.position = tokens.get(position).getStart();
+                fi.position = position;
                 break;
             }
             flag = fsi.getIndex();
             fi.addPfs(fsi.getFps());
             error = position;
             position = position + flag;
+            if (fsi.isError()) {
+                break;
+            }
         }
         if (error < position) {
             FocusSubInst fsi = parse(tokens.subList(error, position));
             assert fsi != null;
             fi.addPfs(fsi.getFps());
+            if (fsi.isError()) {
+                fi.position = position;
+            }
         }
         return fi;
     }
@@ -156,13 +164,23 @@ public class FocusParser {
             if (rules.isEmpty()) {
                 focusPhrases.clear();
                 for (FocusPhrase fp : tmp) {
-                    if (fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+                    if (fp.size() > i && fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+                        if (fp.size() == i + 1) {
+                            fp.setType(Constant.INSTRUCTION);
+                        }
                         focusPhrases.add(fp);
                     }
                 }
+                if (focusPhrases.isEmpty()) {// 出错结束
+                    FocusSubInst fsi = new FocusSubInst();
+                    fsi.setIndex(i);
+                    fsi.setFps(tmp);
+                    fsi.setError(true);
+                    return fsi;
+                }
             } else {
                 replace(rules, focusPhrases, ft, i);
-                if (same(tmp, focusPhrases)) {// 识别后的规则无变化，则表示识别结束
+                if (same(tmp, focusPhrases)) {// 识别后的规则无变化或者出错，则表示识别结束
                     FocusSubInst fsi = new FocusSubInst();
                     fsi.setIndex(i);
                     for (FocusPhrase fp : tmp) {
@@ -187,18 +205,20 @@ public class FocusParser {
         }
 
         FocusSubInst fsi = new FocusSubInst();
-        fsi.setIndex(-1);
         for (FocusPhrase fp : focusPhrases) {
             if (fp.size() == tokens.size()) {
                 fsi.addFps(fp);
             }
         }
         if (fsi.isEmpty()) {
+            fsi.setError(true);
             for (FocusPhrase fp : focusPhrases) {
                 if (fp.size() > tokens.size()) {
                     fsi.addFps(fp);
                 }
             }
+        } else {
+            fsi.setIndex(-1);
         }
 
 //        FocusToken ft = tokens.get(tokens.size() - 1);

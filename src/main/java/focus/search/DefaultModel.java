@@ -7,6 +7,7 @@ import focus.search.bnf.tokens.NonTerminalToken;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.bnf.tokens.TokenString;
 import focus.search.meta.Column;
+import focus.search.meta.Source;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,50 +20,50 @@ import java.util.List;
 public final class DefaultModel {
 
     static void defaultRules() {
-        List<Column> columns = columns();
+        List<Source> sources = sources();
         // add split words
-        FocusAnalyzer.addTable(columns);
+        FocusAnalyzer.addTable(sources);
 
         // add bnf rule
-        for (Column col : columns) {
-            BnfRule br = new BnfRule();
-            if (col.getColType().equalsIgnoreCase("measure")) {
-                br.setLeftHandSide(new NonTerminalToken("<int-measure-column>"));
-            } else {
-                br.setLeftHandSide(new NonTerminalToken("<string-attribute-column>"));
-            }
-            TokenString alternative_to_add = new TokenString();
-            alternative_to_add.add(new TerminalToken(col));
-            br.addAlternative(alternative_to_add);
-            FocusParser.addRule(br);
+        for (Source source : sources) {
+            for (Column col : source.getColumns()) {
+                BnfRule br = new BnfRule();
+                if (col.getColumnType().equalsIgnoreCase("measure")) {
+                    br.setLeftHandSide(new NonTerminalToken("<int-measure-column>"));
+                } else {
+                    br.setLeftHandSide(new NonTerminalToken("<string-attribute-column>"));
+                }
+                TokenString alternative_to_add = new TokenString();
+                alternative_to_add.add(new TerminalToken(col));
+                br.addAlternative(alternative_to_add);
+                FocusParser.addRule(br);
 
-            BnfRule br1 = new BnfRule();
-            if (col.getColType().equalsIgnoreCase("measure")) {
-                br1.setLeftHandSide(new NonTerminalToken("<table-int-measure-column>"));
-            } else {
-                br1.setLeftHandSide(new NonTerminalToken("<table-string-attribute-column>"));
+                BnfRule br1 = new BnfRule();
+                if (col.getColumnType().equalsIgnoreCase("measure")) {
+                    br1.setLeftHandSide(new NonTerminalToken("<table-int-measure-column>"));
+                } else {
+                    br1.setLeftHandSide(new NonTerminalToken("<table-string-attribute-column>"));
+                }
+                TokenString alternative_to_add1 = new TokenString();
+                alternative_to_add1.add(new TerminalToken(source.getSourceName()));
+                alternative_to_add1.add(new TerminalToken(col));
+                br1.addAlternative(alternative_to_add1);
+                FocusParser.addRule(br1);
             }
-            TokenString alternative_to_add1 = new TokenString();
-            alternative_to_add1.add(new TerminalToken(col.getTblName()));
-            alternative_to_add1.add(new TerminalToken(col));
-            br1.addAlternative(alternative_to_add1);
-            FocusParser.addRule(br1);
         }
     }
 
-    public static List<Column> columns() {
-        // column info
-        List<Column> columns = new ArrayList<>();
-        Column col1 = new Column(12, "views", "int", "measure");
-        col1.setTblName("users");
-        columns.add(col1);
-        Column col2 = new Column(15, "id", "int", "measure");
-        col2.setTblName("users");
-        columns.add(col2);
-        Column col3 = new Column(11, "displayname", "string", "attribute");
-        col3.setTblName("users");
-        columns.add(col3);
-        return columns;
+    public static List<Source> sources() {
+        // source info
+        List<Source> sources = new ArrayList<>();
+        Source source = new Source();
+        source.setTableId(1);
+        source.setType("table");
+        source.setSourceName("users");
+        source.addColumn(new Column(12, "views", "int", "measure"));
+        source.addColumn(new Column(15, "id", "int", "measure"));
+        source.addColumn(new Column(11, "displayname", "string", "attribute"));
+        return sources;
     }
 
 }

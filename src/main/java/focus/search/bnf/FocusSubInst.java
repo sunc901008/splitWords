@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class FocusSubInst {
     private int index;
+    private boolean error = false;
     private List<FocusPhrase> fps = new ArrayList<>();
 
     public FocusSubInst() {
@@ -38,6 +39,14 @@ public class FocusSubInst {
 
     public void addFps(FocusPhrase fp) {
         this.fps.add(fp);
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
     }
 
     public boolean isEmpty() {

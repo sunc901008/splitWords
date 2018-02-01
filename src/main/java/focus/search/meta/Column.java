@@ -6,42 +6,43 @@ package focus.search.meta;
  * description:
  */
 public class Column {
-    private int id;
-    private String name;
-    private String tblName;
+    private int columnId;
+    private String columnName;
+    private String columnDisplayName;
     private String dataType;
-    private String colType;
-    private int tblId;
+    private String columnType;
+    private String description;
+    private ColumnModify columnModify;
 
-    public Column(int id, String name, String dataType, String colType) {
-        this.id = id;
-        this.name = name;
+    public Column(int columnId, String columnDisplayName, String dataType, String columnType) {
+        this.columnId = columnId;
+        this.columnDisplayName = columnDisplayName;
         this.dataType = dataType;
-        this.colType = colType;
+        this.columnType = columnType;
     }
 
-    public int getId() {
-        return id;
+    public int getColumnId() {
+        return columnId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setColumnId(int columnId) {
+        this.columnId = columnId;
     }
 
-    public String getName() {
-        return name;
+    public String getColumnName() {
+        return columnName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
     }
 
-    public String getTblName() {
-        return tblName;
+    public String getColumnDisplayName() {
+        return columnDisplayName;
     }
 
-    public void setTblName(String tblName) {
-        this.tblName = tblName;
+    public void setColumnDisplayName(String columnDisplayName) {
+        this.columnDisplayName = columnDisplayName;
     }
 
     public String getDataType() {
@@ -52,19 +53,27 @@ public class Column {
         this.dataType = dataType;
     }
 
-    public String getColType() {
-        return colType;
+    public String getColumnType() {
+        return columnType;
     }
 
-    public void setColType(String colType) {
-        this.colType = colType;
+    public void setColumnType(String columnType) {
+        this.columnType = columnType;
     }
 
-    public int getTblId() {
-        return tblId;
+    public String getDescription() {
+        return description;
     }
 
-    public void setTblId(int tblId) {
-        this.tblId = tblId;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public ColumnModify getColumnModify() {
+        return columnModify;
+    }
+
+    public void setColumnModify(ColumnModify columnModify) {
+        this.columnModify = columnModify;
     }
 }

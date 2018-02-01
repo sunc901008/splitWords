@@ -2,7 +2,6 @@ package focus.search.bnf;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import focus.search.base.Constant;
 
 import java.util.ArrayList;
 import java.util.List;

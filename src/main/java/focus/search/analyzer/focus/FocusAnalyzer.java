@@ -3,6 +3,7 @@ package focus.search.analyzer.focus;
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
 import focus.search.meta.Column;
+import focus.search.meta.Source;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -13,7 +14,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class FocusAnalyzer {
 
@@ -24,10 +24,10 @@ public class FocusAnalyzer {
         Dictionary.addWords(FocusKWDict.dictionaries);
     }
 
-    public static void addTable(List<Column> columns) {
+    public static void addTable(List<Source> sources) {
         if (analyzer == null)
             init();
-        Dictionary.addWords(makeDict(columns));
+        Dictionary.addWords(makeDict(sources));
     }
 
     public static void reset() {
@@ -65,11 +65,13 @@ public class FocusAnalyzer {
         return tokens;
     }
 
-    private static List<FocusKWDict> makeDict(List<Column> columns) {
+    private static List<FocusKWDict> makeDict(List<Source> sources) {
         List<FocusKWDict> list = new ArrayList<>();
-        for (Column col : columns) {
-            FocusKWDict dict = new FocusKWDict(col.getName(), "columnName", col.getTblName());
-            list.add(dict);
+        for (Source source : sources) {
+            for (Column col : source.getColumns()) {
+                FocusKWDict dict = new FocusKWDict(col.getColumnDisplayName(), "columnName", source.getSourceName());
+                list.add(dict);
+            }
         }
         return list;
     }
