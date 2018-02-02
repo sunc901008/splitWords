@@ -14,6 +14,9 @@ public class Column {
     private String description;
     private ColumnModify columnModify;
 
+    public Column() {
+    }
+
     public Column(int columnId, String columnDisplayName, String dataType, String columnType) {
         this.columnId = columnId;
         this.columnDisplayName = columnDisplayName;

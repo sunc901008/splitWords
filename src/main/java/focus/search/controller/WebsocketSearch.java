@@ -49,6 +49,8 @@ public class WebsocketSearch extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException, InvalidRuleException {
         String input = message.getPayload();
+        session.sendMessage(new TextMessage("your input:" + input));
+
         if ("sources".equals(input)) {
             session.sendMessage(new TextMessage(JSON.toJSONString(DefaultModel.sources())));
             return;

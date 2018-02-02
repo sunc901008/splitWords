@@ -63,6 +63,7 @@ public final class DefaultModel {
         source.addColumn(new Column(12, "views", "int", "measure"));
         source.addColumn(new Column(15, "id", "int", "measure"));
         source.addColumn(new Column(11, "displayname", "string", "attribute"));
+        sources.add(source);
         return sources;
     }
 

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.DefaultModel;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
+import focus.search.base.LoggerHandler;
 import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusParser;
@@ -12,7 +13,6 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.instruction.InstructionBuild;
-import org.apache.log4j.Logger;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -25,23 +25,25 @@ import java.util.List;
 import java.util.Set;
 
 public class WsTest extends TextWebSocketHandler {
-    private static final Logger logger = Logger.getLogger(WsTest.class);
     private static final ArrayList<WebSocketSession> users = new ArrayList<>();
 
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        logger.info("someone connected to server.");
+        JSONObject user = (JSONObject) session.getAttributes().get("user");
+        LoggerHandler.info(user.getString("name") + " connected to server.");
         users.add(session);
 
         List<TerminalToken> terminals = FocusParser.getTerminalTokens();
         String msg = "最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n";
         System.out.println(msg);
+        LoggerHandler.info(msg);
         session.sendMessage(new TextMessage(msg));
 
     }
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
+        JSONObject user = (JSONObject) session.getAttributes().get("user");
         users.remove(session);
-        logger.info("someone disconnected to server.");
+        LoggerHandler.info(user.getString("name") + " disconnected to server.");
     }
 
     @Override
@@ -54,7 +56,7 @@ public class WsTest extends TextWebSocketHandler {
         try {
             parse(input, session);
         } catch (InvalidRuleException | IOException e) {
-            logger.error(FocusExceptionHandler.stackTraceToStr(e));
+            LoggerHandler.error(FocusExceptionHandler.stackTraceToStr(e));
             FocusExceptionHandler.handle(session, e);
         }
     }

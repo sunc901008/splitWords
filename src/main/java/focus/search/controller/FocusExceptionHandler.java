@@ -7,9 +7,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public class FocusExceptionHandler {
+class FocusExceptionHandler {
 
     static void handle(WebSocketSession session, Exception e) throws IOException {
+        // todo 构造错误信息返回结构
         session.sendMessage(new TextMessage(e.getMessage()));
     }
 

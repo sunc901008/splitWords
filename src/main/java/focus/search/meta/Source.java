@@ -1,5 +1,6 @@
 package focus.search.meta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ public class Source {
     private String sourceName;
     private Integer tableId;
     private String type;
-    private List<Column> columns;
+    private List<Column> columns = new ArrayList<>();
 
     public String getSourceName() {
         return sourceName;
@@ -46,7 +47,7 @@ public class Source {
         this.columns = columns;
     }
 
-    public void addColumn(Column column){
+    public void addColumn(Column column) {
         this.columns.add(column);
     }
 

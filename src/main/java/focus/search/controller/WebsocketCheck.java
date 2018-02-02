@@ -30,7 +30,7 @@ public class WebsocketCheck extends HttpSessionHandshakeInterceptor {
         }
 
         String token = "null";
-        if (tokens.size() > 0) {
+        if (tokens != null && tokens.size() > 0) {
             List<String> cookies = Arrays.asList(tokens.get(0).split(";"));
             for (String cookie : cookies) {
                 cookie = cookie.trim();
@@ -52,7 +52,8 @@ public class WebsocketCheck extends HttpSessionHandshakeInterceptor {
 
     private JSONObject userInfo(String token) {
         JSONObject user = new JSONObject();
-        int id = Integer.parseInt(String.valueOf(Math.random() * 10));
+        Double ran = Math.random() * 10 + 1;
+        int id = ran.intValue();
         user.put("id", id);
         user.put("access_token", token);
         user.put("name", "admin" + id);

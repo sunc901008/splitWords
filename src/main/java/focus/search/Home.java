@@ -1,9 +1,12 @@
 package focus.search;
 
-import com.alibaba.fastjson.JSONObject;
+import focus.search.base.LoggerHandler;
+import focus.search.bnf.FocusParser;
 import focus.search.bnf.exception.InvalidRuleException;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.logging.LogManager;
 
 /**
  * creator: sunc
@@ -14,18 +17,33 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-//        DefaultModel.defaultRules();
-//        String question = "id > 5 sort by views desc";
-//        FocusParser.parse(question);
+        DefaultModel.defaultRules();
+        String question = "id > 5 sort by views desc";
+        FocusParser.parse(question);
 
-        String cl = "{\"columnId\": 10,\"columnDisplayName\": \"age\",\"columnName\": \"age\",\"columnType\": \"doubleMeasure\",\"dataType\": " +
-                "\"double\",\"description\": \"\",\"columnModify\": {\"updated\": \"2018-01-30 12:10:25\",\"name\": \"age\"}}";
-        JSONObject json = JSONObject.parseObject(cl);
-        for (String key : json.keySet()) {
-            System.out.println("private String " + key + ";");
-        }
+
+//        StackTraceElement[] trace = new Throwable().getStackTrace();
+//        StackTraceElement tmp = trace[1];
+//        System.out.println(tmp.getClassName() + "." + tmp.getMethodName()
+//                + "(" + tmp.getFileName() + ":" + tmp.getLineNumber() + ")");
+//        FileInputStream fis = new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/conf/log4j.properties");
+//        LogManager.getLogManager().readConfiguration(fis);
+//        fis.close();
+
+//        LoggerHandler.info("just a test.");
 
 
     }
+
+    private static int test() {
+        StackTraceElement[] trace = new Throwable().getStackTrace();
+        StackTraceElement tmp = trace[1];
+        System.out.println(tmp.getClassName());
+        System.out.println(tmp.getMethodName());
+        System.out.println(tmp.getClassName() + "." + tmp.getMethodName()
+                + "(" + tmp.getFileName() + ":" + tmp.getLineNumber() + ")");
+        return tmp.getLineNumber();
+    }
+
 
 }
