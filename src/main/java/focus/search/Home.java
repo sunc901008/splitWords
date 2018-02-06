@@ -32,10 +32,11 @@ public class Home {
             int sug = 0;
             while (sug < focusPhrase.size()) {
                 FocusNode tmpNode = focusPhrase.getNode(sug);
-                if (!tmpNode.isTerminal()) {
+                if (! tmpNode.isTerminal() || !tmpNode.getValue().equalsIgnoreCase(tmpNode.getFt().getWord())) {
                     System.out.println("------------------------");
                     String msg = "输入不完整:\n\t提示:" + tmpNode.getValue() + "\n";
                     System.out.println(msg);
+                    return;
                 }
                 sug++;
             }
