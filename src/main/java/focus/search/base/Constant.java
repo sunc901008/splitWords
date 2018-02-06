@@ -72,4 +72,9 @@ public class Constant {
         }
     }
 
+    public static final class Event {
+        public static final String TEXT_CHANGE = "textChange";
+        public static final String FOCUS_IN = "focusIn";
+    }
+
 }

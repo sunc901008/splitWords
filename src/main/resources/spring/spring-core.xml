@@ -7,7 +7,7 @@
 
     <bean id="searchTest" class="focus.search.controller.WsTest"/>
     <bean id="search" class="focus.search.controller.WebsocketSearch"/>
-    <bean id="init" class="focus.search.DefaultModel" init-method="defaultRules"/>
+    <!--<bean id="init" class="focus.search.DefaultModel" init-method="defaultRules"/>-->
     <websocket:handlers allowed-origins="*">
         <websocket:mapping path="/ws/test" handler="searchTest"/>
         <websocket:mapping path="/websocket/search" handler="search"/>

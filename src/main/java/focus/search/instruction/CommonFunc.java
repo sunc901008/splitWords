@@ -1,9 +1,9 @@
 package focus.search.instruction;
 
-import focus.search.bnf.FocusParser;
-import focus.search.bnf.tokens.TerminalToken;
-import focus.search.meta.Column;
+import focus.search.metaReceived.ColumnReceived;
+import focus.search.metaReceived.SourceReceived;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,14 +13,21 @@ import java.util.List;
  */
 public class CommonFunc {
 
-    static Column getCol(String colName) {
-        List<TerminalToken> tokens = FocusParser.getTerminalTokens();
-        for (TerminalToken ter : tokens) {
-            if (ter.getName().equalsIgnoreCase(colName) && ter.getColumn() != null) {
-                return ter.getColumn();
+    static ColumnReceived getCol(String colName, List<SourceReceived> srs) {
+        return getCol0(colName, srs).get(0);
+    }
+
+
+    static List<ColumnReceived> getCol0(String colName, List<SourceReceived> srs) {
+        List<ColumnReceived> columns = new ArrayList<>();
+        for (SourceReceived sr : srs) {
+            for (ColumnReceived column : sr.columns) {
+                if (column.columnDisplayName.equalsIgnoreCase(colName)) {
+                    columns.add(column);
+                }
             }
         }
-        return null;
+        return columns;
     }
 
 }

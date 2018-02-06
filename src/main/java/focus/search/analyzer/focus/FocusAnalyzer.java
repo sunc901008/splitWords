@@ -2,8 +2,8 @@ package focus.search.analyzer.focus;
 
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
-import focus.search.meta.Column;
-import focus.search.meta.Source;
+import focus.search.metaReceived.ColumnReceived;
+import focus.search.metaReceived.SourceReceived;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -17,25 +17,25 @@ import java.util.List;
 
 public class FocusAnalyzer {
 
-    private static IKAnalyzer analyzer;
+    private IKAnalyzer analyzer;
 
-    public static void init() {
+    private void init() {
         analyzer = new IKAnalyzer();
         Dictionary.addWords(FocusKWDict.dictionaries);
     }
 
-    public static void addTable(List<Source> sources) {
+    public void addTable(List<SourceReceived> sources) {
         if (analyzer == null)
             init();
         Dictionary.addWords(makeDict(sources));
     }
 
-    public static void reset() {
+    public void reset() {
         Dictionary.reset();
         Dictionary.addWords(FocusKWDict.dictionaries);
     }
 
-    public static List<FocusToken> test(String str, String language) throws IOException {
+    public List<FocusToken> test(String str, String language) throws IOException {
 
         if (analyzer == null) {
             init();
@@ -65,11 +65,11 @@ public class FocusAnalyzer {
         return tokens;
     }
 
-    private static List<FocusKWDict> makeDict(List<Source> sources) {
+    private List<FocusKWDict> makeDict(List<SourceReceived> sources) {
         List<FocusKWDict> list = new ArrayList<>();
-        for (Source source : sources) {
-            for (Column col : source.getColumns()) {
-                FocusKWDict dict = new FocusKWDict(col.getColumnDisplayName(), "columnName", source.getSourceName());
+        for (SourceReceived source : sources) {
+            for (ColumnReceived col : source.columns) {
+                FocusKWDict dict = new FocusKWDict(col.columnDisplayName, "columnName", source.sourceName);
                 list.add(dict);
             }
         }

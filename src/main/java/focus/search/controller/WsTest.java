@@ -2,7 +2,6 @@ package focus.search.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import focus.search.DefaultModel;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.LoggerHandler;
@@ -11,7 +10,6 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.bnf.tokens.TerminalToken;
 import focus.search.instruction.InstructionBuild;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -31,13 +29,6 @@ public class WsTest extends TextWebSocketHandler {
         JSONObject user = (JSONObject) session.getAttributes().get("user");
         LoggerHandler.info(user.getString("name") + " connected to server.");
         users.add(session);
-
-        List<TerminalToken> terminals = FocusParser.getTerminalTokens();
-        String msg = "最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n";
-        System.out.println(msg);
-        LoggerHandler.info(msg);
-        session.sendMessage(new TextMessage(msg));
-
     }
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
@@ -47,7 +38,7 @@ public class WsTest extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {/*
         String input = message.getPayload();
         if ("sources".equals(input)) {
             session.sendMessage(new TextMessage(JSON.toJSONString(DefaultModel.sources())));
@@ -56,11 +47,10 @@ public class WsTest extends TextWebSocketHandler {
         try {
             parse(input, session);
         } catch (InvalidRuleException | IOException e) {
-            LoggerHandler.error(FocusExceptionHandler.stackTraceToStr(e));
             FocusExceptionHandler.handle(session, e);
-        }
+        }*/
     }
-
+/*
     private static void parse(String question, WebSocketSession session) throws IOException, InvalidRuleException {
         List<FocusToken> tokens = FocusAnalyzer.test(question, "english");
 
@@ -119,5 +109,5 @@ public class WsTest extends TextWebSocketHandler {
             session.sendMessage(new TextMessage(msg));
         }
     }
-
+*/
 }

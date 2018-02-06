@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.metaReceived.SourceReceived;
+
+import java.util.List;
 
 /**
  * creator: sunc
@@ -12,7 +15,7 @@ import focus.search.bnf.exception.InvalidRuleException;
  */
 class TopNInst extends CommonFunc {
 
-    static JSONArray build(FocusPhrase focusPhrase, int index) throws InvalidRuleException {
+    static JSONArray build(FocusPhrase focusPhrase, int index, List<SourceReceived> srs) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -32,7 +35,7 @@ class TopNInst extends CommonFunc {
         json2.put("instId", "annotation");
         instructions.add(json2);
 
-        instructions.addAll(SimpleInst.singleCol(focusPhrase.getLastNode().getValue(), index + 1));
+        instructions.addAll(SimpleInst.singleCol(focusPhrase.getLastNode().getValue(), index + 1, srs));
 
         return instructions;
     }

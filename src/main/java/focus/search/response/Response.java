@@ -13,6 +13,19 @@ public class Response {
     private String sourceToken;
     private JSONObject datas;
 
+    public Response() {
+
+    }
+
+    public Response(String type, String command) {
+        this.type = type;
+        this.command = command;
+    }
+
+    public Response(String type) {
+        this.type = type;
+    }
+
     public String getType() {
         return type;
     }

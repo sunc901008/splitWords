@@ -1,7 +1,7 @@
 package focus.search.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.log4j.Logger;
+import focus.search.base.LoggerHandler;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
@@ -18,14 +18,13 @@ import java.util.Map;
  * description:
  */
 public class WebsocketCheck extends HttpSessionHandshakeInterceptor {
-    private static final Logger logger = Logger.getLogger(WebsocketCheck.class);
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
         List<String> tokens = request.getHeaders().get("Cookie");
         List<String> protocols = request.getHeaders().get("Sec-WebSocket-Protocol");
         if (protocols != null && protocols.size() > 0) {
-            logger.info("protocols:" + protocols + ". first protocol:" + protocols.get(0));
+            LoggerHandler.info("protocols:" + protocols + ". first protocol:" + protocols.get(0));
             response.getHeaders().set("Sec-WebSocket-Protocol", protocols.get(0));
         }
 

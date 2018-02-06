@@ -1,12 +1,12 @@
 package focus.search;
 
-import focus.search.base.LoggerHandler;
-import focus.search.bnf.FocusParser;
+import com.alibaba.fastjson.JSON;
+import focus.search.analyzer.focus.FocusToken;
+import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.logging.LogManager;
+import java.util.List;
 
 /**
  * creator: sunc
@@ -17,32 +17,30 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-        DefaultModel.defaultRules();
-        String question = "id > 5 sort by views desc";
-        FocusParser.parse(question);
+        FocusParser parser = new FocusParser();
+        ModelBuild.build(parser, ModelBuild.test());
 
+        String search = "i";
+        List<FocusToken> tokens = parser.focusAnalyzer.test(search, "english");
+        System.out.println(JSON.toJSONString(tokens));
+        FocusInst focusInst = parser.parse(tokens);
+        System.out.println("-------------------");
+        System.out.println(JSON.toJSONString(focusInst));
 
-//        StackTraceElement[] trace = new Throwable().getStackTrace();
-//        StackTraceElement tmp = trace[1];
-//        System.out.println(tmp.getClassName() + "." + tmp.getMethodName()
-//                + "(" + tmp.getFileName() + ":" + tmp.getLineNumber() + ")");
-//        FileInputStream fis = new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/conf/log4j.properties");
-//        LogManager.getLogManager().readConfiguration(fis);
-//        fis.close();
+        FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
+        if (focusPhrase.isSuggestion()) {
+            int sug = 0;
+            while (sug < focusPhrase.size()) {
+                FocusNode tmpNode = focusPhrase.getNode(sug);
+                if (!tmpNode.isTerminal()) {
+                    System.out.println("------------------------");
+                    String msg = "输入不完整:\n\t提示:" + tmpNode.getValue() + "\n";
+                    System.out.println(msg);
+                }
+                sug++;
+            }
+        }
 
-//        LoggerHandler.info("just a test.");
-
-
-    }
-
-    private static int test() {
-        StackTraceElement[] trace = new Throwable().getStackTrace();
-        StackTraceElement tmp = trace[1];
-        System.out.println(tmp.getClassName());
-        System.out.println(tmp.getMethodName());
-        System.out.println(tmp.getClassName() + "." + tmp.getMethodName()
-                + "(" + tmp.getFileName() + ":" + tmp.getLineNumber() + ")");
-        return tmp.getLineNumber();
     }
 
 
