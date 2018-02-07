@@ -20,9 +20,9 @@ public class Home {
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
         FocusParser parser = new FocusParser();
-        ModelBuild.build(parser, ModelBuild.test());
+        ModelBuild.build(parser, ModelBuild.test(2));
 
-        String search = "users";
+        String search = "id";
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "english");
         System.out.println(JSON.toJSONString(tokens));
         FocusInst focusInst = parser.parse(tokens);
