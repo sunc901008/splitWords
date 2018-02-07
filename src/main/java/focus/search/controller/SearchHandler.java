@@ -8,14 +8,16 @@ import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.base.LoggerHandler;
-import focus.search.bnf.*;
+import focus.search.bnf.FocusInst;
+import focus.search.bnf.FocusParser;
+import focus.search.bnf.FocusPhrase;
+import focus.search.bnf.ModelBuild;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.InstructionBuild;
 import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.RelationReceived;
 import focus.search.metaReceived.SourceReceived;
-import focus.search.response.Response;
-import focus.search.response.search.InitResponse;
+import focus.search.response.search.*;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -117,9 +119,9 @@ class SearchHandler {
             return;
         }
 
-        Response response = new Response("response", "init");
+        InitResponse response = new InitResponse("response", "init");
         response.setSourceToken(sourceToken);
-        InitResponse init = new InitResponse();
+        InitResponse.Init init = new InitResponse.Init();
         if (!"success".equals(getSource.getString("status"))) {
             init.setStatus("fail");
             init.setMessage("get sources from webserver fail.");
@@ -151,13 +153,8 @@ class SearchHandler {
     }
 
     private static void search(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
-        Response response = new Response("response", "search");
-        JSONObject datas = new JSONObject();
-        datas.put("status", "success");
-        datas.put("message", "done");
-        response.setDatas(datas);
         // response immediately
-        session.sendMessage(new TextMessage(response.toString()));
+        session.sendMessage(new TextMessage(Response.response()));
 
         String search = params.getString("search");
         String event = params.getString("event");
@@ -175,7 +172,7 @@ class SearchHandler {
             return;
         }
         List<FocusToken> tokens = fp.focusAnalyzer.test(search, language);
-        session.sendMessage(new TextMessage("split words:" + JSON.toJSONString(tokens)));
+        System.out.println("split words:" + JSON.toJSONString(tokens));
 
         for (FocusToken ft : tokens) {
             Set<String> ams = ft.getAmbiguities();
@@ -189,53 +186,69 @@ class SearchHandler {
         }
 
         try {
+            // 解析结果
             FocusInst focusInst = fp.parse(tokens);
-            session.sendMessage(new TextMessage(focusInst.toJSON().toJSONString()));
+
+//            session.sendMessage(new TextMessage(focusInst.toJSON().toJSONString()));
 
             String msg;
             if (focusInst.position < 0) {
                 FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
                 if (focusPhrase.isSuggestion()) {
-                    int sug = 0;
-                    while (sug < focusPhrase.size()) {
-                        FocusNode tmpNode = focusPhrase.getNode(sug);
-                        if (!tmpNode.isTerminal()) {
-                            System.out.println("------------------------");
-                            msg = "输入不完整:\n\t提示:" + tmpNode.getValue() + "\n";
-                            System.out.println(msg);
-                            session.sendMessage(new TextMessage(msg));
-
-
-                        }
-                        sug++;
-                    }
+                    SuggestionResponse response = new SuggestionResponse(search);
+                    SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
+                    datas.beginPos = tokens.get(tokens.size() - 1).getEnd();
+                    datas.phraseBeginPos = datas.beginPos;
+                    sug(tokens.size(), focusInst).forEach(s -> {
+                        SuggestionResponse.Suggestions suggestion = new SuggestionResponse.Suggestions();
+                        suggestion.suggestion = s;
+                        suggestion.suggestionType = "aaa";
+                        suggestion.description = "aaa";
+                        datas.suggestions.add(suggestion);
+                    });
+                    response.setDatas(datas);
+                    session.sendMessage(new TextMessage(response.response()));
+                    System.out.println("提示:\n\t" + JSON.toJSONString(sug(tokens.size(), focusInst)) + "\n");
                 } else {
-                    System.out.println("------------------------");
+                    StateResponse response = new StateResponse(search);
+                    // 生成指令
+                    response.setDatas("prepareQuery");
+                    session.sendMessage(new TextMessage(response.response()));
                     JSONObject json = InstructionBuild.build(focusInst, search, srs);
-                    msg = "指令:\n\t" + json + "\n";
-                    System.out.println(msg);
-                    session.sendMessage(new TextMessage(msg));
+                    System.out.println("指令:\n\t" + json + "\n");
+                    // 指令检测
+                    response.setDatas("precheck");
+                    session.sendMessage(new TextMessage(response.response()));
+                    // todo 发送BI检测指定是否可执行
+
+                    // 指令检测完毕
+                    response.setDatas("precheckDone");
+                    session.sendMessage(new TextMessage(response.response()));
+
+                    // 准备执行指令
+                    response.setDatas("executeQuery");
+                    session.sendMessage(new TextMessage(response.response()));
+
+                    // todo 给BI发送指令，获取查询结果
+                    ChartsResponse chartsResponse = new ChartsResponse(search, user.getString("sourceToken"));
+                    chartsResponse.setDatas(null);
+                    session.sendMessage(new TextMessage(chartsResponse.response()));
+
                 }
             } else {
-                int tokenPosition = focusInst.position;
-                int strPosition = tokens.get(focusInst.position).getStart();
+                IllegalResponse response = new IllegalResponse(search);
+                int strPosition = tokens.get(position).getStart();
+                IllegalResponse.Datas datas = new IllegalResponse.Datas();
+                datas.beginPos = strPosition;
+                StringBuilder reason = new StringBuilder();
+                sug(position, focusInst).forEach(s -> reason.append(s).append("\n"));
+                datas.reason = reason.toString();
+                response.setDatas(datas);
+                session.sendMessage(new TextMessage(response.response()));
                 msg = "错误:\n\t" + "位置: " + strPosition + "\t错误: " + search.substring(strPosition) + "\n";
                 System.out.println(msg);
-                session.sendMessage(new TextMessage(msg));
-                Set<String> sug = new HashSet<>();
-                for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
-                    if (!focusPhrase.isSuggestion()) {
-                        tokenPosition = tokenPosition - focusPhrase.size();
-                        continue;
-                    }
-                    sug.add("\n\t提示: " + focusPhrase.getNode(tokenPosition).getValue() + "\n");
-                }
-                System.out.println("------------------------");
-                StringBuilder sb = new StringBuilder();
-                sug.forEach(sb::append);
-                msg = sb.toString();
+                msg = "提示:\n\t" + JSON.toJSONString(sug(position, focusInst)) + "\n";
                 System.out.println(msg);
-                session.sendMessage(new TextMessage(msg));
             }
 
         } catch (InvalidRuleException e) {
@@ -335,6 +348,20 @@ class SearchHandler {
     // move
     private static void move() {
 
+    }
+
+    private static Set<String> sug(int position, FocusInst focusInst) {
+        Set<String> suggestions = new HashSet<>();
+        if (position == 1)
+            position = 0;
+        for (FocusPhrase fp : focusInst.getFocusPhrases()) {
+            if (fp.isSuggestion()) {
+                suggestions.add(fp.getNode(position).getValue());
+            } else {
+                position = position - fp.size();
+            }
+        }
+        return suggestions;
     }
 
 }

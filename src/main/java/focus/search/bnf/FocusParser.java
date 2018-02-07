@@ -8,7 +8,6 @@ import focus.search.base.Constant;
 import focus.search.bnf.exception.InvalidGrammarException;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.*;
-import focus.search.instruction.InstructionBuild;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
@@ -138,10 +137,11 @@ public class FocusParser {
             error = position;
             position = position + flag;
             if (fsi.isError()) {
+                fi.position = position;
                 break;
             }
         }
-        if (error < position) {
+        if (error > 0 && error < position) {
             FocusSubInst fsi = subParse(tokens.subList(error, position));
             assert fsi != null;
             fi.addPfs(fsi.getFps());
@@ -198,11 +198,19 @@ public class FocusParser {
                     }
                     List<FocusPhrase> remove = new ArrayList<>();
                     for (FocusPhrase fp : focusPhrases) {
-                        if (fp.size() <= i) {
+                        if (fp.size() <= i || !fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
                             remove.add(fp);
                         }
                     }
                     focusPhrases.removeAll(remove);
+                    if (focusPhrases.isEmpty()) {
+                        FocusSubInst fsi = new FocusSubInst();
+                        fsi.setIndex(i);
+                        fsi.setFps(remove);
+                        if (remove.size() != 1 || remove.get(0).isSuggestion())
+                            fsi.setError(true);
+                        return fsi;
+                    }
                 }
             }
         }
@@ -214,15 +222,13 @@ public class FocusParser {
             }
         }
         if (fsi.isEmpty()) {
-            fsi.setError(true);
             for (FocusPhrase fp : focusPhrases) {
                 if (fp.size() > tokens.size()) {
                     fsi.addFps(fp);
                 }
             }
-        } else {
-            fsi.setIndex(-1);
         }
+        fsi.setIndex(-1);
 
         return fsi;
     }
@@ -253,10 +259,15 @@ public class FocusParser {
                 } else {
                     FocusNode fn = focusPhrase.getNode(position);
                     if (terminal(fn.getValue())) {
-                        focusPhrase.removeNode(position);
-                        fn.setTerminal(true);
-                        focusPhrase.addPn(position, fn);
-                        focusPhrases.add(focusPhrase);
+                        if (fn.getValue().equalsIgnoreCase(focusToken.getWord())) {
+                            focusPhrase.removeNode(position);
+                            fn.setTerminal(true);
+                            focusPhrase.addPn(position, fn);
+                            if (focusPhrase.size() == position + 1) {
+                                focusPhrase.setType(Constant.INSTRUCTION);
+                            }
+                            focusPhrases.add(focusPhrase);
+                        }
                     } else {
                         BnfRule br;
                         try {
