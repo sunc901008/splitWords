@@ -1,10 +1,5 @@
 package focus.search.analyzer.core;
 
-import focus.search.analyzer.focus.FocusSuggestions;
-
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * IK词元对象
  */
@@ -53,9 +48,6 @@ public class Lexeme implements Comparable<Lexeme> {
     private int lexemeType;
 
     private String type;
-
-    private Set<FocusSuggestions> suggestions = new HashSet<>();
-    private Set<String> ambiguity = new HashSet<>();
 
     public Lexeme(int offset, int begin, int length, int lexemeType) {
         this.offset = offset;
@@ -271,26 +263,6 @@ public class Lexeme implements Comparable<Lexeme> {
             default:
                 return "UNKONW";
         }
-    }
-
-    public Set<FocusSuggestions> getSuggestions() {
-        return suggestions;
-    }
-
-    public void addSuggestion(FocusSuggestions suggestion) {
-        this.suggestions.add(suggestion);
-    }
-
-    public Set<String> getAmbiguity() {
-        return ambiguity;
-    }
-
-    public void addAmbiguity(String ambiguity) {
-        this.ambiguity.add(ambiguity);
-    }
-
-    public void addAllAmbiguity(Set<String> ambiguity) {
-        this.ambiguity.addAll(ambiguity);
     }
 
 }

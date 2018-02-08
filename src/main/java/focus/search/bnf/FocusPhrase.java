@@ -72,8 +72,8 @@ public class FocusPhrase {
         return focusNodes.subList(begin, end);
     }
 
-    public void setFocusNodes(List<FocusNode> focusNodes) {
-        this.focusNodes = focusNodes;
+    public List<FocusNode> getFocusNodes() {
+        return this.focusNodes;
     }
 
     public void addPn(FocusNode fn) {

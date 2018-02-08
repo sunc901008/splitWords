@@ -25,7 +25,6 @@ package focus.search.analyzer.lucene;
 
 import focus.search.analyzer.core.IKSegmenter;
 import focus.search.analyzer.core.Lexeme;
-import focus.search.analyzer.focus.FocusSuggestions;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -33,8 +32,6 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * IK分词器 Lucene Tokenizer适配器类
@@ -53,9 +50,6 @@ public final class IKTokenizer extends Tokenizer {
     private final TypeAttribute typeAtt;
     // 记录最后一个词元的结束位置
     private int endPosition;
-
-    private Set<FocusSuggestions> suggestions = new HashSet<>();
-    private Set<String> ambiguity = new HashSet<>();
 
     /**
      * Lucene 4.0 Tokenizer适配器类构造函数
@@ -82,8 +76,6 @@ public final class IKTokenizer extends Tokenizer {
     public boolean incrementToken() throws IOException {
         // 清除所有的词元属性
         clearAttributes();
-        suggestions.clear();
-        ambiguity.clear();
         Lexeme nextLexeme = _IKImplement.next();
         if (nextLexeme != null) {
             // 将Lexeme转成Attributes
@@ -99,22 +91,11 @@ public final class IKTokenizer extends Tokenizer {
             String type = nextLexeme.getType();
             typeAtt.setType(type == null ? nextLexeme.getLexemeTypeString() : type);
 
-            suggestions = nextLexeme.getSuggestions();
-            ambiguity = nextLexeme.getAmbiguity();
-
             // 返会true告知还有下个词元
             return true;
         }
         // 返会false告知词元输出完毕
         return false;
-    }
-
-    public Set<FocusSuggestions> getSuggestions() {
-        return suggestions;
-    }
-
-    public Set<String> getAmbiguity() {
-        return ambiguity;
     }
 
     @Override

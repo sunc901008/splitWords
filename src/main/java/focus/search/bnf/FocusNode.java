@@ -1,8 +1,9 @@
 package focus.search.bnf;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import focus.search.analyzer.focus.FocusToken;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * creator: sunc
@@ -15,7 +16,12 @@ public class FocusNode {
 
     private boolean isTerminal = false;
 
-    private FocusToken ft;
+    private String type;
+
+    private Integer begin;
+    private Integer end;
+
+    private List<FocusNodeDetail> details;
 
     public FocusNode() {
     }
@@ -40,19 +46,47 @@ public class FocusNode {
         isTerminal = terminal;
     }
 
-    public FocusToken getFt() {
-        return ft;
+    public String getType() {
+        return type;
     }
 
-    public void setFt(FocusToken ft) {
-        this.ft = ft;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Integer getBegin() {
+        return begin;
+    }
+
+    public void setBegin(Integer begin) {
+        this.begin = begin;
+    }
+
+    public Integer getEnd() {
+        return end;
+    }
+
+    public void setEnd(Integer end) {
+        this.end = end;
+    }
+
+    public List<FocusNodeDetail> getDetails() {
+        return details;
+    }
+
+    public void addDetail(FocusNodeDetail detail) {
+        if (details == null)
+            details = new ArrayList<>();
+        details.add(detail);
     }
 
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("value", value);
         json.put("isTerminal", isTerminal);
-        json.put("FocusToken", JSON.parseObject(JSON.toJSONString(ft)));
+        json.put("type", type);
+        json.put("begin", begin);
+        json.put("end", end);
         return json;
     }
 }

@@ -34,7 +34,6 @@ public class FocusSegmenter implements ISegmenter {
                         // 输出当前的词
                         Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), context.getCursor() - hit.getBegin() + 1, Lexeme.TYPE_CNWORD);
                         newLexeme.setType(hit.dsType());
-                        newLexeme.addAllAmbiguity(hit.dsAmbiguity());
                         context.addLexeme(newLexeme);
 
                         if (!hit.isPrefix()) {// 不是词前缀，hit不需要继续匹配，移除
@@ -55,7 +54,6 @@ public class FocusSegmenter implements ISegmenter {
                 // 输出当前的词
                 Lexeme newLexeme = new Lexeme(context.getBufferOffset(), context.getCursor(), 1, Lexeme.TYPE_CNCHAR);
                 newLexeme.setType(singleCharHit.dsType());
-                newLexeme.addAllAmbiguity(singleCharHit.dsAmbiguity());
                 context.addLexeme(newLexeme);
 
 //                // 同时也是词前缀

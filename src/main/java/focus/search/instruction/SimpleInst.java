@@ -2,7 +2,7 @@ package focus.search.instruction;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import focus.search.analyzer.focus.FocusToken;
+import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.metaReceived.ColumnReceived;
@@ -33,11 +33,11 @@ class SimpleInst extends CommonFunc {
         }
         json1.put("column", col.columnId);
         json1.put("operator", focusPhrase.getNode(1).getValue());
-        FocusToken t = focusPhrase.getNode(2).getFt();
-        if (t.getType().equalsIgnoreCase("integer")) {
-            json1.put("value", Integer.parseInt(t.getWord()));
-        } else if (t.getType().equalsIgnoreCase("number")) {
-            json1.put("value", Double.parseDouble(t.getWord()));
+        FocusNode node = focusPhrase.getNode(2);
+        if (node.getType().equalsIgnoreCase("integer")) {
+            json1.put("value", Integer.parseInt(node.getValue()));
+        } else if (node.getType().equalsIgnoreCase("number")) {
+            json1.put("value", Double.parseDouble(node.getValue()));
         }
         instructions.add(json1);
         JSONObject json2 = new JSONObject();

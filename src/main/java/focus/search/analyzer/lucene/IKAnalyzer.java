@@ -24,7 +24,6 @@
 package focus.search.analyzer.lucene;
 
 import focus.search.analyzer.dic.Dictionary;
-import focus.search.analyzer.focus.FocusSuggestions;
 import org.apache.lucene.analysis.Analyzer;
 
 import java.io.Reader;
@@ -51,14 +50,6 @@ public final class IKAnalyzer extends Analyzer {
 
     public void loadSegmenters(String language) {
         _IKTokenizer.loadSegmenters(language);
-    }
-
-    public Set<FocusSuggestions> getSuggestions() {
-        return _IKTokenizer.getSuggestions();
-    }
-
-    public Set<String> getAmbiguity() {
-        return _IKTokenizer.getAmbiguity();
     }
 
 }

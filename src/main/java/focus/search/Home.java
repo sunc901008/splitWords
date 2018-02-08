@@ -1,11 +1,14 @@
 package focus.search;
 
 import com.alibaba.fastjson.JSON;
+import focus.search.analyzer.focus.FocusKWDict;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.bnf.tokens.TerminalToken;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,14 +25,21 @@ public class Home {
         FocusParser parser = new FocusParser();
         ModelBuild.build(parser, ModelBuild.test(2));
 
-        String search = "id";
+        String search = "id>4 sort";
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "english");
         System.out.println(JSON.toJSONString(tokens));
         FocusInst focusInst = parser.parse(tokens);
         System.out.println("-------------------");
         System.out.println(focusInst.toJSON());
 
-        List<BnfRule> rules = parser.parseRules("users");
+        List<BnfRule> rules = parser.parseRules("vi");
+        System.out.println(JSON.toJSONString(rules));
+        List<BnfRule> copyRules = new ArrayList<>(rules);
+        for (BnfRule br : copyRules) {
+            if (!isBaseRule(br, "vi")) {
+                rules.remove(br);
+            }
+        }
 
         System.out.println(JSON.toJSONString(rules));
 
@@ -64,6 +74,15 @@ public class Home {
             }
         }
         return suggestions;
+    }
+
+    private static Boolean isBaseRule(BnfRule rule, String token) {
+        for (TerminalToken tt : rule.getTerminalTokens()) {
+            if (tt.getName().toLowerCase().startsWith(token.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

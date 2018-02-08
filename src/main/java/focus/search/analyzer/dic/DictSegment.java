@@ -1,7 +1,5 @@
 package focus.search.analyzer.dic;
 
-import focus.search.analyzer.focus.FocusSuggestions;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,7 +24,6 @@ class DictSegment implements Comparable<DictSegment> {
     // 当前DictSegment状态 ,默认 0 , 1表示从根节点到当前节点的路径表示一个词
     private int nodeState = 0;
 
-    private Set<String> ambiguity = new HashSet<>();
     // 默认类型
     private String nodeType = "UNKNOW";
 
@@ -154,7 +151,6 @@ class DictSegment implements Comparable<DictSegment> {
                 // enabled=1表明一个完整的词，enabled=0表示从词典中屏蔽当前词
                 ds.nodeState = enabled;
                 ds.nodeType = type;
-                ds.ambiguity.add(attr);
             }
         }
 
@@ -205,18 +201,6 @@ class DictSegment implements Comparable<DictSegment> {
     public int compareTo(DictSegment o) {
         // 对当前节点存储的char进行比较
         return this.nodeChar.compareTo(o.nodeChar);
-    }
-
-    Set<String> getAmbiguity() {
-        return ambiguity;
-    }
-
-    Set<FocusSuggestions> getSuggestions() {
-        Set<FocusSuggestions> suggestions = new HashSet<>();
-        for (Map<Integer, String> map : tmp(this)) {
-            suggestions.add(new FocusSuggestions(map.get(0).substring(1, map.get(0).length()), map.get(1)));
-        }
-        return suggestions;
     }
 
     private Set<Map<Integer, String>> tmp(DictSegment dict) {

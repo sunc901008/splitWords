@@ -30,8 +30,8 @@ public class AmbiguityResponse {
     public static class Datas {
         public String title;
         public String id;
-        public String begin;
-        public String end;
+        public Integer begin;
+        public Integer end;
         public List<String> possibleMenus;
 
         public JSONObject toJSON() {

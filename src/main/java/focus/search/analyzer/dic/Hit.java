@@ -1,9 +1,5 @@
 package focus.search.analyzer.dic;
 
-import focus.search.analyzer.focus.FocusSuggestions;
-
-import java.util.Set;
-
 /**
  * 表示一次词典匹配的命中
  */
@@ -81,14 +77,6 @@ public class Hit {
 
     public String dsType() {
         return this.matchedDictSegment.getNodeType();
-    }
-
-    public Set<String> dsAmbiguity() {
-        return this.matchedDictSegment.getAmbiguity();
-    }
-
-    public Set<FocusSuggestions> getSuggestions() {
-        return this.matchedDictSegment.getSuggestions();
     }
 
     public int getBegin() {

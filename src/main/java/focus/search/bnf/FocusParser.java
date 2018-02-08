@@ -65,13 +65,7 @@ public class FocusParser {
         String language = "english";
         List<FocusToken> tokens = focusAnalyzer.test(question, language);
         System.out.println("分词:\n\t" + JSON.toJSONString(tokens) + "\n");
-        for (FocusToken ft : tokens) {
-            Set<String> ams = ft.getAmbiguities();
-            if (ams != null && ams.size() > 1) {
-                System.out.println("ambiguity:\t" + ft.getStart() + "-" + ft.getEnd() + "," + ft.getWord() + "," + JSON.toJSONString(ams));
-                // todo 歧义处理
-            }
-        }
+        // todo 歧义处理
 
         List<TerminalToken> terminals = getTerminalTokens();
         System.out.println("最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n");
@@ -282,7 +276,9 @@ public class FocusParser {
                             newFp.addPns(focusPhrase.subNodes(0, position));
                             for (Token token : ts) {
                                 FocusNode newFn = new FocusNode(token.getName());
-                                newFn.setFt(focusToken);
+                                newFn.setType(focusToken.getType());
+                                newFn.setBegin(focusToken.getStart());
+                                newFn.setEnd(focusToken.getEnd());
                                 newFn.setTerminal(true);
                                 newFp.addPn(newFn);
                             }
@@ -324,8 +320,12 @@ public class FocusParser {
                 fp.setInstName(rule.getLeftHandSide().getName());
                 for (Token token : ts) {
                     FocusNode fn = new FocusNode(token.getName());
-                    fn.setFt(focusToken);
+                    fn.setType(focusToken.getType());
                     fn.setTerminal(true);
+                    if (token.getName().equalsIgnoreCase(focusToken.getWord())) {
+                        fn.setBegin(focusToken.getStart());
+                        fn.setEnd(focusToken.getEnd());
+                    }
                     fp.addPn(fn);
                 }
                 focusPhrases.add(fp);
@@ -342,6 +342,11 @@ public class FocusParser {
                         FocusNode fn = new FocusNode(token.getName());
                         if (terminal(token.getName())) {
                             fn.setTerminal(true);
+                            fn.setType("keyword");
+                            if (token.getName().equalsIgnoreCase(focusToken.getWord())) {
+                                fn.setBegin(focusToken.getStart());
+                                fn.setEnd(focusToken.getEnd());
+                            }
                         }
                         fp.addPn(fn);
                     }

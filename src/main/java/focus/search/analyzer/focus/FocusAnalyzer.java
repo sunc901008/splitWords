@@ -56,8 +56,6 @@ public class FocusAnalyzer {
         List<FocusToken> tokens = new LinkedList<>();
         while (ts.incrementToken()) {
             FocusToken token = new FocusToken(term.toString(), type.type(), offset.startOffset(), offset.endOffset());
-            analyzer.getSuggestions().forEach(token::addSuggestions);
-            analyzer.getAmbiguity().forEach(token::addAmbiguities);
             tokens.add(token);
         }
         // 关闭TokenStream（关闭StringReader）
@@ -68,9 +66,9 @@ public class FocusAnalyzer {
     private List<FocusKWDict> makeDict(List<SourceReceived> sources) {
         List<FocusKWDict> list = new ArrayList<>();
         for (SourceReceived source : sources) {
+            list.add(new FocusKWDict(source.sourceName, "sourceName", source.sourceName));
             for (ColumnReceived col : source.columns) {
-                FocusKWDict dict = new FocusKWDict(col.columnDisplayName, "columnName", source.sourceName);
-                list.add(dict);
+                list.add(new FocusKWDict(col.columnDisplayName, "columnName", source.sourceName));
             }
         }
         return list;

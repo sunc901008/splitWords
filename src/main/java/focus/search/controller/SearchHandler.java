@@ -3,18 +3,19 @@ package focus.search.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.analyzer.core.Lexeme;
+import focus.search.analyzer.focus.FocusKWDict;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.base.LoggerHandler;
-import focus.search.bnf.FocusInst;
-import focus.search.bnf.FocusParser;
-import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.ModelBuild;
+import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
 import focus.search.metaReceived.Ambiguities;
+import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.RelationReceived;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.search.*;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * creator: sunc
@@ -171,19 +173,9 @@ class SearchHandler {
             focusIn(session, search, position, fp);
             return;
         }
+        // 分词
         List<FocusToken> tokens = fp.focusAnalyzer.test(search, language);
         System.out.println("split words:" + JSON.toJSONString(tokens));
-
-        for (FocusToken ft : tokens) {
-            Set<String> ams = ft.getAmbiguities();
-            if (ams != null && ams.size() > 1) {
-                String amb = "ambiguity:\t" + ft.getStart() + "-" + ft.getEnd() + "," + ft.getWord() + "," + JSON.toJSONString(ams);
-                System.out.println(amb);
-                session.sendMessage(new TextMessage(amb));
-                // todo 歧义处理
-                return;
-            }
-        }
 
         try {
             // 解析结果
@@ -193,13 +185,71 @@ class SearchHandler {
 
             String msg;
             if (focusInst.position < 0) {
+                // todo 检测歧义
+                int index = tokens.size();
+                boolean over = false;
+                SourceReceived preNodeSource = null;
+                for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
+                    for (FocusNode fn : focusPhrase.getFocusNodes()) {
+                        if (index == 0) {
+                            over = true;
+                            break;
+                        }
+                        index--;
+                        String nodeType = fn.getType();
+                        String value = fn.getValue();
+                        if (nodeType.equals(Lexeme.INTEGER)
+                                || nodeType.equals(Lexeme.NUMBER)
+                                || nodeType.equals(Lexeme.SYMBOL)
+                                || FocusKWDict.getAllKeywords().contains(value)) {
+                            continue;
+                        }
+                        SourceReceived source = CommonFunc.getSource(value, srs);
+                        if (source == null) {
+                            ColumnReceived col;
+                            if (preNodeSource != null && (col = CommonFunc.getCol(value, preNodeSource)) != null) {
+                                FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
+                                focusNodeDetail.type = "column";
+                                focusNodeDetail.sourceId = preNodeSource.tableId;
+                                focusNodeDetail.sourceName = preNodeSource.sourceName;
+                                focusNodeDetail.columnId = col.columnId;
+                                focusNodeDetail.columnName = col.columnName;
+                                focusNodeDetail.colType = col.columnType;
+                                focusNodeDetail.dataType = col.dataType;
+                                fn.addDetail(focusNodeDetail);
+                                continue;
+                            }
+                            List<SourceReceived> sources = CommonFunc.getSources(value, srs);
+                            if (sources.size() > 1) {// 有歧义
+                                AmbiguityResponse response = new AmbiguityResponse(search);
+                                AmbiguityResponse.Datas datas = new AmbiguityResponse.Datas();
+                                datas.id = UUID.randomUUID().toString();
+                                datas.begin = fn.getBegin();
+                                datas.end = fn.getEnd();
+                                datas.title = "ambiguity " + fn.getValue();
+                            } else {
+
+                            }
+                        } else {
+                            preNodeSource = source;
+                            FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
+                            focusNodeDetail.type = "table";
+                            focusNodeDetail.sourceId = source.tableId;
+                            focusNodeDetail.sourceName = source.sourceName;
+                            fn.addDetail(focusNodeDetail);
+                        }
+                    }
+                    if (over)
+                        break;
+                }
+
                 FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
                 if (focusPhrase.isSuggestion()) {
                     SuggestionResponse response = new SuggestionResponse(search);
                     SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
                     datas.beginPos = tokens.get(tokens.size() - 1).getEnd();
                     datas.phraseBeginPos = datas.beginPos;
-                    sug(tokens.size(), focusInst).forEach(s -> {
+                    sug(tokens.size() - 1, focusInst).forEach(s -> {
                         SuggestionResponse.Suggestions suggestion = new SuggestionResponse.Suggestions();
                         suggestion.suggestion = s;
                         suggestion.suggestionType = "aaa";

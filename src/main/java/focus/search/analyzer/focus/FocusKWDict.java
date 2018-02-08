@@ -28,7 +28,9 @@ public class FocusKWDict {
         dictionaries.add(new FocusKWDict("的最小值", "keyword", "keyword"));
         dictionaries.add(new FocusKWDict("最小值", "keyword", "keyword"));
         dictionaries.add(new FocusKWDict("前", "keyword", "keyword"));
-        dictionaries.add(new FocusKWDict("排名前", "keyword", "keyword"));
+        dictionaries.add(new FocusKWDict("sort", "keyword", "keyword"));
+        dictionaries.add(new FocusKWDict("by", "keyword", "keyword"));
+        dictionaries.add(new FocusKWDict("top", "keyword", "keyword"));
     }
 
     public String getWord() {

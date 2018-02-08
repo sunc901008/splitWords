@@ -1,11 +1,7 @@
 package focus.search.analyzer.core;
 
-import focus.search.analyzer.dic.Hit;
-import focus.search.analyzer.focus.FocusSuggestions;
-
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.*;
 
 /**
