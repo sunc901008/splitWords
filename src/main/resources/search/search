@@ -1,0 +1,65 @@
+初始化:
+{"type":"init","datas":{"sourceToken":"cba73818-761d-4b21-8d81-d67c79a902ab","curSearchToken":"cba73818-761d-4b21-8d81-d67c79a902ab","category":"question","lang":"english","context":null}}
+{"type":"response","command":"init","sourceToken":"cba73818-761d-4b21-8d81-d67c79a902ab","datas":{"status":"success","message":"initialization is finished.","sources":[{"sourceName":"badges","tableId":1,"type":"table","columns":[{"columnId":3,"columnDisplayName":"id","columnName":"id","columnType":"doubleMeasure","dataType":"double","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"id"}},{"columnId":1,"columnDisplayName":"name","columnName":"name","columnType":"attribute","dataType":"string","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"name"}},{"columnId":4,"columnDisplayName":"userid","columnName":"userid","columnType":"doubleMeasure","dataType":"double","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"userid"}},{"columnId":2,"columnDisplayName":"users","columnName":"users","columnType":"dateAttribute","dataType":"timestamp","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"users"}}]},{"sourceName":"users","tableId":2,"type":"table","columns":[{"columnId":15,"columnDisplayName":"age","columnName":"age","columnType":"doubleMeasure","dataType":"double","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"age"}},{"columnId":8,"columnDisplayName":"creationdate","columnName":"creationdate","columnType":"dateAttribute","dataType":"timestamp","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"creationdate"}},{"columnId":10,"columnDisplayName":"downvotes","columnName":"downvotes","columnType":"doubleMeasure","dataType":"double","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"downvotes"}},{"columnId":7,"columnDisplayName":"emailhash","columnName":"emailhash","columnType":"attribute","dataType":"string","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"emailhash"}},{"columnId":13,"columnDisplayName":"id","columnName":"id","columnType":"doubleMeasure","dataType":"double","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"id"}},{"columnId":9,"columnDisplayName":"lastaccessdate","columnName":"lastaccessdate","columnType":"dateAttribute","dataType":"timestamp","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"lastaccessdate"}},{"columnId":12,"columnDisplayName":"name","columnName":"name","columnType":"attribute","dataType":"string","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"name"}},{"columnId":6,"columnDisplayName":"reputation","columnName":"reputation","columnType":"doubleMeasure","dataType":"double","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"reputation"}},{"columnId":11,"columnDisplayName":"upvotes","columnName":"upvotes","columnType":"doubleMeasure","dataType":"double","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"upvotes"}},{"columnId":14,"columnDisplayName":"views","columnName":"views","columnType":"doubleMeasure","dataType":"double","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"views"}},{"columnId":5,"columnDisplayName":"websiteurl","columnName":"websiteurl","columnType":"attribute","dataType":"string","description":"","columnModify":{"updated":"2018-02-06 15:16:43","name":"websiteurl"}}]}],"formulas":null}}
+
+
+点击输入框，提示：
+{"type":"search","datas":{"search":"","event":"focusIn","position":0,"debug":false,"biConfig":{},"queryFlags":[]}}
+{"type":"response","datas":{"status":"success","message":"done"},"command":"search"}
+{"type":"state","question":"","datas":"clearChart"}
+{"type":"suggestions","question":"","datas":{"beginPos":0,"phraseBeginPos":0,"guidance":null,"suggestions":[{"suggestion":"sort by id ","suggestionType":"history","description":""},{"suggestion":"id name ","suggestionType":"history","description":""},{"suggestion":"badges id badges name ","suggestionType":"history","description":""},{"suggestion":"id ","suggestionType":"history","description":"2 matches"},{"suggestion":"sort by id  ","suggestionType":"phrase","description":""},{"suggestion":"name ","suggestionType":"stringAttributeColumn","description":"2 matches"}]}}
+{"type":"state","question":"","cost":426,"icount":0,"icost":0,"iRequestTime":0,"pcost":422,"datas":"searchFinished"}
+
+
+输入提示歧义：
+{"type":"search","datas":{"search":"id","event":"textChange","position":2,"debug":false,"biConfig":{},"queryFlags":[],"ambiguities":[]}}
+{"type":"response","datas":{"status":"success","message":"done"},"command":"search"}
+{"type":"state","question":"id","datas":"clearChart"}
+{"type":"ambiguity","question":"id","datas":{"title":"How do you want to map <b>id<\/b>?","id":"FEEAA5EF-6F35-434F-8C6E-3274B3B208BB","begin":0,"end":2,"possibleMenus":["column <b>id<\/b> in <b>badges<\/b>","column <b>id<\/b> in <b>users<\/b>"]}}
+{"type":"state","question":"id","cost":64,"icount":0,"icost":0,"iRequestTime":0,"pcost":38,"datas":"searchFinished"}
+
+
+选择歧义：
+{"type":"disambiguate","datas":{"id":"6E477052-2239-404F-BE44-97D1ACD84AE1","index":0}}
+{"type":"response","datas":{"status":"success","message":"done"},"command":"disambiguate"}
+{"type":"state","message":"disambiguateDone"}
+
+
+选择歧义后搜索：
+{"type":"search","datas":{"search":"id","event":"textChange","position":2,"debug":false,"biConfig":{},"queryFlags":[]}}
+{"type":"response","datas":{"status":"success","message":"done"},"command":"search"}
+{"type":"state","question":"id","datas":"prepareQuery"}
+{"type":"annotations","question":"id","datas":[{"type":"phrase","id":1,"category":"floatMeasureColumn","begin":0,"end":2,"tokens":[{"description":"column <b>id<\/b> in <b>badges<\/b>","tableName":"badges","columnName":"id","columnId":3,"ambiguaty":{"title":"How do you want to map <b>id<\/b>?","id":"ECA8F190-0D5B-4C0A-B60E-87F890CD3416","begin":0,"end":2,"possibleMenus":["column <b>id<\/b> in <b>badges<\/b>","column <b>id<\/b> in <b>users<\/b>"]},"type":"measure","detailType":"floatMeasureColumn","tokens":["id"],"value":"id","begin":0,"end":2}]}]}
+{"type":"suggestions","question":"id","datas":{"beginPos":0,"phraseBeginPos":0,"guidance":null,"suggestions":[{"suggestion":"id name ","suggestionType":"history","description":""},{"suggestion":"id ","suggestionType":"floatMeasureColumn","description":"2 matches"}]}}
+{"type":"state","question":"id","cost":11,"icount":0,"icost":0,"iRequestTime":0,"pcost":4,"datas":"searchFinished"}
+{"type":"state","question":"id","datas":"precheck"}
+{"type":"state","question":"id","datas":"precheckDone"}
+{"type":"state","question":"id","datas":"executeQuery"}
+{"type":"charts","sourceToken":"cba73818-761d-4b21-8d81-d67c79a902ab","question":"id","datas":{"exception":"","success":"true","question":"id","errCode":0,"sourceToken":"cba73818-761d-4b21-8d81-d67c79a902ab","source":"searchUser","result":{"page_no":1,"default_chart":null,"title":"","source_token":"cba73818-761d-4b21-8d81-d67c79a902ab","head_lines":[{"data_type":"double","col_name":"id","values":[751124800000.0],"operator":"total","hid":"61914079698062516251798248697745011114","annotations":[{"content":{"category":"tableFloatMeasureColumn","begin":0,"end":10,"tokens":[{"begin":0,"end":10,"description":"<b>badges<\/b>\u4E2D\u7684\u5217<b>id<\/b>","detailType":"tableFloatMeasureColumn","tableName":"badges","value":"id","tokens":["badges","id"],"columnName":"id","type":"measure","columnId":3}],"type":"phrase","id":1},"id":1}]}],"question":"id","charts":null,"page_size":1000,"total_pages":0,"source":"searchUser","analysis":null,"filters":null,"duration":"0.342370","result_type":"normal","columns":null,"headers":[{"statistics":null,"col_uuid":3,"data_type":"double","col_name":"id","col_id":"61914079698062516251798248697745011114","is_empty":false,"drill_down_cols":null,"drill_up_cols":null,"col_type":"MEASURE","operator":"total","formula":null,"geo_type":"","dep_cols":[3],"head_type":"column","annotations":[{"content":{"category":"tableFloatMeasureColumn","begin":0,"end":10,"tokens":[{"begin":0,"end":10,"description":"<b>badges<\/b>\u4E2D\u7684\u5217<b>id<\/b>","detailType":"tableFloatMeasureColumn","tableName":"badges","value":"id","tokens":["badges","id"],"columnName":"id","type":"measure","columnId":3}],"type":"phrase","id":1},"id":1}],"col_as":""}]},"taskId":"1f3e5ee9-ae10-4cce-a801-b1ca770a8ed4","promptMsg":null}}
+
+
+问题不完整：
+{"type":"search","datas":{"search":"id>","event":"textChange","position":3,"debug":false,"biConfig":{},"queryFlags":["chartExist"],"ambiguities":[]}}
+{"type":"response","datas":{"status":"success","message":"done"},"command":"search"}
+{"type":"state","question":"id>","datas":"clearChart"}
+{"type":"suggestions","question":"id>","datas":{"beginPos":2,"phraseBeginPos":2,"guidance":"input an number","suggestions":[{"suggestion":" >= ","suggestionType":"simpleFilter","description":""},{"suggestion":" > ","suggestionType":"simpleFilter","description":""}]}}
+{"type":"state","question":"id>","cost":24,"icount":0,"icost":0,"iRequestTime":0,"pcost":14,"datas":"searchFinished"}
+
+
+问题出错：
+{"type":"search","datas":{"search":"id>r.tr","event":"textChange","position":7,"debug":false,"biConfig":{},"queryFlags":[],"ambiguities":[]}}
+{"type":"response","datas":{"status":"success","message":"done"},"command":"search"}
+{"type":"state","question":"id>r.tr","datas":"clearChart"}
+{"type":"illegal","question":"id>r.tr","datas":{"beginPos":3,"endPos":null,"reason":"you can input: <ul><li>a number<\/li><\/ul>"}}
+{"type":"state","question":"id>r.tr","cost":278,"icount":0,"icost":0,"iRequestTime":0,"pcost":247,"datas":"searchFinished"}
+
+
+清除歧义：
+{"type":"clearDisambiguate"}
+{"type":"response","datas":{"status":"success","message":"done"},"command":"clearDisambiguate"}
+{"type":"state","message":"clearDisambiguateDone"}
+
+先提示错误部分，解除错误之后再检测歧义，然后给出提示
+
+
+
