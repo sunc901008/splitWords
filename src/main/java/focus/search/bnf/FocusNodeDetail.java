@@ -14,5 +14,6 @@ public class FocusNodeDetail {
     public String columnName;
     public String colType;
     public String dataType;
+    public String value;
 
 }

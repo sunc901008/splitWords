@@ -2,13 +2,11 @@ package focus.search.instruction;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
+import focus.search.bnf.FocusNodeDetail;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.metaReceived.ColumnReceived;
-import focus.search.metaReceived.SourceReceived;
-
-import java.util.List;
 
 /**
  * user: sunc
@@ -16,9 +14,9 @@ import java.util.List;
  */
 class SimpleInst extends CommonFunc {
 
-    static JSONArray simpleFilter(FocusPhrase focusPhrase, int index, List<SourceReceived> srs) throws InvalidRuleException {
+    static JSONArray simpleFilter(FocusPhrase focusPhrase, int index) throws InvalidRuleException {
         if (focusPhrase.size() == 1) {
-            return singleCol(focusPhrase.getLastNode().getValue(), index, srs);
+            return singleCol(focusPhrase.getLastNode(), index);
         }
 
         JSONArray instructions = new JSONArray();
@@ -27,13 +25,14 @@ class SimpleInst extends CommonFunc {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_simple_filter");
-        ColumnReceived col = getCol(focusPhrase.getNode(0).getValue(), srs);
-        if (col == null) {
-            throw new InvalidRuleException("Build instruction fail!!!");
+        int flag = 0;
+        FocusNodeDetail fnd = focusPhrase.getNode(flag++).getDetails().get(0);
+        if (fnd.type.equals(Constant.FNDType.TABLE)) {
+            fnd = focusPhrase.getNode(flag++).getDetails().get(0);
         }
-        json1.put("column", col.columnId);
-        json1.put("operator", focusPhrase.getNode(1).getValue());
-        FocusNode node = focusPhrase.getNode(2);
+        json1.put("column", fnd.columnId);
+        json1.put("operator", focusPhrase.getNode(flag++).getValue());
+        FocusNode node = focusPhrase.getNode(flag);
         if (node.getType().equalsIgnoreCase("integer")) {
             json1.put("value", Integer.parseInt(node.getValue()));
         } else if (node.getType().equalsIgnoreCase("number")) {
@@ -48,18 +47,15 @@ class SimpleInst extends CommonFunc {
         return instructions;
     }
 
-    static JSONArray singleCol(String colName, int index, List<SourceReceived> srs) throws InvalidRuleException {
+    static JSONArray singleCol(FocusNode fn, int index) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_column_for_measure");
-        ColumnReceived col = getCol(colName, srs);
-        if (col == null) {
-            throw new InvalidRuleException("Build instruction fail!!!");
-        }
-        json1.put("column", col.columnId);
+        FocusNodeDetail fnd = fn.getDetails().get(0);
+        json1.put("column", fnd.columnId);
         instructions.add(json1);
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);

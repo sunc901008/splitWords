@@ -1,5 +1,6 @@
 package focus.search.instruction;
 
+import focus.search.meta.Column;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
 
@@ -13,13 +14,29 @@ import java.util.List;
  */
 public class CommonFunc {
 
-    static ColumnReceived getCol(String colName, List<SourceReceived> srs) {
-        for (ColumnReceived column : getSources(colName, srs).get(0).columns) {
-            if (column.columnDisplayName.equalsIgnoreCase(colName)) {
-                return column;
+    public static List<SourceReceived> getSources(String value, List<SourceReceived> srs) {
+        List<SourceReceived> sources = new ArrayList<>();
+        for (SourceReceived sr : srs) {
+            if (sr.sourceName.equalsIgnoreCase(value)) {
+                sources.add(sr);
             }
         }
-        return null;
+        return sources;
+    }
+
+    public static List<Column> getColumns(String colName, List<SourceReceived> srs) {
+        List<Column> columns = new ArrayList<>();
+        for (SourceReceived sourceReceived : srs) {
+            for (ColumnReceived column : sourceReceived.columns) {
+                if (column.columnDisplayName.equalsIgnoreCase(colName)) {
+                    Column col = column.transfer();
+                    col.setTableId(sourceReceived.tableId);
+                    col.setSourceName(sourceReceived.sourceName);
+                    columns.add(col);
+                }
+            }
+        }
+        return columns;
     }
 
     public static ColumnReceived getCol(String colName, SourceReceived srs) {
@@ -29,19 +46,6 @@ public class CommonFunc {
             }
         }
         return null;
-    }
-
-    public static List<SourceReceived> getSources(String colName, List<SourceReceived> srs) {
-        List<SourceReceived> sources = new ArrayList<>();
-        for (SourceReceived sr : srs) {
-            for (ColumnReceived column : sr.columns) {
-                if (column.columnDisplayName.equalsIgnoreCase(colName)) {
-                    sources.add(sr);
-                    break;
-                }
-            }
-        }
-        return sources;
     }
 
     public static SourceReceived getSource(String sourceName, List<SourceReceived> srs) {

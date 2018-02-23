@@ -77,4 +77,12 @@ public class Constant {
         public static final String FOCUS_IN = "focusIn";
     }
 
+    public static final class FNDType {
+        public static final String TABLE = "table";
+        public static final String COLUMN = "column";
+        public static final String INTEGER = "integer";
+        public static final String NUMBER = "number";
+
+    }
+
 }

@@ -14,6 +14,9 @@ public class Column {
     private String description;
     private ColumnModify columnModify;
 
+    private String sourceName;
+    private Integer tableId;
+
     public Column() {
     }
 
@@ -78,5 +81,21 @@ public class Column {
 
     public void setColumnModify(ColumnModify columnModify) {
         this.columnModify = columnModify;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    public Integer getTableId() {
+        return tableId;
+    }
+
+    public void setTableId(Integer tableId) {
+        this.tableId = tableId;
     }
 }

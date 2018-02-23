@@ -2,11 +2,10 @@ package focus.search.instruction;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
+import focus.search.bnf.FocusNodeDetail;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.metaReceived.SourceReceived;
-
-import java.util.List;
 
 /**
  * creator: sunc
@@ -15,19 +14,18 @@ import java.util.List;
  */
 class TopNInst extends CommonFunc {
 
-    static JSONArray build(FocusPhrase focusPhrase, int index, List<SourceReceived> srs) throws InvalidRuleException {
+    static JSONArray build(FocusPhrase focusPhrase, int index) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "set_top_n");
-        if (focusPhrase.size() == 2) {
-            json1.put("n", 1);
-        } else if (focusPhrase.size() == 3) {
-            json1.put("n", Integer.parseInt(focusPhrase.getNode(1).getValue()));
+        FocusNodeDetail fnd = focusPhrase.getNode(1).getDetails().get(0);
+        if (fnd.type.equals(Constant.FNDType.INTEGER)) {
+            json1.put("n", Integer.parseInt(fnd.value));
         } else {
-            throw new InvalidRuleException("Build instruction fail!!!");
+            json1.put("n", 1);
         }
         instructions.add(json1);
         JSONObject json2 = new JSONObject();
@@ -35,7 +33,7 @@ class TopNInst extends CommonFunc {
         json2.put("instId", "annotation");
         instructions.add(json2);
 
-        instructions.addAll(SimpleInst.singleCol(focusPhrase.getLastNode().getValue(), index + 1, srs));
+        instructions.addAll(SimpleInst.singleCol(focusPhrase.getLastNode(), index + 1));
 
         return instructions;
     }

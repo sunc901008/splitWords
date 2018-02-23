@@ -3,6 +3,7 @@ package focus.search.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import focus.search.analyzer.core.Lexeme;
 import focus.search.analyzer.focus.FocusKWDict;
 import focus.search.analyzer.focus.FocusToken;
@@ -184,8 +185,8 @@ class SearchHandler {
 //            session.sendMessage(new TextMessage(focusInst.toJSON().toJSONString()));
 
             String msg;
-            if (focusInst.position < 0) {
-                // todo 检测歧义
+            if (focusInst.position < 0) {// 未出错
+                // todo 检测歧义 [有bug,待改]
                 int index = tokens.size();
                 boolean over = false;
                 SourceReceived preNodeSource = null;
@@ -209,13 +210,14 @@ class SearchHandler {
                             ColumnReceived col;
                             if (preNodeSource != null && (col = CommonFunc.getCol(value, preNodeSource)) != null) {
                                 FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
-                                focusNodeDetail.type = "column";
+                                focusNodeDetail.type = Constant.FNDType.COLUMN;
                                 focusNodeDetail.sourceId = preNodeSource.tableId;
                                 focusNodeDetail.sourceName = preNodeSource.sourceName;
                                 focusNodeDetail.columnId = col.columnId;
                                 focusNodeDetail.columnName = col.columnName;
                                 focusNodeDetail.colType = col.columnType;
                                 focusNodeDetail.dataType = col.dataType;
+                                focusNodeDetail.value = value;
                                 fn.addDetail(focusNodeDetail);
                                 continue;
                             }
@@ -227,15 +229,16 @@ class SearchHandler {
                                 datas.begin = fn.getBegin();
                                 datas.end = fn.getEnd();
                                 datas.title = "ambiguity " + fn.getValue();
-                            } else {
-
+                                over = true;
+                                break;
                             }
                         } else {
                             preNodeSource = source;
                             FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
-                            focusNodeDetail.type = "table";
+                            focusNodeDetail.type = Constant.FNDType.TABLE;
                             focusNodeDetail.sourceId = source.tableId;
                             focusNodeDetail.sourceName = source.sourceName;
+                            focusNodeDetail.value = value;
                             fn.addDetail(focusNodeDetail);
                         }
                     }
@@ -244,7 +247,7 @@ class SearchHandler {
                 }
 
                 FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
-                if (focusPhrase.isSuggestion()) {
+                if (focusPhrase.isSuggestion()) {// 出入不完整
                     SuggestionResponse response = new SuggestionResponse(search);
                     SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
                     datas.beginPos = tokens.get(tokens.size() - 1).getEnd();
@@ -259,12 +262,12 @@ class SearchHandler {
                     response.setDatas(datas);
                     session.sendMessage(new TextMessage(response.response()));
                     System.out.println("提示:\n\t" + JSON.toJSONString(sug(tokens.size(), focusInst)) + "\n");
-                } else {
+                } else {//  输入完整
                     StateResponse response = new StateResponse(search);
                     // 生成指令
                     response.setDatas("prepareQuery");
                     session.sendMessage(new TextMessage(response.response()));
-                    JSONObject json = InstructionBuild.build(focusInst, search, srs);
+                    JSONObject json = InstructionBuild.build(focusInst, search);
                     System.out.println("指令:\n\t" + json + "\n");
                     // 指令检测
                     response.setDatas("precheck");
@@ -285,7 +288,7 @@ class SearchHandler {
                     session.sendMessage(new TextMessage(chartsResponse.response()));
 
                 }
-            } else {
+            } else {//  出错
                 IllegalResponse response = new IllegalResponse(search);
                 int strPosition = tokens.get(position).getStart();
                 IllegalResponse.Datas datas = new IllegalResponse.Datas();
@@ -304,7 +307,6 @@ class SearchHandler {
         } catch (InvalidRuleException e) {
             e.printStackTrace();
         }
-
     }
 
     private static void selectSuggest(WebSocketSession session, JSONObject params) throws IOException {
