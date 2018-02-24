@@ -3,7 +3,6 @@ package focus.search.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import focus.search.analyzer.core.Lexeme;
 import focus.search.analyzer.focus.FocusKWDict;
 import focus.search.analyzer.focus.FocusToken;
@@ -15,8 +14,8 @@ import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
+import focus.search.meta.Column;
 import focus.search.metaReceived.Ambiguities;
-import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.RelationReceived;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.search.*;
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * creator: sunc
@@ -191,7 +189,8 @@ class SearchHandler {
                 boolean over = false;
                 SourceReceived preNodeSource = null;
                 for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
-                    for (FocusNode fn : focusPhrase.getFocusNodes()) {
+                    for (int i = 0; i < focusPhrase.getFocusNodes().size(); i++) {
+                        FocusNode fn = focusPhrase.getNode(i);
                         if (index == 0) {
                             over = true;
                             break;
@@ -203,44 +202,62 @@ class SearchHandler {
                                 || nodeType.equals(Lexeme.NUMBER)
                                 || nodeType.equals(Lexeme.SYMBOL)
                                 || FocusKWDict.getAllKeywords().contains(value)) {
+                            FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
+                            focusNodeDetail.type = nodeType;
+                            focusNodeDetail.value = value;
+                            fn.addDetail(focusNodeDetail);
                             continue;
                         }
                         SourceReceived source = CommonFunc.getSource(value, srs);
-                        if (source == null) {
-                            ColumnReceived col;
-                            if (preNodeSource != null && (col = CommonFunc.getCol(value, preNodeSource)) != null) {
-                                FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
-                                focusNodeDetail.type = Constant.FNDType.COLUMN;
-                                focusNodeDetail.sourceId = preNodeSource.tableId;
-                                focusNodeDetail.sourceName = preNodeSource.sourceName;
-                                focusNodeDetail.columnId = col.columnId;
-                                focusNodeDetail.columnName = col.columnName;
-                                focusNodeDetail.colType = col.columnType;
-                                focusNodeDetail.dataType = col.dataType;
-                                focusNodeDetail.value = value;
-                                fn.addDetail(focusNodeDetail);
-                                continue;
-                            }
-                            List<SourceReceived> sources = CommonFunc.getSources(value, srs);
-                            if (sources.size() > 1) {// 有歧义
-                                AmbiguityResponse response = new AmbiguityResponse(search);
-                                AmbiguityResponse.Datas datas = new AmbiguityResponse.Datas();
-                                datas.id = UUID.randomUUID().toString();
-                                datas.begin = fn.getBegin();
-                                datas.end = fn.getEnd();
-                                datas.title = "ambiguity " + fn.getValue();
-                                over = true;
-                                break;
-                            }
-                        } else {
-                            preNodeSource = source;
+                        List<Column> columns = CommonFunc.getColumns(value, srs);
+
+
+                        if (source != null) {// 有表名和当前值相同
                             FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
                             focusNodeDetail.type = Constant.FNDType.TABLE;
                             focusNodeDetail.sourceId = source.tableId;
                             focusNodeDetail.sourceName = source.sourceName;
                             focusNodeDetail.value = value;
                             fn.addDetail(focusNodeDetail);
+                        } else {
+
                         }
+
+//                        if (source == null) {
+//                            ColumnReceived col;
+//                            if (preNodeSource != null && (col = CommonFunc.getCol(value, preNodeSource)) != null) {
+//                                FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
+//                                focusNodeDetail.type = Constant.FNDType.COLUMN;
+//                                focusNodeDetail.sourceId = preNodeSource.tableId;
+//                                focusNodeDetail.sourceName = preNodeSource.sourceName;
+//                                focusNodeDetail.columnId = col.columnId;
+//                                focusNodeDetail.columnName = col.columnName;
+//                                focusNodeDetail.colType = col.columnType;
+//                                focusNodeDetail.dataType = col.dataType;
+//                                focusNodeDetail.value = value;
+//                                fn.addDetail(focusNodeDetail);
+//                                continue;
+//                            }
+//                            List<SourceReceived> sources = CommonFunc.getSources(value, srs);
+//                            if (sources.size() > 1) {// 有歧义
+//                                AmbiguityResponse response = new AmbiguityResponse(search);
+//                                AmbiguityResponse.Datas datas = new AmbiguityResponse.Datas();
+//                                datas.id = UUID.randomUUID().toString();
+//                                datas.begin = fn.getBegin();
+//                                datas.end = fn.getEnd();
+//                                datas.title = "ambiguity " + fn.getValue();
+//                                over = true;
+//                                break;
+//                            }
+//                        } else {
+//                            preNodeSource = source;
+//                            FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
+//                            focusNodeDetail.type = Constant.FNDType.TABLE;
+//                            focusNodeDetail.sourceId = source.tableId;
+//                            focusNodeDetail.sourceName = source.sourceName;
+//                            focusNodeDetail.value = value;
+//                            fn.addDetail(focusNodeDetail);
+//                        }
                     }
                     if (over)
                         break;

@@ -25,18 +25,18 @@ public class Home {
         FocusParser parser = new FocusParser();
         ModelBuild.build(parser, ModelBuild.test(2));
 
-        String search = "id>4 sort";
+        String search = "users";
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "english");
         System.out.println(JSON.toJSONString(tokens));
         FocusInst focusInst = parser.parse(tokens);
         System.out.println("-------------------");
         System.out.println(focusInst.toJSON());
 
-        List<BnfRule> rules = parser.parseRules("vi");
+        List<BnfRule> rules = parser.parseRules("users");
         System.out.println(JSON.toJSONString(rules));
         List<BnfRule> copyRules = new ArrayList<>(rules);
         for (BnfRule br : copyRules) {
-            if (!isBaseRule(br, "vi")) {
+            if (!isBaseRule(br, "users")) {
                 rules.remove(br);
             }
         }

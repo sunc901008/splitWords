@@ -192,7 +192,7 @@ public class FocusParser {
                     }
                     List<FocusPhrase> remove = new ArrayList<>();
                     for (FocusPhrase fp : focusPhrases) {
-                        if (fp.size() <= i || !fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+                        if (fp.size() <= i || !fp.getNode(i).getValue().toLowerCase().startsWith(ft.getWord().toLowerCase())) {
                             remove.add(fp);
                         }
                     }

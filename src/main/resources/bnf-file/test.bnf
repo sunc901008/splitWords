@@ -1,22 +1,48 @@
 <question> := <simple-filter> |
               <top-n> |
-              <sort-by>;
+              <sort-by> |
+              <all-column>;
 
-<simple-filter> := <all-int-measure-column> <symbol> <integer> |
-                   <all-int-measure-column>;
+<simple-filter> := <measure-column> <symbol> <integer>;
 
 <top-n> := top <integer> <all-int-measure-column> |
            top <all-int-measure-column>;
 
-<sort-by> := sort by <all-int-measure-column> |
-             sort by <all-int-measure-column> desc |
-             sort by <all-int-measure-column> asc;
+<sort-by> := sort by <all-column> |
+             sort by <all-column> desc |
+             sort by <all-column> asc;
 
 <symbol> := <bool-symbol> |
             <math-symbol>;
 
+<all-column> := <measure-column> |
+                <attribute-column>;
+
+<measure-column> := <all-int-measure-column> |
+                    <all-number-measure-column>;
+
+<attribute-column> := <all-int-attribute-column> |
+                      <all-number-attribute-column> |
+                      <all-string-attribute-column> |
+                      <all-timestamp-attribute-column>;
+
 <all-int-measure-column> := <int-measure-column> |
                             <table-int-measure-column>;
+
+<all-int-attribute-column> := <int-attribute-column> |
+                            <table-int-attribute-column>;
+
+<all-number-measure-column> := <number-measure-column> |
+                               <table-number-measure-column>;
+
+<all-number-attribute-column> := <number-attribute-column> |
+                                 <table-number-attribute-column>;
+
+<all-string-attribute-column> := <string-attribute-column> |
+                                 <table-string-attribute-column>;
+
+<all-timestamp-attribute-column> := <timestamp-attribute-column> |
+                                    <table-timestamp-attribute-column>;
 
 <bool-symbol> := > | < | = | !=;
 <math-symbol> := + | - | * | /;

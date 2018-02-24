@@ -14,16 +14,6 @@ import java.util.List;
  */
 public class CommonFunc {
 
-    public static List<SourceReceived> getSources(String value, List<SourceReceived> srs) {
-        List<SourceReceived> sources = new ArrayList<>();
-        for (SourceReceived sr : srs) {
-            if (sr.sourceName.equalsIgnoreCase(value)) {
-                sources.add(sr);
-            }
-        }
-        return sources;
-    }
-
     public static List<Column> getColumns(String colName, List<SourceReceived> srs) {
         List<Column> columns = new ArrayList<>();
         for (SourceReceived sourceReceived : srs) {
