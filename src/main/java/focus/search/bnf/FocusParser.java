@@ -127,7 +127,15 @@ public class FocusParser {
                 break;
             }
             flag = fsi.getIndex();
-            fi.addPfs(fsi.getFps());
+            boolean filter = flag != -1;
+            for (FocusPhrase fp : fsi.getFps()) {
+                if (filter && fp.size() == tokens.size()) {
+                    fsi.addFps(fp);
+                } else {
+                    fi.addPf(fp);
+                }
+            }
+
             error = position;
             position = position + flag;
             if (fsi.isError()) {
@@ -210,11 +218,6 @@ public class FocusParser {
         }
 
         FocusSubInst fsi = new FocusSubInst();
-        for (FocusPhrase fp : focusPhrases) {
-            if (fp.size() == tokens.size()) {
-                fsi.addFps(fp);
-            }
-        }
         if (fsi.isEmpty()) {
             for (FocusPhrase fp : focusPhrases) {
                 if (fp.size() > tokens.size()) {

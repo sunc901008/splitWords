@@ -23,10 +23,22 @@ public class Home {
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
         FocusParser parser = new FocusParser();
-        ModelBuild.build(parser, ModelBuild.test(2));
+        ModelBuild.build(parser, ModelBuild.test(3));
 
-        String search = "users";
+        String search = "users users";
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "english");
+
+        List<String> keywords = FocusKWDict.getAllKeywords();
+        int loop = tokens.size();
+        while (loop > 0) {
+            FocusToken ft = tokens.remove(0);
+            if (keywords.contains(ft.getWord())) {
+                ft.setType("keyword");
+            }
+            tokens.add(ft);
+            loop--;
+        }
+
         System.out.println(JSON.toJSONString(tokens));
         FocusInst focusInst = parser.parse(tokens);
         System.out.println("-------------------");

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * creator: sunc
@@ -180,14 +181,13 @@ class SearchHandler {
             // 解析结果
             FocusInst focusInst = fp.parse(tokens);
 
-//            session.sendMessage(new TextMessage(focusInst.toJSON().toJSONString()));
+            System.out.println(focusInst.toJSON().toJSONString());
 
             String msg;
             if (focusInst.position < 0) {// 未出错
-                // todo 检测歧义 [有bug,待改]
+                // todo 检测歧义
                 int index = tokens.size();
                 boolean over = false;
-                SourceReceived preNodeSource = null;
                 for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
                     for (int i = 0; i < focusPhrase.getFocusNodes().size(); i++) {
                         FocusNode fn = focusPhrase.getNode(i);
@@ -211,7 +211,6 @@ class SearchHandler {
                         SourceReceived source = CommonFunc.getSource(value, srs);
                         List<Column> columns = CommonFunc.getColumns(value, srs);
 
-
                         if (source != null) {// 有表名和当前值相同
                             FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
                             focusNodeDetail.type = Constant.FNDType.TABLE;
@@ -219,45 +218,46 @@ class SearchHandler {
                             focusNodeDetail.sourceName = source.sourceName;
                             focusNodeDetail.value = value;
                             fn.addDetail(focusNodeDetail);
-                        } else {
-
+                        }
+                        for (Column col : columns) {
+                            FocusNodeDetail fnd = new FocusNodeDetail();
+                            fnd.type = Constant.FNDType.COLUMN;
+                            fnd.sourceId = col.getTableId();
+                            fnd.sourceName = col.getSourceName();
+                            fnd.columnId = col.getColumnId();
+                            fnd.columnName = col.getColumnDisplayName();
+                            fnd.colType = col.getColumnType();
+                            fnd.dataType = col.getDataType();
+                            fnd.value = value;
+                            fn.addDetail(fnd);
+                        }
+                        if (fn.getDetails().size() == 0) {// 出错
+                            // todo  error control
+                            over = true;
+                            break;
+                        }
+                        if (fn.getDetails().size() > 1) {// 有歧义
+                            //todo ambiguity
+                            AmbiguityResponse response = new AmbiguityResponse(search);
+                            AmbiguityResponse.Datas datas = new AmbiguityResponse.Datas();
+                            datas.id = UUID.randomUUID().toString();
+                            datas.begin = fn.getBegin();
+                            datas.end = fn.getEnd();
+                            datas.title = "ambiguity " + fn.getValue();
+                            for (FocusNodeDetail fnd : fn.getDetails()) {
+                                StringBuilder menu = new StringBuilder();
+                                if (fnd.type.equals(Constant.FNDType.TABLE)) {
+                                    menu.append("this is a table name '").append(fn.getValue()).append("'");
+                                } else {
+                                    menu.append("column '").append(fn.getValue()).append("' in table ").append(fnd.sourceName);
+                                }
+                                datas.possibleMenus.add(menu.toString());
+                            }
+                            session.sendMessage(new TextMessage(response.response()));
+                            over = true;
+                            break;
                         }
 
-//                        if (source == null) {
-//                            ColumnReceived col;
-//                            if (preNodeSource != null && (col = CommonFunc.getCol(value, preNodeSource)) != null) {
-//                                FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
-//                                focusNodeDetail.type = Constant.FNDType.COLUMN;
-//                                focusNodeDetail.sourceId = preNodeSource.tableId;
-//                                focusNodeDetail.sourceName = preNodeSource.sourceName;
-//                                focusNodeDetail.columnId = col.columnId;
-//                                focusNodeDetail.columnName = col.columnName;
-//                                focusNodeDetail.colType = col.columnType;
-//                                focusNodeDetail.dataType = col.dataType;
-//                                focusNodeDetail.value = value;
-//                                fn.addDetail(focusNodeDetail);
-//                                continue;
-//                            }
-//                            List<SourceReceived> sources = CommonFunc.getSources(value, srs);
-//                            if (sources.size() > 1) {// 有歧义
-//                                AmbiguityResponse response = new AmbiguityResponse(search);
-//                                AmbiguityResponse.Datas datas = new AmbiguityResponse.Datas();
-//                                datas.id = UUID.randomUUID().toString();
-//                                datas.begin = fn.getBegin();
-//                                datas.end = fn.getEnd();
-//                                datas.title = "ambiguity " + fn.getValue();
-//                                over = true;
-//                                break;
-//                            }
-//                        } else {
-//                            preNodeSource = source;
-//                            FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
-//                            focusNodeDetail.type = Constant.FNDType.TABLE;
-//                            focusNodeDetail.sourceId = source.tableId;
-//                            focusNodeDetail.sourceName = source.sourceName;
-//                            focusNodeDetail.value = value;
-//                            fn.addDetail(focusNodeDetail);
-//                        }
                     }
                     if (over)
                         break;

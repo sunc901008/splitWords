@@ -1,5 +1,7 @@
 package focus.search.analyzer.core;
 
+import focus.search.base.Constant;
+
 /**
  * IK词元对象
  */
@@ -27,14 +29,14 @@ public class Lexeme implements Comparable<Lexeme> {
 //    public static final int TYPE_CQUAN = 48;
     // 符号
     public static final int TYPE_PUNC = 96;
-    public static final String SYMBOL = "symbol";
+    public static final String SYMBOL = Constant.FNDType.SYMBOL;
 
     public static final int TYPE_SUGGEST = 0;
     public static final String SUGGEST = "suggest";
     public static final int TYPE_ERROR = -1;
 
-    public static final String INTEGER = "integer";
-    public static final String NUMBER = "number";
+    public static final String INTEGER = Constant.FNDType.INTEGER;
+    public static final String NUMBER = Constant.FNDType.NUMBER;
 
     // 词元的起始位移
     private int offset;

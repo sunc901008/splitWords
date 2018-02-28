@@ -32,7 +32,7 @@ public class AmbiguityResponse {
         public String id;
         public Integer begin;
         public Integer end;
-        public List<String> possibleMenus;
+        public List<String> possibleMenus = new ArrayList<>();
 
         public JSONObject toJSON() {
             JSONObject json = new JSONObject();

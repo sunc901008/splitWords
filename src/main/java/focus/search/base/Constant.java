@@ -72,16 +72,19 @@ public class Constant {
         }
     }
 
+    //  search event type
     public static final class Event {
         public static final String TEXT_CHANGE = "textChange";
         public static final String FOCUS_IN = "focusIn";
     }
 
+    //  node type
     public static final class FNDType {
         public static final String TABLE = "table";
         public static final String COLUMN = "column";
         public static final String INTEGER = "integer";
         public static final String NUMBER = "number";
+        public static final String SYMBOL = "symbol";
 
     }
 
