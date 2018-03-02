@@ -6,6 +6,7 @@ import focus.search.analyzer.focus.FocusToken;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
+import focus.search.response.exception.AmbiguitiesException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,26 +22,38 @@ import java.util.Set;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
+        main();
+//        System.out.println(JSON.toJSONString(ModelBuild.test(2)));
+    }
+
+    public static void main() throws IOException, InvalidRuleException {
 
         FocusParser parser = new FocusParser();
-        ModelBuild.build(parser, ModelBuild.test(3));
+        ModelBuild.build(parser, ModelBuild.test(2));
 
-        String search = "users users";
+        String search = "name";
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "english");
 
-        List<String> keywords = FocusKWDict.getAllKeywords();
-        int loop = tokens.size();
-        while (loop > 0) {
-            FocusToken ft = tokens.remove(0);
-            if (keywords.contains(ft.getWord())) {
-                ft.setType("keyword");
-            }
-            tokens.add(ft);
-            loop--;
-        }
+//        List<String> keywords = FocusKWDict.getAllKeywords();
+//        int loop = tokens.size();
+//        while (loop > 0) {
+//            FocusToken ft = tokens.remove(0);
+//            if (keywords.contains(ft.getWord())) {
+//                ft.setType("keyword");
+//            }
+//            tokens.add(ft);
+//            loop--;
+//        }
 
         System.out.println(JSON.toJSONString(tokens));
-        FocusInst focusInst = parser.parse(tokens);
+        FocusInst focusInst;
+        try {
+            focusInst = parser.parse(tokens);
+        } catch (AmbiguitiesException e) {
+            System.out.println("Ambiguity:");
+            System.out.println(e.toString());
+            return;
+        }
         System.out.println("-------------------");
         System.out.println(focusInst.toJSON());
 

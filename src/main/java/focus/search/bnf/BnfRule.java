@@ -1,5 +1,6 @@
 package focus.search.bnf;
 
+import focus.search.base.Constant;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.*;
 
@@ -91,7 +92,7 @@ public class BnfRule implements Serializable {
                 throw new InvalidRuleException("Trying to create an empty terminal token");
             }
             if (trimmed_word.equals(NonTerminalToken.s_leftSymbol)) {
-                alternative_to_add.add(new TerminalToken(trimmed_word));
+                alternative_to_add.add(new TerminalToken(trimmed_word, Constant.FNDType.SYMBOL));
                 continue;
             }
             if (trimmed_word.startsWith(NonTerminalToken.s_leftSymbol) && !trimmed_word.endsWith(NonTerminalToken.s_rightSymbol)) {
@@ -105,7 +106,12 @@ public class BnfRule implements Serializable {
             } else {
                 // This is a literal token
                 trimmed_word = unescapeString(trimmed_word);
-                alternative_to_add.add(new TerminalToken(trimmed_word));
+                String type = Constant.FNDType.KEYWORD;
+                String left = out.getLeftHandSide().getName();
+                if (left.equals("<bool-symbol>") || left.equals("<math-symbol>")) {
+                    type = Constant.FNDType.SYMBOL;
+                }
+                alternative_to_add.add(new TerminalToken(trimmed_word, type));
             }
         }
         out.addAlternative(alternative_to_add);

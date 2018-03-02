@@ -27,7 +27,7 @@ public class RegexTerminalToken extends TerminalToken {
      * @param label The regular expression that matches this token
      */
     public RegexTerminalToken(final String label) {
-        super(label);
+        super(label, "");
         m_pattern = Pattern.compile(label);
     }
 

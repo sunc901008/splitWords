@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
-import focus.search.bnf.FocusNodeDetail;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 
@@ -26,11 +25,11 @@ class SimpleInst extends CommonFunc {
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_simple_filter");
         int flag = 0;
-        FocusNodeDetail fnd = focusPhrase.getNode(flag++).getDetails().get(0);
-        if (fnd.type.equals(Constant.FNDType.TABLE)) {
-            fnd = focusPhrase.getNode(flag++).getDetails().get(0);
+        FocusNode fn = focusPhrase.getNode(flag++);
+        if (fn.getType().equals(Constant.FNDType.TABLE)) {
+            fn = focusPhrase.getNode(flag++);
         }
-        json1.put("column", fnd.columnId);
+        json1.put("column", fn.getColumn().getColumnId());
         json1.put("operator", focusPhrase.getNode(flag++).getValue());
         FocusNode node = focusPhrase.getNode(flag);
         if (node.getType().equalsIgnoreCase("integer")) {
@@ -54,8 +53,7 @@ class SimpleInst extends CommonFunc {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_column_for_measure");
-        FocusNodeDetail fnd = fn.getDetails().get(0);
-        json1.put("column", fnd.columnId);
+        json1.put("column", fn.getColumn().getColumnId());
         instructions.add(json1);
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);

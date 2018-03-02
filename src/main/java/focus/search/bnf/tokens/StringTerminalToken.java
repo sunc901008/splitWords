@@ -9,7 +9,7 @@ public class StringTerminalToken extends TerminalToken {
      * Creates a new empty string terminal token
      */
     protected StringTerminalToken() {
-        super("");
+        super("", "");
     }
 
     /**
@@ -18,7 +18,7 @@ public class StringTerminalToken extends TerminalToken {
      * @param label The string this token should match
      */
     public StringTerminalToken(String label) {
-        super(label);
+        super(label, "");
     }
 
     @Override

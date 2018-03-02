@@ -1,9 +1,7 @@
 package focus.search.bnf;
 
 import com.alibaba.fastjson.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
+import focus.search.meta.Column;
 
 /**
  * creator: sunc
@@ -21,7 +19,7 @@ public class FocusNode {
     private Integer begin;
     private Integer end;
 
-    private List<FocusNodeDetail> details;
+    private Column column;
 
     public FocusNode() {
     }
@@ -70,14 +68,12 @@ public class FocusNode {
         this.end = end;
     }
 
-    public List<FocusNodeDetail> getDetails() {
-        return details;
+    public Column getColumn() {
+        return column;
     }
 
-    public void addDetail(FocusNodeDetail detail) {
-        if (details == null)
-            details = new ArrayList<>();
-        details.add(detail);
+    public void setColumn(Column column) {
+        this.column = column;
     }
 
     public JSONObject toJSON() {

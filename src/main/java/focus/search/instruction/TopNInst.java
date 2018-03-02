@@ -3,7 +3,7 @@ package focus.search.instruction;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
-import focus.search.bnf.FocusNodeDetail;
+import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 
@@ -21,9 +21,9 @@ class TopNInst extends CommonFunc {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "set_top_n");
-        FocusNodeDetail fnd = focusPhrase.getNode(1).getDetails().get(0);
-        if (fnd.type.equals(Constant.FNDType.INTEGER)) {
-            json1.put("n", Integer.parseInt(fnd.value));
+        FocusNode fn = focusPhrase.getNode(1);
+        if (fn.getType().equals(Constant.FNDType.INTEGER)) {
+            json1.put("n", Integer.parseInt(fn.getValue()));
         } else {
             json1.put("n", 1);
         }

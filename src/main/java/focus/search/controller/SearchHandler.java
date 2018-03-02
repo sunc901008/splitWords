@@ -3,21 +3,21 @@ package focus.search.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import focus.search.analyzer.core.Lexeme;
-import focus.search.analyzer.focus.FocusKWDict;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.base.LoggerHandler;
-import focus.search.bnf.*;
+import focus.search.bnf.FocusInst;
+import focus.search.bnf.FocusParser;
+import focus.search.bnf.FocusPhrase;
+import focus.search.bnf.ModelBuild;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
-import focus.search.meta.Column;
 import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.RelationReceived;
 import focus.search.metaReceived.SourceReceived;
+import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.search.*;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * creator: sunc
@@ -186,83 +185,6 @@ class SearchHandler {
             String msg;
             if (focusInst.position < 0) {// 未出错
                 // todo 检测歧义
-                int index = tokens.size();
-                boolean over = false;
-                for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
-                    for (int i = 0; i < focusPhrase.getFocusNodes().size(); i++) {
-                        FocusNode fn = focusPhrase.getNode(i);
-                        if (index == 0) {
-                            over = true;
-                            break;
-                        }
-                        index--;
-                        String nodeType = fn.getType();
-                        String value = fn.getValue();
-                        if (nodeType.equals(Lexeme.INTEGER)
-                                || nodeType.equals(Lexeme.NUMBER)
-                                || nodeType.equals(Lexeme.SYMBOL)
-                                || FocusKWDict.getAllKeywords().contains(value)) {
-                            FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
-                            focusNodeDetail.type = nodeType;
-                            focusNodeDetail.value = value;
-                            fn.addDetail(focusNodeDetail);
-                            continue;
-                        }
-                        SourceReceived source = CommonFunc.getSource(value, srs);
-                        List<Column> columns = CommonFunc.getColumns(value, srs);
-
-                        if (source != null) {// 有表名和当前值相同
-                            FocusNodeDetail focusNodeDetail = new FocusNodeDetail();
-                            focusNodeDetail.type = Constant.FNDType.TABLE;
-                            focusNodeDetail.sourceId = source.tableId;
-                            focusNodeDetail.sourceName = source.sourceName;
-                            focusNodeDetail.value = value;
-                            fn.addDetail(focusNodeDetail);
-                        }
-                        for (Column col : columns) {
-                            FocusNodeDetail fnd = new FocusNodeDetail();
-                            fnd.type = Constant.FNDType.COLUMN;
-                            fnd.sourceId = col.getTableId();
-                            fnd.sourceName = col.getSourceName();
-                            fnd.columnId = col.getColumnId();
-                            fnd.columnName = col.getColumnDisplayName();
-                            fnd.colType = col.getColumnType();
-                            fnd.dataType = col.getDataType();
-                            fnd.value = value;
-                            fn.addDetail(fnd);
-                        }
-                        if (fn.getDetails().size() == 0) {// 出错
-                            // todo  error control
-                            over = true;
-                            break;
-                        }
-                        if (fn.getDetails().size() > 1) {// 有歧义
-                            //todo ambiguity
-                            AmbiguityResponse response = new AmbiguityResponse(search);
-                            AmbiguityResponse.Datas datas = new AmbiguityResponse.Datas();
-                            datas.id = UUID.randomUUID().toString();
-                            datas.begin = fn.getBegin();
-                            datas.end = fn.getEnd();
-                            datas.title = "ambiguity " + fn.getValue();
-                            for (FocusNodeDetail fnd : fn.getDetails()) {
-                                StringBuilder menu = new StringBuilder();
-                                if (fnd.type.equals(Constant.FNDType.TABLE)) {
-                                    menu.append("this is a table name '").append(fn.getValue()).append("'");
-                                } else {
-                                    menu.append("column '").append(fn.getValue()).append("' in table ").append(fnd.sourceName);
-                                }
-                                datas.possibleMenus.add(menu.toString());
-                            }
-                            session.sendMessage(new TextMessage(response.response()));
-                            over = true;
-                            break;
-                        }
-
-                    }
-                    if (over)
-                        break;
-                }
-
                 FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
                 if (focusPhrase.isSuggestion()) {// 出入不完整
                     SuggestionResponse response = new SuggestionResponse(search);
@@ -323,6 +245,9 @@ class SearchHandler {
 
         } catch (InvalidRuleException e) {
             e.printStackTrace();
+        } catch (AmbiguitiesException e) {
+            System.out.println("Ambiguity:");
+            System.out.println(e.toString());
         }
     }
 

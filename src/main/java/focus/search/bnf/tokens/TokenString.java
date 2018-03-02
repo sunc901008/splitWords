@@ -1,5 +1,7 @@
 package focus.search.bnf.tokens;
 
+import focus.search.meta.Column;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -39,7 +41,16 @@ public class TokenString extends LinkedList<Token> {
         for (int i = 0; i < size(); i++) {
             Token t1 = get(i);
             Token t2 = rt.get(i);
-            if (!t1.equals(t2)) {
+            if (t1 instanceof TerminalToken && t2 instanceof TerminalToken) {
+                Column col1 = ((TerminalToken) t1).getColumn();
+                Column col2 = ((TerminalToken) t2).getColumn();
+                if (col1 != null && col2 != null) {
+                    if (col1.getColumnId() != col1.getColumnId())
+                        return false;
+                } else if (!t1.equals(t2)) {
+                    return false;
+                }
+            } else if (!t1.equals(t2)) {
                 return false;
             }
         }

@@ -1,5 +1,7 @@
 package focus.search.bnf.tokens;
 
+import focus.search.base.Constant;
+
 public class NumberTerminalToken extends TerminalToken {
     public static final String NUMBER = "<number>";
 
@@ -9,7 +11,7 @@ public class NumberTerminalToken extends TerminalToken {
      * @param label The token's label
      */
     public NumberTerminalToken(String label) {
-        super(label);
+        super(label, Constant.FNDType.INTEGER);
     }
 
     @Override
