@@ -13,17 +13,17 @@ import java.util.List;
  */
 public class AmbiguityResponse {
     private String question;
-    private List<Datas> datas = new ArrayList<>();
+    private Datas datas;
 
     public AmbiguityResponse(String question) {
         this.question = question;
     }
 
-    public List<Datas> getDatas() {
+    public Datas getDatas() {
         return datas;
     }
 
-    public void setDatas(List<Datas> datas) {
+    public void setDatas(Datas datas) {
         this.datas = datas;
     }
 
@@ -52,9 +52,7 @@ public class AmbiguityResponse {
         JSONObject json = new JSONObject();
         json.put("type", "ambiguity");
         json.put("question", question);
-        JSONArray jsonArray = new JSONArray();
-        this.datas.forEach(data -> jsonArray.add(data.toJSON()));
-        json.put("datas", jsonArray);
+        json.put("datas", datas);
         return json.toJSONString();
     }
 

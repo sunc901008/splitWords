@@ -60,7 +60,7 @@ public class InitResponse {
         this.datas = datas;
     }
 
-    public String toString() {
+    public String response() {
         JSONObject json = new JSONObject();
         json.put("type", this.type);
         json.put("command", this.command);

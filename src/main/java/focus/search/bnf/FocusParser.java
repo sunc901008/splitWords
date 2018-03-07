@@ -9,6 +9,7 @@ import focus.search.bnf.exception.InvalidGrammarException;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.*;
 import focus.search.meta.AmbiguitiesRecord;
+import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.response.exception.AmbiguitiesException;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -74,7 +75,7 @@ public class FocusParser {
         System.out.println("最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n");
 
         System.out.println("------------------------");
-        FocusInst focusInst = parse(tokens);
+        FocusInst focusInst = parse(tokens, new JSONObject());
         System.out.println("解析:\n\t" + focusInst.toJSON().toJSONString() + "\n");
 
         System.out.println("question:\n\t" + question);
@@ -114,7 +115,7 @@ public class FocusParser {
         }
     }
 
-    public FocusInst parse(List<FocusToken> tokens) throws IOException, InvalidRuleException, AmbiguitiesException {
+    public FocusInst parse(List<FocusToken> tokens, JSONObject amb) throws IOException, InvalidRuleException, AmbiguitiesException {
         List<FocusToken> copyTokens = new ArrayList<>(tokens);
         FocusInst fi = new FocusInst();
         int flag = 0;
@@ -126,7 +127,7 @@ public class FocusParser {
             }
             FocusSubInst fsi;
             try {
-                fsi = subParse(copyTokens);
+                fsi = subParse(copyTokens, amb);
             } catch (AmbiguitiesException e) {
                 e.position = flag + e.position;
                 throw e;
@@ -136,24 +137,28 @@ public class FocusParser {
                 break;
             }
             flag = fsi.getIndex();
-            boolean filter = flag != -1;
-            for (FocusPhrase fp : fsi.getFps()) {
-                if (filter && fp.size() == tokens.size()) {
-                    fsi.addFps(fp);
-                } else {
-                    fi.addPf(fp);
-                }
-            }
 
             error = position;
             position = position + flag;
-            if (fsi.isError()) {
+            if (fsi.isError()) {// 出错，记录已解析的token和出错位置
                 fi.position = position;
+                fi.addPfs(fsi.getFps());
                 break;
+            } else {// 未出错
+                boolean filter = flag != -1;// 没有解析结束
+                if (filter) {
+                    for (FocusPhrase fp : fsi.getFps()) {
+                        if (fp.size() == tokens.size()) {
+                            fi.addPf(fp);
+                        }
+                    }
+                } else {// 解析结束
+                    fi.addPfs(fsi.getFps());
+                }
             }
         }
         if (error > 0 && error < position) {
-            FocusSubInst fsi = subParse(tokens.subList(error, position));
+            FocusSubInst fsi = subParse(tokens.subList(error, position), amb);
             assert fsi != null;
             fi.addPfs(fsi.getFps());
             if (fsi.isError()) {
@@ -163,16 +168,16 @@ public class FocusParser {
         return fi;
     }
 
-    private FocusSubInst subParse(List<FocusToken> tokens) throws InvalidRuleException, AmbiguitiesException {
+    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb) throws InvalidRuleException, AmbiguitiesException {
         FocusToken focusToken = tokens.get(0);
 
         List<FocusPhrase> focusPhrases = focusPhrases(focusToken);
-        if (focusPhrases == null) {
+        if (focusPhrases == null || focusPhrases.isEmpty()) {
             return null;
         }
 
         // 歧义检测
-        ambiguitiesCheck(focusPhrases, 0);
+        ambiguitiesCheck(focusPhrases, 0, amb);
 
         for (int i = 1; i < tokens.size(); i++) {
             FocusToken ft = tokens.get(i);
@@ -228,10 +233,15 @@ public class FocusParser {
                 }
             }
             // 歧义检测
-            ambiguitiesCheck(focusPhrases, i);
+            ambiguitiesCheck(focusPhrases, i, amb);
         }
 
         FocusSubInst fsi = new FocusSubInst();
+        for (FocusPhrase fp : focusPhrases) {
+            if (fp.size() == tokens.size()) {
+                fsi.addFps(fp);
+            }
+        }
         if (fsi.isEmpty()) {
             for (FocusPhrase fp : focusPhrases) {
                 if (fp.size() > tokens.size()) {
@@ -250,24 +260,59 @@ public class FocusParser {
      * description: 检测歧义
      */
 
-    private void ambiguitiesCheck(List<FocusPhrase> focusPhrases, int index) throws AmbiguitiesException {
+    private void ambiguitiesCheck(List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
         List<AmbiguitiesRecord> ars = new ArrayList<>();
-        List<Integer> added = new ArrayList<>();
-        boolean hasSourceName = false;
-        for (FocusPhrase fp : focusPhrases) {
-//            if (index >= fp.size()) {
-//                index = index - fp.size();
-//                continue;
+//        List<Integer> added = new ArrayList<>();
+//        boolean hasSourceName = false;
+//        for (FocusPhrase fp : focusPhrases) {
+//            FocusNode fn = fp.getNode(index);
+//            AmbiguitiesRecord ar = new AmbiguitiesRecord();
+//            if (Constant.FNDType.TABLE.equals(fn.getType()) && !hasSourceName) {
+//                hasSourceName = true;
+//                ar.type = Constant.FNDType.TABLE;
+//                ar.sourceName = fn.getValue();
+//                ars.add(ar);
+//            } else if (Constant.FNDType.COLUMN.equals(fn.getType())) {
+//                Column column = fn.getColumn();
+//                if (!added.contains(column.getColumnId())) {
+//                    added.add(column.getColumnId());
+//                    ar.type = Constant.FNDType.COLUMN;
+//                    ar.sourceName = column.getSourceName();
+//                    ar.columnId = column.getColumnId();
+//                    ar.columnName = column.getColumnDisplayName();
+//                    ars.add(ar);
+//                }
 //            }
+//        }
+
+        String value = focusPhrases.get(0).getNode(index).getValue();
+        AmbiguitiesResolve ambiguitiesResolve = null;
+        for (Object obj : amb.values()) {
+            AmbiguitiesResolve tmp = JSONObject.parseObject(obj.toString(), AmbiguitiesResolve.class);
+            if (tmp.value.equalsIgnoreCase(value)) {
+                ambiguitiesResolve = tmp;
+            }
+        }
+        boolean isResolved = false;
+        AmbiguitiesRecord resolve = null;
+        if (ambiguitiesResolve != null) {
+            if (ambiguitiesResolve.isResolved) {
+                isResolved = true;
+                resolve = ambiguitiesResolve.ars.get(0);
+            }
+        }
+
+        List<Integer> added = new ArrayList<>();
+        List<FocusPhrase> remove = new ArrayList<>();
+        for (FocusPhrase fp : focusPhrases) {
             FocusNode fn = fp.getNode(index);
-            AmbiguitiesRecord ar = new AmbiguitiesRecord();
-            if (Constant.FNDType.TABLE.equals(fn.getType()) && !hasSourceName) {
-                hasSourceName = true;
-                ar.type = Constant.FNDType.TABLE;
-                ar.sourceName = fn.getValue();
-                ars.add(ar);
+            if (isResolved) {
+                if (!fn.getType().equals(resolve.type)) {
+                    remove.add(fp);
+                }
             } else if (Constant.FNDType.COLUMN.equals(fn.getType())) {
                 Column column = fn.getColumn();
+                AmbiguitiesRecord ar = new AmbiguitiesRecord();
                 if (!added.contains(column.getColumnId())) {
                     added.add(column.getColumnId());
                     ar.type = Constant.FNDType.COLUMN;
@@ -278,7 +323,8 @@ public class FocusParser {
                 }
             }
         }
-        if (ars.size() > 1) {
+        focusPhrases.removeAll(remove);
+        if (!isResolved && ars.size() > 1) {
             throw new AmbiguitiesException(ars, index);
         }
     }

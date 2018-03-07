@@ -8,12 +8,12 @@ import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.base.LoggerHandler;
-import focus.search.bnf.FocusInst;
-import focus.search.bnf.FocusParser;
-import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.ModelBuild;
+import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.InstructionBuild;
+import focus.search.meta.AmbiguitiesRecord;
+import focus.search.meta.AmbiguitiesResolve;
+import focus.search.meta.Column;
 import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.RelationReceived;
 import focus.search.metaReceived.SourceReceived;
@@ -23,9 +23,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * creator: sunc
@@ -39,6 +37,8 @@ class SearchHandler {
         String type = params.getString("type");
         JSONObject datas = params.getJSONObject("datas");
         JSONObject user = (JSONObject) session.getAttributes().get("user");
+        // response immediately
+        session.sendMessage(new TextMessage(Response.response(type)));
         switch (type) {
             case "init":
                 init(session, datas, user);
@@ -50,7 +50,7 @@ class SearchHandler {
                 selectSuggest(session, datas);
                 break;
             case "disambiguate":
-                disambiguate(session, datas);
+                disambiguate(session, datas, user);
                 break;
             case "reDisambiguate":
                 reDisambiguate(session, datas);
@@ -107,6 +107,10 @@ class SearchHandler {
         String language = datas.getString("lang");
         String sourceToken = datas.getString("sourceToken");
 
+        // 歧义记录
+        JSONObject ambiguities = new JSONObject();
+        user.put("ambiguities", ambiguities);
+
         user.put("language", language);
         user.put("sourceToken", sourceToken);
         user.put("curSearchToken", curSearchToken);
@@ -148,14 +152,14 @@ class SearchHandler {
             user.put("parser", fp);
         }
         response.setDatas(init.toJson());
-        LoggerHandler.info(response.toString(), Constant.PRINT_LOG);
-        session.sendMessage(new TextMessage(response.toString()));
+        LoggerHandler.info(response.response(), Constant.PRINT_LOG);
+        session.sendMessage(new TextMessage(response.response()));
 
     }
 
     private static void search(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
         // response immediately
-        session.sendMessage(new TextMessage(Response.response()));
+//        session.sendMessage(new TextMessage(Response.response("search")));
 
         String search = params.getString("search");
         String event = params.getString("event");
@@ -168,6 +172,7 @@ class SearchHandler {
         FocusParser fp = (FocusParser) user.get("parser");
         String language = user.getString("language");
         List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
+
         if (Constant.Event.FOCUS_IN.equalsIgnoreCase(event)) {
             focusIn(session, search, position, fp);
             return;
@@ -176,31 +181,39 @@ class SearchHandler {
         List<FocusToken> tokens = fp.focusAnalyzer.test(search, language);
         System.out.println("split words:" + JSON.toJSONString(tokens));
 
+        JSONObject amb = user.getJSONObject("ambiguities");
+
         try {
             // 解析结果
-            FocusInst focusInst = fp.parse(tokens);
+            FocusInst focusInst = fp.parse(tokens, amb);
 
             System.out.println(focusInst.toJSON().toJSONString());
 
             String msg;
             if (focusInst.position < 0) {// 未出错
-                // todo 检测歧义
                 FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
                 if (focusPhrase.isSuggestion()) {// 出入不完整
                     SuggestionResponse response = new SuggestionResponse(search);
                     SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
-                    datas.beginPos = tokens.get(tokens.size() - 1).getEnd();
+                    JSONObject json = sug(tokens, focusInst);
+                    datas.beginPos = json.getInteger("position");
                     datas.phraseBeginPos = datas.beginPos;
-                    sug(tokens.size() - 1, focusInst).forEach(s -> {
+                    List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
+                    focusNodes.forEach(node -> {
                         SuggestionResponse.Suggestions suggestion = new SuggestionResponse.Suggestions();
-                        suggestion.suggestion = s;
-                        suggestion.suggestionType = "aaa";
-                        suggestion.description = "aaa";
+                        suggestion.suggestion = node.getValue();
+                        suggestion.suggestionType = node.getType();
+                        if (Constant.FNDType.TABLE.equalsIgnoreCase(node.getType())) {
+                            suggestion.description = "this is a table name";
+                        } else if (Constant.FNDType.COLUMN.equalsIgnoreCase(node.getType())) {
+                            Column col = node.getColumn();
+                            suggestion.description = "column '" + node.getValue() + "' in table '" + col.getSourceName() + "'";
+                        }
                         datas.suggestions.add(suggestion);
                     });
                     response.setDatas(datas);
                     session.sendMessage(new TextMessage(response.response()));
-                    System.out.println("提示:\n\t" + JSON.toJSONString(sug(tokens.size(), focusInst)) + "\n");
+                    System.out.println("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
                 } else {//  输入完整
                     StateResponse response = new StateResponse(search);
                     // 生成指令
@@ -229,25 +242,46 @@ class SearchHandler {
                 }
             } else {//  出错
                 IllegalResponse response = new IllegalResponse(search);
-                int strPosition = tokens.get(position).getStart();
+                int strPosition = tokens.get(focusInst.position).getStart();
                 IllegalResponse.Datas datas = new IllegalResponse.Datas();
                 datas.beginPos = strPosition;
                 StringBuilder reason = new StringBuilder();
-                sug(position, focusInst).forEach(s -> reason.append(s).append("\n"));
+                List<FocusNode> focusNodes = sug(focusInst.position, focusInst);
+                focusNodes.forEach(node -> {
+                    reason.append(node.getValue()).append(",").append(node.getType()).append(",").append(node.getColumn().getColumnId());
+                    reason.append("|");
+                });
                 datas.reason = reason.toString();
                 response.setDatas(datas);
                 session.sendMessage(new TextMessage(response.response()));
                 msg = "错误:\n\t" + "位置: " + strPosition + "\t错误: " + search.substring(strPosition) + "\n";
                 System.out.println(msg);
-                msg = "提示:\n\t" + JSON.toJSONString(sug(position, focusInst)) + "\n";
+                msg = "提示:\n\t" + reason + "\n";
                 System.out.println(msg);
             }
 
         } catch (InvalidRuleException e) {
             e.printStackTrace();
         } catch (AmbiguitiesException e) {
-            System.out.println("Ambiguity:");
-            System.out.println(e.toString());
+            AmbiguityResponse response = new AmbiguityResponse(search);
+            FocusToken ft = tokens.get(e.position);
+            AmbiguityResponse.Datas datas = new AmbiguityResponse.Datas();
+            datas.begin = ft.getStart();
+            datas.end = ft.getEnd();
+            datas.id = UUID.randomUUID().toString();
+            datas.title = "ambiguity word: " + ft.getWord();
+            e.ars.forEach(a -> datas.possibleMenus.add(a.columnName + " in table " + a.sourceName));
+            response.setDatas(datas);
+            session.sendMessage(new TextMessage(response.response()));
+            System.out.println(response.response());
+
+            AmbiguitiesResolve ar = new AmbiguitiesResolve(e.ars);
+            ar.value = ft.getWord();
+            amb.put(datas.id, ar);
+            user.put("ambiguities", amb);
+
+            session.getAttributes().put("user", user);
+
         }
     }
 
@@ -255,7 +289,22 @@ class SearchHandler {
 
     }
 
-    private static void disambiguate(WebSocketSession session, JSONObject params) throws IOException {
+    private static void disambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
+        String id = params.getString("id");
+        int index = params.getInteger("index");
+        JSONObject amb = user.getJSONObject("ambiguities");
+        JSONObject json = amb.getJSONObject(id);
+        AmbiguitiesResolve ambiguitiesResolve = JSONObject.parseObject(json.toJSONString(), AmbiguitiesResolve.class);
+        AmbiguitiesRecord ar = ambiguitiesResolve.ars.remove(index);
+        ambiguitiesResolve.ars.add(0, ar);
+        ambiguitiesResolve.isResolved = true;
+        amb.put(id, ambiguitiesResolve);
+        user.put("ambiguities", amb);
+        session.getAttributes().put("user", user);
+        JSONObject response = new JSONObject();
+        response.put("type", "state");
+        response.put("message", "disambiguateDone");
+        session.sendMessage(new TextMessage(response.toJSONString()));
 
     }
 
@@ -344,18 +393,54 @@ class SearchHandler {
 
     }
 
-    private static Set<String> sug(int position, FocusInst focusInst) {
-        Set<String> suggestions = new HashSet<>();
-        if (position == 1)
-            position = 0;
+    // suggestions| 出错
+    private static List<FocusNode> sug(int position, FocusInst focusInst) {
+        List<FocusNode> focusNodes = new ArrayList<>();
+        List<String> suggestions = new ArrayList<>();
         for (FocusPhrase fp : focusInst.getFocusPhrases()) {
             if (fp.isSuggestion()) {
-                suggestions.add(fp.getNode(position).getValue());
+                FocusNode fn = fp.getNode(position);
+                if (!suggestions.contains(fn.getValue())) {
+                    suggestions.add(fn.getValue());
+                    focusNodes.add(fn);
+                }
             } else {
                 position = position - fp.size();
             }
         }
-        return suggestions;
+        return focusNodes;
+    }
+
+    // suggestions| 输入不完整
+    private static JSONObject sug(List<FocusToken> tokens, FocusInst focusInst) {
+        JSONObject json = new JSONObject();
+        int index = tokens.size() - 1;
+        int position = tokens.get(index).getStart();
+        List<FocusNode> focusNodes = new ArrayList<>();
+        Set<String> suggestions = new HashSet<>();
+        for (FocusPhrase fp : focusInst.getFocusPhrases()) {
+            if (fp.isSuggestion()) {
+                FocusNode fn = fp.getNode(index);
+                if (fn.getValue().equalsIgnoreCase(tokens.get(index).getWord())) {
+                    FocusNode focusNode = fp.getNode(index + 1);
+                    if (!suggestions.contains(focusNode.getValue())) {
+                        suggestions.add(focusNode.getValue());
+                        focusNodes.add(focusNode);
+                        position = fn.getEnd() + 1;
+                    }
+                } else {
+                    if (!suggestions.contains(fn.getValue())) {
+                        suggestions.add(fn.getValue());
+                        focusNodes.add(fn);
+                    }
+                }
+            } else {
+                index = index - fp.size();
+            }
+        }
+        json.put("position", position);
+        json.put("suggestions", focusNodes);
+        return json;
     }
 
 }

@@ -45,7 +45,7 @@ public class TokenString extends LinkedList<Token> {
                 Column col1 = ((TerminalToken) t1).getColumn();
                 Column col2 = ((TerminalToken) t2).getColumn();
                 if (col1 != null && col2 != null) {
-                    if (col1.getColumnId() != col1.getColumnId())
+                    if (col1.getColumnId() != col2.getColumnId())
                         return false;
                 } else if (!t1.equals(t2)) {
                     return false;

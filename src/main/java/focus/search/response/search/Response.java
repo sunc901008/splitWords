@@ -9,10 +9,10 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class Response {
 
-    public static String response() {
+    public static String response(String command) {
         JSONObject json = new JSONObject();
         json.put("type", "response");
-        json.put("command", "search");
+        json.put("command", command);
         JSONObject datas = new JSONObject();
         datas.put("status", "success");
         datas.put("message", "done");

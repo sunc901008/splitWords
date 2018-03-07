@@ -1,11 +1,13 @@
 package focus.search;
 
 import com.alibaba.fastjson.JSON;
-import focus.search.analyzer.focus.FocusKWDict;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
+import focus.search.meta.Column;
 import focus.search.response.exception.AmbiguitiesException;
 
 import java.io.IOException;
@@ -22,8 +24,32 @@ import java.util.Set;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
-        main();
+//        main();
 //        System.out.println(JSON.toJSONString(ModelBuild.test(2)));
+
+        JSONObject json = sug();
+        String str = json.getJSONArray("suggestions").toJSONString();
+        System.out.println(str);
+        List<FocusNode> focusNodes = JSONArray.parseArray(str, FocusNode.class);
+        System.out.println(focusNodes);
+
+    }
+
+    private static JSONObject sug() {
+        JSONObject json = new JSONObject();
+        List<FocusNode> focusNodes = new ArrayList<>();
+        FocusNode focusNode = new FocusNode();
+        focusNode.setType("table");
+        focusNodes.add(focusNode);
+        FocusNode focusNode1 = new FocusNode();
+        focusNode1.setType("column");
+        Column column = new Column();
+        column.setSourceName("users");
+        column.setColumnId(1);
+        focusNode1.setColumn(column);
+        focusNodes.add(focusNode1);
+        json.put("suggestions", focusNodes);
+        return json;
     }
 
     public static void main() throws IOException, InvalidRuleException {
@@ -31,7 +57,7 @@ public class Home {
         FocusParser parser = new FocusParser();
         ModelBuild.build(parser, ModelBuild.test(2));
 
-        String search = "name";
+        String search = "views";
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "english");
 
 //        List<String> keywords = FocusKWDict.getAllKeywords();
@@ -48,7 +74,7 @@ public class Home {
         System.out.println(JSON.toJSONString(tokens));
         FocusInst focusInst;
         try {
-            focusInst = parser.parse(tokens);
+            focusInst = parser.parse(tokens, new JSONObject());
         } catch (AmbiguitiesException e) {
             System.out.println("Ambiguity:");
             System.out.println(e.toString());

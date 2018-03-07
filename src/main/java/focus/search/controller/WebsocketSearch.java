@@ -44,5 +44,11 @@ public class WebsocketSearch extends TextWebSocketHandler {
         session.sendMessage(new TextMessage("your input:" + input));
         SearchHandler.preHandle(session, JSONObject.parseObject(input));
     }
+//
+//    @Override
+//    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+//        LoggerHandler.info("get an error:" + exception.getMessage());
+//        session.sendMessage(new TextMessage(exception.getMessage()));
+//    }
 
 }

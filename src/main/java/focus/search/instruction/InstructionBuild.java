@@ -40,6 +40,8 @@ public class InstructionBuild {
                 return SimpleInst.simpleFilter(focusPhrase, index);
             case "<top-n>":
                 return TopNInst.build(focusPhrase, index);
+            case "<all-column>":
+                return SimpleInst.singleCol(focusPhrase.getLastNode(), index);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }
