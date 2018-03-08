@@ -286,13 +286,7 @@ public class FocusParser {
 //        }
 
         String value = focusPhrases.get(0).getNode(index).getValue();
-        AmbiguitiesResolve ambiguitiesResolve = null;
-        for (Object obj : amb.values()) {
-            AmbiguitiesResolve tmp = JSONObject.parseObject(obj.toString(), AmbiguitiesResolve.class);
-            if (tmp.value.equalsIgnoreCase(value)) {
-                ambiguitiesResolve = tmp;
-            }
-        }
+        AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(value, amb);
         boolean isResolved = false;
         AmbiguitiesRecord resolve = null;
         if (ambiguitiesResolve != null) {
@@ -307,7 +301,7 @@ public class FocusParser {
         for (FocusPhrase fp : focusPhrases) {
             FocusNode fn = fp.getNode(index);
             if (isResolved) {
-                if (!fn.getType().equals(resolve.type)) {
+                if (!fn.getType().equals(resolve.type) || (Constant.FNDType.COLUMN.equals(fn.getType()) && fn.getColumn().getColumnId() != resolve.columnId)) {
                     remove.add(fp);
                 }
             } else if (Constant.FNDType.COLUMN.equals(fn.getType())) {

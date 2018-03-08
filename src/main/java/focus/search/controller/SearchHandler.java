@@ -53,10 +53,10 @@ class SearchHandler {
                 disambiguate(session, datas, user);
                 break;
             case "reDisambiguate":
-                reDisambiguate(session, datas);
+                reDisambiguate(session, datas, user);
                 break;
             case "clearDisambiguate":
-                clearDisambiguate(session, datas);
+                clearDisambiguate(session, datas, user);
                 break;
             case "axis":
                 axis(session, datas);
@@ -215,6 +215,10 @@ class SearchHandler {
                     session.sendMessage(new TextMessage(response.response()));
                     System.out.println("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
                 } else {//  输入完整
+                    // Annotations
+                    AnnotationResponse annotationResponse = new AnnotationResponse(search);
+                    session.sendMessage(new TextMessage(annotationResponse.response()));
+
                     StateResponse response = new StateResponse(search);
                     // 生成指令
                     response.setDatas("prepareQuery");
@@ -275,7 +279,8 @@ class SearchHandler {
             session.sendMessage(new TextMessage(response.response()));
             System.out.println(response.response());
 
-            AmbiguitiesResolve ar = new AmbiguitiesResolve(e.ars);
+            AmbiguitiesResolve ar = new AmbiguitiesResolve();
+            ar.ars = e.ars;
             ar.value = ft.getWord();
             amb.put(datas.id, ar);
             user.put("ambiguities", amb);
@@ -293,8 +298,7 @@ class SearchHandler {
         String id = params.getString("id");
         int index = params.getInteger("index");
         JSONObject amb = user.getJSONObject("ambiguities");
-        JSONObject json = amb.getJSONObject(id);
-        AmbiguitiesResolve ambiguitiesResolve = JSONObject.parseObject(json.toJSONString(), AmbiguitiesResolve.class);
+        AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getById(id, amb);
         AmbiguitiesRecord ar = ambiguitiesResolve.ars.remove(index);
         ambiguitiesResolve.ars.add(0, ar);
         ambiguitiesResolve.isResolved = true;
@@ -308,12 +312,17 @@ class SearchHandler {
 
     }
 
-    private static void reDisambiguate(WebSocketSession session, JSONObject params) throws IOException {
-
+    private static void reDisambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
+        disambiguate(session, params, user);
     }
 
-    private static void clearDisambiguate(WebSocketSession session, JSONObject params) throws IOException {
-
+    private static void clearDisambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
+        user.put("ambiguities", new JSONObject());
+        session.getAttributes().put("user", user);
+        JSONObject response = new JSONObject();
+        response.put("type", "state");
+        response.put("message", "clearDisambiguateDone");
+        session.sendMessage(new TextMessage(response.toJSONString()));
     }
 
     private static void axis(WebSocketSession session, JSONObject params) throws IOException {

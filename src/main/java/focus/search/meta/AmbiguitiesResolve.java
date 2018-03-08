@@ -1,5 +1,7 @@
 package focus.search.meta;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.List;
 
 /**
@@ -12,8 +14,18 @@ public class AmbiguitiesResolve {
     public boolean isResolved = false;
     public String value;
 
-    public AmbiguitiesResolve(List<AmbiguitiesRecord> ars) {
-        this.ars = ars;
+    public static AmbiguitiesResolve getByValue(String value, JSONObject amb) {
+        for (Object obj : amb.values()) {
+            AmbiguitiesResolve tmp = (AmbiguitiesResolve) obj;
+            if (tmp.value.equalsIgnoreCase(value)) {
+                return tmp;
+            }
+        }
+        return null;
+    }
+
+    public static AmbiguitiesResolve getById(String id, JSONObject amb) {
+        return JSONObject.parseObject(amb.getJSONObject(id).toJSONString(), AmbiguitiesResolve.class);
     }
 
 }
