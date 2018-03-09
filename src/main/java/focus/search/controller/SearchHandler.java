@@ -215,16 +215,26 @@ class SearchHandler {
                     session.sendMessage(new TextMessage(response.response()));
                     System.out.println("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
                 } else {//  输入完整
-                    // Annotations
-                    AnnotationResponse annotationResponse = new AnnotationResponse(search);
-                    session.sendMessage(new TextMessage(annotationResponse.response()));
 
                     StateResponse response = new StateResponse(search);
                     // 生成指令
                     response.setDatas("prepareQuery");
                     session.sendMessage(new TextMessage(response.response()));
-                    JSONObject json = InstructionBuild.build(focusInst, search);
+                    JSONObject json = InstructionBuild.build(focusInst, search, amb);
                     System.out.println("指令:\n\t" + json + "\n");
+
+                    // Annotations
+                    AnnotationResponse annotationResponse = new AnnotationResponse(search);
+                    JSONArray instructions = json.getJSONArray("instructions");
+                    for (int i = 0; i < instructions.size(); i++) {
+                        JSONObject instruction = instructions.getJSONObject(i);
+                        if (instruction.getString("instId").equals("annotation")) {
+                            String content = instruction.getString("content");
+                            annotationResponse.datas.add(JSONObject.parseObject(content, AnnotationResponse.Datas.class));
+                        }
+                    }
+                    session.sendMessage(new TextMessage(annotationResponse.response()));
+
                     // 指令检测
                     response.setDatas("precheck");
                     session.sendMessage(new TextMessage(response.response()));

@@ -12,9 +12,9 @@ import focus.search.bnf.exception.InvalidRuleException;
  * date: 2018/1/29
  * description:
  */
-class TopNInst extends CommonFunc {
+class TopNInst {
 
-    static JSONArray build(FocusPhrase focusPhrase, int index) throws InvalidRuleException {
+    static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -33,7 +33,7 @@ class TopNInst extends CommonFunc {
         json2.put("instId", "annotation");
         instructions.add(json2);
 
-        instructions.addAll(SimpleInst.singleCol(focusPhrase.getLastNode(), index + 1));
+        instructions.addAll(SimpleInst.singleCol(focusPhrase, index + 1, amb));
 
         return instructions;
     }

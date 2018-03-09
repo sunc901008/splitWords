@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class InstructionBuild {
 
-    public static JSONObject build(FocusInst focusInst, String question) throws InvalidRuleException {
+    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb) throws InvalidRuleException {
         JSONObject data = new JSONObject();
         data.put("query_type", "synchronize");
         data.put("question", question);
@@ -27,21 +27,21 @@ public class InstructionBuild {
         int index;
         for (FocusPhrase focusPhrase : focusPhrases) {
             index = instructions.size() / 2 + 1;
-            instructions.addAll(build(focusPhrase.getInstName(), focusPhrase, index));
+            instructions.addAll(build(focusPhrase.getInstName(), focusPhrase, index, amb));
         }
 
         data.put("instructions", instructions.toJSONString());
         return data;
     }
 
-    private static JSONArray build(String instName, FocusPhrase focusPhrase, int index) throws InvalidRuleException {
+    private static JSONArray build(String instName, FocusPhrase focusPhrase, int index, JSONObject amb) throws InvalidRuleException {
         switch (instName) {
             case "<simple-filter>":
-                return SimpleInst.simpleFilter(focusPhrase, index);
+                return SimpleInst.simpleFilter(focusPhrase, index, amb);
             case "<top-n>":
-                return TopNInst.build(focusPhrase, index);
+                return TopNInst.build(focusPhrase, index, amb);
             case "<all-column>":
-                return SimpleInst.singleCol(focusPhrase.getLastNode(), index);
+                return SimpleInst.singleCol(focusPhrase, index, amb);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

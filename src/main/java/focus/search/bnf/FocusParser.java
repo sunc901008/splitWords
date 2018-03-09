@@ -376,6 +376,7 @@ public class FocusParser {
                             for (Token token : ts) {
                                 FocusNode newFn = new FocusNode(token.getName());
                                 if (token instanceof TerminalToken) {
+                                    newFn.setValue(focusToken.getWord());
                                     newFn.setType(((TerminalToken) token).getType());
                                     newFn.setColumn(((TerminalToken) token).getColumn());
                                 }

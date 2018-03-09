@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,19 +12,11 @@ import java.util.List;
  * description:
  */
 public class AnnotationResponse {
-    private String question;
-    private List<Datas> datas = new ArrayList<>();
+    public String question;
+    public List<Datas> datas = new ArrayList<>();
 
     public AnnotationResponse(String question) {
         this.question = question;
-    }
-
-    public List<Datas> getDatas() {
-        return datas;
-    }
-
-    public void setDatas(List<Datas> datas) {
-        this.datas = datas;
     }
 
     public static class Datas {
@@ -34,7 +25,7 @@ public class AnnotationResponse {
         public String category;
         public Integer begin;
         public Integer end;
-        public List<Tokens> tokens;
+        public List<Tokens> tokens = new ArrayList<>();
 
         JSONObject toJSON() {
             JSONObject json = new JSONObject();
@@ -61,7 +52,8 @@ public class AnnotationResponse {
         public String value;
         public Integer begin;
         public Integer end;
-        public List<String> tokens = Collections.singletonList(this.value);
+        public List<String> tokens = new ArrayList<>();
+        public AmbiguityResponse.Datas ambiguity;
 
         JSONObject toJSON() {
             JSONObject json = new JSONObject();
@@ -77,7 +69,8 @@ public class AnnotationResponse {
             json.put("end", this.end);
             JSONArray jsonArray = new JSONArray();
             jsonArray.addAll(this.tokens);
-            json.put("tokens", jsonArray);
+            if (!jsonArray.isEmpty())
+                json.put("tokens", jsonArray);
             return json;
         }
     }
