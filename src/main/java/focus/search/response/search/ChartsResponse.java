@@ -40,6 +40,7 @@ public class ChartsResponse {
 
     public String response() {
         JSONObject json = new JSONObject();
+        json.put("type", "charts");
         json.put("question", this.question);
         json.put("sourceToken", this.sourceToken);
         json.put("datas", this.datas);

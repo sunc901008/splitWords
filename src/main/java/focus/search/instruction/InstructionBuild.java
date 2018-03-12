@@ -17,7 +17,6 @@ public class InstructionBuild {
 
     public static JSONObject build(FocusInst focusInst, String question, JSONObject amb) throws InvalidRuleException {
         JSONObject data = new JSONObject();
-        data.put("query_type", "synchronize");
         data.put("question", question);
 
         JSONArray instructions = new JSONArray();

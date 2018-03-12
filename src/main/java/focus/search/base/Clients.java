@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,9 +36,20 @@ public class Clients {
     private static final String FORMULA_PARSE = "formulaparse";
     private static final String CHECK_RELATION = "checkRelation";
 
+    private static final BasicHeader baseHeader = new BasicHeader("Content-Type", "application/json");
+
 
     private static JSONObject get(String url, String entity, List<Header> headers) throws Exception {
         JSONObject res = MyHttpClient.get(url, entity, headers);
+        if (res.isEmpty()) {
+            // todo exception controller
+            throw new Exception();
+        }
+        return res;
+    }
+
+    private static JSONObject post(String url, String entity, List<Header> headers) throws Exception {
+        JSONObject res = MyHttpClient.post(url, entity, headers);
         if (res.isEmpty()) {
             // todo exception controller
             throw new Exception();
@@ -52,6 +64,10 @@ public class Clients {
             return get(baseUrl + DATA_SOURCE_URL, null, null);
         }
 
+        public static JSONObject query(String params) throws Exception {
+            return post(baseUrl + QUERY_URL, params, Collections.singletonList(baseHeader));
+        }
+
     }
 
     public static class WebServer {
@@ -61,7 +77,7 @@ public class Clients {
 
         public static JSONObject getSource(String sourceToken) throws Exception {
             BasicHeader header = new BasicHeader("sourceToken", sourceToken);
-            return get(baseUrl + GET_SOURCE, null, Collections.singletonList(header));
+            return get(baseUrl + GET_SOURCE, null, Arrays.asList(header, baseHeader));
         }
     }
 

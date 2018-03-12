@@ -99,7 +99,7 @@ public class AnnotationBuild {
         // todo modify detailType
         token.detailType = column.getDataType();
         token.tableName = column.getSourceName();
-        token.type = column.getColumnType();
+        token.type = column.getColumnType().toLowerCase();
         token.value = column.getColumnDisplayName();
         token.begin = columnNode.getBegin();
         token.end = columnNode.getEnd();

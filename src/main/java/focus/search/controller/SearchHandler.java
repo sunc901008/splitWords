@@ -71,7 +71,7 @@ class SearchHandler {
                 fnamecheck(session, datas);
                 break;
             case "lang":
-                lang(session, datas);
+                lang(session, datas, user);
                 break;
             case "category":
                 category(session, datas);
@@ -221,6 +221,10 @@ class SearchHandler {
                     response.setDatas("prepareQuery");
                     session.sendMessage(new TextMessage(response.response()));
                     JSONObject json = InstructionBuild.build(focusInst, search, amb);
+
+                    json.put("source", "searchUser");
+                    json.put("sourceToken", user.getString("sourceToken"));
+
                     System.out.println("指令:\n\t" + json + "\n");
 
                     // Annotations
@@ -249,8 +253,15 @@ class SearchHandler {
                     session.sendMessage(new TextMessage(response.response()));
 
                     // todo 给BI发送指令，获取查询结果
-                    ChartsResponse chartsResponse = new ChartsResponse(search, user.getString("sourceToken"));
-                    chartsResponse.setDatas(null);
+                    JSONObject res = Clients.Bi.query(json.toJSONString());
+                    String taskId = res.getString("taskId");
+                    session.getAttributes().put("taskId", taskId);
+
+                    // todo 同步返回，测试用
+                    json.put("query_type", "synchronize");
+                    JSONObject res1 = Clients.Bi.query(json.toJSONString());
+                    ChartsResponse chartsResponse = new ChartsResponse(json.getString("question"), json.getString("sourceToken"));
+                    chartsResponse.setDatas(res1);
                     session.sendMessage(new TextMessage(chartsResponse.response()));
 
                 }
@@ -297,6 +308,9 @@ class SearchHandler {
 
             session.getAttributes().put("user", user);
 
+        } catch (Exception e) {
+            String exc = e.getMessage();
+            session.sendMessage(new TextMessage(exc == null ? "something error" : exc));
         }
     }
 
@@ -351,7 +365,7 @@ class SearchHandler {
 
     }
 
-    private static void lang(WebSocketSession session, JSONObject params) throws IOException {
+    private static void lang(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
 
     }
 

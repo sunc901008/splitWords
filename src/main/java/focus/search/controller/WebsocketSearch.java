@@ -3,6 +3,7 @@ package focus.search.controller;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.LoggerHandler;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.response.search.ChartsResponse;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -50,5 +51,18 @@ public class WebsocketSearch extends TextWebSocketHandler {
 //        LoggerHandler.info("get an error:" + exception.getMessage());
 //        session.sendMessage(new TextMessage(exception.getMessage()));
 //    }
+
+    public static void queryResult(String data) throws IOException {
+        JSONObject json = JSONObject.parseObject(data);
+        String taskId = json.getString("taskId");
+        for (WebSocketSession session : users) {
+            if (session.getAttributes().get("taskId").toString().equalsIgnoreCase(taskId)) {
+                ChartsResponse chartsResponse = new ChartsResponse(json.getString("question"), json.getString("sourceToken"));
+                chartsResponse.setDatas(json);
+                session.sendMessage(new TextMessage(chartsResponse.response()));
+                break;
+            }
+        }
+    }
 
 }
