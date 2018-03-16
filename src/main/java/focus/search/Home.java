@@ -1,7 +1,6 @@
 package focus.search;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.bnf.*;
@@ -26,12 +25,33 @@ public class Home {
     public static void main(String[] args) throws IOException, InvalidRuleException {
 //        main();
 //        System.out.println(JSON.toJSONString(ModelBuild.test(2)));
+//
+//        JSONObject json = sug();
+//        String str = json.getJSONArray("suggestions").toJSONString();
+//        System.out.println(str);
+//        List<FocusNode> focusNodes = JSONArray.parseArray(str, FocusNode.class);
+//        System.out.println(focusNodes);
 
-        JSONObject json = sug();
-        String str = json.getJSONArray("suggestions").toJSONString();
-        System.out.println(str);
-        List<FocusNode> focusNodes = JSONArray.parseArray(str, FocusNode.class);
-        System.out.println(focusNodes);
+//        List<AmbiguitiesRecord> aa = new ArrayList<>();
+//        for (int i = 0; i < 3; i++) {
+//            AmbiguitiesRecord ambiguitiesRecord = new AmbiguitiesRecord();
+//            ambiguitiesRecord.sourceName = "table" + i;
+//            ambiguitiesRecord.columnName = "column" + i;
+//            ambiguitiesRecord.columnId = i + 1;
+//            ambiguitiesRecord.type = Constant.FNDType.COLUMN;
+//            aa.add(ambiguitiesRecord);
+//        }
+//
+//        System.out.println(JSONObject.toJSONString(aa));
+//
+//        for (AmbiguitiesRecord a : aa) {
+//            if (a.columnId == 2) {
+//                aa.remove(a);
+//                aa.add(0, a);
+//                break;
+//            }
+//        }
+//        System.out.println(JSONObject.toJSONString(aa));
 
     }
 

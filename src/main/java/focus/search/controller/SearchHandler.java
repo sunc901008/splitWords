@@ -10,6 +10,7 @@ import focus.search.base.Constant;
 import focus.search.base.LoggerHandler;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
@@ -46,7 +47,7 @@ class SearchHandler {
             case "search":
                 search(session, datas, user);
                 break;
-            case "selectSuggest":
+            case "selectSuggest":// todo 使用场景未知
                 selectSuggest(session, datas);
                 break;
             case "disambiguate":
@@ -58,7 +59,7 @@ class SearchHandler {
             case "clearDisambiguate":
                 clearDisambiguate(session, datas, user);
                 break;
-            case "axis":
+            case "axis":// todo 使用场景未知
                 axis(session, datas);
                 break;
             case "test":
@@ -70,14 +71,14 @@ class SearchHandler {
             case "fnamecheck":
                 fnamecheck(session, datas);
                 break;
-            case "lang":
+            case "lang":// todo 可废弃
                 lang(session, datas, user);
                 break;
             case "category":
                 category(session, datas);
                 break;
             case "exportContext":
-                exportContext(session, datas);
+                exportContext(session, datas);// TODO 和 answer 相关,保存 answer 时需先导出 context
                 break;
             case "importContext":
                 importContext(session, datas);
@@ -100,6 +101,9 @@ class SearchHandler {
         }
     }
 
+    // category :
+    // - question : search
+    // - expressionOrLogicalExpression : formula
     private static void init(WebSocketSession session, JSONObject datas, JSONObject user) throws IOException {
         String category = datas.getString("category");
         String context = datas.getString("context");
@@ -107,10 +111,7 @@ class SearchHandler {
         String language = datas.getString("lang");
         String sourceToken = datas.getString("sourceToken");
 
-        // 歧义记录
-        JSONObject ambiguities = new JSONObject();
-        user.put("ambiguities", ambiguities);
-
+        user.put("category", category);
         user.put("language", language);
         user.put("sourceToken", sourceToken);
         user.put("curSearchToken", curSearchToken);
@@ -138,6 +139,41 @@ class SearchHandler {
                     new Common.JSONFilter()), RelationReceived.class);
 
             user.put("sources", srs);
+
+            // 歧义记录
+            JSONObject ambiguities = new JSONObject();
+
+            // 根据 context 补充歧义
+            JSONObject contextJson = JSONObject.parseObject(context);
+            JSONArray disambiguations = contextJson.getJSONArray("disambiguations");
+            for (Object obj : disambiguations) {
+                JSONObject col = JSONObject.parseObject(obj.toString());
+                String columnName = col.getString("columnName");
+                int columnId = col.getInteger("columnId");
+                AmbiguitiesResolve ar = new AmbiguitiesResolve();
+                ar.value = columnName;
+                ar.isResolved = true;
+
+                List<Column> columns = CommonFunc.getColumns(columnName, srs);
+                for (Column column : columns) {
+                    AmbiguitiesRecord ambiguitiesRecord = new AmbiguitiesRecord();
+                    ambiguitiesRecord.sourceName = column.getSourceName();
+                    ambiguitiesRecord.columnName = columnName;
+                    ambiguitiesRecord.columnId = column.getColumnId();
+                    ambiguitiesRecord.type = Constant.FNDType.COLUMN;
+                    ar.ars.add(ambiguitiesRecord);
+                }
+                for (AmbiguitiesRecord a : ar.ars) {
+                    if (a.columnId == columnId) {
+                        ar.ars.remove(a);
+                        ar.ars.add(0, a);
+                        break;
+                    }
+                }
+
+                ambiguities.put(UUID.randomUUID().toString(), ar);
+            }
+            user.put("ambiguities", ambiguities);
 
             System.out.println(JSON.toJSONString(srs));
 
@@ -170,6 +206,7 @@ class SearchHandler {
         List<Ambiguities> ambiguities = JSONArray.parseArray(params.getString("ambiguities"), Ambiguities.class);
 
         FocusParser fp = (FocusParser) user.get("parser");
+        String category = user.getString("category");
         String language = user.getString("language");
         List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
 
@@ -315,7 +352,6 @@ class SearchHandler {
     }
 
     private static void selectSuggest(WebSocketSession session, JSONObject params) throws IOException {
-
     }
 
     private static void disambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {

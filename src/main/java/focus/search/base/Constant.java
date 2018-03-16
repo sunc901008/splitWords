@@ -89,4 +89,10 @@ public class Constant {
 
     }
 
+    // category type
+    public static final class CategoryType {
+        public static final String QUESTION = "question";
+        public static final String EXPRESSION = "expressionOrLogicalExpression";
+    }
+
 }

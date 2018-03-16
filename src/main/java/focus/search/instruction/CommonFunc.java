@@ -29,21 +29,4 @@ public class CommonFunc {
         return columns;
     }
 
-    public static ColumnReceived getCol(String colName, SourceReceived srs) {
-        for (ColumnReceived column : srs.columns) {
-            if (column.columnDisplayName.equalsIgnoreCase(colName)) {
-                return column;
-            }
-        }
-        return null;
-    }
-
-    public static SourceReceived getSource(String sourceName, List<SourceReceived> srs) {
-        for (SourceReceived sr : srs) {
-            if (sr.sourceName.equals(sourceName))
-                return sr;
-        }
-        return null;
-    }
-
 }

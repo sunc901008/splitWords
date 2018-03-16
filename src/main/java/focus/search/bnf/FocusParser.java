@@ -148,7 +148,7 @@ public class FocusParser {
                 boolean filter = flag != -1;// 没有解析结束
                 if (filter) {
                     for (FocusPhrase fp : fsi.getFps()) {
-                        if (fp.size() == tokens.size()) {
+                        if (fp.size() == flag) {
                             fi.addPf(fp);
                         }
                     }
@@ -355,6 +355,8 @@ public class FocusParser {
                             fn.setTerminal(true);
                             fn.setType(tt.getType());
                             fn.setColumn(tt.getColumn());
+                            fn.setBegin(focusToken.getStart());
+                            fn.setEnd(focusToken.getEnd());
                             focusPhrase.addPn(position, fn);
                             if (focusPhrase.size() == position + 1) {
                                 focusPhrase.setType(Constant.INSTRUCTION);
@@ -373,16 +375,19 @@ public class FocusParser {
                         for (TokenString ts : br.getAlternatives()) {
                             FocusPhrase newFp = new FocusPhrase(focusPhrase.getInstName());
                             newFp.addPns(focusPhrase.subNodes(0, position));
-                            for (Token token : ts) {
+                            for (int i = 0; i < ts.size(); i++) {
+                                Token token = ts.get(i);
                                 FocusNode newFn = new FocusNode(token.getName());
                                 if (token instanceof TerminalToken) {
-                                    newFn.setValue(focusToken.getWord());
+                                    if (i == 0) {
+                                        newFn.setValue(focusToken.getWord());
+                                    }
                                     newFn.setType(((TerminalToken) token).getType());
                                     newFn.setColumn(((TerminalToken) token).getColumn());
+                                    newFn.setTerminal(true);
                                 }
                                 newFn.setBegin(focusToken.getStart());
                                 newFn.setEnd(focusToken.getEnd());
-                                newFn.setTerminal(true);
                                 newFp.addPn(newFn);
                             }
                             newFp.addPns(focusPhrase.subNodes(position + 1));
