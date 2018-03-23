@@ -1,9 +1,12 @@
 <question> := <simple-filter> |
               <top-n> |
               <sort-by> |
-              <all-column>;
+              <all-column> |
+              <math-calculate> |
+              <bool-calculate>;
 
-<simple-filter> := <measure-column> <symbol> <integer>;
+<simple-filter> := <measure-column> <symbol> <number> |
+                   <number> <symbol> <measure-column>;
 
 <top-n> := top <integer> <all-int-measure-column> |
            top <all-int-measure-column>;
@@ -19,10 +22,10 @@
                 <attribute-column>;
 
 <measure-column> := <all-int-measure-column> |
-                    <all-number-measure-column>;
+                    <all-double-measure-column>;
 
 <attribute-column> := <all-int-attribute-column> |
-                      <all-number-attribute-column> |
+                      <all-double-attribute-column> |
                       <all-string-attribute-column> |
                       <all-timestamp-attribute-column>;
 
@@ -32,11 +35,11 @@
 <all-int-attribute-column> := <int-attribute-column> |
                             <table-int-attribute-column>;
 
-<all-number-measure-column> := <number-measure-column> |
-                               <table-number-measure-column>;
+<all-double-measure-column> := <double-measure-column> |
+                               <table-double-measure-column>;
 
-<all-number-attribute-column> := <number-attribute-column> |
-                                 <table-number-attribute-column>;
+<all-double-attribute-column> := <double-attribute-column> |
+                                 <table-double-attribute-column>;
 
 <all-string-attribute-column> := <string-attribute-column> |
                                  <table-string-attribute-column>;
@@ -44,7 +47,14 @@
 <all-timestamp-attribute-column> := <timestamp-attribute-column> |
                                     <table-timestamp-attribute-column>;
 
+<math-calculate> := <number> <math-symbol> <number> |
+                    <number> <math-symbol> <math-calculate>;
+
+<bool-calculate> := <number> <bool-symbol> <number>;
+
 <bool-symbol> := > | < | = | !=;
 <math-symbol> := + | - | * | /;
+<number> := <integer> |
+            <double>;
 <integer> := 1;
-<number> := 1;
+<double> := 1;

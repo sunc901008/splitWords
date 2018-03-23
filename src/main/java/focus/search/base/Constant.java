@@ -83,7 +83,7 @@ public class Constant {
         public static final String TABLE = "table";
         public static final String COLUMN = "column";
         public static final String INTEGER = "integer";
-        public static final String NUMBER = "number";
+        public static final String DOUBLE = "double";
         public static final String SYMBOL = "symbol";
         public static final String KEYWORD = "keyword";
 

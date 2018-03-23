@@ -41,6 +41,10 @@ public class InstructionBuild {
                 return TopNInst.build(focusPhrase, index, amb);
             case "<all-column>":
                 return SimpleInst.singleCol(focusPhrase, index, amb);
+            case "<math-calculate>":
+                return MathCalcInst.build(focusPhrase, index, amb);
+            case "<bool-calculate>":
+                return BoolCalcInst.build(focusPhrase, index, amb);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

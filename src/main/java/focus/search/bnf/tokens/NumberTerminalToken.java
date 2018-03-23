@@ -1,9 +1,10 @@
 package focus.search.bnf.tokens;
 
+import focus.search.base.Common;
 import focus.search.base.Constant;
 
 public class NumberTerminalToken extends TerminalToken {
-    public static final String NUMBER = "<number>";
+    public static final String DOUBLE = "<double>";
 
     /**
      * Creates a new non terminal token
@@ -11,7 +12,7 @@ public class NumberTerminalToken extends TerminalToken {
      * @param label The token's label
      */
     public NumberTerminalToken(String label) {
-        super(label, Constant.FNDType.INTEGER);
+        super(label, Constant.FNDType.DOUBLE);
     }
 
     @Override
@@ -29,19 +30,9 @@ public class NumberTerminalToken extends TerminalToken {
         return true;
     }
 
-
     @Override
     public boolean match(final String s) {
-        if (!s.contains(".")) {
-            return false;
-        }
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            Float.parseFloat(s);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
+        return Common.doubleCheck(s);
     }
 
 }

@@ -11,8 +11,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class WebsocketSearch extends TextWebSocketHandler {
+    public static final String RECEIVED_TIMESTAMP = "RECEIVED_TIMESTAMP";
+
     private static final ArrayList<WebSocketSession> users = new ArrayList<>();
     private static final Integer WebsocketLimit = 10;
 
@@ -41,6 +44,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException, InvalidRuleException {
+        session.getAttributes().put(RECEIVED_TIMESTAMP, Calendar.getInstance().getTimeInMillis());
         String input = message.getPayload();
         session.sendMessage(new TextMessage("your input:" + input));
         SearchHandler.preHandle(session, JSONObject.parseObject(input));

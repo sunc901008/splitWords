@@ -36,7 +36,7 @@ public class Lexeme implements Comparable<Lexeme> {
     public static final int TYPE_ERROR = -1;
 
     public static final String INTEGER = Constant.FNDType.INTEGER;
-    public static final String NUMBER = Constant.FNDType.NUMBER;
+    public static final String DOUBLE = Constant.FNDType.DOUBLE;
 
     // 词元的起始位移
     private int offset;
@@ -228,7 +228,7 @@ public class Lexeme implements Comparable<Lexeme> {
                     //noinspection ResultOfMethodCallIgnored
                     Integer.parseInt(lexemeText);
                 } catch (NumberFormatException e) {
-                    return NUMBER;
+                    return DOUBLE;
                 }
                 return INTEGER;
 
@@ -248,7 +248,7 @@ public class Lexeme implements Comparable<Lexeme> {
                 return "COUNT";
 
             case TYPE_CNUM:
-                return NUMBER;
+                return DOUBLE;
 
 //            case TYPE_CQUAN:
 //                return "TYPE_CQUAN";

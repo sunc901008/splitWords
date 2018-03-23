@@ -73,7 +73,7 @@ public class InitResponse {
         private String status;
         private String message;
         private List<Source> sources = new ArrayList<>();
-        private List<Formula> formulas;
+        private List<Formula> formulas = new ArrayList<>();
 
         public String getStatus() {
             return status;
@@ -103,6 +103,13 @@ public class InitResponse {
             this.sources.add(source);
         }
 
+        public List<Formula> getFormulas() {
+            return formulas;
+        }
+
+        public void setFormulas(List<Formula> formulas) {
+            this.formulas = formulas;
+        }
     }
 
 }

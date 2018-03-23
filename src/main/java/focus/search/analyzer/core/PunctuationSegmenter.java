@@ -1,5 +1,7 @@
 package focus.search.analyzer.core;
 
+import focus.search.base.Constant;
+
 /**
  * 英文字符及阿拉伯数字子分词器
  */
@@ -146,9 +148,9 @@ class PunctuationSegmenter implements ISegmenter {
             //noinspection ResultOfMethodCallIgnored
             Integer.parseInt(text);
         } catch (NumberFormatException e) {
-            return "number";
+            return Constant.FNDType.DOUBLE;
         }
-        return "integer";
+        return Constant.FNDType.INTEGER;
     }
 
 }

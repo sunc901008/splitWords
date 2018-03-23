@@ -29,4 +29,31 @@ public class Common {
         }
     }
 
+    public static boolean intCheck(String s) {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean doubleCheck(String s) {
+        if (!s.contains(".")) {
+            return false;
+        }
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            Float.parseFloat(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isEmpty(Object object) {
+        return object == null || object.toString().isEmpty();
+    }
+
 }

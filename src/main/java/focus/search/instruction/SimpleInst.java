@@ -34,9 +34,9 @@ class SimpleInst {
         FocusNode operatorNode = focusPhrase.getNode(flag++);
         json1.put("operator", operatorNode.getValue());
         FocusNode numberNode = focusPhrase.getNode(flag);
-        if (numberNode.getType().equalsIgnoreCase("integer")) {
+        if (numberNode.getType().equalsIgnoreCase(Constant.FNDType.INTEGER)) {
             json1.put("value", Integer.parseInt(numberNode.getValue()));
-        } else if (numberNode.getType().equalsIgnoreCase("number")) {
+        } else if (numberNode.getType().equalsIgnoreCase(Constant.FNDType.DOUBLE)) {
             json1.put("value", Double.parseDouble(numberNode.getValue()));
         }
         instructions.add(json1);

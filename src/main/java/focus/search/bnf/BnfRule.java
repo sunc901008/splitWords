@@ -45,7 +45,7 @@ public class BnfRule implements Serializable {
         String[] lr = input.split("\\s*:=\\s*");
         String lhs = lr[0].trim();
         out.setLeftHandSide(new NonTerminalToken(lhs));
-        if (lhs.equals(NumberTerminalToken.NUMBER)) {
+        if (lhs.equals(NumberTerminalToken.DOUBLE)) {
             TokenString alternative_to_add = new TokenString();
             alternative_to_add.add(new NumberTerminalToken(lhs));
             out.addAlternative(alternative_to_add);

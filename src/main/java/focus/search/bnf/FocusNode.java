@@ -1,5 +1,6 @@
 package focus.search.bnf;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.meta.Column;
 
@@ -81,6 +82,9 @@ public class FocusNode {
         json.put("value", value);
         json.put("isTerminal", isTerminal);
         json.put("type", type);
+        if (column != null) {
+            json.put("column", JSON.toJSON(column));
+        }
         json.put("begin", begin);
         json.put("end", end);
         return json;

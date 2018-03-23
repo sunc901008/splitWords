@@ -1,5 +1,6 @@
 package focus.search.bnf.tokens;
 
+import focus.search.base.Common;
 import focus.search.base.Constant;
 
 public class IntegerTerminalToken extends TerminalToken {
@@ -30,16 +31,9 @@ public class IntegerTerminalToken extends TerminalToken {
         return true;
     }
 
-
     @Override
     public boolean match(final String s) {
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
+        return Common.intCheck(s);
     }
 
 }

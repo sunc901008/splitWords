@@ -1,5 +1,7 @@
 package focus.search.meta;
 
+import com.alibaba.fastjson.JSONObject;
+
 /**
  * creator: sunc
  * date: 2018/2/1
@@ -9,7 +11,7 @@ public class Formula {
 
     private String columnType;
     private String aggregation;
-    private String instruction;
+    private JSONObject instruction = new JSONObject();
     private String dataType;
     private String name;
     private String formula;
@@ -31,11 +33,11 @@ public class Formula {
         this.aggregation = aggregation;
     }
 
-    public String getInstruction() {
+    public JSONObject getInstruction() {
         return instruction;
     }
 
-    public void setInstruction(String instruction) {
+    public void setInstruction(JSONObject instruction) {
         this.instruction = instruction;
     }
 
@@ -70,4 +72,17 @@ public class Formula {
     public void setId(String id) {
         this.id = id;
     }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("id", id);
+        json.put("formula", formula);
+        json.put("name", name);
+        json.put("dataType", dataType);
+        json.put("aggregation", aggregation);
+        json.put("columnType", columnType);
+        json.put("instruction", instruction);
+        return json;
+    }
+
 }
