@@ -2,6 +2,8 @@ package focus.search.base;
 
 import com.alibaba.fastjson.serializer.NameFilter;
 
+import java.text.DecimalFormat;
+
 /**
  * creator: sunc
  * date: 2018/2/5
@@ -54,6 +56,11 @@ public class Common {
 
     public static boolean isEmpty(Object object) {
         return object == null || object.toString().isEmpty();
+    }
+
+    public static String decimalFormat(double d) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        return df.format(d);
     }
 
 }

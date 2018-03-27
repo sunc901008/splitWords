@@ -5,11 +5,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
 		  http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
-    <bean id="searchTest" class="focus.search.controller.WsTest"/>
     <bean id="search" class="focus.search.controller.WebsocketSearch"/>
     <!--<bean id="init" class="focus.search.DefaultModel" init-method="defaultRules"/>-->
     <websocket:handlers allowed-origins="*">
-        <websocket:mapping path="/ws/test" handler="searchTest"/>
         <websocket:mapping path="/websocket/search" handler="search"/>
         <websocket:handshake-interceptors>
             <bean class="focus.search.controller.WebsocketCheck"/>

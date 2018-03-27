@@ -11,10 +11,15 @@ import focus.search.base.LoggerHandler;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
+import focus.search.controller.common.FormulaAnalysis;
+import focus.search.controller.common.FormulaCase;
 import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
-import focus.search.meta.*;
+import focus.search.meta.AmbiguitiesRecord;
+import focus.search.meta.AmbiguitiesResolve;
+import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.metaReceived.*;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.search.*;
@@ -37,7 +42,8 @@ class SearchHandler {
 
     static void preHandle(WebSocketSession session, JSONObject params) throws IOException {
         LoggerHandler.info("params: " + params);
-        JSONObject user = (JSONObject) session.getAttributes().get("user");
+        Object object = session.getAttributes().get("user");
+        JSONObject user = object == null ? new JSONObject() : (JSONObject) object;
         String type = params.getString("type");
         String category = user.getString("category");
         JSONObject datas = new JSONObject();
@@ -50,8 +56,10 @@ class SearchHandler {
             datas = params.getJSONObject("datas");
         }
 
-        // response immediately
-        session.sendMessage(new TextMessage(Response.response(type)));
+        if (!type.equals("exportContext"))
+            // response immediately
+            session.sendMessage(new TextMessage(Response.response(type)));
+
         switch (type) {
             case "init":
                 init(session, datas, user);
@@ -74,7 +82,7 @@ class SearchHandler {
             case "axis":// todo 使用场景未知
                 axis(session, datas);
                 break;
-            case "test":
+            case "test":// todo 可废弃
                 test(session, datas);
                 break;
             case "formula":
@@ -90,9 +98,9 @@ class SearchHandler {
                 category(session, category, user);
                 break;
             case "exportContext":
-                exportContext(session, datas);// TODO 和 answer 相关,保存 answer 时需先导出 context
+                exportContext(session, user);// 保存 answer 时需先导出 context
                 break;
-            case "importContext":
+            case "importContext":// todo 可废弃
                 importContext(session, datas);
                 break;
             case "putFormula":
@@ -159,7 +167,7 @@ class SearchHandler {
             if (context != null) {
                 JSONObject contextJson = JSONObject.parseObject(context);
                 String contextStr = contextJson.getString("disambiguations");// 检测 lisp 返回的空值 nil
-                if (!Common.isEmpty(contextStr) && contextStr.equalsIgnoreCase("NIL")) {
+                if (!Common.isEmpty(contextStr) && !contextStr.equalsIgnoreCase("NIL")) {
 
                     // 恢复歧义
                     JSONArray disambiguations = JSONArray.parseArray(contextStr);
@@ -216,7 +224,7 @@ class SearchHandler {
             }
 
             FocusParser fp = new FocusParser();
-            ModelBuild.build(fp, srs);
+            ModelBuild.buildTable(fp, srs);
             user.put("parser", fp);
         }
         response.setDatas(init.toJson());
@@ -320,7 +328,28 @@ class SearchHandler {
 //        session.getAttributes().put("user", user);
     }
 
-    private static void exportContext(WebSocketSession session, JSONObject params) throws IOException {
+    private static void exportContext(WebSocketSession session, JSONObject user) throws IOException {
+        // 歧义
+        JSONObject context = new JSONObject();
+        JSONObject amb = user.getJSONObject("ambiguities");
+        JSONArray disambiguations = new JSONArray();
+        if (amb != null)
+            for (Object obj : amb.values()) {
+                AmbiguitiesResolve tmp = (AmbiguitiesResolve) obj;
+                if (tmp.isResolved) {
+                    JSONObject disambiguation = new JSONObject();
+                    AmbiguitiesRecord ar = tmp.ars.get(0);
+                    disambiguation.put("columnName", ar.columnName);
+                    disambiguation.put("columnId", ar.columnId);
+                    disambiguations.add(disambiguation);
+                }
+            }
+        context.put("disambiguations", disambiguations.isEmpty() ? null : disambiguations);
+        context.put("indexs", null);
+        context.put("language", user.getString("language"));
+        List<Formula> formulas = getFormula(user);
+        context.put("formulas", formulas.isEmpty() ? null : formulas);
+        session.sendMessage(new TextMessage(ExportContextResponse.response(context)));
 
     }
 
@@ -337,6 +366,7 @@ class SearchHandler {
         FormulaControllerResponse response = new FormulaControllerResponse();
         List<Formula> formulas = getFormula(user);
 
+        List<String> formulaRules = new ArrayList<>();
         for (FormulaReceived formulaReceived : formulaReceivedList) {
             JSONObject json = new JSONObject();
 
@@ -364,6 +394,7 @@ class SearchHandler {
                 formula.setInstruction(formulaObj.toJSON());
 
                 formulas.add(formula);
+                formulaRules.add(formulaReceived.name);
 
                 json.put("formulaObj", formula.toJSON());
                 json.put("message", "done");
@@ -378,6 +409,11 @@ class SearchHandler {
         }
         session.sendMessage(new TextMessage(response.response("putFormula")));
         user.put("formulas", formulas);
+
+        // 公式名添加到分词和规则中
+        if (formulaRules.size() > 0) {
+            ModelBuild.buildFormulas(fp, formulaRules);
+        }
 //        session.getAttributes().put("user", user);
     }
 
@@ -440,11 +476,13 @@ class SearchHandler {
     private static void deleteFormula(WebSocketSession session, JSONArray params, JSONObject user) throws IOException {
         List<Formula> formulas = getFormula(user);
         FormulaControllerResponse response = new FormulaControllerResponse();
+        List<String> formulaNames = new ArrayList<>();
         for (int i = 0; i < params.size(); i++) {
             JSONObject json = params.getJSONObject(i);
             for (Formula formula : formulas) {
                 if (formula.getId().equalsIgnoreCase(json.getString("id"))) {
                     formulas.remove(formula);
+                    formulaNames.add(formula.getName());
                     json.put("status", "success");
                     json.put("message", "done");
                     response.datas.add(json);
@@ -454,6 +492,8 @@ class SearchHandler {
         }
         user.put("formulas", formulas);
         session.sendMessage(new TextMessage(response.response("deleteFormula")));
+        FocusParser fp = (FocusParser) user.get("parser");
+        ModelBuild.deleteFormulas(fp, formulaNames);
     }
 
     private static void formulaCase(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
@@ -462,8 +502,7 @@ class SearchHandler {
         //        {"keyword":"+", "cases":["4 + 1", "47.69 + 99.34", "userid + userid"]}
         JSONObject datas = new JSONObject();
         datas.put("keyword", keyword);
-        JSONArray cases = new JSONArray();
-        datas.put("cases", cases);
+        datas.put("cases", FormulaCase.buildCase(user, keyword));
         response.setDatas(datas);
         session.sendMessage(new TextMessage(response.response()));
     }
@@ -575,7 +614,7 @@ class SearchHandler {
                     // 生成指令
                     response.setDatas("prepareQuery");
                     session.sendMessage(new TextMessage(response.response()));
-                    JSONObject json = InstructionBuild.build(focusInst, search, amb);
+                    JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user));
 
                     json.put("source", "searchUser");
                     json.put("sourceToken", user.getString("sourceToken"));
@@ -631,7 +670,7 @@ class SearchHandler {
                 datas.beginPos = strPosition;
                 StringBuilder reason = new StringBuilder();
                 if (focusInst.position == 0) {
-                    List<Column> cols = colRandomSuggestions(user);
+                    List<Column> cols = SuggestionBuild.colRandomSuggestions(user);
                     cols.forEach(col -> {
                         reason.append(col.getColumnDisplayName()).append(",").append(Constant.FNDType.COLUMN);
                         reason.append(",").append(col.getColumnId()).append("\r\n");
@@ -687,32 +726,13 @@ class SearchHandler {
         }
     }
 
-    private static List<Column> colRandomSuggestions(JSONObject user) {
-        List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
-        List<Column> columns = new ArrayList<>();
-        int count = 10;
-        for (SourceReceived source : srs) {
-            if (count <= 0) {
-                break;
-            }
-            for (ColumnReceived col : source.columns) {
-                Column column = col.transfer();
-                column.setSourceName(source.sourceName);
-                column.setTableId(source.tableId);
-                columns.add(column);
-                count--;
-            }
-        }
-        return columns;
-    }
-
     private static void errorResponse(WebSocketSession session, String search, JSONObject user) throws IOException {
         SuggestionResponse response = new SuggestionResponse(search);
         SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
         datas.beginPos = 0;
         datas.phraseBeginPos = datas.beginPos;
 
-        List<Column> columns = colRandomSuggestions(user);
+        List<Column> columns = SuggestionBuild.colRandomSuggestions(user);
         for (Column column : columns) {
             SuggestionResponse.Suggestions suggestions = new SuggestionResponse.Suggestions();
             suggestions.suggestion = column.getColumnDisplayName();
@@ -728,8 +748,16 @@ class SearchHandler {
     private static String fnamecheck(String name, String id, JSONObject user) {
         FocusParser fp = (FocusParser) user.get("parser");
         // 系统关键词
+        // 1. 符号
+        List<TerminalToken> tokens = SuggestionBuild.terminalTokens(fp, "<symbol>");
+        for (TerminalToken token : tokens) {
+            if (name.toLowerCase().contains(token.getName())) {
+                return "conflictWithKeyword";
+            }
+        }
+        // 2. 其他关键词
         for (TerminalToken token : fp.getTerminalTokens()) {
-            if (name.toLowerCase().contains(token.getName().toLowerCase())) {
+            if (name.toLowerCase().equals(token.getName().toLowerCase())) {
                 return "conflictWithKeyword";
             }
         }

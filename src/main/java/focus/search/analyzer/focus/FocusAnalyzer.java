@@ -24,10 +24,18 @@ public class FocusAnalyzer {
         Dictionary.addWords(FocusKWDict.dictionaries);
     }
 
+    // 添加表名列名到分词中
     public void addTable(List<SourceReceived> sources) {
         if (analyzer == null)
             init();
-        Dictionary.addWords(makeDict(sources));
+        Dictionary.addWords(makeTableDict(sources));
+    }
+
+    // 添加方式名到分词中
+    public void addFormulas(List<String> formulas) {
+        if (analyzer == null)
+            init();
+        Dictionary.addWords(makeFormulaDict(formulas));
     }
 
     public void reset() {
@@ -63,13 +71,21 @@ public class FocusAnalyzer {
         return tokens;
     }
 
-    private List<FocusKWDict> makeDict(List<SourceReceived> sources) {
+    private List<FocusKWDict> makeTableDict(List<SourceReceived> sources) {
         List<FocusKWDict> list = new ArrayList<>();
         for (SourceReceived source : sources) {
-            list.add(new FocusKWDict(source.sourceName, "sourceName", source.sourceName));
+            list.add(new FocusKWDict(source.sourceName, "sourceName"));
             for (ColumnReceived col : source.columns) {
-                list.add(new FocusKWDict(col.columnDisplayName, "columnName", source.sourceName));
+                list.add(new FocusKWDict(col.columnDisplayName, "columnName"));
             }
+        }
+        return list;
+    }
+
+    private List<FocusKWDict> makeFormulaDict(List<String> formulas) {
+        List<FocusKWDict> list = new ArrayList<>();
+        for (String formula : formulas) {
+            list.add(new FocusKWDict(formula, "formulaName"));
         }
         return list;
     }

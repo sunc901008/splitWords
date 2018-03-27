@@ -115,6 +115,17 @@ public class BnfParser implements Serializable {
             m_rules.add(rule);
     }
 
+    public void resetRule(BnfRule rule) {
+        NonTerminalToken r_left = rule.getLeftHandSide();
+        for (BnfRule in_rule : m_rules) {
+            NonTerminalToken in_left = in_rule.getLeftHandSide();
+            if (r_left.equals(in_left)) {
+                in_rule.resetAlternatives(rule.getAlternatives());
+                break;
+            }
+        }
+    }
+
     private void addRules(Collection<BnfRule> rules) {
         for (BnfRule rule : rules) {
             addRule(rule);

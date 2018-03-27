@@ -6,6 +6,7 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.response.search.AmbiguityResponse;
 import focus.search.response.search.AnnotationResponse;
 
@@ -17,6 +18,10 @@ import focus.search.response.search.AnnotationResponse;
 public class AnnotationBuild {
 
     public static AnnotationResponse.Datas build(FocusPhrase focusPhrase, int index, JSONObject amb) {
+        return build(focusPhrase, index, amb, null);
+    }
+
+    public static AnnotationResponse.Datas build(FocusPhrase focusPhrase, int index, JSONObject amb, Formula formula) {
         AnnotationResponse.Datas datas = new AnnotationResponse.Datas();
         datas.id = index;
         datas.begin = focusPhrase.getFirstNode().getBegin();
@@ -25,14 +30,19 @@ public class AnnotationBuild {
         if (instName.equals("<all-column>")) {
             // todo category and type
             datas.type = "phrase";
-            datas.category = "";
             boolean hasTable = false;
             int colPosition = focusPhrase.size() - 1;
             if (focusPhrase.size() == 2) {
                 hasTable = true;
             }
-            AnnotationResponse.Tokens token = singleColumn(focusPhrase, hasTable, colPosition, amb);
-            datas.tokens.add(token);
+            if (formula != null) {
+                datas.category = "formulaName";
+                datas.tokens.add(singleFormula(focusPhrase.getFirstNode(), formula));
+            } else {
+                datas.category = "column";
+                datas.tokens.add(singleColumn(focusPhrase, hasTable, colPosition, amb));
+            }
+
             return datas;
         }
         if (instName.equals("<top-n>")) {
@@ -121,6 +131,19 @@ public class AnnotationBuild {
             }
         }
         token.tokens.add(column.getColumnDisplayName());
+        return token;
+    }
+
+    private static AnnotationResponse.FormulaTokens singleFormula(FocusNode node, Formula formula) {
+        AnnotationResponse.FormulaTokens token = new AnnotationResponse.FormulaTokens();
+        token.begin = node.getBegin();
+        token.end = node.getEnd();
+        token.formula = formula;
+        token.description = "formula " + formula.getName() + ":" + formula.getFormula();
+        token.type = "formulaName";
+        token.detailType = "formulaName";
+        token.tokens.add(formula.getName());
+        token.value = formula.getName();
         return token;
     }
 

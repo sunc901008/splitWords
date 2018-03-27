@@ -2,6 +2,7 @@ package focus.search.meta;
 
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  * description:
  */
 public class AmbiguitiesResolve {
-    public List<AmbiguitiesRecord> ars;
+    public List<AmbiguitiesRecord> ars = new ArrayList<>();
     public boolean isResolved = false;
     public String value;
 

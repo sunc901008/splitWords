@@ -69,7 +69,7 @@ public class Dictionary {
     }
 
     public static void addWord(FocusKWDict word) {
-        singleton._MainDict.fillSegment(word.getWord().trim().toLowerCase().toCharArray(), word.getType(), word.getAttr());
+        singleton._MainDict.fillSegment(word.getWord().trim().toLowerCase().toCharArray(), word.getType());
     }
 
     /**

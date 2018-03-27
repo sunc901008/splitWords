@@ -8,16 +8,18 @@ import focus.search.base.Constant;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
+import focus.search.controller.common.FormulaAnalysis;
 import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
 import focus.search.meta.Column;
-import focus.search.meta.FormulaAnalysis;
-import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.search.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * creator: sunc
@@ -27,19 +29,30 @@ import java.util.*;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
-//        String search = "badges name";
+        String search = "formula";
 
-//        test(search);
+        test(search);
 
 //        formulaTest(makeFp());
 
-        FocusParser parser = new FocusParser();
-        List<SourceReceived> sourceReceiveds = ModelBuild.test(2);
-        System.out.println(JSON.toJSONString(sourceReceiveds));
-        ModelBuild.build(parser, sourceReceiveds);
-        String ruleName = "<all-column>";
-        List<TerminalToken> tokens = SuggestionBuild.terminalTokens(parser, ruleName);
-        System.out.println(JSON.toJSONString(tokens));
+//        FocusParser parser = new FocusParser();
+//        List<SourceReceived> sourceReceiveds = ModelBuild.test(2);
+//        System.out.println(JSON.toJSONString(sourceReceiveds));
+//        ModelBuild.build(parser, sourceReceiveds);
+//        String ruleName = "<symbol>";
+//        List<TerminalToken> tokens = SuggestionBuild.terminalTokens(parser, ruleName);
+//        System.out.println(JSON.toJSONString(tokens));
+//
+//        String name = "abcd>";
+//
+//        for (TerminalToken token : tokens) {
+//            System.out.print(token.getName());
+//            if (name.toLowerCase().contains(token.getName())) {
+//                System.out.println("conflictWithKeyword");
+//            }
+//            System.out.println();
+//        }
+//        System.out.println("over");
 
     }
 
@@ -118,9 +131,11 @@ public class Home {
     private static void test(String search) throws IOException, InvalidRuleException {
 
         FocusParser parser = new FocusParser();
-        ModelBuild.build(parser, ModelBuild.test(2));
+        ModelBuild.buildTable(parser, ModelBuild.test(2));
 
-        List<FocusToken> tokens = parser.focusAnalyzer.test(search, "english");
+        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
+
+        List<FocusToken> tokens = parser.focusAnalyzer.test(search, "chinese");
 
 //        List<String> keywords = FocusKWDict.getAllKeywords();
 //        int loop = tokens.size();
@@ -140,7 +155,7 @@ public class Home {
         System.out.println(JSON.toJSONString(tokens));
         FocusInst focusInst;
         try {
-            focusInst = parser.parseFormula(tokens, new JSONObject());
+            focusInst = parser.parseQuestion(tokens, new JSONObject());
         } catch (AmbiguitiesException e) {
             System.out.println("Ambiguity:");
             System.out.println(e.toString());
@@ -149,17 +164,13 @@ public class Home {
         System.out.println("-------------------");
         System.out.println(focusInst.toJSON());
 
-        if (ens.size() > 0) {
-            return;
-        }
-
         String msg;
         if (focusInst.position < 0) {// 未出错
             FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
             if (focusPhrase.isSuggestion()) {// 出入不完整
                 SuggestionResponse response = new SuggestionResponse(search);
                 SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
-                JSONObject json = sug(tokens, focusInst);
+                JSONObject json = SuggestionBuild.sug(tokens, focusInst);
                 datas.beginPos = json.getInteger("position");
                 datas.phraseBeginPos = datas.beginPos;
                 List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
@@ -179,7 +190,7 @@ public class Home {
                 System.out.println("提示:\n\t" + JSON.toJSONString(response) + "\n");
             } else {//  输入完整
 
-                JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject());
+                JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject() , new ArrayList<>());
 
                 System.out.println("指令:\n\t" + json + "\n");
 
@@ -202,7 +213,7 @@ public class Home {
             IllegalResponse.Datas datas = new IllegalResponse.Datas();
             datas.beginPos = strPosition;
             StringBuilder reason = new StringBuilder();
-            List<FocusNode> focusNodes = sug(focusInst.position, focusInst);
+            List<FocusNode> focusNodes = SuggestionBuild.sug(focusInst.position, focusInst);
             focusNodes.forEach(node -> {
                 reason.append(node.getValue());
                 if (node.getType() != null) {
@@ -222,55 +233,6 @@ public class Home {
         }
 
     }
-
-    private static List<FocusNode> sug(int position, FocusInst focusInst) {
-        List<FocusNode> focusNodes = new ArrayList<>();
-        List<String> suggestions = new ArrayList<>();
-        for (FocusPhrase fp : focusInst.getFocusPhrases()) {
-            if (fp.isSuggestion()) {
-                FocusNode fn = fp.getNode(position);
-                if (!suggestions.contains(fn.getValue())) {
-                    suggestions.add(fn.getValue());
-                    focusNodes.add(fn);
-                }
-            } else {
-                position = position - fp.size();
-            }
-        }
-        return focusNodes;
-    }
-
-    private static JSONObject sug(List<FocusToken> tokens, FocusInst focusInst) {
-        JSONObject json = new JSONObject();
-        int index = tokens.size() - 1;
-        int position = tokens.get(index).getStart();
-        List<FocusNode> focusNodes = new ArrayList<>();
-        Set<String> suggestions = new HashSet<>();
-        for (FocusPhrase fp : focusInst.getFocusPhrases()) {
-            if (fp.isSuggestion()) {
-                FocusNode fn = fp.getNode(index);
-                if (fn.getValue().equalsIgnoreCase(tokens.get(index).getWord())) {
-                    FocusNode focusNode = fp.getNode(index + 1);
-                    if (!suggestions.contains(focusNode.getValue())) {
-                        suggestions.add(focusNode.getValue());
-                        focusNodes.add(focusNode);
-                        position = fn.getEnd() + 1;
-                    }
-                } else {
-                    if (!suggestions.contains(fn.getValue())) {
-                        suggestions.add(fn.getValue());
-                        focusNodes.add(fn);
-                    }
-                }
-            } else {
-                index = index - fp.size();
-            }
-        }
-        json.put("position", position);
-        json.put("suggestions", focusNodes);
-        return json;
-    }
-
 
     private static Boolean isBaseRule(BnfRule rule, String token) {
         for (TerminalToken tt : rule.getTerminalTokens()) {

@@ -6,6 +6,9 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.meta.Formula;
+
+import java.util.List;
 
 /**
  * creator: sunc
@@ -14,7 +17,7 @@ import focus.search.bnf.exception.InvalidRuleException;
  */
 class TopNInst {
 
-    static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb) throws InvalidRuleException {
+    static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -33,7 +36,7 @@ class TopNInst {
         json2.put("instId", "annotation");
         instructions.add(json2);
 
-        instructions.addAll(SimpleInst.singleCol(focusPhrase, index + 1, amb));
+        instructions.addAll(SimpleInst.singleCol(focusPhrase, index + 1, amb, formulas));
 
         return instructions;
     }

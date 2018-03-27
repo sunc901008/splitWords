@@ -125,11 +125,11 @@ class DictSegment implements Comparable<DictSegment> {
         return searchHit;
     }
 
-    void fillSegment(char[] charArray, String type, String attr) {
-        this.fillSegment(charArray, 0, charArray.length, 1, type, attr);
+    void fillSegment(char[] charArray, String type) {
+        this.fillSegment(charArray, 0, charArray.length, 1, type);
     }
 
-    private synchronized void fillSegment(char[] charArray, int begin, int length, int enabled, String type, String attr) {
+    private synchronized void fillSegment(char[] charArray, int begin, int length, int enabled, String type) {
         // 获取字典表中的汉字对象
         Character beginChar = charArray[begin];
         Character keyChar = charMap.get(beginChar);
@@ -145,7 +145,7 @@ class DictSegment implements Comparable<DictSegment> {
             // 处理keyChar对应的segment
             if (length > 1) {
                 // 词元还没有完全加入词典树
-                ds.fillSegment(charArray, begin + 1, length - 1, enabled, type, attr);
+                ds.fillSegment(charArray, begin + 1, length - 1, enabled, type);
             } else if (length == 1) {
                 // 已经是词元的最后一个char,设置当前节点状态为enabled，
                 // enabled=1表明一个完整的词，enabled=0表示从词典中屏蔽当前词

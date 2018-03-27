@@ -46,7 +46,6 @@ public class WebsocketSearch extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException, InvalidRuleException {
         session.getAttributes().put(RECEIVED_TIMESTAMP, Calendar.getInstance().getTimeInMillis());
         String input = message.getPayload();
-        session.sendMessage(new TextMessage("your input:" + input));
         SearchHandler.preHandle(session, JSONObject.parseObject(input));
     }
 //

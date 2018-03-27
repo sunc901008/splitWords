@@ -1,4 +1,4 @@
-package focus.search.meta;
+package focus.search.controller.common;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;

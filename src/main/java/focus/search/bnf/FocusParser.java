@@ -53,6 +53,10 @@ public class FocusParser {
         parser.addRule(rule);
     }
 
+    public void resetRule(BnfRule rule) {
+        parser.resetRule(rule);
+    }
+
     public List<TerminalToken> getTerminalTokens() {
         return parser.getTerminalTokens();
     }
@@ -426,10 +430,13 @@ public class FocusParser {
                                 Token token = ts.get(i);
                                 FocusNode newFn = new FocusNode(token.getName());
                                 if (token instanceof TerminalToken) {
-                                    if (i == 0) {
-                                        newFn.setValue(focusToken.getWord());
-                                    }
+                                    newFn.setValue(token.getName());
                                     newFn.setType(((TerminalToken) token).getType());
+                                    if (i == 0) {
+                                        if (newFn.getType().equals(Constant.FNDType.INTEGER) || newFn.getType().equals(Constant.FNDType.DOUBLE)) {
+                                            newFn.setValue(focusToken.getWord());
+                                        }
+                                    }
                                     newFn.setColumn(((TerminalToken) token).getColumn());
                                     newFn.setTerminal(true);
                                 }
@@ -564,7 +571,8 @@ public class FocusParser {
                 }
             } else {
                 BnfRule newBr = getRule(token);
-                if (newBr == null && !token.getName().contains("column")) {
+                // 过滤公式和列规则
+                if (newBr == null && !token.getName().endsWith("-column>") && !token.getName().equals("<formulas>")) {
                     throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
                     if (parse(newBr, word) != null) {

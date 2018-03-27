@@ -86,6 +86,7 @@ public class Constant {
         public static final String DOUBLE = "double";
         public static final String SYMBOL = "symbol";
         public static final String KEYWORD = "keyword";
+        public static final String FORMULA = "formulaName";
 
     }
 
@@ -93,6 +94,18 @@ public class Constant {
     public static final class CategoryType {
         public static final String QUESTION = "question";
         public static final String EXPRESSION = "expressionOrLogicalExpression";
+    }
+
+    // data type
+    public static final class DataType {
+        public static final String STRING = "string";
+        public static final String INT = "int";
+        public static final String DOUBLE = "double";
+        public static final String TIMESTAMP = "timestamp";
+        public static final String BIGINT = "bigint";
+        public static final String SMALLINT = "smallint";
+        public static final String BOOLEAN = "boolean";
+
     }
 
 }

@@ -19,7 +19,8 @@
             <math-symbol>;
 
 <all-column> := <measure-column> |
-                <attribute-column>;
+                <attribute-column> |
+                <formulas>;
 
 <measure-column> := <all-int-measure-column> |
                     <all-double-measure-column>;
@@ -50,10 +51,12 @@
 <math-calculate> := <number> <math-symbol> <number> |
                     <number> <math-symbol> <math-calculate>;
 
-<bool-calculate> := <number> <bool-symbol> <number>;
+<bool-calculate> := <number> <bool-symbol> <number> |
+                    <math-calculate> <bool-symbol> <number> |
+                    <number> <bool-symbol> <math-calculate>;
 
 <bool-symbol> := > | < | = | !=;
-<math-symbol> := + | - | * | /;
+<math-symbol> := + | - | * | / | ^;
 <number> := <integer> |
             <double>;
 <integer> := 1;

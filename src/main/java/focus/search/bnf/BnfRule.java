@@ -60,22 +60,29 @@ public class BnfRule implements Serializable {
         if (lr.length != 2) {
             throw new InvalidRuleException("Cannot find left- and right-hand side of BNF rule");
         }
-        if (lr[1].startsWith("^") && !lr[1].equals("^")) {
-            // This is a regex line
-            String regex = unescapeString(lr[1]);
-            TokenString alternative_to_add = new TokenString();
-            Token to_add = new RegexTerminalToken(regex);
-            alternative_to_add.add(to_add);
-            out.addAlternative(alternative_to_add);
-        } else {
-            // Anything but a regex line
-            String[] parts = lr[1].split("\\s*\\|\\s*");
-            if (parts.length <= 0) {
-                throw new InvalidRuleException("Right-hand side of BNF rule is empty");
-            }
-            for (String part : parts)
-                processAlternatives(out, part);
+//        if (lr[1].startsWith("^") && !lr[1].equals("^")) {
+//            // This is a regex line
+//            String regex = unescapeString(lr[1]);
+//            TokenString alternative_to_add = new TokenString();
+//            Token to_add = new RegexTerminalToken(regex);
+//            alternative_to_add.add(to_add);
+//            out.addAlternative(alternative_to_add);
+//        } else {
+//            // Anything but a regex line
+//            String[] parts = lr[1].split("\\s*\\|\\s*");
+//            if (parts.length <= 0) {
+//                throw new InvalidRuleException("Right-hand side of BNF rule is empty");
+//            }
+//            for (String part : parts)
+//                processAlternatives(out, part);
+//        }
+
+        String[] parts = lr[1].split("\\s*\\|\\s*");
+        if (parts.length <= 0) {
+            throw new InvalidRuleException("Right-hand side of BNF rule is empty");
         }
+        for (String part : parts)
+            processAlternatives(out, part);
         return out;
     }
 
@@ -183,6 +190,11 @@ public class BnfRule implements Serializable {
                 m_alternatives.add(ts);
             }
         }
+    }
+
+    public void resetAlternatives(Collection<TokenString> alternatives) {
+        m_alternatives.clear();
+        m_alternatives.addAll(alternatives);
     }
 
     private boolean exist(TokenString ts) {

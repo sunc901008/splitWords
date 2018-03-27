@@ -14,23 +14,21 @@ public class FocusKWDict {
 
     private String word;
     private String type;
-    private String attr;
 
-    public FocusKWDict(String word, String type, String attr) {
+    public FocusKWDict(String word, String type) {
         this.word = word;
         this.type = type;
-        this.attr = attr;
     }
 
     static {
-        dictionaries.add(new FocusKWDict("的最大值", "keyword", "keyword"));
-        dictionaries.add(new FocusKWDict("最大值", "keyword", "keyword"));
-        dictionaries.add(new FocusKWDict("的最小值", "keyword", "keyword"));
-        dictionaries.add(new FocusKWDict("最小值", "keyword", "keyword"));
-        dictionaries.add(new FocusKWDict("前", "keyword", "keyword"));
-        dictionaries.add(new FocusKWDict("sort", "keyword", "keyword"));
-        dictionaries.add(new FocusKWDict("by", "keyword", "keyword"));
-        dictionaries.add(new FocusKWDict("top", "keyword", "keyword"));
+        dictionaries.add(new FocusKWDict("的最大值", "keyword"));
+        dictionaries.add(new FocusKWDict("最大值", "keyword"));
+        dictionaries.add(new FocusKWDict("的最小值", "keyword"));
+        dictionaries.add(new FocusKWDict("最小值", "keyword"));
+        dictionaries.add(new FocusKWDict("前", "keyword"));
+        dictionaries.add(new FocusKWDict("sort", "keyword"));
+        dictionaries.add(new FocusKWDict("by", "keyword"));
+        dictionaries.add(new FocusKWDict("top", "keyword"));
     }
 
     public String getWord() {
@@ -39,10 +37,6 @@ public class FocusKWDict {
 
     public String getType() {
         return type;
-    }
-
-    public String getAttr() {
-        return attr;
     }
 
     public static List<String> getAllKeywords() {
