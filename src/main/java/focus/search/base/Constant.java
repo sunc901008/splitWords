@@ -96,6 +96,12 @@ public class Constant {
         public static final String EXPRESSION = "expressionOrLogicalExpression";
     }
 
+    // column type
+    public static final class ColumnType {
+        public static final String MEASURE = "measure";
+        public static final String ATTRIBUTE = "attribute";
+    }
+
     // data type
     public static final class DataType {
         public static final String STRING = "string";

@@ -2,6 +2,7 @@ package focus.search.analyzer.focus;
 
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
+import focus.search.meta.Formula;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
 import org.apache.lucene.analysis.TokenStream;
@@ -31,11 +32,18 @@ public class FocusAnalyzer {
         Dictionary.addWords(makeTableDict(sources));
     }
 
-    // 添加方式名到分词中
-    public void addFormulas(List<String> formulas) {
+    // 添加公式名到分词中
+    public void addFormulas(List<Formula> formulas) {
         if (analyzer == null)
             init();
         Dictionary.addWords(makeFormulaDict(formulas));
+    }
+
+    // 从分词中删除公式名
+    public void removeFormulas(List<String> formulaNames) {
+        if (analyzer == null)
+            init();
+        Dictionary.removeWords(formulaNames);
     }
 
     public void reset() {
@@ -82,10 +90,10 @@ public class FocusAnalyzer {
         return list;
     }
 
-    private List<FocusKWDict> makeFormulaDict(List<String> formulas) {
+    private List<FocusKWDict> makeFormulaDict(List<Formula> formulas) {
         List<FocusKWDict> list = new ArrayList<>();
-        for (String formula : formulas) {
-            list.add(new FocusKWDict(formula, "formulaName"));
+        for (Formula formula : formulas) {
+            list.add(new FocusKWDict(formula.getName(), "formulaName"));
         }
         return list;
     }

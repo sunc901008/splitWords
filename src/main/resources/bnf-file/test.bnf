@@ -6,7 +6,9 @@
               <bool-calculate>;
 
 <simple-filter> := <measure-column> <symbol> <number> |
-                   <number> <symbol> <measure-column>;
+                   <measure-formula-column> <symbol> <number> |
+                   <number> <symbol> <measure-column> |
+                   <number> <symbol> <measure-formula-column>;
 
 <top-n> := top <integer> <all-int-measure-column> |
            top <all-int-measure-column>;
@@ -20,7 +22,7 @@
 
 <all-column> := <measure-column> |
                 <attribute-column> |
-                <formulas>;
+                <formulas-column>;
 
 <measure-column> := <all-int-measure-column> |
                     <all-double-measure-column>;
@@ -29,6 +31,9 @@
                       <all-double-attribute-column> |
                       <all-string-attribute-column> |
                       <all-timestamp-attribute-column>;
+
+<formulas-column> := <measure-formula-column> |
+                     <attribute-formula-column>;
 
 <all-int-measure-column> := <int-measure-column> |
                             <table-int-measure-column>;

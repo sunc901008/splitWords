@@ -16,6 +16,10 @@ import java.util.List;
  */
 public class FormulaCase {
 
+// average、count、max、min、sum、to_date、to_string、to_double、to_integer、
+// diff_days、month、month_number、year、！=、<、>、<=、>=、=、+、-、*、/、
+// and、if...then...else、ifnull、isnull、not、or、concat、contains、strlen、substr
+
     private static final List<String> TYPE1 = Arrays.asList("+", "-", ">", "<", "=", "!=", "*", "/");
     private static final List<String> DATA_TYPE1 = Arrays.asList("double", "int", "bigint", "smallint");
 

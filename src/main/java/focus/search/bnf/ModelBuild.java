@@ -6,6 +6,7 @@ import focus.search.bnf.tokens.NonTerminalToken;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.bnf.tokens.TokenString;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
 
@@ -28,12 +29,22 @@ public class ModelBuild {
             for (ColumnReceived col : source.columns) {
                 BnfRule br = new BnfRule();
                 BnfRule br1 = new BnfRule();
-                if (col.columnType.equalsIgnoreCase("measure")) {
-                    br.setLeftHandSide(new NonTerminalToken("<int-measure-column>"));
-                    br1.setLeftHandSide(new NonTerminalToken("<table-int-measure-column>"));
+                if (col.columnType.equalsIgnoreCase(Constant.ColumnType.MEASURE)) {
+                    if (col.dataType.equalsIgnoreCase(Constant.DataType.DOUBLE)) {
+                        br.setLeftHandSide(new NonTerminalToken("<int-measure-column>"));
+                        br1.setLeftHandSide(new NonTerminalToken("<table-int-measure-column>"));
+                    } else {
+                        br.setLeftHandSide(new NonTerminalToken("<double-measure-column>"));
+                        br1.setLeftHandSide(new NonTerminalToken("<table-double-measure-column>"));
+                    }
                 } else {
-                    br.setLeftHandSide(new NonTerminalToken("<string-attribute-column>"));
-                    br1.setLeftHandSide(new NonTerminalToken("<table-string-attribute-column>"));
+                    if (col.dataType.equalsIgnoreCase(Constant.DataType.TIMESTAMP)) {
+                        br.setLeftHandSide(new NonTerminalToken("<timestamp-attribute-column>"));
+                        br1.setLeftHandSide(new NonTerminalToken("<table-timestamp-attribute-column>"));
+                    } else {
+                        br.setLeftHandSide(new NonTerminalToken("<string-attribute-column>"));
+                        br1.setLeftHandSide(new NonTerminalToken("<table-string-attribute-column>"));
+                    }
                 }
                 TokenString alternative_to_add = new TokenString();
 
@@ -54,33 +65,57 @@ public class ModelBuild {
         }
     }
 
-    public static void buildFormulas(FocusParser fp, List<String> formulas) {
+    public static void buildFormulas(FocusParser fp, List<Formula> formulas) {
         // add split words
         fp.focusAnalyzer.addFormulas(formulas);
 
         // add bnf rule
-        for (String formula : formulas) {
+        for (Formula formula : formulas) {
             BnfRule br = new BnfRule();
-            br.setLeftHandSide(new NonTerminalToken("<formulas>"));
+            if (formula.getColumnType().equalsIgnoreCase(Constant.ColumnType.MEASURE)) {
+                br.setLeftHandSide(new NonTerminalToken("<measure-formula-column>"));
+            } else {
+                br.setLeftHandSide(new NonTerminalToken("<attribute-formula-column>"));
+            }
             TokenString alternative_to_add = new TokenString();
-            alternative_to_add.add(new TerminalToken(formula, Constant.FNDType.FORMULA));
+            alternative_to_add.add(new TerminalToken(formula.getName(), Constant.FNDType.FORMULA));
             br.addAlternative(alternative_to_add);
             fp.addRule(br);
         }
     }
 
     public static void deleteFormulas(FocusParser fp, List<String> formulas) {
+        // add split words
+        fp.focusAnalyzer.removeFormulas(formulas);
+
         // delete bnf rule
-        BnfRule br = fp.getRule("<formulas>");
-        BnfRule brNew = new BnfRule();
-        brNew.setLeftHandSide(new NonTerminalToken("<formulas>"));
-        List<TokenString> tokenStrings = new ArrayList<>();
-        for (TokenString ts : br.getAlternatives()) {
-            if (!formulas.contains(ts.getFirst().getName())) {
-                tokenStrings.add(ts);
+        BnfRule br = fp.getRule("<measure-formula-column>");
+        if (br != null) {
+            BnfRule brNew = new BnfRule();
+            brNew.setLeftHandSide(new NonTerminalToken("<measure-formula-column>"));
+            List<TokenString> tokenStrings = new ArrayList<>();
+            for (TokenString ts : br.getAlternatives()) {
+                if (!formulas.contains(ts.getFirst().getName())) {
+                    tokenStrings.add(ts);
+                }
             }
+            brNew.resetAlternatives(tokenStrings);
+            fp.resetRule(brNew);
         }
-        brNew.resetAlternatives(tokenStrings);
+
+        BnfRule br1 = fp.getRule("<attribute-formula-column>");
+        if (br1 != null) {
+            BnfRule brNew1 = new BnfRule();
+            brNew1.setLeftHandSide(new NonTerminalToken("<attribute-formula-column>"));
+            List<TokenString> tokenStrings1 = new ArrayList<>();
+            for (TokenString ts : br1.getAlternatives()) {
+                if (!formulas.contains(ts.getFirst().getName())) {
+                    tokenStrings1.add(ts);
+                }
+            }
+            brNew1.resetAlternatives(tokenStrings1);
+            fp.resetRule(brNew1);
+        }
     }
 
     public static List<SourceReceived> test(int i) {

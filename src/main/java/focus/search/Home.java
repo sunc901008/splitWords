@@ -133,7 +133,7 @@ public class Home {
         FocusParser parser = new FocusParser();
         ModelBuild.buildTable(parser, ModelBuild.test(2));
 
-        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
+//        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
 
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "chinese");
 

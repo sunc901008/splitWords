@@ -366,7 +366,7 @@ class SearchHandler {
         FormulaControllerResponse response = new FormulaControllerResponse();
         List<Formula> formulas = getFormula(user);
 
-        List<String> formulaRules = new ArrayList<>();
+        List<Formula> formulaRules = new ArrayList<>();
         for (FormulaReceived formulaReceived : formulaReceivedList) {
             JSONObject json = new JSONObject();
 
@@ -394,7 +394,7 @@ class SearchHandler {
                 formula.setInstruction(formulaObj.toJSON());
 
                 formulas.add(formula);
-                formulaRules.add(formulaReceived.name);
+                formulaRules.add(formula);
 
                 json.put("formulaObj", formula.toJSON());
                 json.put("message", "done");

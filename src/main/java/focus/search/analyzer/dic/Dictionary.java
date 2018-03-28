@@ -68,8 +68,23 @@ public class Dictionary {
         }
     }
 
+    /**
+     * 批量屏蔽新词条
+     */
+    public static void removeWords(List<String> words) {
+        if (words != null) {
+            for (String word : words) {
+                deleteWord(word);
+            }
+        }
+    }
+
     public static void addWord(FocusKWDict word) {
         singleton._MainDict.fillSegment(word.getWord().trim().toLowerCase().toCharArray(), word.getType());
+    }
+
+    public static void deleteWord(String word) {
+        singleton._MainDict.removeSegment(word.trim().toLowerCase().toCharArray());
     }
 
     /**

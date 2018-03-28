@@ -156,6 +156,10 @@ public class FocusParser {
                             fi.addPf(fp);
                         }
                     }
+                    if (fi.getFocusPhrases().isEmpty()) {
+                        fi.addPfs(fsi.getFps());
+                        break;
+                    }
                 } else {// 解析结束
                     fi.addPfs(fsi.getFps());
                 }
@@ -234,49 +238,64 @@ public class FocusParser {
                 }
             } else {
                 replace(rules, focusPhrases, ft, i);
-                if (same(tmp, focusPhrases)) {// 识别后的规则无变化或者出错，则表示识别结束
-
-                    focusPhrases.clear();
-                    for (FocusPhrase fp : tmp) {
-                        if (fp.size() > i && fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
-                            if (fp.size() == i + 1) {
-                                fp.setType(Constant.INSTRUCTION);
-                            }
-                            focusPhrases.add(fp);
-                        }
-                    }
-
-                    if (!focusPhrases.isEmpty()) {
+//                if (same(tmp, focusPhrases)) {// 识别后的规则无变化或者出错，则表示识别结束
+//
+//                    focusPhrases.clear();
+//                    for (FocusPhrase fp : tmp) {
+//                        if (fp.size() > i && fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+//                            if (fp.size() == i + 1) {
+//                                fp.setType(Constant.INSTRUCTION);
+//                            }
+//                            focusPhrases.add(fp);
+//                        }
+//                    }
+//
+//                    if (!focusPhrases.isEmpty()) {
+//                        continue;
+//                    }
+//                    FocusSubInst fsi = new FocusSubInst();
+//                    fsi.setIndex(i);
+//                    for (FocusPhrase fp : tmp) {
+//                        if (fp.size() == i) {
+//                            fsi.addFps(fp);
+//                        }
+//                    }
+//                    return fsi;
+//                } else {
+//                    if (focusPhrases.isEmpty()) {
+//                        focusPhrases = tmp;
+//                    }
+                List<FocusPhrase> remove = new ArrayList<>();
+                List<FocusPhrase> startWith = new ArrayList<>();
+                for (FocusPhrase fp : focusPhrases) {
+                    if (fp.size() <= i) {
+                        remove.add(fp);
                         continue;
                     }
+                    if (!fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+                        remove.add(fp);
+                    }
+                    if (fp.getNode(i).getValue().toLowerCase().startsWith(ft.getWord().toLowerCase())) {
+                        startWith.add(fp);
+                    }
+                }
+                focusPhrases.removeAll(remove);
+                if (focusPhrases.isEmpty()) {
                     FocusSubInst fsi = new FocusSubInst();
                     fsi.setIndex(i);
-                    for (FocusPhrase fp : tmp) {
-                        if (fp.size() == i) {
-                            fsi.addFps(fp);
-                        }
-                    }
-                    return fsi;
-                } else {
-                    if (focusPhrases.isEmpty()) {
-                        focusPhrases = tmp;
-                    }
-                    List<FocusPhrase> remove = new ArrayList<>();
-                    for (FocusPhrase fp : focusPhrases) {
-                        if (fp.size() <= i || !fp.getNode(i).getValue().toLowerCase().startsWith(ft.getWord().toLowerCase())) {
-                            remove.add(fp);
-                        }
-                    }
-                    focusPhrases.removeAll(remove);
-                    if (focusPhrases.isEmpty()) {
-                        FocusSubInst fsi = new FocusSubInst();
-                        fsi.setIndex(i);
+                    if (startWith.isEmpty()) {
+                        fsi.setError(true);
                         fsi.setFps(remove);
-                        if (remove.size() != 1 || remove.get(0).isSuggestion())
+                        return fsi;
+                    } else {
+                        if (i < tokens.size() - 1) {//不是最后一个token,说明中间出错
                             fsi.setError(true);
+                        }
+                        fsi.setFps(startWith);
                         return fsi;
                     }
                 }
+//                }
             }
             // 歧义检测
             ambiguitiesCheck(focusPhrases, i, amb);
@@ -440,8 +459,10 @@ public class FocusParser {
                                     newFn.setColumn(((TerminalToken) token).getColumn());
                                     newFn.setTerminal(true);
                                 }
-                                newFn.setBegin(focusToken.getStart());
-                                newFn.setEnd(focusToken.getEnd());
+                                if (i == 0) {
+                                    newFn.setBegin(focusToken.getStart());
+                                    newFn.setEnd(focusToken.getEnd());
+                                }
                                 newFp.addPn(newFn);
                             }
                             newFp.addPns(focusPhrase.subNodes(position + 1));
@@ -453,6 +474,9 @@ public class FocusParser {
                     }
                 }
                 loop--;
+            }
+            if (focusPhrases.isEmpty()) {
+                focusPhrases.addAll(copy);
             }
             //  比较替换之前和替换之后的phrase，如果无变化则表示该次替换完成
             if (same(copy, focusPhrases)) {
@@ -589,7 +613,7 @@ public class FocusParser {
 
     // 判断当前匹配是否为最小单元词
     private boolean isTerminal(String word) {
-        return word.equals(IntegerTerminalToken.INTEGER) || word.equals(NumberTerminalToken.DOUBLE) || word.startsWith("^");
+        return word.equals(IntegerTerminalToken.INTEGER) || word.equals(NumberTerminalToken.DOUBLE);
     }
 
     // 判断是否为规则中的单元词

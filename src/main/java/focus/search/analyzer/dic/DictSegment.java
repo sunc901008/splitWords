@@ -129,6 +129,11 @@ class DictSegment implements Comparable<DictSegment> {
         this.fillSegment(charArray, 0, charArray.length, 1, type);
     }
 
+    // 屏蔽已经删除的word
+    void removeSegment(char[] charArray) {
+        this.fillSegment(charArray, 0, charArray.length, 0, "");
+    }
+
     private synchronized void fillSegment(char[] charArray, int begin, int length, int enabled, String type) {
         // 获取字典表中的汉字对象
         Character beginChar = charArray[begin];

@@ -20,10 +20,11 @@ public class FormulaAnalysis {
     private static final String RIGHT_BRACKET = ")";
 
     // 运算优先级
-    //  todo 增加函数
+    //  todo 增加函数的优先级
     private static final List<String> LEVEL1 = Arrays.asList("*", "/");
-    private static final List<String> LEVEL2 = Arrays.asList("+", "-", ">", "<", "=", "!=");
-    private static final List<String> LEVEL3 = Arrays.asList(LEFT_BRACKET, RIGHT_BRACKET);
+    private static final List<String> LEVEL2 = Arrays.asList("+", "-");
+    private static final List<String> LEVEL3 = Arrays.asList(">", "<", "=", "!=");
+    private static final List<String> LEVEL4 = Arrays.asList(LEFT_BRACKET, RIGHT_BRACKET);
 
     // 公式操作符返回的数据类型
     private static final List<String> BOOL_OPERATOR = Arrays.asList(">", "<", "=", "!=");
@@ -184,10 +185,16 @@ public class FormulaAnalysis {
         if (LEVEL3.contains(type1) && LEVEL3.contains(type2)) {
             return 0;
         }
+        if (LEVEL4.contains(type1) && LEVEL4.contains(type2)) {
+            return 0;
+        }
         if (LEVEL1.contains(type1)) {
             return 1;
         }
-        if (LEVEL2.contains(type1) && LEVEL3.contains(type2)) {
+        if (LEVEL2.contains(type1) && !LEVEL1.contains(type2)) {
+            return 1;
+        }
+        if (LEVEL3.contains(type1) && LEVEL4.contains(type2)) {
             return 1;
         }
         return -1;
