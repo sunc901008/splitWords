@@ -1,0 +1,50 @@
+<measure-function-column> := <average-function> |
+                             <count-function> |
+                             <max-function> |
+                             <min-function> |
+                             <sum-function> |
+                             <to_date-function> |
+                             <to_string-function> |
+                             <to_double-function> |
+                             <to_integer-function> |
+                             <to_bool-function> |
+                             <diff_days-function>;
+
+<average-function> := average( <measure-column> ) |
+                      average( <number> );
+
+<count-function> := count( <all-column> );
+
+<max-function> := max( <all-timestamp-attribute-column> ) |
+                  max( <measure-column> ) |
+                  max( <number> );
+
+<min-function> := min( <all-timestamp-attribute-column> ) |
+                  min( <measure-column> ) |
+                  min( <number> );
+
+<sum-function> := sum( <measure-column> ) |
+                  sum( <number> );
+
+<to_date-function> := to_date( <measure-column> );
+
+<to_string-function> := to_string( <all-column> ) |
+                        to_string( <number> );
+
+<to_double-function> := to_double( <all-column> );
+
+<to_integer-function> := to_integer( <all-column> );
+
+<to_bool-function> := to_bool( <measure-column> ) |
+                      to_bool( <number> );
+
+<diff_days-function> := diff_days( <all-timestamp-attribute-column> ) |
+                        diff_days( <number> );
+
+
+# average、count、max、min、sum、to_date、to_string、to_double、to_integer、
+# diff_days、month、month_number、year、
+# ！=、<、>、<=、>=、=、+、-、*、/、
+# and、if...then...else、ifnull、isnull、not、or、concat、contains、strlen、substr
+
+

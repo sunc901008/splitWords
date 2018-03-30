@@ -60,9 +60,10 @@
                     <math-calculate> <bool-symbol> <number> |
                     <number> <bool-symbol> <math-calculate>;
 
-<bool-symbol> := > | < | = | !=;
+<bool-symbol> := > | < | >= | <= | = | !=;
 <math-symbol> := + | - | * | / | ^;
 <number> := <integer> |
             <double>;
 <integer> := 1;
 <double> := 1;
+<user-input> := 1;

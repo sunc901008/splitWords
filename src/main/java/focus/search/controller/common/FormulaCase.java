@@ -20,7 +20,7 @@ public class FormulaCase {
 // diff_days、month、month_number、year、！=、<、>、<=、>=、=、+、-、*、/、
 // and、if...then...else、ifnull、isnull、not、or、concat、contains、strlen、substr
 
-    private static final List<String> TYPE1 = Arrays.asList("+", "-", ">", "<", "=", "!=", "*", "/");
+    private static final List<String> TYPE1 = Arrays.asList("+", "-", ">", "<", ">=", "<=", "=", "!=", "*", "/");
     private static final List<String> DATA_TYPE1 = Arrays.asList("double", "int", "bigint", "smallint");
 
     public static JSONArray buildCase(JSONObject user, String keyword) {
