@@ -1,5 +1,6 @@
 package focus.search.analyzer.focus;
 
+import com.alibaba.fastjson.JSON;
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
 import focus.search.meta.Formula;
@@ -76,7 +77,11 @@ public class FocusAnalyzer {
         }
         // 关闭TokenStream（关闭StringReader）
         ts.close();
-        return tokens;
+
+        System.out.println(JSON.toJSONString(tokens));
+
+        return MergeToken.mergeUserInput(tokens, str);
+//        return tokens;
     }
 
     private List<FocusKWDict> makeTableDict(List<SourceReceived> sources) {

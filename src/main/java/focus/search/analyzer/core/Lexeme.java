@@ -25,8 +25,10 @@ public class Lexeme implements Comparable<Lexeme> {
     public static final int TYPE_CNUM = 16;
     // 中文量词
     public static final int TYPE_COUNT = 32;
-    // 中文数量词
-//    public static final int TYPE_CQUAN = 48;
+    // 单双引号
+    public static final int TYPE_QUOTE = 48;
+    // 逗号
+    public static final int TYPE_COMMA = 72;
     // 符号
     public static final int TYPE_PUNC = 96;
     public static final String SYMBOL = Constant.FNDType.SYMBOL;
@@ -250,8 +252,8 @@ public class Lexeme implements Comparable<Lexeme> {
             case TYPE_CNUM:
                 return DOUBLE;
 
-//            case TYPE_CQUAN:
-//                return "TYPE_CQUAN";
+            case TYPE_QUOTE:
+                return "TYPE_QUOTE";
 
             case TYPE_PUNC:
                 return SYMBOL;
@@ -263,7 +265,7 @@ public class Lexeme implements Comparable<Lexeme> {
                 return SUGGEST;
 
             default:
-                return "UNKONW";
+                return "UNKNOWN";
         }
     }
 

@@ -57,6 +57,12 @@ public class BnfRule implements Serializable {
             out.addAlternative(alternative_to_add);
             return out;
         }
+        if (lhs.equals(ColumnValueTerminalToken.COLUMNVALUE)) {
+            TokenString alternative_to_add = new TokenString();
+            alternative_to_add.add(new ColumnValueTerminalToken(lhs));
+            out.addAlternative(alternative_to_add);
+            return out;
+        }
         if (lr.length != 2) {
             throw new InvalidRuleException("Cannot find left- and right-hand side of BNF rule");
         }
@@ -98,7 +104,7 @@ public class BnfRule implements Serializable {
             if (trimmed_word.isEmpty()) {
                 throw new InvalidRuleException("Trying to create an empty terminal token");
             }
-            if (trimmed_word.equals(NonTerminalToken.s_leftSymbol)) {
+            if (trimmed_word.equals(NonTerminalToken.s_leftSymbol) || trimmed_word.equals("<=")) {
                 alternative_to_add.add(new TerminalToken(trimmed_word, Constant.FNDType.SYMBOL));
                 continue;
             }

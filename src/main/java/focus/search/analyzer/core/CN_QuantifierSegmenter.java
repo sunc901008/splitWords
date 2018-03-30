@@ -100,6 +100,7 @@ class CN_QuantifierSegmenter implements ISegmenter {
                 nEnd = -1;
             }
         }
+
     }
 
     /**

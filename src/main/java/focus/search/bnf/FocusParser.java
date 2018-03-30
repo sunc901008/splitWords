@@ -1,6 +1,5 @@
 package focus.search.bnf;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
@@ -18,9 +17,7 @@ import org.springframework.core.io.ResourceLoader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * creator: sunc
@@ -37,12 +34,19 @@ public class FocusParser {
         init();
     }
 
+    public FocusParser(String file) {
+        init(file);
+    }
+
     private void init() {
+        init("bnf-file/test.bnf");
+    }
+
+    private void init(String file) {
         if (parser == null)
             try {
                 ResourceLoader resolver = new DefaultResourceLoader();
-                String file3 = "bnf-file/test.bnf";
-                parser = new BnfParser(new FileInputStream(resolver.getResource(file3).getFile()));
+                parser = new BnfParser(new FileInputStream(resolver.getResource(file).getFile()));
             } catch (InvalidGrammarException | IOException e) {
                 e.printStackTrace();
             }
@@ -67,56 +71,6 @@ public class FocusParser {
 
     public BnfRule getRule(String name) {
         return parser.getRule(name);
-    }
-
-    public void test(String question) throws IOException, InvalidRuleException, AmbiguitiesException {
-        String language = "english";
-        List<FocusToken> tokens = focusAnalyzer.test(question, language);
-        System.out.println("分词:\n\t" + JSON.toJSONString(tokens) + "\n");
-        // todo 歧义处理
-
-        List<TerminalToken> terminals = getTerminalTokens();
-        System.out.println("最小单元词:\n\t" + JSON.toJSONString(terminals) + "\n");
-
-        System.out.println("------------------------");
-        FocusInst focusInst = parseQuestion(tokens, new JSONObject());
-        System.out.println("解析:\n\t" + focusInst.toJSON().toJSONString() + "\n");
-
-        System.out.println("question:\n\t" + question);
-        if (focusInst.position < 0) {
-            FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
-            if (focusPhrase.isSuggestion()) {
-                int sug = 0;
-                while (sug < focusPhrase.size()) {
-                    FocusNode tmpNode = focusPhrase.getNode(sug);
-                    if (!tmpNode.isTerminal()) {
-                        System.out.println("------------------------");
-                        System.out.println("输入不完整:\n\t提示:" + tmpNode.getValue() + "\n");
-                    }
-                    sug++;
-                }
-            } else {
-                System.out.println("------------------------");
-//                JSONObject json = InstructionBuild.build(focusInst, question);
-//                System.out.println("指令:\n\t" + json + "\n");
-            }
-        } else {
-            System.out.println("------------------------");
-            int tokenPosition = focusInst.position;
-            int strPosition = tokens.get(focusInst.position).getStart();
-            System.out.println("错误:\n\t" + "位置: " + strPosition + "\t错误: " + question.substring(strPosition) + "\n");
-            Set<String> sug = new HashSet<>();
-            for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
-                if (!focusPhrase.isSuggestion()) {
-                    tokenPosition = tokenPosition - focusPhrase.size();
-                    continue;
-                }
-                sug.add("\n\t提示: " + focusPhrase.getNode(tokenPosition).getValue() + "\n");
-            }
-            System.out.println("------------------------");
-            sug.forEach(System.out::println);
-
-        }
     }
 
     public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb) throws IOException, InvalidRuleException, AmbiguitiesException {
@@ -216,9 +170,39 @@ public class FocusParser {
         ambiguitiesCheck(focusPhrases, 0, amb);
 
         for (int i = 1; i < tokens.size(); i++) {
-            FocusToken ft = tokens.get(i);
-            List<BnfRule> rules = parseRules(ft.getWord());
             List<FocusPhrase> tmp = new ArrayList<>(focusPhrases);
+
+            FocusToken ft = tokens.get(i);
+            if (Constant.FNDType.COLUMNVALUE.equals(ft.getType())) {
+                int loop = focusPhrases.size();
+                while (loop > 0) {
+                    FocusPhrase fp = focusPhrases.remove(0);
+                    loop--;
+                    if (fp.size() < i + 1) {
+                        continue;
+                    }
+                    FocusNode tmpNode = fp.getNode(i);
+                    if (ColumnValueTerminalToken.COLUMNVALUE.equals(tmpNode.getValue())) {
+                        tmpNode.setValue(ft.getWord());
+                        tmpNode.setBegin(ft.getStart());
+                        tmpNode.setEnd(ft.getEnd());
+                        tmpNode.setTerminal(true);
+                        fp.removeNode(i);
+                        fp.addPn(i, tmpNode);
+                        focusPhrases.add(fp);
+                    }
+                }
+                if (focusPhrases.isEmpty()) {// 出错结束
+                    FocusSubInst fsi = new FocusSubInst();
+                    fsi.setIndex(i);
+                    fsi.setFps(tmp);
+                    fsi.setError(true);
+                    return fsi;
+                }
+                continue;
+            }
+
+            List<BnfRule> rules = parseRules(ft.getWord());
             if (rules.isEmpty()) {
                 focusPhrases.clear();
                 for (FocusPhrase fp : tmp) {
@@ -238,35 +222,9 @@ public class FocusParser {
                 }
             } else {
                 replace(rules, focusPhrases, ft, i);
-//                if (same(tmp, focusPhrases)) {// 识别后的规则无变化或者出错，则表示识别结束
-//
-//                    focusPhrases.clear();
-//                    for (FocusPhrase fp : tmp) {
-//                        if (fp.size() > i && fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
-//                            if (fp.size() == i + 1) {
-//                                fp.setType(Constant.INSTRUCTION);
-//                            }
-//                            focusPhrases.add(fp);
-//                        }
-//                    }
-//
-//                    if (!focusPhrases.isEmpty()) {
-//                        continue;
-//                    }
-//                    FocusSubInst fsi = new FocusSubInst();
-//                    fsi.setIndex(i);
-//                    for (FocusPhrase fp : tmp) {
-//                        if (fp.size() == i) {
-//                            fsi.addFps(fp);
-//                        }
-//                    }
-//                    return fsi;
-//                } else {
-//                    if (focusPhrases.isEmpty()) {
-//                        focusPhrases = tmp;
-//                    }
                 List<FocusPhrase> remove = new ArrayList<>();
                 List<FocusPhrase> startWith = new ArrayList<>();
+                List<FocusPhrase> copy = new ArrayList<>(focusPhrases);
                 for (FocusPhrase fp : focusPhrases) {
                     if (fp.size() <= i) {
                         remove.add(fp);
@@ -281,8 +239,17 @@ public class FocusParser {
                 }
                 focusPhrases.removeAll(remove);
                 if (focusPhrases.isEmpty()) {
+                    for (FocusPhrase f : copy) {
+                        if (!f.isSuggestion()) {
+                            focusPhrases.add(f);
+                        }
+                    }
                     FocusSubInst fsi = new FocusSubInst();
                     fsi.setIndex(i);
+                    if (!focusPhrases.isEmpty()) {
+                        fsi.setFps(focusPhrases);
+                        return fsi;
+                    }
                     if (startWith.isEmpty()) {
                         fsi.setError(true);
                         fsi.setFps(remove);
@@ -324,7 +291,6 @@ public class FocusParser {
      * date: 2018/3/1
      * description: 检测歧义
      */
-
     private void ambiguitiesCheck(List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
         List<AmbiguitiesRecord> ars = new ArrayList<>();
 //        List<Integer> added = new ArrayList<>();
@@ -452,7 +418,9 @@ public class FocusParser {
                                     newFn.setValue(token.getName());
                                     newFn.setType(((TerminalToken) token).getType());
                                     if (i == 0) {
-                                        if (newFn.getType().equals(Constant.FNDType.INTEGER) || newFn.getType().equals(Constant.FNDType.DOUBLE)) {
+                                        if (newFn.getType().equals(Constant.FNDType.INTEGER)
+                                                || newFn.getType().equals(Constant.FNDType.DOUBLE)
+                                                || newFn.getType().equals(Constant.FNDType.COLUMNVALUE)) {
                                             newFn.setValue(focusToken.getWord());
                                         }
                                     }
@@ -478,6 +446,7 @@ public class FocusParser {
             if (focusPhrases.isEmpty()) {
                 focusPhrases.addAll(copy);
             }
+
             //  比较替换之前和替换之后的phrase，如果无变化则表示该次替换完成
             if (same(copy, focusPhrases)) {
                 break;
@@ -488,10 +457,6 @@ public class FocusParser {
     private List<FocusPhrase> focusPhrases(FocusToken focusToken) throws InvalidRuleException {
         String word = focusToken.getWord();
         List<BnfRule> rules = parseRules(parser.getM_rules(), word);
-
-//        System.out.println("*****************************");
-//        System.out.println(JSON.toJSONString(rules));
-//        System.out.println("*****************************");
 
         if (rules.size() == 0) {
             return null;
@@ -583,6 +548,10 @@ public class FocusParser {
         br.setLeftHandSide(rule.getLeftHandSide());
         for (TokenString alt : rule.getAlternatives()) {
             Token token = alt.getFirst();
+//            if (token instanceof ColumnValueTerminalToken) {
+//                //debug
+//                System.out.println(token.toString());
+//            }
             if (token instanceof TerminalToken) {
                 if (token.match(word)) {
                     if (isTerminal(token.getName())) {
@@ -596,7 +565,7 @@ public class FocusParser {
             } else {
                 BnfRule newBr = getRule(token);
                 // 过滤公式和列规则
-                if (newBr == null && !token.getName().endsWith("-column>") && !token.getName().equals("<formulas>")) {
+                if (newBr == null && !token.getName().endsWith("-column>") && !token.getName().equals("<user-input>")) {
                     throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
                     if (parse(newBr, word) != null) {
@@ -613,7 +582,7 @@ public class FocusParser {
 
     // 判断当前匹配是否为最小单元词
     private boolean isTerminal(String word) {
-        return word.equals(IntegerTerminalToken.INTEGER) || word.equals(NumberTerminalToken.DOUBLE);
+        return word.equals(IntegerTerminalToken.INTEGER) || word.equals(NumberTerminalToken.DOUBLE) || word.equals(ColumnValueTerminalToken.COLUMNVALUE);
     }
 
     // 判断是否为规则中的单元词

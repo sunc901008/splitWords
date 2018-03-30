@@ -18,7 +18,6 @@ import focus.search.response.search.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,8 +28,21 @@ import java.util.List;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
-        String search = "formula";
 
+//        FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
+
+        String search = "\"f\" \"in\"";
+//        String search = "views > 5 1+5";
+
+//        List<FocusToken> tokens = focusAnalyzer.test(search, "english");
+//
+//        System.out.println(JSON.toJSONString(tokens));
+//
+//        tokens = MergeToken.mergeUserInput(tokens, search);
+//
+//        System.out.println(JSON.toJSONString(tokens));
+
+//
         test(search);
 
 //        formulaTest(makeFp());
@@ -149,9 +161,6 @@ public class Home {
 //        }
 
 
-        List<TerminalToken> ens = parser.getTerminalTokens();
-        System.out.println(JSON.toJSONString(ens));
-
         System.out.println(JSON.toJSONString(tokens));
         FocusInst focusInst;
         try {
@@ -163,6 +172,9 @@ public class Home {
         }
         System.out.println("-------------------");
         System.out.println(focusInst.toJSON());
+        if (tokens.size() > 0) {
+            return;
+        }
 
         String msg;
         if (focusInst.position < 0) {// 未出错
@@ -190,7 +202,7 @@ public class Home {
                 System.out.println("提示:\n\t" + JSON.toJSONString(response) + "\n");
             } else {//  输入完整
 
-                JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject() , new ArrayList<>());
+                JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
 
                 System.out.println("指令:\n\t" + json + "\n");
 

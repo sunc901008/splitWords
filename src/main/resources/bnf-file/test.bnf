@@ -3,6 +3,7 @@
               <sort-by> |
               <all-column> |
               <math-calculate> |
+              <user-input> |
               <bool-calculate>;
 
 <simple-filter> := <measure-column> <symbol> <number> |
@@ -66,4 +67,6 @@
             <double>;
 <integer> := 1;
 <double> := 1;
-<user-input> := 1;
+<user-input> := " <column-value> " |
+                  " <column-value> " , <user-input>;
+<column-value> := 1;

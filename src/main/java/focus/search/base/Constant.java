@@ -87,6 +87,7 @@ public class Constant {
         public static final String SYMBOL = "symbol";
         public static final String KEYWORD = "keyword";
         public static final String FORMULA = "formulaName";
+        public static final String COLUMNVALUE = "columnValue";
 
     }
 

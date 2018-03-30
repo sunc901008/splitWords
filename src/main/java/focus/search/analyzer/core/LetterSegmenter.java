@@ -44,7 +44,7 @@ class LetterSegmenter implements ISegmenter {
         // 处理英文字母
         boolean bufferLockFlag = this.processEnglishLetter(context);
         // 处理混合字母(这个要放最后处理，可以通过QuickSortSet排除重复)
-        bufferLockFlag = this.processMixLetter(context) || bufferLockFlag;
+        bufferLockFlag = bufferLockFlag || this.processMixLetter(context);
 
         // 判断是否锁定缓冲区
         if (bufferLockFlag) {

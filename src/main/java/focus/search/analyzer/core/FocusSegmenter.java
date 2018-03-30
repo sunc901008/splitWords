@@ -81,7 +81,6 @@ public class FocusSegmenter implements ISegmenter {
         // 判断是否锁定缓冲区
         if (this.tmpHits.size() == 0) {
             context.unlockBuffer(SEGMENTER_NAME);
-
         } else {
             context.lockBuffer(SEGMENTER_NAME);
         }

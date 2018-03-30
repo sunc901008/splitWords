@@ -17,6 +17,4 @@ interface ISegmenter {
      */
     void reset();
 
-
-
 }

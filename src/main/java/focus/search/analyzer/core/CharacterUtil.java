@@ -14,6 +14,12 @@ class CharacterUtil {
 
     public static final int CHAR_PUNCTUATION = 0X00000003;
 
+    // 单双引号
+    public static final int QUOTE_CHAR = 0X00000005;
+
+    // 逗号
+    public static final int COMMA_CHAR = 0X00000006;
+
     /**
      * 识别字符类型
      *
@@ -23,34 +29,43 @@ class CharacterUtil {
         if (input >= '0' && input <= '9' || PunctuationSegmenter.Num_Connector == input) {
             return CHAR_ARABIC;
 
-        } else if ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') || LetterSegmenter.CONNECT_SYMBOL.contains(input)) {
+        }
+        if ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') || LetterSegmenter.CONNECT_SYMBOL.contains(input)) {
             return CHAR_ENGLISH;
 
-        } else if (input == ' ') {// 空格不处理
+        }
+        if (PunctuationSegmenter.QUOTE_CHAR.contains(input)) {
+            return QUOTE_CHAR;
+        }
+        if (PunctuationSegmenter.comma == input) {
+            return COMMA_CHAR;
+        }
+        if (input == ' ') {// 空格不处理
             return CHAR_USELESS;
 
-        } else {
-            Character.UnicodeBlock ub = Character.UnicodeBlock.of(input);
-
-            if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
-                    || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
-                    || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A) {
-                // 目前已知的中文字符UTF-8集合
-                return CHAR_CHINESE;
-
-            } else if (ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS // 全角数字字符和日韩字符
-                    // 韩文字符集
-                    || ub == Character.UnicodeBlock.HANGUL_SYLLABLES
-                    || ub == Character.UnicodeBlock.HANGUL_JAMO
-                    || ub == Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO
-                    // 日文字符集
-                    || ub == Character.UnicodeBlock.HIRAGANA // 平假名
-                    || ub == Character.UnicodeBlock.KATAKANA // 片假名
-                    || ub == Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS) {
-                return CHAR_OTHER_CJK;
-
-            }
         }
+
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(input);
+        if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A) {
+            // 目前已知的中文字符UTF-8集合
+            return CHAR_CHINESE;
+
+        }
+        if (ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS // 全角数字字符和日韩字符
+                // 韩文字符集
+                || ub == Character.UnicodeBlock.HANGUL_SYLLABLES
+                || ub == Character.UnicodeBlock.HANGUL_JAMO
+                || ub == Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO
+                // 日文字符集
+                || ub == Character.UnicodeBlock.HIRAGANA // 平假名
+                || ub == Character.UnicodeBlock.KATAKANA // 片假名
+                || ub == Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS) {
+            return CHAR_OTHER_CJK;
+
+        }
+
         // 其他的不做处理的字符
         return CHAR_PUNCTUATION;
     }

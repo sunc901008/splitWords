@@ -90,7 +90,7 @@ public class ModelBuild {
 
         // delete bnf rule
         BnfRule br = fp.getRule("<measure-formula-column>");
-        if (br != null) {
+        if(br != null) {
             BnfRule brNew = new BnfRule();
             brNew.setLeftHandSide(new NonTerminalToken("<measure-formula-column>"));
             List<TokenString> tokenStrings = new ArrayList<>();
@@ -104,7 +104,7 @@ public class ModelBuild {
         }
 
         BnfRule br1 = fp.getRule("<attribute-formula-column>");
-        if (br1 != null) {
+        if(br1 != null) {
             BnfRule brNew1 = new BnfRule();
             brNew1.setLeftHandSide(new NonTerminalToken("<attribute-formula-column>"));
             List<TokenString> tokenStrings1 = new ArrayList<>();
