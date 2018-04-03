@@ -1,72 +1,9 @@
-<question> := <simple-filter> |
-              <top-n> |
-              <sort-by> |
-              <all-column> |
-              <math-calculate> |
-              <user-input> |
-              <bool-calculate>;
+<question> := <number-columns>;
 
-<simple-filter> := <measure-column> <symbol> <number> |
-                   <measure-formula-column> <symbol> <number> |
-                   <number> <symbol> <measure-column> |
-                   <number> <symbol> <measure-formula-column>;
+<number-columns> := <int-column> |
+                    <number-function-column>;
 
-<top-n> := top <integer> <all-int-measure-column> |
-           top <all-int-measure-column>;
+<number-function-column> := <number-columns> + <integer> |
+                            <integer> + <number-columns>;
 
-<sort-by> := sort by <all-column> |
-             sort by <all-column> desc |
-             sort by <all-column> asc;
-
-<symbol> := <bool-symbol> |
-            <math-symbol>;
-
-<all-column> := <measure-column> |
-                <attribute-column> |
-                <formulas-column>;
-
-<measure-column> := <all-int-measure-column> |
-                    <all-double-measure-column>;
-
-<attribute-column> := <all-int-attribute-column> |
-                      <all-double-attribute-column> |
-                      <all-string-attribute-column> |
-                      <all-timestamp-attribute-column>;
-
-<formulas-column> := <measure-formula-column> |
-                     <attribute-formula-column>;
-
-<all-int-measure-column> := <int-measure-column> |
-                            <table-int-measure-column>;
-
-<all-int-attribute-column> := <int-attribute-column> |
-                            <table-int-attribute-column>;
-
-<all-double-measure-column> := <double-measure-column> |
-                               <table-double-measure-column>;
-
-<all-double-attribute-column> := <double-attribute-column> |
-                                 <table-double-attribute-column>;
-
-<all-string-attribute-column> := <string-attribute-column> |
-                                 <table-string-attribute-column>;
-
-<all-timestamp-attribute-column> := <timestamp-attribute-column> |
-                                    <table-timestamp-attribute-column>;
-
-<math-calculate> := <number> <math-symbol> <number> |
-                    <number> <math-symbol> <math-calculate>;
-
-<bool-calculate> := <number> <bool-symbol> <number> |
-                    <math-calculate> <bool-symbol> <number> |
-                    <number> <bool-symbol> <math-calculate>;
-
-<bool-symbol> := > | < | >= | <= | = | !=;
-<math-symbol> := + | - | * | / | ^;
-<number> := <integer> |
-            <double>;
 <integer> := 1;
-<double> := 1;
-<user-input> := " <column-value> " |
-                  " <column-value> " , <user-input>;
-<column-value> := 1;

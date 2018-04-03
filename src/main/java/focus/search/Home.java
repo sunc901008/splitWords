@@ -3,6 +3,7 @@ package focus.search;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
@@ -29,9 +30,9 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-//        FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
+        FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
 
-        String search = "\"f\" \"in\"";
+        String search = "5+8*2";
 //        String search = "views > 5 1+5";
 
 //        List<FocusToken> tokens = focusAnalyzer.test(search, "english");
@@ -96,7 +97,7 @@ public class Home {
     private static void formulaTest(FocusPhrase fp) {
         long received = Calendar.getInstance().getTimeInMillis();
         System.out.println(received);
-        String search = "5+8*2";
+        String search = "to";
 
         FormulaResponse response = new FormulaResponse(search);
         received = Calendar.getInstance().getTimeInMillis();

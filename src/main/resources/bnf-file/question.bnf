@@ -1,0 +1,79 @@
+<question> := <filter> |
+              <all-column> |
+              <column-value>;
+
+<filter> := <simple-filter> |
+            <top-n> |
+            <sort-by>;
+
+<simple-filter> := <number-columns> <symbol> <number> |
+                   <number> <symbol> <number-columns> |
+                   <number-columns> <symbol> <number-columns>;
+
+<top-n> := top <integer> <all-int-column> |
+           top <integer> <all-double-column> |
+           top <number-columns>;
+
+<sort-by> := sort by <all-column> |
+             sort by <all-column> desc |
+             sort by <all-column> asc;
+
+<all-columns> := <number-columns> |
+                 <string-columns> |
+                 <bool-columns> |
+                 <date-columns>;
+
+<number-columns> := <all-int-column> |
+                    <all-double-column> |
+                    <number-function-column>;
+
+<string-columns> := <all-string-column> |
+                    <string-function-column>;
+
+<bool-columns> := <all-bool-column> |
+                  <bool-function-column>;
+
+<date-columns> := <all-date-column> |
+                  <date-function-column>;
+
+<all-int-column> := <int-column> |
+                    <table-int-column>;
+
+<all-double-column> := <double-column> |
+                       <table-double-column>;
+
+<all-string-column> := <string-column> |
+                       <table-string-column>;
+
+<all-bool-column> := <bool-column> |
+                     <table-bool-column>;
+
+<all-date-column> := <date-column> |
+                     <table-date-column>;
+
+<all-source-column> := <number-source-column> |
+                       <all-string-column> |
+                       <all-bool-column> |
+                       <all-date-column>;
+
+<number-source-column> := <all-int-column> |
+                          <all-double-column>;
+
+<symbol> := <bool-symbol> |
+            <math-symbol>;
+
+<bool-symbol> := > | < | >= | <= | = | !=;
+<math-symbol> := + | - | * | / | ^;
+<number> := <integer> |
+            <double>;
+<integer> := 1;
+<double> := 1;
+
+<column-value> := <double-quote-column-value> |
+                  <single-quote-column-value> |
+                  <double-quote-column-value> , <column-value> |
+                  <single-quote-column-value> , <column-value>;
+
+<double-quote-column-value> := " <value> ";
+<single-quote-column-value> := ' <value> ';
+<value> := 1;

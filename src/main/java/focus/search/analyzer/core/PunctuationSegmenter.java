@@ -76,11 +76,11 @@ class PunctuationSegmenter implements ISegmenter {
         // 处理quote
         boolean bufferLockFlag = this.processQuoteChar(context);
         // 处理comma
-        bufferLockFlag = bufferLockFlag || this.processCommaChar(context);
+        bufferLockFlag = this.processCommaChar(context) || bufferLockFlag;
         // 处理阿拉伯字母
-        bufferLockFlag = bufferLockFlag || this.processArabicLetter(context);
+        bufferLockFlag = this.processArabicLetter(context) || bufferLockFlag;
         // 处理符号
-        bufferLockFlag = bufferLockFlag || this.processPunctuationLetter(context);
+        bufferLockFlag = this.processPunctuationLetter(context) || bufferLockFlag;
 
         // 判断是否锁定缓冲区
         if (bufferLockFlag) {

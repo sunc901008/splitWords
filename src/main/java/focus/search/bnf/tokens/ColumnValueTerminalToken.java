@@ -4,7 +4,7 @@ import focus.search.base.Common;
 import focus.search.base.Constant;
 
 public class ColumnValueTerminalToken extends TerminalToken {
-    public static final String COLUMNVALUE = "<column-value>";
+    public static final String COLUMNVALUE = "<value>";
 
     /**
      * Creates a new non terminal token

@@ -17,7 +17,9 @@ import org.springframework.core.io.ResourceLoader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * creator: sunc
@@ -39,21 +41,25 @@ public class FocusParser {
     }
 
     private void init() {
-        init("bnf-file/test.bnf");
+        init("bnf-file/question.bnf");
+        init("bnf-file/function.bnf");
     }
 
     private void init(String file) {
-        if (parser == null)
-            try {
-                ResourceLoader resolver = new DefaultResourceLoader();
+        ResourceLoader resolver = new DefaultResourceLoader();
+        try {
+            if (parser == null) {
                 parser = new BnfParser(new FileInputStream(resolver.getResource(file).getFile()));
-            } catch (InvalidGrammarException | IOException e) {
-                e.printStackTrace();
+            } else {
+                parser.setGrammar(new Scanner(new FileInputStream(resolver.getResource(file).getFile())));
             }
+        } catch (InvalidGrammarException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addRule(BnfRule rule) {
-        init();
+//        init();
         parser.addRule(rule);
     }
 
@@ -535,7 +541,7 @@ public class FocusParser {
     private List<BnfRule> parseRules(List<BnfRule> rules, String word) throws InvalidRuleException {
         List<BnfRule> res = new ArrayList<>();
         for (BnfRule br : rules) {
-            BnfRule rule = parse(br, word);
+            BnfRule rule = parse(br, word, new ArrayList<>());
             if (rule != null) {
                 res.add(rule);
             }
@@ -543,20 +549,25 @@ public class FocusParser {
         return res;
     }
 
-    private BnfRule parse(BnfRule rule, String word) throws InvalidRuleException {
+    private BnfRule parse(BnfRule rule, String word, List<TokenString> hasScanned) throws InvalidRuleException {
         BnfRule br = new BnfRule();
         br.setLeftHandSide(rule.getLeftHandSide());
         for (TokenString alt : rule.getAlternatives()) {
+            boolean hasAdd = true;
+            if (!hasScanned(hasScanned, alt)) {
+                hasScanned.add(alt);
+                hasAdd = false;
+            }
             Token token = alt.getFirst();
-//            if (token instanceof ColumnValueTerminalToken) {
-//                //debug
-//                System.out.println(token.toString());
-//            }
+            if (token instanceof ColumnValueTerminalToken) {
+                //debug
+                System.out.println(token.toString());
+            }
             if (token instanceof TerminalToken) {
                 if (token.match(word)) {
                     if (isTerminal(token.getName())) {
                         TokenString alternative_to_add = new TokenString();
-                        alternative_to_add.add((TerminalToken) token);
+                        alternative_to_add.add(token);
                         br.addAlternative(alternative_to_add);
                     } else {
                         br.addAlternative(alt);
@@ -564,11 +575,12 @@ public class FocusParser {
                 }
             } else {
                 BnfRule newBr = getRule(token);
-                // 过滤公式和列规则
-                if (newBr == null && !token.getName().endsWith("-column>") && !token.getName().equals("<user-input>")) {
+                // 过滤公式|列规则|列中值
+                List<String> filter = Arrays.asList("<function-columns>", "<value>");
+                if (newBr == null && !token.getName().endsWith("-column>") && !filter.contains(token.getName())) {
                     throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
-                    if (parse(newBr, word) != null) {
+                    if (!hasAdd && parse(newBr, word, hasScanned) != null) {
                         br.addAlternative(alt);
                     }
                 }
@@ -578,6 +590,16 @@ public class FocusParser {
             return null;
         }
         return br;
+    }
+
+    // 规则已扫描过
+    private boolean hasScanned(List<TokenString> hasScanned, TokenString alt) {
+        for (TokenString ts : hasScanned) {
+            if (ts.equals(alt)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // 判断当前匹配是否为最小单元词
