@@ -32,7 +32,8 @@ public class Home {
 
         FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
 
-        String search = "5+8*2";
+//        String search = "5+8*2";
+        String search = "count ( d";
 //        String search = "views > 5 1+5";
 
 //        List<FocusToken> tokens = focusAnalyzer.test(search, "english");

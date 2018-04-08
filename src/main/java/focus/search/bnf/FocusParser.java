@@ -272,6 +272,9 @@ public class FocusParser {
             }
             // 歧义检测
             ambiguitiesCheck(focusPhrases, i, amb);
+
+            // 去除重复
+            distinct(focusPhrases);
         }
 
         FocusSubInst fsi = new FocusSubInst();
@@ -370,6 +373,27 @@ public class FocusParser {
             }
         }
         return true;
+    }
+
+    private void distinct(List<FocusPhrase> focusPhrases) {
+        List<FocusPhrase> copy = new ArrayList<>(focusPhrases);
+        for (FocusPhrase fp0 : copy) {
+            List<Integer> remove = new ArrayList<>();
+            for (int j = 0; j < focusPhrases.size(); j++) {
+                FocusPhrase fp1 = focusPhrases.get(j);
+                if (fp0.equals(fp1)) {
+                    remove.add(j);
+                }
+            }
+            if (remove.size() > 1) {
+                for (int j = remove.size() - 1; j >= 0; j--) {
+                    int index = remove.get(j);
+                    focusPhrases.remove(index);
+                }
+                focusPhrases.add(fp0);
+            }
+        }
+
     }
 
     private void replace(List<BnfRule> rules, List<FocusPhrase> focusPhrases, FocusToken focusToken, int position) {
@@ -541,7 +565,7 @@ public class FocusParser {
     private List<BnfRule> parseRules(List<BnfRule> rules, String word) throws InvalidRuleException {
         List<BnfRule> res = new ArrayList<>();
         for (BnfRule br : rules) {
-            BnfRule rule = parse(br, word, new ArrayList<>());
+            BnfRule rule = parse(br, word);
             if (rule != null) {
                 res.add(rule);
             }
@@ -549,15 +573,10 @@ public class FocusParser {
         return res;
     }
 
-    private BnfRule parse(BnfRule rule, String word, List<TokenString> hasScanned) throws InvalidRuleException {
+    private BnfRule parse(BnfRule rule, String word) throws InvalidRuleException {
         BnfRule br = new BnfRule();
         br.setLeftHandSide(rule.getLeftHandSide());
         for (TokenString alt : rule.getAlternatives()) {
-            boolean hasAdd = true;
-            if (!hasScanned(hasScanned, alt)) {
-                hasScanned.add(alt);
-                hasAdd = false;
-            }
             Token token = alt.getFirst();
             if (token instanceof ColumnValueTerminalToken) {
                 //debug
@@ -576,11 +595,11 @@ public class FocusParser {
             } else {
                 BnfRule newBr = getRule(token);
                 // 过滤公式|列规则|列中值
-                List<String> filter = Arrays.asList("<function-columns>", "<value>");
-                if (newBr == null && !token.getName().endsWith("-column>") && !filter.contains(token.getName())) {
+//                List<String> filter = Arrays.asList("<function-columns>", "<value>");
+                if (newBr == null && !token.getName().endsWith("-column>")) {
                     throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
-                    if (!hasAdd && parse(newBr, word, hasScanned) != null) {
+                    if (parse(newBr, word) != null) {
                         br.addAlternative(alt);
                     }
                 }

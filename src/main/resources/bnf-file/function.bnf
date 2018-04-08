@@ -39,97 +39,107 @@
                             <ifnull-string-column-function>;
 
 # number
-<average-function> := average( <number-source-column> ) |
-                      average( <number> );
+<average-function> := average ( <number-source-column> ) |
+                      average ( <number> );
 
 # number
-<count-function> := count( <all-source-column> );
+<count-function> := count ( <all-source-column> );
 
 # number
-<max-function> := max( <all-date-column> ) |
-                  max( <number-source-column> ) |
-                  max( <number> );
+<max-function> := max ( <all-date-column> ) |
+                  max ( <number-source-column> ) |
+                  max ( <number> );
 
 # number
-<min-function> := min( <all-date-column> ) |
-                  min( <number-source-column> ) |
-                  min( <number> );
+<min-function> := min ( <all-date-column> ) |
+                  min ( <number-source-column> ) |
+                  min ( <number> );
 
 # number
-<sum-function> := sum( <number-source-column> ) |
-                  sum( <number> );
+<sum-function> := sum ( <number-source-column> ) |
+                  sum ( <number> );
 
 # date
-<to_date-function> := to_date( <number-columns> );
+<to_date-function> := to_date ( <number-columns> );
 
 # string
-<to_string-function> := to_string( <all-columns> ) |
-                        to_string( <number> );
+<to_string-function> := to_string ( <all-columns> ) |
+                        to_string ( <number> );
 
 # number
-<to_double-function> := to_double( <all-columns> );
+<to_double-function> := to_double ( <all-columns> );
 
 #number
-<to_integer-function> := to_integer( <all-columns> );
+<to_integer-function> := to_integer ( <all-columns> );
 
 # bool
-<to_bool-function> := to_bool( <number-columns> ) |
-                      to_bool( <number> );
+<to_bool-function> := to_bool ( <number-columns> ) |
+                      to_bool ( <number> );
 
 # number
-<diff_days-function> := diff_days( <column-value> , <date-columns> ) |
-                        diff_days( <date-columns> , <date-columns> ) |
-                        diff_days( <date-columns> , <column-value> );
+<diff_days-function> := diff_days ( <column-value> , <date-columns> ) |
+                        diff_days ( <date-columns> , <date-columns> ) |
+                        diff_days ( <date-columns> , <column-value> );
 
 # string
-<month-function> := month( <date-columns> ) |
-                    month( <column-value> );
+<month-function> := month ( <date-columns> ) |
+                    month ( <column-value> );
 
 # number
-<month_number-function> := month_number( <date-columns> ) |
-                           month_number( <column-value> );
+<month_number-function> := month_number ( <date-columns> ) |
+                           month_number ( <column-value> );
 
 # number
-<year-function> := year( <date-columns> ) |
-                   year( <column-value> );
+<year-function> := year ( <date-columns> ) |
+                   year ( <column-value> );
 
 # string
-<concat-function> := concat( <string-columns> , <string-columns> ) |
-                     concat( <column-value> , <string-columns> ) |
-                     concat( <string-columns> , <column-value> ) |
-                     concat( <column-value> , <column-value> );
+<concat-function> := concat ( <string-columns> , <string-columns> ) |
+                     concat ( <column-value> , <string-columns> ) |
+                     concat ( <string-columns> , <column-value> ) |
+                     concat ( <column-value> , <column-value> );
 
 # bool
-<contains-function> := contains( <string-columns> , <string-columns> ) |
-                       contains( <column-value> , <string-columns> ) |
-                       contains( <string-columns> , <column-value> ) |
-                       contains( <column-value> , <column-value> );
+<contains-function> := contains ( <string-columns> , <string-columns> ) |
+                       contains ( <column-value> , <string-columns> ) |
+                       contains ( <string-columns> , <column-value> ) |
+                       contains ( <column-value> , <column-value> );
 
 # number
-<strlen-function> := strlen( <string-columns> ) |
-                     strlen( <column-value> );
+<strlen-function> := strlen ( <string-columns> ) |
+                     strlen ( <column-value> );
 
 # string
-<substr-function> := substr( <string-columns> , <integer> , <integer> ) |
-                     substr( <column-value> , <integer> , <integer> );
+<substr-function> := substr ( <string-columns> , <integer> , <integer> ) |
+                     substr ( <column-value> , <integer> , <integer> );
 
-# number
-<number-function> := <number-columns> <math-symbol> <number> |
-                     <number> <math-symbol> <number-columns> |
+# number # todo base
+<number-function> := <number> <math-symbol> <number-columns> |
                      <number> <math-symbol> <number>;
 
-# bool
-<bool-function> := <number-columns> <bool-symbol> <number> |
-                   <number> <bool-symbol> <number-columns> |
+# bool # todo base
+<bool-function> := <number> <bool-symbol> <number-columns> |
                    <number> <bool-symbol> <number>;
 
-# bool
-<and-function> := <bool-columns> and <bool-columns> |
-                  <bool-columns> and <and-function>;
+<no-or-and-bool-function-column> := <to_bool-function> |
+                                  <contains-function> |
+                                  <bool-function> |
+                                  <if-then-else-bool-column-function> |
+                                  <ifnull-bool-column-function> |
+                                  <isnull-function> |
+                                  <not-function>;
 
 # bool
-<or-function> := <bool-columns> or <bool-columns> |
-                 <bool-columns> or <or-function>;
+<and-function> := <all-bool-column> and <bool-columns> |
+                  <all-bool-column> and <and-function> |
+                  <all-bool-column> and <or-function> |
+                  <no-or-and-bool-function-column> and <bool-columns>;
+
+# bool
+<or-function> := <all-bool-column> or <bool-columns> |
+                 <all-bool-column> or <and-function> |
+                 <all-bool-column> or <or-function> |
+                 <no-or-and-bool-function-column> or <bool-columns>;
 
 # string
 <if-then-else-column-value-function> := if <bool-columns> then <column-value> else <column-value>;
@@ -167,7 +177,6 @@
 # average、count、max、min、sum、to_date、to_string、to_double、to_integer、
 # diff_days、month、month_number、year、
 # !=、<、>、<=、>=、=、+、-、*、/、
-# todo ifnull
 # and、if...then...else、ifnull、isnull、not、or、
 # concat、contains、strlen、substr
 

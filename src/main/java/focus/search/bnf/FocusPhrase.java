@@ -102,4 +102,8 @@ public class FocusPhrase {
         return json;
     }
 
+    public boolean equals(FocusPhrase fp) {
+        return this.toJSON().equals(fp.toJSON());
+    }
+
 }

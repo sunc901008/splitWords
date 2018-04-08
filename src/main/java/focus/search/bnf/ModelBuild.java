@@ -29,22 +29,21 @@ public class ModelBuild {
             for (ColumnReceived col : source.columns) {
                 BnfRule br = new BnfRule();
                 BnfRule br1 = new BnfRule();
-                if (col.columnType.equalsIgnoreCase(Constant.ColumnType.MEASURE)) {
-                    if (col.dataType.equalsIgnoreCase(Constant.DataType.DOUBLE)) {
-                        br.setLeftHandSide(new NonTerminalToken("<int-measure-column>"));
-                        br1.setLeftHandSide(new NonTerminalToken("<table-int-measure-column>"));
-                    } else {
-                        br.setLeftHandSide(new NonTerminalToken("<double-measure-column>"));
-                        br1.setLeftHandSide(new NonTerminalToken("<table-double-measure-column>"));
-                    }
+                if (col.dataType.equalsIgnoreCase(Constant.DataType.INT)) {
+                    br.setLeftHandSide(new NonTerminalToken("<int-column>"));
+                    br1.setLeftHandSide(new NonTerminalToken("<table-int-column>"));
+                } else if (col.dataType.equalsIgnoreCase(Constant.DataType.DOUBLE)) {
+                    br.setLeftHandSide(new NonTerminalToken("<double-column>"));
+                    br1.setLeftHandSide(new NonTerminalToken("<table-double-column>"));
+                } else if (col.dataType.equalsIgnoreCase(Constant.DataType.TIMESTAMP)) {
+                    br.setLeftHandSide(new NonTerminalToken("<date-column>"));
+                    br1.setLeftHandSide(new NonTerminalToken("<table-date-column>"));
+                } else if (col.dataType.equalsIgnoreCase(Constant.DataType.BOOLEAN)) {
+                    br.setLeftHandSide(new NonTerminalToken("<bool-column>"));
+                    br1.setLeftHandSide(new NonTerminalToken("<table-bool-column>"));
                 } else {
-                    if (col.dataType.equalsIgnoreCase(Constant.DataType.TIMESTAMP)) {
-                        br.setLeftHandSide(new NonTerminalToken("<timestamp-attribute-column>"));
-                        br1.setLeftHandSide(new NonTerminalToken("<table-timestamp-attribute-column>"));
-                    } else {
-                        br.setLeftHandSide(new NonTerminalToken("<string-attribute-column>"));
-                        br1.setLeftHandSide(new NonTerminalToken("<table-string-attribute-column>"));
-                    }
+                    br.setLeftHandSide(new NonTerminalToken("<string-column>"));
+                    br1.setLeftHandSide(new NonTerminalToken("<table-string-column>"));
                 }
                 TokenString alternative_to_add = new TokenString();
 
@@ -90,7 +89,7 @@ public class ModelBuild {
 
         // delete bnf rule
         BnfRule br = fp.getRule("<measure-formula-column>");
-        if(br != null) {
+        if (br != null) {
             BnfRule brNew = new BnfRule();
             brNew.setLeftHandSide(new NonTerminalToken("<measure-formula-column>"));
             List<TokenString> tokenStrings = new ArrayList<>();
@@ -104,7 +103,7 @@ public class ModelBuild {
         }
 
         BnfRule br1 = fp.getRule("<attribute-formula-column>");
-        if(br1 != null) {
+        if (br1 != null) {
             BnfRule brNew1 = new BnfRule();
             brNew1.setLeftHandSide(new NonTerminalToken("<attribute-formula-column>"));
             List<TokenString> tokenStrings1 = new ArrayList<>();

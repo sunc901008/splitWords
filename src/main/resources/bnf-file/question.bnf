@@ -1,5 +1,5 @@
 <question> := <filter> |
-              <all-column> |
+              <all-columns> |
               <column-value>;
 
 <filter> := <simple-filter> |
@@ -14,9 +14,9 @@
            top <integer> <all-double-column> |
            top <number-columns>;
 
-<sort-by> := sort by <all-column> |
-             sort by <all-column> desc |
-             sort by <all-column> asc;
+<sort-by> := sort by <all-columns> |
+             sort by <all-columns> desc |
+             sort by <all-columns> asc;
 
 <all-columns> := <number-columns> |
                  <string-columns> |
