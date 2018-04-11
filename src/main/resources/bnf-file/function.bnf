@@ -115,10 +115,14 @@
 
 # number # todo base
 <number-function> := <number> <math-symbol> <number-columns> |
+                     <number-source-column> <math-symbol> <number> |
+                     <number-source-column> <math-symbol> <number-source-column> |
                      <number> <math-symbol> <number>;
 
 # bool # todo base
 <bool-function> := <number> <bool-symbol> <number-columns> |
+                   <number-source-column> <bool-symbol> <number> |
+                   <number-source-column> <bool-symbol> <number-source-column> |
                    <number> <bool-symbol> <number>;
 
 <no-or-and-bool-function-column> := <to_bool-function> |

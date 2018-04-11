@@ -3,7 +3,6 @@ package focus.search;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
@@ -15,7 +14,11 @@ import focus.search.instruction.InstructionBuild;
 import focus.search.meta.Column;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.search.*;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,11 +33,23 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-        FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
+        ResourceLoader resolver = new DefaultResourceLoader();
+        BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
+        String search;
+        int index = 0; // 需要执行的questions文件中的question行号，为0时执行所有
+        int i = 0;
+        while ((search = br.readLine()) != null) {
+            i++;
+            if (index == 0 || i == index) {
+                test(search);
+                System.out.println();
+            }
+        }
+
+        br.close();
 
 //        String search = "5+8*2";
-        String search = "count ( d";
-//        String search = "views > 5 1+5";
+//        String search = "strlen(\"focus\")";
 
 //        List<FocusToken> tokens = focusAnalyzer.test(search, "english");
 //
@@ -45,8 +60,6 @@ public class Home {
 //        System.out.println(JSON.toJSONString(tokens));
 
 //
-        test(search);
-
 //        formulaTest(makeFp());
 
 //        FocusParser parser = new FocusParser();
@@ -174,6 +187,12 @@ public class Home {
         }
         System.out.println("-------------------");
         System.out.println(focusInst.toJSON());
+        System.out.println("-------------------");
+        String q = search;
+        if (focusInst.position >= 0) {
+            q = q + "  |  " + focusInst.position + ":" + tokens.get(focusInst.position).getWord();
+        }
+        System.out.println(q);
         if (tokens.size() > 0) {
             return;
         }

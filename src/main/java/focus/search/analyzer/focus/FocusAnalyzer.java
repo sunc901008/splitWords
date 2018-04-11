@@ -78,8 +78,6 @@ public class FocusAnalyzer {
         // 关闭TokenStream（关闭StringReader）
         ts.close();
 
-        System.out.println(JSON.toJSONString(tokens));
-
         return MergeToken.mergeUserInput(tokens, str);
 //        return tokens;
     }

@@ -17,7 +17,6 @@ import org.springframework.core.io.ResourceLoader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -176,9 +175,46 @@ public class FocusParser {
         ambiguitiesCheck(focusPhrases, 0, amb);
 
         for (int i = 1; i < tokens.size(); i++) {
-            List<FocusPhrase> tmp = new ArrayList<>(focusPhrases);
-
             FocusToken ft = tokens.get(i);
+            List<FocusPhrase> tmp = new ArrayList<>(focusPhrases);/*
+            List<FocusPhrase> notTerminal = new ArrayList<>();
+            TerminalToken tt = terminal(ft.getWord());
+            if (tt != null && Constant.FNDType.KEYWORD.equals(tt.getType())) {
+                int loop = focusPhrases.size();
+                boolean isTer = false;
+                while (loop > 0) {
+                    loop--;
+                    FocusPhrase focusPhrase = focusPhrases.remove(0);
+                    FocusNode fn = focusPhrase.getNode(i);
+                    if (fn.isTerminal()) {
+                        isTer = true;
+                    }
+                    if (fn.isTerminal() && fn.getValue().equalsIgnoreCase(ft.getWord())) {
+                        focusPhrase.removeNode(i);
+                        fn.setTerminal(true);
+                        fn.setType(Constant.FNDType.KEYWORD);
+                        fn.setBegin(focusToken.getStart());
+                        fn.setEnd(focusToken.getEnd());
+                        focusPhrase.addPn(i, fn);
+                        if (focusPhrase.size() == i + 1) {
+                            focusPhrase.setType(Constant.INSTRUCTION);
+                        }
+                        focusPhrases.add(focusPhrase);
+                    } else if (!fn.isTerminal()) {
+                        notTerminal.add(focusPhrase);
+                    }
+                }
+                if (notTerminal.isEmpty() && focusPhrases.isEmpty()) {// 出错结束
+                    FocusSubInst fsi = new FocusSubInst();
+                    fsi.setIndex(i);
+                    fsi.setFps(tmp);
+                    fsi.setError(true);
+                    return fsi;
+                }
+                if()
+                continue;
+            }*/
+
             if (Constant.FNDType.COLUMNVALUE.equals(ft.getType())) {
                 int loop = focusPhrases.size();
                 while (loop > 0) {
@@ -192,6 +228,7 @@ public class FocusParser {
                         tmpNode.setValue(ft.getWord());
                         tmpNode.setBegin(ft.getStart());
                         tmpNode.setEnd(ft.getEnd());
+                        tmpNode.setType(Constant.FNDType.COLUMNVALUE);
                         tmpNode.setTerminal(true);
                         fp.removeNode(i);
                         fp.addPn(i, tmpNode);
@@ -495,7 +532,6 @@ public class FocusParser {
         List<FocusPhrase> focusPhrases = new ArrayList<>();
         List<BnfRule> removes = new ArrayList<>();
 
-
         if (rules.isEmpty()) {
             for (TokenString ts : rule.getAlternatives()) {
                 FocusPhrase fp = new FocusPhrase();
@@ -578,10 +614,10 @@ public class FocusParser {
         br.setLeftHandSide(rule.getLeftHandSide());
         for (TokenString alt : rule.getAlternatives()) {
             Token token = alt.getFirst();
-            if (token instanceof ColumnValueTerminalToken) {
-                //debug
-                System.out.println(token.toString());
-            }
+//            if (token instanceof ColumnValueTerminalToken) {
+//                //debug
+//                System.out.println(token.toString());
+//            }
             if (token instanceof TerminalToken) {
                 if (token.match(word)) {
                     if (isTerminal(token.getName())) {

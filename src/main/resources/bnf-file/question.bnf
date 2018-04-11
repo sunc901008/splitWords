@@ -4,23 +4,43 @@
 
 <filter> := <simple-filter> |
             <top-n> |
-            <sort-by>;
+            <bottom-n> |
+            <sort-by> |
+            <growth-of>;
 
-<simple-filter> := <number-columns> <symbol> <number> |
-                   <number> <symbol> <number-columns> |
-                   <number-columns> <symbol> <number-columns>;
+<simple-filter> := <number-columns> <bool-symbol> <number> |
+                   <number> <bool-symbol> <number-columns> |
+                   <number-columns> <bool-symbol> <number-columns> |
+                   <bool-function-column>;
 
 <top-n> := top <integer> <all-int-column> |
            top <integer> <all-double-column> |
            top <number-columns>;
 
+<bottom-n> := bottom <integer> <all-int-column> |
+              bottom <integer> <all-double-column> |
+              bottom <number-columns>;
+
 <sort-by> := sort by <all-columns> |
              sort by <all-columns> desc |
              sort by <all-columns> asc;
 
+<growth-of> := growth of <number-columns> by <date-columns> |
+               growth of <number-columns> by <date-columns> <year-over-year> |
+               growth of <number-columns> by <date-columns> <growth-of-by-date-interval> |
+               growth of <number-columns> by <date-columns> <growth-of-by-date-interval> <year-over-year>;
+
+<growth-of-by-date-interval> := daily |
+                                weekly |
+                                monthly |
+                                quarterly |
+                                yearly;
+
+<year-over-year> := year over year;
+
 <all-columns> := <number-columns> |
                  <string-columns> |
-                 <bool-columns> |
+                 <all-bool-column> |
                  <date-columns>;
 
 <number-columns> := <all-int-column> |
@@ -29,9 +49,6 @@
 
 <string-columns> := <all-string-column> |
                     <string-function-column>;
-
-<bool-columns> := <all-bool-column> |
-                  <bool-function-column>;
 
 <date-columns> := <all-date-column> |
                   <date-function-column>;
