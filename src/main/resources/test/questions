@@ -8,3 +8,10 @@ to_string(views+ )
 growth of views by name
 growth of views +
 views + 5+views
+views > 5
+5>views
+5>views and 9>2
+year("1992-9-9") + 9
+sort by views
+strlen("focus") > 5 and 9 > 5
+to_string(to_string(views+6))

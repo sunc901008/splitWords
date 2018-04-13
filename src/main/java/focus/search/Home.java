@@ -31,22 +31,91 @@ import java.util.List;
  */
 public class Home {
 
-    public static void main(String[] args) throws IOException, InvalidRuleException {
-
+    // params:  index 需要执行的questions文件中的question行号，为0时执行所有
+    private static void search(int index) throws IOException, InvalidRuleException {
         ResourceLoader resolver = new DefaultResourceLoader();
         BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
         String search;
-        int index = 0; // 需要执行的questions文件中的question行号，为0时执行所有
+        String last = null;
         int i = 0;
         while ((search = br.readLine()) != null) {
             i++;
+            last = search;
             if (index == 0 || i == index) {
                 test(search);
                 System.out.println();
             }
         }
+        if (index < 0) {
+            test(last);
+        }
 
         br.close();
+    }
+
+    private static void print(Object object) {
+        System.out.println(object);
+    }
+
+    private static void focusPhraseTest() {
+        FocusPhrase fp0 = new FocusPhrase();
+        fp0.setInstName("parent0");
+
+        FocusNode parentFn00 = new FocusNode("parentFn00");
+        FocusPhrase fp1 = new FocusPhrase();
+        fp1.setInstName("parent1");
+
+        FocusNode parentFn10 = new FocusNode("parentFn10");
+
+        FocusPhrase fp2 = new FocusPhrase();
+        fp1.setInstName("parent2");
+        FocusNode parentFn20 = new FocusNode("parentFn20");
+        FocusNode parentFn21 = new FocusNode("parentFn21");
+        fp2.addPn(parentFn20);
+        fp2.addPn(parentFn21);
+
+        parentFn10.setChildren(fp2);
+
+        FocusNode parentFn11 = new FocusNode("parentFn11");
+
+        fp1.addPn(parentFn10);
+        fp1.addPn(parentFn11);
+
+        parentFn00.setChildren(fp1);
+
+        FocusNode parentFn01 = new FocusNode("parentFn01");
+        fp0.addPn(parentFn00);
+        fp0.addPn(parentFn01);
+
+        print(fp0.toJSON());
+
+        int test = 1;
+
+        print(JSONArray.toJSONString(fp0.allNode()));
+
+        print(fp0.getNodeNew(test).toJSON());
+
+        print("--------");
+        FocusNode replace = new FocusNode("replace");
+
+        fp0.replaceNode(test, replace);
+
+        print(fp0.toJSON());
+
+        print(JSONArray.toJSONString(fp0.allNode()));
+        print(fp0.getNodeNew(test).toJSON());
+    }
+
+    public static void main(String[] args) throws IOException, InvalidRuleException {
+
+        search(-1);
+
+//        focusPhraseTest();
+
+//        FocusPhrase f = makeFp();
+//        System.out.println(f.toJSON());
+//        formulaTest(f);
+
 
 //        String search = "5+8*2";
 //        String search = "strlen(\"focus\")";
@@ -108,10 +177,16 @@ public class Home {
         return fp;
     }
 
+    private static FocusPhrase make() {
+        String str = "{\"focusPhrases\":[{\"focusNodes\":[{\"isTerminal\":true,\"end\":6,\"type\":\"keyword\",\"value\":\"strlen\",\"begin\":0},{\"isTerminal\":true,\"end\":7,\"type\":\"keyword\",\"value\":\"(\",\"begin\":6},{\"isTerminal\":true,\"end\":8,\"type\":\"keyword\",\"value\":\"\\\"\",\"begin\":7},{\"isTerminal\":true,\"end\":13,\"type\":\"columnValue\",\"value\":\"focus\",\"begin\":8},{\"isTerminal\":true,\"end\":14,\"type\":\"keyword\",\"value\":\"\\\"\",\"begin\":13},{\"isTerminal\":true,\"end\":15,\"type\":\"keyword\",\"value\":\")\",\"begin\":14},{\"isTerminal\":true,\"end\":17,\"type\":\"symbol\",\"value\":\">\",\"begin\":16},{\"isTerminal\":true,\"end\":19,\"type\":\"integer\",\"value\":\"5\",\"begin\":18}],\"instName\":\"<filter>\",\"type\":\"instruction\"}],\"position\":-1}";
+        FocusInst focusInst = JSONObject.parseObject(str, FocusInst.class);
+        return focusInst.getFocusPhrases().get(0);
+    }
+
     private static void formulaTest(FocusPhrase fp) {
         long received = Calendar.getInstance().getTimeInMillis();
         System.out.println(received);
-        String search = "to";
+        String search = "";
 
         FormulaResponse response = new FormulaResponse(search);
         received = Calendar.getInstance().getTimeInMillis();

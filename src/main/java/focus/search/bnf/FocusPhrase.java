@@ -40,6 +40,10 @@ public class FocusPhrase {
         this.instName = instName;
     }
 
+    public void setFocusNodes(List<FocusNode> focusNodes) {
+        this.focusNodes = focusNodes;
+    }
+
     public FocusNode getFirstNode() {
         return getNode(0);
     }
@@ -48,10 +52,56 @@ public class FocusPhrase {
         return getNode(size() - 1);
     }
 
+    public FocusNode getNodeNew(int index) {
+        for (FocusNode fn : focusNodes) {
+            if (fn.isHasChild()) {
+                if (fn.getChildren().size() > index) {
+                    return fn.getChildren().getNodeNew(index);
+                }
+                index = index - fn.getChildren().size();
+            } else {
+                if (index == 0) {
+                    return fn;
+                } else {
+                    index--;
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<FocusNode> allNode() {
+        List<FocusNode> all = new ArrayList<>();
+        for (FocusNode fn : focusNodes) {
+            if (fn.isHasChild()) {
+                all.addAll(fn.getChildren().allNode());
+            } else {
+                all.add(fn);
+            }
+        }
+        return all;
+    }
+
     public FocusNode getNode(int index) {
         if (focusNodes.size() > index && index >= 0)
             return focusNodes.get(index);
         return null;
+    }
+
+    public void removeNodeNew(int index) {
+        for (int i = 0; i < focusNodes.size(); i++) {
+            FocusNode fn = focusNodes.get(i);
+            if (fn.isHasChild()) {
+                if (fn.getChildren().size() <= index) {
+                    fn.getChildren().removeNodeNew(index);
+                    return;
+                }
+                index = index - fn.getChildren().size();
+            } else if (i == index) {
+                focusNodes.remove(i);
+                return;
+            }
+        }
     }
 
     public void removeNode(int index) {
@@ -84,12 +134,41 @@ public class FocusPhrase {
         this.focusNodes.add(index, fn);
     }
 
+    public void replaceNode(int index, FocusNode focusNode) {
+        for (int i = 0; i < focusNodes.size(); i++) {
+            FocusNode fn = focusNodes.get(i);
+            if (fn.isHasChild()) {
+                if (fn.getChildren().size() > index) {
+                    fn.getChildren().replaceNode(index, focusNode);
+                    return;
+                }
+                index = index - fn.getChildren().size();
+            } else {
+                if (index == 0) {
+                    focusNodes.remove(i);
+                    focusNodes.add(i, focusNode);
+                    return;
+                } else {
+                    index--;
+                }
+            }
+        }
+    }
+
     public void addPns(List<FocusNode> focusNodes) {
         this.focusNodes.addAll(focusNodes);
     }
 
     public int size() {
-        return this.focusNodes.size();
+        int count = 0;
+        for (FocusNode fn : focusNodes) {
+            if (fn.isHasChild()) {
+                count = count + fn.getChildren().size();
+            } else {
+                count++;
+            }
+        }
+        return count;
     }
 
     public JSONObject toJSON() {

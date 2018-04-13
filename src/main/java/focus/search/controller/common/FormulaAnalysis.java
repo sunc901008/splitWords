@@ -115,7 +115,7 @@ public class FormulaAnalysis {
                     // 若为数字
                     Arg arg = new Arg();
                     arg.type = "number";
-                    arg.value = Float.parseFloat(temp.getValue());
+                    arg.value = Double.parseDouble(temp.getValue());
                     args.add(arg);
                 } else {
                     // 从栈中弹出所有优先级比当前运算符高的运算符, 并放进队列中
@@ -172,7 +172,7 @@ public class FormulaAnalysis {
     }
 
     private static boolean isOperator(String value) {
-        return LEVEL1.contains(value) || LEVEL2.contains(value);
+        return LEVEL1.contains(value) || LEVEL2.contains(value) || LEVEL3.contains(value);
     }
 
     private static int compareOperatorPriority(String type1, String type2) {

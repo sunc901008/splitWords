@@ -22,6 +22,10 @@ public class FocusNode {
 
     private Column column;
 
+    private boolean hasChild = false;
+
+    private FocusPhrase children;
+
     public FocusNode() {
     }
 
@@ -77,6 +81,23 @@ public class FocusNode {
         this.column = column;
     }
 
+    public boolean isHasChild() {
+        return hasChild;
+    }
+
+    public void setHasChild(boolean hasChild) {
+        this.hasChild = hasChild;
+    }
+
+    public FocusPhrase getChildren() {
+        return children;
+    }
+
+    public void setChildren(FocusPhrase children) {
+        this.children = children;
+        this.hasChild = true;
+    }
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("value", value);
@@ -87,6 +108,10 @@ public class FocusNode {
         }
         json.put("begin", begin);
         json.put("end", end);
+        if (hasChild) {
+            json.put("hasChild", true);
+            json.put("children", children.toJSON());
+        }
         return json;
     }
 }

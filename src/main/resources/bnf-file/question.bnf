@@ -11,6 +11,7 @@
 <simple-filter> := <number-columns> <bool-symbol> <number> |
                    <number> <bool-symbol> <number-columns> |
                    <number-columns> <bool-symbol> <number-columns> |
+                   <number> <bool-symbol> <number> |
                    <bool-function-column>;
 
 <top-n> := top <integer> <all-int-column> |
