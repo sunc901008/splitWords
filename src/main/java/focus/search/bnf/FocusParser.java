@@ -250,7 +250,7 @@ public class FocusParser {
             if (rules.isEmpty()) {
                 focusPhrases.clear();
                 for (FocusPhrase fp : tmp) {
-                    if (fp.size() > i && fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+                    if (fp.size() > i && fp.getNodeNew(i).getValue().equalsIgnoreCase(ft.getWord())) {
                         if (fp.size() == i + 1) {
                             fp.setType(Constant.INSTRUCTION);
                         }

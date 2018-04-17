@@ -1,12 +1,14 @@
 <question> := <filter> |
-              <all-columns> |
-              <column-value>;
+              <phrase>;
 
 <filter> := <simple-filter> |
-            <top-n> |
+            <column-value>;
+
+<phrase> := <top-n> |
             <bottom-n> |
             <sort-by> |
-            <growth-of>;
+            <growth-of> |
+            <all-columns>;
 
 <simple-filter> := <number-columns> <bool-symbol> <number> |
                    <number> <bool-symbol> <number-columns> |

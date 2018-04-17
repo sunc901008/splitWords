@@ -31,6 +31,35 @@ import java.util.List;
  */
 public class Home {
 
+    public static void main(String[] args) throws IOException, InvalidRuleException {
+
+        search(11);
+
+//        focusPhraseTest();
+
+//        FocusPhrase f = makeFp();
+//        System.out.println(f.toJSON());
+//        formulaTest(f);
+
+
+//        String search = "5+8*2";
+//        String search = "strlen(\"focus\")";
+
+//        List<FocusToken> tokens = focusAnalyzer.test(search, "english");
+//
+//        System.out.println(JSON.toJSONString(tokens));
+//
+//        tokens = MergeToken.mergeUserInput(tokens, search);
+//
+//        System.out.println(JSON.toJSONString(tokens));
+
+//
+//        formulaTest(makeFp());
+
+
+    }
+
+
     // params:  index 需要执行的questions文件中的question行号，为0时执行所有
     private static void search(int index) throws IOException, InvalidRuleException {
         ResourceLoader resolver = new DefaultResourceLoader();
@@ -104,52 +133,6 @@ public class Home {
 
         print(JSONArray.toJSONString(fp0.allNode()));
         print(fp0.getNodeNew(test).toJSON());
-    }
-
-    public static void main(String[] args) throws IOException, InvalidRuleException {
-
-        search(-1);
-
-//        focusPhraseTest();
-
-//        FocusPhrase f = makeFp();
-//        System.out.println(f.toJSON());
-//        formulaTest(f);
-
-
-//        String search = "5+8*2";
-//        String search = "strlen(\"focus\")";
-
-//        List<FocusToken> tokens = focusAnalyzer.test(search, "english");
-//
-//        System.out.println(JSON.toJSONString(tokens));
-//
-//        tokens = MergeToken.mergeUserInput(tokens, search);
-//
-//        System.out.println(JSON.toJSONString(tokens));
-
-//
-//        formulaTest(makeFp());
-
-//        FocusParser parser = new FocusParser();
-//        List<SourceReceived> sourceReceiveds = ModelBuild.test(2);
-//        System.out.println(JSON.toJSONString(sourceReceiveds));
-//        ModelBuild.build(parser, sourceReceiveds);
-//        String ruleName = "<symbol>";
-//        List<TerminalToken> tokens = SuggestionBuild.terminalTokens(parser, ruleName);
-//        System.out.println(JSON.toJSONString(tokens));
-//
-//        String name = "abcd>";
-//
-//        for (TerminalToken token : tokens) {
-//            System.out.print(token.getName());
-//            if (name.toLowerCase().contains(token.getName())) {
-//                System.out.println("conflictWithKeyword");
-//            }
-//            System.out.println();
-//        }
-//        System.out.println("over");
-
     }
 
     private static FocusPhrase makeFp() {

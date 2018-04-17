@@ -44,12 +44,13 @@ public class FocusPhrase {
         this.focusNodes = focusNodes;
     }
 
+    // todo
     public FocusNode getFirstNode() {
-        return getNode(0);
+        return null;
     }
-
+    // todo
     public FocusNode getLastNode() {
-        return getNode(size() - 1);
+        return null;
     }
 
     public FocusNode getNodeNew(int index) {

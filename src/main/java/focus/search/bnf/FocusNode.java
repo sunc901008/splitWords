@@ -108,8 +108,8 @@ public class FocusNode {
         }
         json.put("begin", begin);
         json.put("end", end);
+        json.put("hasChild", hasChild);
         if (hasChild) {
-            json.put("hasChild", true);
             json.put("children", children.toJSON());
         }
         return json;
