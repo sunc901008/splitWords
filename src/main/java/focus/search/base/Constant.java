@@ -115,4 +115,11 @@ public class Constant {
 
     }
 
+    // build instruction type
+    public static final class InstType {
+        public static final String COLUMN = "column";
+        public static final String TABLE_COLUMN = "tblColumn";
+        public static final String FORMULA = "formula";
+    }
+
 }

@@ -71,10 +71,16 @@ public class ModelBuild {
         // add bnf rule
         for (Formula formula : formulas) {
             BnfRule br = new BnfRule();
-            if (formula.getColumnType().equalsIgnoreCase(Constant.ColumnType.MEASURE)) {
-                br.setLeftHandSide(new NonTerminalToken("<measure-formula-column>"));
+            if (formula.getDataType().equalsIgnoreCase(Constant.DataType.INT)) {
+                br.setLeftHandSide(new NonTerminalToken("<int-column>"));
+            } else if (formula.getDataType().equalsIgnoreCase(Constant.DataType.DOUBLE)) {
+                br.setLeftHandSide(new NonTerminalToken("<double-column>"));
+            } else if (formula.getDataType().equalsIgnoreCase(Constant.DataType.TIMESTAMP)) {
+                br.setLeftHandSide(new NonTerminalToken("<date-column>"));
+            } else if (formula.getDataType().equalsIgnoreCase(Constant.DataType.BOOLEAN)) {
+                br.setLeftHandSide(new NonTerminalToken("<bool-column>"));
             } else {
-                br.setLeftHandSide(new NonTerminalToken("<attribute-formula-column>"));
+                br.setLeftHandSide(new NonTerminalToken("<string-column>"));
             }
             TokenString alternative_to_add = new TokenString();
             alternative_to_add.add(new TerminalToken(formula.getName(), Constant.FNDType.FORMULA));

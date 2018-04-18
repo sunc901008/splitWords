@@ -33,7 +33,7 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-        search(11);
+        search(-1);
 
 //        focusPhraseTest();
 
@@ -216,7 +216,7 @@ public class Home {
     private static void test(String search) throws IOException, InvalidRuleException {
 
         FocusParser parser = new FocusParser();
-        ModelBuild.buildTable(parser, ModelBuild.test(2));
+        ModelBuild.buildTable(parser, ModelBuild.test(1));
 
 //        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
 

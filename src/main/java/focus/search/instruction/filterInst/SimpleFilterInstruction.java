@@ -23,9 +23,9 @@ public class SimpleFilterInstruction {
             case "<number-columns>":
                 return FilterNumColInstruction.build(focusPhrase, index, amb, formulas);
             case "<number>":
-                return NumberInstruction.build(focusPhrase, index, amb, formulas);
+                return FilterNumInstruction.build(focusPhrase, index, amb, formulas);
             case "<bool-function-column>":
-                return BoolFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return BoolFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

@@ -8,8 +8,6 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
 import focus.search.instruction.nodeArgs.NumberOrNumColInst;
-import focus.search.instruction.sourceInst.NumberColInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -19,10 +17,9 @@ import java.util.List;
  * date: 2018/4/17
  * description:
  */
-
-//<number-columns> <bool-symbol> <number>
-//<number-columns> <bool-symbol> <number-columns>
-public class FilterNumColInstruction {
+//<number> <bool-symbol> <number-columns>
+//<number> <bool-symbol> <number>
+public class FilterNumInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
@@ -38,14 +35,13 @@ public class FilterNumColInstruction {
         expression.put("type", "");
         JSONArray args = new JSONArray();
 
-        FocusNode first = focusPhrase.getFocusNodes().get(0);
-        JSONObject jsonF = NumberColInstruction.build(first.getChildren(), formulas);
-        String typeF = jsonF.getString("type");
+        FocusNode first = focusPhrase.getFocusNodes().get(0).getChildren().getNodeNew(0);
         JSONObject arg1 = new JSONObject();
-        // todo
-        if (Constant.InstType.TABLE_COLUMN.equals(typeF) || Constant.InstType.COLUMN.equals(typeF)) {
-            arg1.put("type", "column");
-            arg1.put("value", ((Column) jsonF.get("column")).getColumnId());
+        arg1.put("type", "number");
+        if (Constant.FNDType.INTEGER.equals(first.getType())) {
+            arg1.put("value", Integer.parseInt(first.getValue()));
+        } else {
+            arg1.put("value", Float.parseFloat(first.getValue()));
         }
         args.add(arg1);
 
