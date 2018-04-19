@@ -1,4 +1,4 @@
-package focus.search.instruction.functionInst.boolFunc;
+package focus.search.instruction.functionInst.DateFunc;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -6,23 +6,21 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
-import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
+import focus.search.instruction.nodeArgs.NumberOrNumColInst;
 import focus.search.meta.Formula;
 
 import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/4/18
+ * date: 2018/4/19
  * description:
  */
-//<contains-function> := contains ( <string-columns> , <string-columns> ) |
-//        contains ( <column-value> , <string-columns> ) |
-//        contains ( <string-columns> , <column-value> ) |
-//        contains ( <column-value> , <column-value> );
-public class ContainsFuncInstruction {
+//<to_date-function> := to_date ( <number-columns> ) |
+//        to_date ( <number> );
+public class ToDateFuncInstruction {
 
-    // 完整指令 contains
+    // 完整指令 to_date
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -48,19 +46,17 @@ public class ContainsFuncInstruction {
 
     // 其他指令的一部分
     public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
-        FocusNode param1 = focusPhrase.getFocusNodes().get(2);
-        FocusNode param2 = focusPhrase.getFocusNodes().get(4);
-
+        FocusNode param = focusPhrase.getFocusNodes().get(2);
         JSONObject arg = new JSONObject();
         arg.put("type", "function");
-        arg.put("name", "contains");
+        arg.put("name", "to_date");
         JSONArray args = new JSONArray();
 
-        args.add(ColValueOrStringColInst.arg(param1, formulas));
-        args.add(ColValueOrStringColInst.arg(param2, formulas));
+        args.add(NumberOrNumColInst.arg(param, formulas));
 
         arg.put("args", args);
         return arg;
     }
+
 
 }

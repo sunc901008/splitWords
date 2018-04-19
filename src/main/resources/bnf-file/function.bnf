@@ -101,6 +101,13 @@
                        contains ( <string-columns> , <column-value> ) |
                        contains ( <column-value> , <column-value> );
 
+<no-or-and-bool-function-column> := <to_bool-function> |
+                                  <contains-function> |
+                                  <bool-function> |
+                                  <if-then-else-bool-column-function> |
+                                  <ifnull-bool-column-function> |
+                                  <isnull-function> |
+                                  <not-function>;
 # bool
 <and-function> := <all-bool-column> and <bool-function-column> |
                   <all-bool-column> and <and-function> |
@@ -139,7 +146,8 @@
                                  ifnull ( <bool-function-column> , <bool-function-column> );
 
 # date
-<to_date-function> := to_date ( <number-columns> );
+<to_date-function> := to_date ( <number-columns> ) |
+                      to_date ( <number> );
 
 # date
 <if-then-else-date-column-function> := if <bool-columns> then <date-columns> else <date-columns> |
@@ -208,11 +216,3 @@
                    <number> <bool-symbol> <number-columns> |
                    <number-columns> <bool-symbol> <number-columns> |
                    <number> <bool-symbol> <number>;
-
-<no-or-and-bool-function-column> := <to_bool-function> |
-                                  <contains-function> |
-                                  <bool-function> |
-                                  <if-then-else-bool-column-function> |
-                                  <ifnull-bool-column-function> |
-                                  <isnull-function> |
-                                  <not-function>;

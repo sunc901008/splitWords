@@ -43,7 +43,7 @@
 
 <all-columns> := <number-columns> |
                  <string-columns> |
-                 <all-bool-column> |
+                 <bool-columns> |
                  <date-columns>;
 
 <number-columns> := <all-int-column> |
@@ -52,6 +52,8 @@
 
 <string-columns> := <all-string-column> |
                     <string-function-column>;
+
+<bool-columns> := <all-bool-column>;
 
 <date-columns> := <all-date-column> |
                   <date-function-column>;

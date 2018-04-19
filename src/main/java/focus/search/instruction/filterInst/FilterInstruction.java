@@ -14,6 +14,8 @@ import java.util.List;
  * date: 2018/4/17
  * description:
  */
+//<filter> := <simple-filter> |
+//        <column-value>;
 public class FilterInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {

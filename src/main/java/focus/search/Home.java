@@ -33,7 +33,7 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-        search(-1);
+        search(13);
 
 //        focusPhraseTest();
 

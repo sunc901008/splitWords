@@ -6,23 +6,23 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
-import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
+import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
 import focus.search.meta.Formula;
 
 import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/4/18
+ * date: 2018/4/19
  * description:
  */
-//<contains-function> := contains ( <string-columns> , <string-columns> ) |
-//        contains ( <column-value> , <string-columns> ) |
-//        contains ( <string-columns> , <column-value> ) |
-//        contains ( <column-value> , <column-value> );
-public class ContainsFuncInstruction {
+//<ifnull-bool-column-function> := ifnull ( <bool-columns> , <bool-columns> ) |
+//        ifnull ( <bool-function-column> , <bool-columns> ) |
+//        ifnull ( <bool-columns> , <bool-function-column> ) |
+//        ifnull ( <bool-function-column> , <bool-function-column> );
+public class IfNullBoolColFuncInstruction {
 
-    // 完整指令 contains
+    // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -46,21 +46,20 @@ public class ContainsFuncInstruction {
         return instructions;
     }
 
-    // 其他指令的一部分
+
+    // 其他指令一部分
     public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(2);
-        FocusNode param2 = focusPhrase.getFocusNodes().get(4);
-
-        JSONObject arg = new JSONObject();
-        arg.put("type", "function");
-        arg.put("name", "contains");
+        FocusNode param2 = focusPhrase.getFocusNodes().get(3);
+        JSONObject expression = new JSONObject();
+        expression.put("type", "function");
+        expression.put("name", "ifnull");
         JSONArray args = new JSONArray();
+        args.add(BoolColOrBoolFuncColInst.arg(param1, formulas));
+        args.add(BoolColOrBoolFuncColInst.arg(param2, formulas));
+        expression.put("args", args);
 
-        args.add(ColValueOrStringColInst.arg(param1, formulas));
-        args.add(ColValueOrStringColInst.arg(param2, formulas));
-
-        arg.put("args", args);
-        return arg;
+        return expression;
     }
 
 }

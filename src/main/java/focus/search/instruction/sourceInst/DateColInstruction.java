@@ -6,7 +6,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.functionInst.StringFuncInstruction;
+import focus.search.instruction.functionInst.DateFuncInstruction;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -16,9 +16,9 @@ import java.util.List;
  * date: 2018/4/17
  * description:
  */
-//<string-columns> := <all-string-column> |
-//        <string-function-column>;
-public class StringColInstruction {
+//<date-columns> := <all-date-column> |
+//        <date-function-column>;
+public class DateColInstruction {
 
     // todo
     // 完整指令 columns
@@ -32,7 +32,7 @@ public class StringColInstruction {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
         JSONObject res = new JSONObject();
         switch (node.getValue()) {
-            case "<all-string-column>":
+            case "<all-date-column>":
                 JSONObject json = ColumnInstruction.build(node.getChildren());
                 if (json.getBoolean("hasTable")) {
                     res.put("type", Constant.InstType.TABLE_COLUMN);
@@ -41,8 +41,8 @@ public class StringColInstruction {
                 }
                 res.put("column", json.get("column"));
                 return res;
-            case "<string-function-column>":
-                StringFuncInstruction.build(node.getChildren(), formulas);
+            case "<date-function-column>":
+                DateFuncInstruction.build(node.getChildren(), formulas);
                 return res;
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");

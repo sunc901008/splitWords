@@ -5,8 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.functionInst.boolFunc.ContainsFuncInstruction;
-import focus.search.instruction.functionInst.boolFunc.ToBoolFuncInstruction;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -31,9 +29,9 @@ public class StringFuncInstruction {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_string-function>":
-                return ToBoolFuncInstruction.build(fn.getChildren(), index, amb, formulas);
+                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<month-function>":
-                return ContainsFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<concat-function>":
                 return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<substr-function>":
@@ -51,7 +49,7 @@ public class StringFuncInstruction {
         }
     }
 
-    public static JSONArray build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_string-function>":

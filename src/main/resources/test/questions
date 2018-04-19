@@ -19,3 +19,4 @@ users views > 5
 to_bool (3)
 to_bool (views)
 contains ( name , "abcd" )
+"focus","in","hello"

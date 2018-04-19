@@ -2,11 +2,14 @@ package focus.search.instruction.functionInst.boolFunc;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
-import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
+import focus.search.instruction.nodeArgs.NumberArg;
+import focus.search.instruction.sourceInst.AllColumnsInstruction;
+import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -16,13 +19,11 @@ import java.util.List;
  * date: 2018/4/18
  * description:
  */
-//<contains-function> := contains ( <string-columns> , <string-columns> ) |
-//        contains ( <column-value> , <string-columns> ) |
-//        contains ( <string-columns> , <column-value> ) |
-//        contains ( <column-value> , <column-value> );
-public class ContainsFuncInstruction {
+//<isnull-function> := isnull ( <all-columns> ) |
+//        isnull ( <number> );
+public class IsNullFuncInstruction {
 
-    // 完整指令 contains
+    // 完整指令 isnull
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -48,17 +49,26 @@ public class ContainsFuncInstruction {
 
     // 其他指令的一部分
     public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
-        FocusNode param1 = focusPhrase.getFocusNodes().get(2);
-        FocusNode param2 = focusPhrase.getFocusNodes().get(4);
+        FocusNode param = focusPhrase.getFocusNodes().get(2);
 
         JSONObject arg = new JSONObject();
         arg.put("type", "function");
-        arg.put("name", "contains");
+        arg.put("name", "isnull");
         JSONArray args = new JSONArray();
 
-        args.add(ColValueOrStringColInst.arg(param1, formulas));
-        args.add(ColValueOrStringColInst.arg(param2, formulas));
-
+        if ("<all-columns>".equals(param.getValue())) {
+            JSONObject json = AllColumnsInstruction.build(focusPhrase, formulas);
+            String type = json.getString("type");
+            JSONObject arg1 = new JSONObject();
+            // todo
+            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
+                arg1.put("type", "column");
+                arg1.put("value", ((Column) json.get("column")).getColumnId());
+            }
+            args.add(arg1);
+        } else if ("<number>".equals(param.getValue())) {
+            args.add(NumberArg.arg(param));
+        }
         arg.put("args", args);
         return arg;
     }

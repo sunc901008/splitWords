@@ -7,7 +7,6 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
-import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -24,7 +23,7 @@ public class NumberColInstruction {
 
     // todo
     // 完整指令 columns
-    public static JSONArray build(FocusPhrase focusPhrase, int index, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         FocusNode numberColumns = focusPhrase.getFocusNodes().get(0);
         return null;
     }
@@ -45,6 +44,7 @@ public class NumberColInstruction {
                 res.put("column", json.get("column"));
                 return res;
             case "<number-function-column>":
+                // todo
                 NumberFuncInstruction.build(node.getChildren());
                 return res;
             default:

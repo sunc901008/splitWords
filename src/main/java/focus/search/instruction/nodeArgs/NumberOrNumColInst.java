@@ -27,18 +27,11 @@ public class NumberOrNumColInst {
                 arg.put("type", "column");
                 arg.put("value", ((Column) jsonT.get("column")).getColumnId());
             }
+            return arg;
         } else if ("<number>".equals(focusNode.getValue())) {
-            FocusNode numberNode = focusNode.getChildren().getNodeNew(0);
-            Object number;
-            if (Constant.FNDType.INTEGER.equals(numberNode.getType())) {
-                number = Integer.parseInt(numberNode.getValue());
-            } else {
-                number = Float.parseFloat(numberNode.getValue());
-            }
-            arg.put("type", "number");
-            arg.put("value", number);
+            return NumberArg.arg(focusNode);
         }
-        return arg;
+        throw new InvalidRuleException("Build instruction fail!!!");
     }
 
 }

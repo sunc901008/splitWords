@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.functionInst.BoolFuncInstruction;
+import focus.search.instruction.functionInst.BoolFuncColInstruction;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -15,6 +15,11 @@ import java.util.List;
  * date: 2018/4/17
  * description:
  */
+//<simple-filter> := <number-columns> <bool-symbol> <number> |
+//        <number> <bool-symbol> <number-columns> |
+//        <number-columns> <bool-symbol> <number-columns> |
+//        <number> <bool-symbol> <number> |
+//        <bool-function-column>;
 public class SimpleFilterInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
@@ -25,7 +30,7 @@ public class SimpleFilterInstruction {
             case "<number>":
                 return FilterNumInstruction.build(focusPhrase, index, amb, formulas);
             case "<bool-function-column>":
-                return BoolFuncInstruction.build(fn.getChildren(), index, amb, formulas);
+                return BoolFuncColInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

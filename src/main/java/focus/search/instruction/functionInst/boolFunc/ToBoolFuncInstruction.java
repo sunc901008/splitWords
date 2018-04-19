@@ -22,8 +22,6 @@ public class ToBoolFuncInstruction {
 
     // 完整指令 to_bool
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
-        FocusNode third = focusPhrase.getFocusNodes().get(2);
-
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -31,13 +29,7 @@ public class ToBoolFuncInstruction {
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_logical_filter");
 
-        JSONObject expression = new JSONObject();
-        expression.put("type", "function");
-        expression.put("name", "to_bool");
-        JSONArray args = new JSONArray();
-        args.add(NumberOrNumColInst.arg(third, formulas));
-        expression.put("args", args);
-        json1.put("expression", expression);
+        json1.put("expression", build(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -53,9 +45,15 @@ public class ToBoolFuncInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONArray build(FocusPhrase focusPhrase, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
-        FocusNode fn = focusPhrase.getFocusNodes().get(0);
-        return null;
+    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+        FocusNode third = focusPhrase.getFocusNodes().get(2);
+        JSONObject arg = new JSONObject();
+        arg.put("type", "function");
+        arg.put("name", "to_bool");
+        JSONArray args = new JSONArray();
+        args.add(NumberOrNumColInst.arg(third, formulas));
+        arg.put("args", args);
+        return arg;
     }
 
 }
