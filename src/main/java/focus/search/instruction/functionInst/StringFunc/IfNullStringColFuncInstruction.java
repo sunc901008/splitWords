@@ -1,4 +1,4 @@
-package focus.search.instruction.functionInst.boolFunc;
+package focus.search.instruction.functionInst.StringFunc;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -7,7 +7,7 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
-import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
+import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -17,11 +17,9 @@ import java.util.List;
  * date: 2018/4/19
  * description:
  */
-//<ifnull-bool-column-function> := ifnull ( <bool-columns> , <bool-columns> ) |
-//        ifnull ( <bool-function-column> , <bool-columns> ) |
-//        ifnull ( <bool-columns> , <bool-function-column> ) |
-//        ifnull ( <bool-function-column> , <bool-function-column> );
-public class IfNullBoolColFuncInstruction {
+//<ifnull-string-function> := ifnull ( <column-value> , <column-value> ) |
+//        ifnull ( <string-columns> , <string-columns> );
+public class IfNullStringColFuncInstruction {
 
     // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
@@ -47,7 +45,6 @@ public class IfNullBoolColFuncInstruction {
         return instructions;
     }
 
-
     // 其他指令一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(2);
@@ -56,8 +53,8 @@ public class IfNullBoolColFuncInstruction {
         expression.put("type", Constant.InstType.FUNCTION);
         expression.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
-        args.add(BoolColOrBoolFuncColInst.arg(param1, formulas));
-        args.add(BoolColOrBoolFuncColInst.arg(param2, formulas));
+        args.add(ColValueOrStringColInst.arg(param1, formulas));
+        args.add(ColValueOrStringColInst.arg(param2, formulas));
         expression.put("args", args);
 
         return expression;

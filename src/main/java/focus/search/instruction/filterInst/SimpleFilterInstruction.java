@@ -26,9 +26,8 @@ public class SimpleFilterInstruction {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<number-columns>":
-                return FilterNumColInstruction.build(focusPhrase, index, amb, formulas);
             case "<number>":
-                return FilterNumInstruction.build(focusPhrase, index, amb, formulas);
+                return FilterNumOrNumColInstruction.build(focusPhrase, index, amb, formulas);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.build(fn.getChildren(), index, amb, formulas);
             default:

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.functionInst.StringFunc.*;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -19,47 +20,45 @@ import java.util.List;
 //        <month-function> |
 //        <concat-function> |
 //        <substr-function> |
-//        <if-then-else-column-value-function> |
-//        <if-then-else-string-column-function> |
-//        <ifnull-column-value-function> |
-//        <ifnull-string-column-function>;
+//        <if-then-else-string-function> |
+//        <ifnull-string-function>;
 public class StringFuncInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_string-function>":
-                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return ToStringFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<month-function>":
-                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return MonthFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<concat-function>":
-                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return ConcatFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<substr-function>":
-                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
-            case "<if-then-else-column-value-function>":
-                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
-            case "<if-then-else-string-column-function>":
-                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
-            case "<ifnull-column-value-function>":
-                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
-            case "<ifnull-string-column-function>":
-                return StringFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return SubstrFuncInstruction.build(focusPhrase, index, amb, formulas);
+            case "<if-then-else-string-function>":
+                return IfThenElseStringColFuncInstruction.build(focusPhrase, index, amb, formulas);
+            case "<ifnull-string-function>":
+                return IfNullStringColFuncInstruction.build(focusPhrase, index, amb, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }
     }
 
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_string-function>":
+                return ToStringFuncInstruction.arg(focusPhrase, formulas);
             case "<month-function>":
+                return MonthFuncInstruction.arg(focusPhrase, formulas);
             case "<concat-function>":
+                return ConcatFuncInstruction.arg(focusPhrase, formulas);
             case "<substr-function>":
-            case "<if-then-else-column-value-function>":
-            case "<if-then-else-string-column-function>":
-            case "<ifnull-column-value-function>":
-            case "<ifnull-string-column-function>":
+                return SubstrFuncInstruction.arg(focusPhrase, formulas);
+            case "<if-then-else-string-function>":
+                return IfThenElseStringColFuncInstruction.arg(focusPhrase, formulas);
+            case "<ifnull-string-function>":
+                return IfNullStringColFuncInstruction.arg(focusPhrase, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

@@ -29,15 +29,15 @@ public class NoOrAndBoolFuncColInstruction {
         JSONObject res = new JSONObject();
         switch (node.getValue()) {
             case "<to_bool-function>":
-                return ToBoolFuncInstruction.build(node.getChildren(), formulas);
+                return ToBoolFuncInstruction.arg(node.getChildren(), formulas);
             case "<contains-function>":
-                return ContainsFuncInstruction.build(node.getChildren(), formulas);
+                return ContainsFuncInstruction.arg(node.getChildren(), formulas);
             case "<bool-function>":
                 return BaseBoolFuncInstruction.arg(node.getChildren(), formulas);
             case "<if-then-else-bool-column-function>":
-                return ToBoolFuncInstruction.build(node.getChildren(), formulas);
+                return ToBoolFuncInstruction.arg(node.getChildren(), formulas);
             case "<ifnull-bool-column-function>":
-                return ToBoolFuncInstruction.build(node.getChildren(), formulas);
+                return ToBoolFuncInstruction.arg(node.getChildren(), formulas);
             case "<isnull-function>":
                 return res;
             case "<not-function>":

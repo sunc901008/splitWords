@@ -9,7 +9,6 @@ import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
 import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -32,7 +31,7 @@ public class IsNullFuncInstruction {
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_logical_filter");
 
-        json1.put("expression", build(focusPhrase, formulas));
+        json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -48,24 +47,16 @@ public class IsNullFuncInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode param = focusPhrase.getFocusNodes().get(2);
 
         JSONObject arg = new JSONObject();
-        arg.put("type", "function");
-        arg.put("name", "isnull");
+        arg.put("type", Constant.InstType.FUNCTION);
+        arg.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
 
         if ("<all-columns>".equals(param.getValue())) {
-            JSONObject json = AllColumnsInstruction.build(focusPhrase, formulas);
-            String type = json.getString("type");
-            JSONObject arg1 = new JSONObject();
-            // todo
-            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-                arg1.put("type", "column");
-                arg1.put("value", ((Column) json.get("column")).getColumnId());
-            }
-            args.add(arg1);
+            args.add(AllColumnsInstruction.arg(focusPhrase, formulas));
         } else if ("<number>".equals(param.getValue())) {
             args.add(NumberArg.arg(param));
         }

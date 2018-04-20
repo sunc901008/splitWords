@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.functionInst.DateFunc.IfNullDateColFuncInstruction;
+import focus.search.instruction.functionInst.DateFunc.IfThenElseDateColFuncInstruction;
 import focus.search.instruction.functionInst.DateFunc.ToDateFuncInstruction;
 import focus.search.meta.Formula;
 
@@ -28,20 +30,24 @@ public class DateFuncInstruction {
             case "<to_date-function>":
                 return ToDateFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<if-then-else-date-column-function>":
+                return IfThenElseDateColFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<ifnull-date-column-function>":
+                return IfNullDateColFuncInstruction.build(focusPhrase, index, amb, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }
     }
 
     // 其他指令一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_date-function>":
-                return ToDateFuncInstruction.build(focusPhrase, formulas);
+                return ToDateFuncInstruction.arg(focusPhrase, formulas);
             case "<if-then-else-date-column-function>":
+                return IfThenElseDateColFuncInstruction.arg(focusPhrase, formulas);
             case "<ifnull-date-column-function>":
+                return IfNullDateColFuncInstruction.arg(focusPhrase, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

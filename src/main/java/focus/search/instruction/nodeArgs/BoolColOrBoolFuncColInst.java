@@ -30,7 +30,7 @@ public class BoolColOrBoolFuncColInst {
                 }
                 return arg;
             case "<bool-function-column>":
-                return BoolFuncColInstruction.build(focusNode.getChildren(), formulas);
+                return BoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

@@ -1,4 +1,4 @@
-package focus.search.instruction.functionInst.boolFunc;
+package focus.search.instruction.nodeArgs;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -7,21 +7,24 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
-import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
+import focus.search.instruction.functionInst.NumberFuncInstruction;
+import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.meta.Formula;
 
 import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/4/19
+ * date: 2018/4/20
  * description:
  */
-//<ifnull-bool-column-function> := ifnull ( <bool-columns> , <bool-columns> ) |
-//        ifnull ( <bool-function-column> , <bool-columns> ) |
-//        ifnull ( <bool-columns> , <bool-function-column> ) |
-//        ifnull ( <bool-function-column> , <bool-function-column> );
-public class IfNullBoolColFuncInstruction {
+//<number-function> := <number> <math-symbol> <number-columns> |
+//        <number> <math-symbol> <number> |
+//        <number-source-column> <math-symbol> <number-columns> |
+//        <number-source-column> <math-symbol> <number> |
+//        <no-number-function-column> <math-symbol> <number-columns> |
+//        <no-number-function-column> <math-symbol> <number>;
+public class BaseNumberFuncInstruction {
 
     // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
@@ -45,22 +48,32 @@ public class IfNullBoolColFuncInstruction {
         instructions.add(json2);
 
         return instructions;
+
     }
 
-
-    // 其他指令一部分
+    // 其他指令的一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
-        FocusNode param1 = focusPhrase.getFocusNodes().get(2);
-        FocusNode param2 = focusPhrase.getFocusNodes().get(4);
+        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
+        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
+        FocusNode symbol = focusPhrase.getFocusNodes().get(1);
+
         JSONObject expression = new JSONObject();
         expression.put("type", Constant.InstType.FUNCTION);
-        expression.put("name", focusPhrase.getNodeNew(0).getValue());
+        expression.put("name", symbol.getChildren().getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
-        args.add(BoolColOrBoolFuncColInst.arg(param1, formulas));
-        args.add(BoolColOrBoolFuncColInst.arg(param2, formulas));
-        expression.put("args", args);
 
+        if ("<number>".equals(param1.getValue())) {
+            args.add(NumberArg.arg(param1));
+        } else if ("<number-source-column>".equals(param1.getValue())) {
+            args.add(ColumnInstruction.build(param1.getChildren()));
+        } else if ("<no-number-function-column>".equals(param1.getValue())) {
+            args.add(NumberFuncInstruction.arg(param1.getChildren(), formulas));
+        }
+        args.add(NumberOrNumColInst.arg(param2, formulas));
+
+        expression.put("args", args);
         return expression;
+
     }
 
 }

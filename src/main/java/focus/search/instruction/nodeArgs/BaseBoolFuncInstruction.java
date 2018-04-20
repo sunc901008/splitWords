@@ -1,6 +1,8 @@
 package focus.search.instruction.nodeArgs;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
@@ -22,8 +24,19 @@ public class BaseBoolFuncInstruction {
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);
-        JSONObject res = new JSONObject();
-        return res;
+        FocusNode symbol = focusPhrase.getFocusNodes().get(1);
+
+        JSONObject expression = new JSONObject();
+        expression.put("type", Constant.InstType.FUNCTION);
+        expression.put("name", symbol.getChildren().getNodeNew(0).getValue());
+        JSONArray args = new JSONArray();
+
+        args.add(NumberOrNumColInst.arg(param1, formulas));
+        args.add(NumberOrNumColInst.arg(param2, formulas));
+
+        expression.put("args", args);
+        return expression;
+
     }
 
 }

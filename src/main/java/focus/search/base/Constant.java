@@ -121,6 +121,7 @@ public class Constant {
         public static final String TABLE_COLUMN = "tblColumn";
         public static final String FORMULA = "formula";
         public static final String COLUMN_VALUE = "columnValue";
+        public static final String FUNCTION = "function";
     }
 
 }

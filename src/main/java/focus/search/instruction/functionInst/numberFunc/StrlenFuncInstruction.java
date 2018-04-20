@@ -1,29 +1,26 @@
-package focus.search.instruction.functionInst.boolFunc;
+package focus.search.instruction.functionInst.numberFunc;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
-import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
+import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
 import focus.search.meta.Formula;
 
 import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/4/19
+ * date: 2018/4/20
  * description:
  */
-//<ifnull-bool-column-function> := ifnull ( <bool-columns> , <bool-columns> ) |
-//        ifnull ( <bool-function-column> , <bool-columns> ) |
-//        ifnull ( <bool-columns> , <bool-function-column> ) |
-//        ifnull ( <bool-function-column> , <bool-function-column> );
-public class IfNullBoolColFuncInstruction {
+//<strlen-function> := strlen ( <string-columns> ) |
+//        strlen ( <column-value> );
+public class StrlenFuncInstruction {
 
-    // 完整指令
+    // 完整指令 average
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -47,20 +44,10 @@ public class IfNullBoolColFuncInstruction {
         return instructions;
     }
 
-
     // 其他指令一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
-        FocusNode param1 = focusPhrase.getFocusNodes().get(2);
-        FocusNode param2 = focusPhrase.getFocusNodes().get(4);
-        JSONObject expression = new JSONObject();
-        expression.put("type", Constant.InstType.FUNCTION);
-        expression.put("name", focusPhrase.getNodeNew(0).getValue());
-        JSONArray args = new JSONArray();
-        args.add(BoolColOrBoolFuncColInst.arg(param1, formulas));
-        args.add(BoolColOrBoolFuncColInst.arg(param2, formulas));
-        expression.put("args", args);
-
-        return expression;
+        FocusNode param = focusPhrase.getFocusNodes().get(2);
+        return ColValueOrStringColInst.arg(param, formulas);
     }
 
 }

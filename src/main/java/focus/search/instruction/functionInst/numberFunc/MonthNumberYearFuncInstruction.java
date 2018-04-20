@@ -1,4 +1,4 @@
-package focus.search.instruction.functionInst.boolFunc;
+package focus.search.instruction.functionInst.numberFunc;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -7,23 +7,25 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
-import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
+import focus.search.instruction.sourceInst.ColumnValueInstruction;
+import focus.search.instruction.sourceInst.DateColInstruction;
 import focus.search.meta.Formula;
 
 import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/4/19
+ * date: 2018/4/20
  * description:
  */
-//<ifnull-bool-column-function> := ifnull ( <bool-columns> , <bool-columns> ) |
-//        ifnull ( <bool-function-column> , <bool-columns> ) |
-//        ifnull ( <bool-columns> , <bool-function-column> ) |
-//        ifnull ( <bool-function-column> , <bool-function-column> );
-public class IfNullBoolColFuncInstruction {
+//<month_number-function> := month_number ( <date-columns> ) |
+//        month_number ( <column-value> );
 
-    // 完整指令
+//<year-function> := year ( <date-columns> ) |
+//        year ( <column-value> );
+public class MonthNumberYearFuncInstruction {
+
+    // 完整指令 month_number / year
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -47,17 +49,19 @@ public class IfNullBoolColFuncInstruction {
         return instructions;
     }
 
-
     // 其他指令一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
-        FocusNode param1 = focusPhrase.getFocusNodes().get(2);
-        FocusNode param2 = focusPhrase.getFocusNodes().get(4);
+        FocusNode param = focusPhrase.getFocusNodes().get(2);
         JSONObject expression = new JSONObject();
         expression.put("type", Constant.InstType.FUNCTION);
         expression.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
-        args.add(BoolColOrBoolFuncColInst.arg(param1, formulas));
-        args.add(BoolColOrBoolFuncColInst.arg(param2, formulas));
+        if ("<date-columns>".equals(param.getValue())) {
+            args.add(DateColInstruction.arg(param.getChildren(), formulas));
+        } else if ("<column-value>".equals(param.getValue())) {
+            args.add(ColumnValueInstruction.arg(param));
+        }
+
         expression.put("args", args);
 
         return expression;

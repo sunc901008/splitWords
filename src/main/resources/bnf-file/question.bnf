@@ -16,12 +16,10 @@
                    <number> <bool-symbol> <number> |
                    <bool-function-column>;
 
-<top-n> := top <integer> <all-int-column> |
-           top <integer> <all-double-column> |
+<top-n> := top <integer> <number-columns> |
            top <number-columns>;
 
-<bottom-n> := bottom <integer> <all-int-column> |
-              bottom <integer> <all-double-column> |
+<bottom-n> := bottom <integer> <number-columns> |
               bottom <number-columns>;
 
 <sort-by> := sort by <all-columns> |

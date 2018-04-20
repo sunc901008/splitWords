@@ -11,9 +11,7 @@
                             <strlen-function> |
                             <number-function> |
                             <if-then-else-number-function> |
-                            <if-then-else-number-column-function> |
-                            <ifnull-number-function> |
-                            <ifnull-number-column-function>;
+                            <ifnull-number-function>;
 
 <bool-function-column> := <to_bool-function> |
                           <contains-function> |
@@ -32,13 +30,11 @@
                             <month-function> |
                             <concat-function> |
                             <substr-function> |
-                            <if-then-else-column-value-function> |
-                            <if-then-else-string-column-function> |
-                            <ifnull-column-value-function> |
-                            <ifnull-string-column-function>;
+                            <if-then-else-string-function> |
+                            <ifnull-string-function>;
 
 # number
-<average-function> := average ( <number-source-column> ) |
+<average-function> := average ( <number-columns> ) |
                       average ( <number> );
 
 # number
@@ -46,28 +42,29 @@
 
 # number
 <max-function> := max ( <all-date-column> ) |
-                  max ( <number-source-column> ) |
+                  max ( <number-columns> ) |
                   max ( <number> );
 
 # number
 <min-function> := min ( <all-date-column> ) |
-                  min ( <number-source-column> ) |
+                  min ( <number-columns> ) |
                   min ( <number> );
 
 # number
-<sum-function> := sum ( <number-source-column> ) |
+<sum-function> := sum ( <number-columns> ) |
                   sum ( <number> );
-
-# number
-<diff_days-function> := diff_days ( <column-value> , <date-columns> ) |
-                        diff_days ( <date-columns> , <date-columns> ) |
-                        diff_days ( <date-columns> , <column-value> );
 
 # number
 <to_double-function> := to_double ( <all-columns> );
 
 #number
 <to_integer-function> := to_integer ( <all-columns> );
+
+# number
+<diff_days-function> := diff_days ( <column-value> , <date-columns> ) |
+                        diff_days ( <date-columns> , <date-columns> ) |
+                        diff_days ( <date-columns> , <column-value> ) |
+                        diff_days ( <column-value> , <column-value> );
 
 # number
 <month_number-function> := month_number ( <date-columns> ) |
@@ -82,14 +79,12 @@
                      strlen ( <column-value> );
 # number
 <if-then-else-number-function> := if <bool-columns> then <number> else <number> |
-                                  if <bool-function-column> then <number> else <number>;
+                                  if <bool-function-column> then <number> else <number> |
+                                  if <bool-columns> then <number-columns> else <number-columns> |
+                                  if <bool-function-column> then <number-columns> else <number-columns>;
 # number
-<if-then-else-number-column-function> := if <bool-columns> then <number-columns> else <number-columns> |
-                                         if <bool-function-column> then <number-columns> else <number-columns>;
-# number
-<ifnull-number-function> := ifnull ( <number> , <number> );
-# number
-<ifnull-number-column-function> := ifnull ( <number-columns> , <number-columns> );
+<ifnull-number-function> := ifnull ( <number> , <number> ) |
+                            ifnull ( <number-columns> , <number-columns> );
 
 # bool
 <to_bool-function> := to_bool ( <number-columns> ) |
@@ -175,16 +170,14 @@
                      substr ( <column-value> , <integer> , <integer> );
 
 # string
-<if-then-else-column-value-function> := if <bool-columns> then <column-value> else <column-value> |
-                                        if <bool-function-column> then <column-value> else <column-value>;
-# string
-<if-then-else-string-column-function> := if <bool-columns> then <string-columns> else <string-columns> |
-                                         if <bool-function-column> then <string-columns> else <string-columns>;
+<if-then-else-string-function> := if <bool-columns> then <column-value> else <column-value> |
+                                  if <bool-function-column> then <column-value> else <column-value>|
+                                  if <bool-columns> then <string-columns> else <string-columns> |
+                                  if <bool-function-column> then <string-columns> else <string-columns>;
 
 # string
-<ifnull-column-value-function> := ifnull ( <column-value> , <column-value> );
-# string
-<ifnull-string-column-function> := ifnull ( <string-columns> , <string-columns> );
+<ifnull-string-function> := ifnull ( <column-value> , <column-value> ) |
+                            ifnull ( <string-columns> , <string-columns> );
 
 # filter number function itself
 <no-number-function-column> := <average-function> |
@@ -199,9 +192,7 @@
                             <year-function> |
                             <strlen-function> |
                             <if-then-else-number-function> |
-                            <if-then-else-number-column-function> |
-                            <ifnull-number-function> |
-                            <ifnull-number-column-function>;
+                            <ifnull-number-function>;
 
 # number # todo base
 <number-function> := <number> <math-symbol> <number-columns> |

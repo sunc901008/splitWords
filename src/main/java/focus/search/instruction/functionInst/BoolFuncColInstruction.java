@@ -34,7 +34,6 @@ public class BoolFuncColInstruction {
             case "<contains-function>":
                 return ContainsFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<and-function>":
-                return AndOrFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<or-function>":
                 return AndOrFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<if-then-else-bool-column-function>":
@@ -51,25 +50,24 @@ public class BoolFuncColInstruction {
     }
 
     // 其他指令一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_bool-function>":
-                return ToBoolFuncInstruction.build(fn.getChildren(), formulas);
+                return ToBoolFuncInstruction.arg(fn.getChildren(), formulas);
             case "<contains-function>":
-                return ContainsFuncInstruction.build(focusPhrase, formulas);
+                return ContainsFuncInstruction.arg(focusPhrase, formulas);
             case "<and-function>":
-                return AndOrFuncInstruction.build(focusPhrase, formulas);
             case "<or-function>":
-                return AndOrFuncInstruction.build(focusPhrase, formulas);
+                return AndOrFuncInstruction.arg(focusPhrase, formulas);
             case "<if-then-else-bool-column-function>":
-                return IfThenElseBoolColFuncInstruction.build(focusPhrase, formulas);
+                return IfThenElseBoolColFuncInstruction.arg(focusPhrase, formulas);
             case "<ifnull-bool-column-function>":
-                return IfNullBoolColFuncInstruction.build(focusPhrase, formulas);
+                return IfNullBoolColFuncInstruction.arg(focusPhrase, formulas);
             case "<isnull-function>":
-                return IsNullFuncInstruction.build(focusPhrase, formulas);
+                return IsNullFuncInstruction.arg(focusPhrase, formulas);
             case "<not-function>":
-                return NotFuncInstruction.build(focusPhrase, formulas);
+                return NotFuncInstruction.arg(focusPhrase, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

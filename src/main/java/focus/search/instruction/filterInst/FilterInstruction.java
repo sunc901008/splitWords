@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class FilterInstruction {
             case "<simple-filter>":
                 return SimpleFilterInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<column-value>":
-                return ColValueInstruction.build(fn.getChildren(), index, amb, formulas);
+                return ColumnValueInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

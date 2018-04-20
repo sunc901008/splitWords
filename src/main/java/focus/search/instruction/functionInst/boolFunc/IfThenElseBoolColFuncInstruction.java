@@ -2,6 +2,7 @@ package focus.search.instruction.functionInst.boolFunc;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
@@ -35,7 +36,7 @@ public class IfThenElseBoolColFuncInstruction {
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_logical_filter");
 
-        json1.put("expression", build(focusPhrase, formulas));
+        json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -52,12 +53,12 @@ public class IfThenElseBoolColFuncInstruction {
 
 
     // 其他指令一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(1);
         FocusNode param2 = focusPhrase.getFocusNodes().get(3);
         FocusNode param3 = focusPhrase.getFocusNodes().get(5);
         JSONObject expression = new JSONObject();
-        expression.put("type", "function");
+        expression.put("type", Constant.InstType.FUNCTION);
         expression.put("name", "if-expression");
         JSONArray args = new JSONArray();
         args.add(BoolColOrBoolFuncColInst.arg(param1, formulas));

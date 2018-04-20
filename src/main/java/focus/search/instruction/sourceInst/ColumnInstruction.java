@@ -11,6 +11,7 @@ import focus.search.bnf.exception.InvalidRuleException;
  */
 public class ColumnInstruction {
 
+    // todo  formula
     public static JSONObject build(FocusPhrase focusPhrase) throws InvalidRuleException {
         JSONObject json = new JSONObject();
         json.put("hasTable", false);
