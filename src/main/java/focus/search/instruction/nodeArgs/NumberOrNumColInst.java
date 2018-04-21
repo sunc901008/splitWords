@@ -20,12 +20,14 @@ public class NumberOrNumColInst {
     public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws InvalidRuleException {
         JSONObject arg = new JSONObject();
         if ("<number-columns>".equals(focusNode.getValue())) {
-            JSONObject jsonT = NumberColInstruction.build(focusNode.getChildren(), formulas);
-            String typeT = jsonT.getString("type");
+            JSONObject json = NumberColInstruction.build(focusNode.getChildren(), formulas);
+            String type = json.getString("type");
             // todo
-            if (Constant.InstType.TABLE_COLUMN.equals(typeT) || Constant.InstType.COLUMN.equals(typeT)) {
+            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
                 arg.put("type", "column");
-                arg.put("value", ((Column) jsonT.get("column")).getColumnId());
+                arg.put("value", ((Column) json.get("column")).getColumnId());
+            } else if (Constant.InstType.FUNCTION.equals(type)) {
+                arg = json.getJSONObject(Constant.InstType.FUNCTION);
             }
             return arg;
         } else if ("<number>".equals(focusNode.getValue())) {
