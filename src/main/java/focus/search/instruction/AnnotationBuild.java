@@ -18,7 +18,8 @@ import focus.search.response.search.AnnotationResponse;
 public class AnnotationBuild {
 
     public static AnnotationResponse.Datas build(FocusPhrase focusPhrase, int index, JSONObject amb) {
-        return build(focusPhrase, index, amb, null);
+        return null;
+//        return build(focusPhrase, index, amb, null);
     }
 
     public static AnnotationResponse.Datas build(FocusPhrase focusPhrase, int index, JSONObject amb, Formula formula) {

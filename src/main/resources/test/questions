@@ -19,5 +19,7 @@ users views > 5
 to_bool (3)
 to_bool (views)
 contains ( name , "abcd" )
-"focus","in","hello"
+//"focus","in","hello"
 top 4 views
+growth of age by creationdate daily year over year
+growth of standard deviation age by creationdate daily year over year

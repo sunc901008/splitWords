@@ -27,6 +27,8 @@ public class ColValueOrStringColInst {
             if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
                 arg.put("type", "column");
                 arg.put("value", ((Column) json.get("column")).getColumnId());
+            } else if (Constant.InstType.FUNCTION.equals(type)) {
+                arg = json.getJSONObject(Constant.InstType.FUNCTION);
             }
             return arg;
         }

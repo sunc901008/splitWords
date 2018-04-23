@@ -31,7 +31,7 @@ public class DiffDaysFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", "add_expression");
 
         json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
@@ -65,7 +65,7 @@ public class DiffDaysFuncInstruction {
         }
 
         if ("<column-value>".equals(param2.getValue())) {
-            args.add(ColumnValueInstruction.arg(param1));
+            args.add(ColumnValueInstruction.arg(param2));
         } else {//<date-columns>
             args.add(DateColInstruction.arg(param2.getChildren(), formulas));
         }

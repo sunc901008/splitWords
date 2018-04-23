@@ -33,7 +33,7 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-        search(-1);
+        search(0, 100);
 
 //        focusPhraseTest();
 
@@ -60,8 +60,8 @@ public class Home {
     }
 
 
-    // params:  index 需要执行的questions文件中的question行号，为0时执行所有
-    private static void search(int index) throws IOException, InvalidRuleException {
+    // params:  start 需要执行的questions文件中的起始行号，为0时执行所有, length 执行的行数
+    private static void search(int start, int length) throws IOException, InvalidRuleException {
         ResourceLoader resolver = new DefaultResourceLoader();
         BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
         String search;
@@ -69,13 +69,19 @@ public class Home {
         int i = 0;
         while ((search = br.readLine()) != null) {
             i++;
+            if (search.startsWith("\\"))
+                continue;
             last = search;
-            if (index == 0 || i == index) {
+            if (start == 0 || i >= start) {
                 test(search);
                 System.out.println();
+                length--;
+            }
+            if (length == 0) {
+                break;
             }
         }
-        if (index < 0) {
+        if (start < 0) {
             test(last);
         }
 
@@ -247,11 +253,13 @@ public class Home {
         System.out.println(focusInst.toJSON());
         System.out.println("-------------------");
         String q = search;
+        boolean over = false;
         if (focusInst.position >= 0) {
+            over = true;
             q = q + "  |  " + focusInst.position + ":" + tokens.get(focusInst.position).getWord();
         }
         System.out.println(q);
-        if (tokens.size() > 0) {
+        if (over) {
             return;
         }
 
@@ -288,6 +296,8 @@ public class Home {
                 // Annotations
                 AnnotationResponse annotationResponse = new AnnotationResponse(search);
                 JSONArray instructions = json.getJSONArray("instructions");
+                print(instructions);
+                /*
                 for (int i = 0; i < instructions.size(); i++) {
                     JSONObject instruction = instructions.getJSONObject(i);
                     if (instruction.getString("instId").equals("annotation")) {
@@ -296,6 +306,7 @@ public class Home {
                     }
                 }
                 System.out.println(annotationResponse.response());
+                */
 
             }
         } else {//  出错

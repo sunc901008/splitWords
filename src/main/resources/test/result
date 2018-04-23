@@ -1,0 +1,199 @@
+[
+{
+ 	"question": " 5+8*2",
+ 	"instructions": [{
+ 		"instId": "add_logical_filter",
+ 		"expression": {
+ 			"args": [{
+ 				"type": "number",
+ 				"value": 5
+ 			},
+ 			{
+ 				"args": [{
+ 					"type": "number",
+ 					"value": 8
+ 				},
+ 				{
+ 					"type": "number",
+ 					"value": 2
+ 				}],
+ 				"name": "*",
+ 				"type": "function"
+ 			}],
+ 			"name": "+",
+ 			"type": "function"
+ 		},
+ 		"annotationId": [1]
+ 	},
+ 	{
+ 		"instId": "annotation",
+ 		"annotationId": [1]
+ 	}]
+},
+{
+	"question": "views > 5 1+5",
+	"instructions": [{
+		"instId": "add_logical_filter",
+		"expression": {
+			"args": [{
+				"type": "column",
+				"value": 14
+			},
+			{
+				"type": "number",
+				"value": 5
+			}],
+			"name": ">",
+			"type": ""
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	},
+	{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"type": "number",
+				"value": 1
+			},
+			{
+				"type": "number",
+				"value": 5
+			}],
+			"name": "+",
+			"type": "function"
+		},
+		"annotationId": [2]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [2]
+	}]
+},
+{
+	"question": "1+5",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"type": "number",
+				"value": 1
+			},
+			{
+				"type": "number",
+				"value": 5
+			}],
+			"name": "+",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "count ( views )",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"column": 14,
+				"type": "column"
+			}],
+			"name": "count",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "strlen("focus") > 5",
+	"instructions": [{
+		"instId": "add_logical_filter",
+		"expression": {
+			"args": [{
+				"args": [{
+					"type": "columnValue",
+					"value": "focus"
+				}],
+				"name": "strlen",
+				"type": "function"
+			},
+			{
+				"type": "number",
+				"value": 5
+			}],
+			"name": ">",
+			"type": ""
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "views + 5+views",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"column": 14,
+				"type": "column"
+			},
+			{
+				"args": [{
+					"type": "number",
+					"value": 5
+				},
+				{
+					"type": "column",
+					"value": 14
+				}],
+				"name": "+",
+				"type": "function"
+			}],
+			"name": "+",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "views > 5",
+	"instructions": [{
+		"instId": "add_logical_filter",
+		"expression": {
+			"args": [{
+				"type": "column",
+				"value": 14
+			},
+			{
+				"type": "number",
+				"value": 5
+			}],
+			"name": ">",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+}
+]

@@ -73,30 +73,30 @@ public class NumberFuncInstruction {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<average-function>":
-                return AverageFuncInstruction.arg(focusPhrase, formulas);
+                return AverageFuncInstruction.arg(fn.getChildren(), formulas);
             case "<count-function>":
-                return CountFuncInstruction.arg(focusPhrase, formulas);
+                return CountFuncInstruction.arg(fn.getChildren(), formulas);
             case "<max-function>":
             case "<min-function>":
-                return MaxMinFuncInstruction.arg(focusPhrase, formulas);
+                return MaxMinFuncInstruction.arg(fn.getChildren(), formulas);
             case "<sum-function>":
-                return SumFuncInstruction.arg(focusPhrase, formulas);
+                return SumFuncInstruction.arg(fn.getChildren(), formulas);
             case "<to_double-function>":
             case "<to_integer-function>":
-                return ToIntegerDoubleFuncInstruction.arg(focusPhrase, formulas);
+                return ToIntegerDoubleFuncInstruction.arg(fn.getChildren(), formulas);
             case "<diff_days-function>":
-                return DiffDaysFuncInstruction.arg(focusPhrase, formulas);
+                return DiffDaysFuncInstruction.arg(fn.getChildren(), formulas);
             case "<month_number-function>":
             case "<year-function>":
-                return MonthNumberYearFuncInstruction.arg(focusPhrase, formulas);
+                return MonthNumberYearFuncInstruction.arg(fn.getChildren(), formulas);
             case "<strlen-function>":
-                return StrlenFuncInstruction.arg(focusPhrase, formulas);
+                return StrlenFuncInstruction.arg(fn.getChildren(), formulas);
             case "<number-function>":
-                return BaseNumberFuncInstruction.arg(focusPhrase, formulas);
+                return BaseNumberFuncInstruction.arg(fn.getChildren(), formulas);
             case "<if-then-else-number-function>":
-                return IfThenElseNumberColFuncInstruction.arg(focusPhrase, formulas);
+                return IfThenElseNumberColFuncInstruction.arg(fn.getChildren(), formulas);
             case "<ifnull-number-function>":
-                return IfNullNumberColFuncInstruction.arg(focusPhrase, formulas);
+                return IfNullNumberColFuncInstruction.arg(fn.getChildren(), formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

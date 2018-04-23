@@ -34,10 +34,10 @@ public class BoolColInstruction {
             Column column = (Column) json.get("column");
             json1.put("column", column.getColumnId());
             // 根据列类型发送指令
-            if (Constant.ColumnType.ATTRIBUTE.equals(column.getColumnType())) {
-                json1.put("instId", "add_column_for_group");
-            } else {
+            if (Constant.ColumnType.MEASURE.equals(column.getColumnType())) {
                 json1.put("instId", "add_column_for_measure");
+            } else {
+                json1.put("instId", "add_column_for_group");
             }
         }
         instructions.add(json1);

@@ -132,7 +132,7 @@ public class AndOrFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", "add_expression");
 
         json1.put("expression", noOrAndBoolFuncColBuild(focusPhrase, formulas));
         instructions.add(json1);
@@ -157,7 +157,7 @@ public class AndOrFuncInstruction {
 
         JSONObject expression = new JSONObject();
         expression.put("type", Constant.InstType.FUNCTION);
-        expression.put("name", symbol.getChildren().getNodeNew(0).getValue());
+        expression.put("name", symbol.isHasChild() ? symbol.getChildren().getNodeNew(0).getValue() : symbol.getValue());
         JSONArray args = new JSONArray();
 
         args.add(NoOrAndBoolFuncColInstruction.arg(param1.getChildren(), formulas));

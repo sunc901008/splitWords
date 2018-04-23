@@ -44,7 +44,6 @@ public class FocusPhrase {
         this.focusNodes = focusNodes;
     }
 
-    // todo
     public FocusNode getFirstNode() {
         return allNode().get(0);
     }

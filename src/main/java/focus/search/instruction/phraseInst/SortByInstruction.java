@@ -47,7 +47,7 @@ public class SortByInstruction {
         json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
         instructions.add(json2);
 
-        instructions.addAll(NumberColInstruction.build(param.getChildren(), index + 1, amb, formulas));
+        instructions.addAll(AllColumnsInstruction.build(param.getChildren(), index + 1, amb, formulas));
 
         return instructions;
 

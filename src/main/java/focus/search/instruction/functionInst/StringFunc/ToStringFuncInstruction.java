@@ -29,7 +29,7 @@ public class ToStringFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", "add_expression");
 
         json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);

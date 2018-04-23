@@ -9,6 +9,7 @@ import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.instruction.sourceInst.ColumnInstruction;
+import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class BaseNumberFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", "add_expression");
 
         json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
@@ -65,7 +66,11 @@ public class BaseNumberFuncInstruction {
         if ("<number>".equals(param1.getValue())) {
             args.add(NumberArg.arg(param1));
         } else if ("<number-source-column>".equals(param1.getValue())) {
-            args.add(ColumnInstruction.build(param1.getChildren()));
+            JSONObject arg1 = new JSONObject();
+            JSONObject json = ColumnInstruction.build(param1.getChildren());
+            arg1.put("type", Constant.InstType.COLUMN);
+            arg1.put("column", ((Column) json.get("column")).getColumnId());
+            args.add(arg1);
         } else if ("<no-number-function-column>".equals(param1.getValue())) {
             args.add(NumberFuncInstruction.arg(param1.getChildren(), formulas));
         }

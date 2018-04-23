@@ -2,6 +2,7 @@ package focus.search.instruction.functionInst.numberFunc;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
@@ -20,14 +21,14 @@ import java.util.List;
 //        strlen ( <column-value> );
 public class StrlenFuncInstruction {
 
-    // 完整指令 average
+    // 完整指令 strlen
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", "add_expression");
 
         json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
@@ -47,7 +48,17 @@ public class StrlenFuncInstruction {
     // 其他指令一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode param = focusPhrase.getFocusNodes().get(2);
-        return ColValueOrStringColInst.arg(param, formulas);
+
+        JSONObject arg = new JSONObject();
+        arg.put("type", Constant.InstType.FUNCTION);
+        arg.put("name", focusPhrase.getNodeNew(0).getValue());
+        JSONArray args = new JSONArray();
+
+        args.add(ColValueOrStringColInst.arg(param, formulas));
+
+        arg.put("args", args);
+        return arg;
+
     }
 
 }

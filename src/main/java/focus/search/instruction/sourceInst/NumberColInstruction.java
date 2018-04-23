@@ -8,6 +8,7 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.AnnotationBuild;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
+import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -22,7 +23,6 @@ import java.util.List;
 //        <number-function-column>;
 public class NumberColInstruction {
 
-    // todo
     // 完整指令 columns
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
@@ -30,9 +30,26 @@ public class NumberColInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", "add_expression");
 
-        json1.put("expression", build(focusPhrase, formulas));
+        JSONObject expression = new JSONObject();
+        JSONObject json = build(focusPhrase, formulas);
+        String type = json.getString("type");
+        // todo
+        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
+            expression.put("type", "column");
+            Column column = (Column) json.get("column");
+            expression.put("value", column.getColumnId());
+            if (Constant.ColumnType.MEASURE.equals(column.getColumnType())) {
+                json1.put("instId", "add_column_for_measure");
+            } else {
+                json1.put("instId", "add_column_for_group");
+            }
+        } else if (Constant.InstType.FUNCTION.equals(type)) {
+            expression = json.getJSONObject(Constant.InstType.FUNCTION);
+        }
+
+        json1.put("expression", expression);
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();

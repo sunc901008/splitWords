@@ -2,6 +2,7 @@ package focus.search.instruction.filterInst;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
@@ -38,7 +39,7 @@ public class FilterNumOrNumColInstruction {
         json1.put("instId", "add_logical_filter");
 
         JSONObject expression = new JSONObject();
-        expression.put("type", "");
+        expression.put("type", Constant.InstType.FUNCTION);
         JSONArray args = new JSONArray();
 
         expression.put("name", symbol.getChildren().getNodeNew(0).getValue());

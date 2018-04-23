@@ -32,18 +32,18 @@ public class BoolFuncColInstruction {
             case "<to_bool-function>":
                 return ToBoolFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<contains-function>":
-                return ContainsFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return ContainsFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<and-function>":
             case "<or-function>":
-                return AndOrFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return AndOrFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<if-then-else-bool-column-function>":
-                return IfThenElseBoolColFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IfThenElseBoolColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<ifnull-bool-column-function>":
-                return IfNullBoolColFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IfNullBoolColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<isnull-function>":
-                return IsNullFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IsNullFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<not-function>":
-                return NotFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return NotFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

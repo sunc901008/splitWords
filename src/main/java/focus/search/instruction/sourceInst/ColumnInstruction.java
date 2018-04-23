@@ -15,7 +15,17 @@ public class ColumnInstruction {
     public static JSONObject build(FocusPhrase focusPhrase) throws InvalidRuleException {
         JSONObject json = new JSONObject();
         json.put("hasTable", false);
-        if (focusPhrase.getFocusNodes().get(0).getValue().contains("table")) {
+        if (focusPhrase.size() > 1) {
+            json.put("hasTable", true);
+        }
+        json.put("column", focusPhrase.getLastNode().getColumn());
+        return json;
+    }
+
+    public static JSONObject arg(FocusPhrase focusPhrase) throws InvalidRuleException {
+        JSONObject json = new JSONObject();
+        json.put("hasTable", false);
+        if (focusPhrase.size() > 1) {
             json.put("hasTable", true);
         }
         json.put("column", focusPhrase.getLastNode().getColumn());

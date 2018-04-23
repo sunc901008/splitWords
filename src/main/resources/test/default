@@ -1,0 +1,439 @@
+[
+{
+	"question": " 5+8*2",
+	"command": {
+		"source": "searchUser",
+		"question": " 5+8*2",
+		"sourceToken": "3dc2322b-a9c1-4d76-865e-0a6282cb35be",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_expression\",\"category\":\"question\",\"name\":\"5+8*2\",\"expression\":{\"type\":\"function\",\"name\":\"+\",\"args\":[{\"type\":\"number\",\"value\":5},{\"type\":\"function\",\"name\":\"*\",\"args\":[{\"type\":\"number\",\"value\":8},{\"type\":\"number\",\"value\":2}]}]}},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"expression\",\"begin\":0,\"end\":6,\"tokens\":[{\"type\":\"integer\",\"value\":5,\"begin\":0,\"end\":2},{\"type\":\"punctuationMark\",\"value\":\"+\",\"begin\":2,\"end\":3},{\"type\":\"integer\",\"value\":8,\"begin\":3,\"end\":4},{\"type\":\"punctuationMark\",\"value\":\"*\",\"begin\":4,\"end\":5},{\"isExpressionEnd\":true,\"type\":\"integer\",\"value\":2,\"begin\":5,\"end\":6}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_expression",
+		"category": "question",
+		"name": "5+8*2",
+		"expression": {
+			"type": "function",
+			"name": "+",
+			"args": [{
+				"type": "number",
+				"value": 5
+			},
+			{
+				"type": "function",
+				"name": "*",
+				"args": [{
+					"type": "number",
+					"value": 8
+				},
+				{
+					"type": "number",
+					"value": 2
+				}]
+			}]
+		}
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "expression",
+			"begin": 0,
+			"end": 6,
+			"tokens": [{
+				"type": "integer",
+				"value": 5,
+				"begin": 0,
+				"end": 2
+			},
+			{
+				"type": "punctuationMark",
+				"value": "+",
+				"begin": 2,
+				"end": 3
+			},
+			{
+				"type": "integer",
+				"value": 8,
+				"begin": 3,
+				"end": 4
+			},
+			{
+				"type": "punctuationMark",
+				"value": "*",
+				"begin": 4,
+				"end": 5
+			},
+			{
+				"isExpressionEnd": true,
+				"type": "integer",
+				"value": 2,
+				"begin": 5,
+				"end": 6
+			}]
+		}
+	}]
+},
+{
+	"question": "views > 5 1+5",
+	"command": {
+		"source": "searchUser",
+		"question": "views > 5 1+5",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_simple_filter\",\"column\":7,\"operator\":\">\",\"value\":5},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"filter\",\"id\":1,\"category\":\"floatFilter\",\"begin\":0,\"end\":9,\"tokens\":[{\"description\":\"column <b>views<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"views\",\"columnId\":7,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"views\"],\"value\":\"views\",\"begin\":0,\"end\":5},{\"type\":\"punctuationMark\",\"value\":\">\",\"begin\":5,\"end\":7},{\"type\":\"integer\",\"value\":5,\"begin\":7,\"end\":9}]}},{\"annotationId\":[2],\"instId\":\"add_expression\",\"category\":\"question\",\"name\":\"1+5\",\"expression\":{\"type\":\"function\",\"name\":\"+\",\"args\":[{\"type\":\"number\",\"value\":1},{\"type\":\"number\",\"value\":5}]}},{\"annotationId\":[2],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":2,\"category\":\"expression\",\"begin\":9,\"end\":13,\"tokens\":[{\"type\":\"integer\",\"value\":1,\"begin\":9,\"end\":11},{\"type\":\"punctuationMark\",\"value\":\"+\",\"begin\":11,\"end\":12},{\"isExpressionEnd\":true,\"type\":\"integer\",\"value\":5,\"begin\":12,\"end\":13}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_simple_filter",
+		"column": 7,
+		"operator": ">",
+		"value": 5
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "filter",
+			"id": 1,
+			"category": "floatFilter",
+			"begin": 0,
+			"end": 9,
+			"tokens": [{
+				"description": "column <b>views<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "views",
+				"columnId": 7,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["views"],
+				"value": "views",
+				"begin": 0,
+				"end": 5
+			},
+			{
+				"type": "punctuationMark",
+				"value": ">",
+				"begin": 5,
+				"end": 7
+			},
+			{
+				"type": "integer",
+				"value": 5,
+				"begin": 7,
+				"end": 9
+			}]
+		}
+	},
+	{
+		"annotationId": [2],
+		"instId": "add_expression",
+		"category": "question",
+		"name": "1+5",
+		"expression": {
+			"type": "function",
+			"name": "+",
+			"args": [{
+				"type": "number",
+				"value": 1
+			},
+			{
+				"type": "number",
+				"value": 5
+			}]
+		}
+	},
+	{
+		"annotationId": [2],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 2,
+			"category": "expression",
+			"begin": 9,
+			"end": 13,
+			"tokens": [{
+				"type": "integer",
+				"value": 1,
+				"begin": 9,
+				"end": 11
+			},
+			{
+				"type": "punctuationMark",
+				"value": "+",
+				"begin": 11,
+				"end": 12
+			},
+			{
+				"isExpressionEnd": true,
+				"type": "integer",
+				"value": 5,
+				"begin": 12,
+				"end": 13
+			}]
+		}
+	}]
+},
+{
+	"question": " 1+5",
+	"command": {
+		"source": "searchUser",
+		"question": " 1+5",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_expression\",\"category\":\"question\",\"name\":\"1+5\",\"expression\":{\"type\":\"function\",\"name\":\"+\",\"args\":[{\"type\":\"number\",\"value\":1},{\"type\":\"number\",\"value\":5}]}},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"expression\",\"begin\":0,\"end\":4,\"tokens\":[{\"type\":\"integer\",\"value\":1,\"begin\":0,\"end\":2},{\"type\":\"punctuationMark\",\"value\":\"+\",\"begin\":2,\"end\":3},{\"isExpressionEnd\":true,\"type\":\"integer\",\"value\":5,\"begin\":3,\"end\":4}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_expression",
+		"category": "question",
+		"name": "1+5",
+		"expression": {
+			"type": "function",
+			"name": "+",
+			"args": [{
+				"type": "number",
+				"value": 1
+			},
+			{
+				"type": "number",
+				"value": 5
+			}]
+		}
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "expression",
+			"begin": 0,
+			"end": 4,
+			"tokens": [{
+				"type": "integer",
+				"value": 1,
+				"begin": 0,
+				"end": 2
+			},
+			{
+				"type": "punctuationMark",
+				"value": "+",
+				"begin": 2,
+				"end": 3
+			},
+			{
+				"isExpressionEnd": true,
+				"type": "integer",
+				"value": 5,
+				"begin": 3,
+				"end": 4
+			}]
+		}
+	}]
+},
+{
+	"question": "count ( views )",
+	"command": {
+		"source": "searchUser",
+		"question": "count ( views )",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_expression\",\"category\":\"question\",\"name\":\"count ( views )\",\"expression\":{\"type\":\"function\",\"name\":\"count\",\"args\":[{\"type\":\"column\",\"value\":7}]}},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"expression\",\"begin\":0,\"end\":15,\"tokens\":[{\"type\":\"symbol\",\"value\":\"count\",\"begin\":0,\"end\":5},{\"type\":\"punctuationMark\",\"value\":\"(\",\"begin\":5,\"end\":7},{\"description\":\"column <b>views<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"views\",\"columnId\":7,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"views\"],\"value\":\"views\",\"begin\":7,\"end\":13},{\"isExpressionEnd\":true,\"type\":\"punctuationMark\",\"value\":\")\",\"begin\":13,\"end\":15}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_expression",
+		"category": "question",
+		"name": "count ( views )",
+		"expression": {
+			"type": "function",
+			"name": "count",
+			"args": [{
+				"type": "column",
+				"value": 7
+			}]
+		}
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "expression",
+			"begin": 0,
+			"end": 15,
+			"tokens": [{
+				"type": "symbol",
+				"value": "count",
+				"begin": 0,
+				"end": 5
+			},
+			{
+				"type": "punctuationMark",
+				"value": "(",
+				"begin": 5,
+				"end": 7
+			},
+			{
+				"description": "column <b>views<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "views",
+				"columnId": 7,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["views"],
+				"value": "views",
+				"begin": 7,
+				"end": 13
+			},
+			{
+				"isExpressionEnd": true,
+				"type": "punctuationMark",
+				"value": ")",
+				"begin": 13,
+				"end": 15
+			}]
+		}
+	}]
+},
+{
+	"question": "views + 5+views",
+	"command": {
+		"source": "searchUser",
+		"question": "views + 5+views",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_expression\",\"category\":\"question\",\"name\":\"views + 5+views\",\"expression\":{\"type\":\"function\",\"name\":\"+\",\"args\":[{\"type\":\"function\",\"name\":\"+\",\"args\":[{\"type\":\"column\",\"value\":7},{\"type\":\"number\",\"value\":5}]},{\"type\":\"column\",\"value\":7}]}},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"expression\",\"begin\":0,\"end\":15,\"tokens\":[{\"description\":\"column <b>views<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"views\",\"columnId\":7,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"views\"],\"value\":\"views\",\"begin\":0,\"end\":5},{\"type\":\"punctuationMark\",\"value\":\"+\",\"begin\":5,\"end\":7},{\"type\":\"integer\",\"value\":5,\"begin\":7,\"end\":9},{\"type\":\"punctuationMark\",\"value\":\"+\",\"begin\":9,\"end\":10},{\"description\":\"column <b>views<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"views\",\"columnId\":7,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"views\"],\"value\":\"views\",\"begin\":10,\"end\":15}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_expression",
+		"category": "question",
+		"name": "views + 5+views",
+		"expression": {
+			"type": "function",
+			"name": "+",
+			"args": [{
+				"type": "function",
+				"name": "+",
+				"args": [{
+					"type": "column",
+					"value": 7
+				},
+				{
+					"type": "number",
+					"value": 5
+				}]
+			},
+			{
+				"type": "column",
+				"value": 7
+			}]
+		}
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "expression",
+			"begin": 0,
+			"end": 15,
+			"tokens": [{
+				"description": "column <b>views<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "views",
+				"columnId": 7,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["views"],
+				"value": "views",
+				"begin": 0,
+				"end": 5
+			},
+			{
+				"type": "punctuationMark",
+				"value": "+",
+				"begin": 5,
+				"end": 7
+			},
+			{
+				"type": "integer",
+				"value": 5,
+				"begin": 7,
+				"end": 9
+			},
+			{
+				"type": "punctuationMark",
+				"value": "+",
+				"begin": 9,
+				"end": 10
+			},
+			{
+				"description": "column <b>views<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "views",
+				"columnId": 7,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["views"],
+				"value": "views",
+				"begin": 10,
+				"end": 15
+			}]
+		}
+	}]
+},
+{
+	"question": "views > 5",
+	"command": {
+		"source": "searchUser",
+		"question": "views > 5",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_simple_filter\",\"column\":7,\"operator\":\">\",\"value\":5},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"filter\",\"id\":1,\"category\":\"floatFilter\",\"begin\":0,\"end\":9,\"tokens\":[{\"description\":\"column <b>views<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"views\",\"columnId\":7,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"views\"],\"value\":\"views\",\"begin\":0,\"end\":5},{\"type\":\"punctuationMark\",\"value\":\">\",\"begin\":5,\"end\":7},{\"type\":\"integer\",\"value\":5,\"begin\":7,\"end\":9}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_simple_filter",
+		"column": 7,
+		"operator": ">",
+		"value": 5
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "filter",
+			"id": 1,
+			"category": "floatFilter",
+			"begin": 0,
+			"end": 9,
+			"tokens": [{
+				"description": "column <b>views<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "views",
+				"columnId": 7,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["views"],
+				"value": "views",
+				"begin": 0,
+				"end": 5
+			},
+			{
+				"type": "punctuationMark",
+				"value": ">",
+				"begin": 5,
+				"end": 7
+			},
+			{
+				"type": "integer",
+				"value": 5,
+				"begin": 7,
+				"end": 9
+			}]
+		}
+	}]
+}
+]

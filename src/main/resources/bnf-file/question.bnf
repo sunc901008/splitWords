@@ -26,10 +26,21 @@
              sort by <all-columns> desc |
              sort by <all-columns> asc;
 
-<growth-of> := growth of <number-columns> by <date-columns> |
-               growth of <number-columns> by <date-columns> <year-over-year> |
-               growth of <number-columns> by <date-columns> <growth-of-by-date-interval> |
-               growth of <number-columns> by <date-columns> <growth-of-by-date-interval> <year-over-year>;
+<growth-of> := growth of <growth-of-measure> by <all-date-column> |
+               growth of <growth-of-measure> by <all-date-column> <year-over-year> |
+               growth of <growth-of-measure> by <all-date-column> <growth-of-by-date-interval> |
+               growth of <growth-of-measure> by <all-date-column> <growth-of-by-date-interval> <year-over-year>;
+
+<growth-of-measure> := <number-source-column> |
+                       <growth-of-measure-operation> <number-source-column>;
+<growth-of-measure-operation> := sum |
+                                 average |
+                                 count |
+                                 max |
+                                 min |
+                                 standard deviation |
+                                 unique count |
+                                 variance;
 
 <growth-of-by-date-interval> := daily |
                                 weekly |

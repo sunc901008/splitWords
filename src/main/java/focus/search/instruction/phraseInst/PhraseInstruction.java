@@ -25,13 +25,12 @@ public class PhraseInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
-            case "<top-n> ":
-            case "<bottom-n> ":
+            case "<top-n>":
+            case "<bottom-n>":
                 return TopBottomInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<sort-by>":
                 return SortByInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<growth-of>":
-                // todo
                 return GrowthOfInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<all-columns>":
                 return AllColumnsInstruction.build(fn.getChildren(), index, amb, formulas);
