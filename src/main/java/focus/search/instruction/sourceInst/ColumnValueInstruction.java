@@ -29,7 +29,7 @@ public class ColumnValueInstruction {
         FocusPhrase fp = focusNode.getChildren();
         // todo 多个columnValue
         for (int i = 1; i < fp.size(); i = i + 4) {
-            arg.put("type", Constant.InstType.COLUMN_VALUE);
+            arg.put("type", Constant.InstType.STRING);
             arg.put("value", fp.getNodeNew(i).getValue());
         }
         return arg;

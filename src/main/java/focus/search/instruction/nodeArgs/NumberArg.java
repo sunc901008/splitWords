@@ -21,7 +21,7 @@ public class NumberArg {
         } else {
             number = Float.parseFloat(numberNode.getValue());
         }
-        arg.put("type", "number");
+        arg.put("type", Constant.InstType.NUMBER);
         arg.put("value", number);
         return arg;
     }

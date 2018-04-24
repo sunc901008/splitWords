@@ -3,6 +3,7 @@ package focus.search;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
@@ -33,32 +34,43 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-        search(0, 100);
-
-//        focusPhraseTest();
-
-//        FocusPhrase f = makeFp();
-//        System.out.println(f.toJSON());
-//        formulaTest(f);
-
-
-//        String search = "5+8*2";
-//        String search = "strlen(\"focus\")";
-
-//        List<FocusToken> tokens = focusAnalyzer.test(search, "english");
-//
-//        System.out.println(JSON.toJSONString(tokens));
-//
-//        tokens = MergeToken.mergeUserInput(tokens, search);
-//
-//        System.out.println(JSON.toJSONString(tokens));
-
-//
-//        formulaTest(makeFp());
-
-
+        search(28, 4);
+//        split(18, 1);
+//        split(",>");
     }
 
+    private static void split(String search) throws IOException {
+        FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
+        List<FocusToken> tokens = focusAnalyzer.test(search, "chinese");
+        print(JSONArray.toJSONString(tokens));
+    }
+
+    private static void split(int start, int length) throws IOException, InvalidRuleException {
+        ResourceLoader resolver = new DefaultResourceLoader();
+        BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
+        String search;
+        String last = null;
+        int i = 0;
+        while ((search = br.readLine()) != null) {
+            i++;
+            if (search.startsWith("//"))
+                continue;
+            last = search;
+            if (start == 0 || i >= start) {
+                split(search);
+                System.out.println();
+                length--;
+            }
+            if (length == 0) {
+                break;
+            }
+        }
+        if (start < 0) {
+            split(last);
+        }
+
+        br.close();
+    }
 
     // params:  start 需要执行的questions文件中的起始行号，为0时执行所有, length 执行的行数
     private static void search(int start, int length) throws IOException, InvalidRuleException {
@@ -69,7 +81,7 @@ public class Home {
         int i = 0;
         while ((search = br.readLine()) != null) {
             i++;
-            if (search.startsWith("\\"))
+            if (search.startsWith("//"))
                 continue;
             last = search;
             if (start == 0 || i >= start) {
@@ -188,7 +200,7 @@ public class Home {
         System.out.println(fp.toJSON());
         System.out.println(formulaObj.toString());
 
-        FormulaResponse.Datas datas = new FormulaResponse.Datas();
+        FormulaDatas datas = new FormulaDatas();
         datas.settings = FormulaAnalysis.getSettings(formulaObj);
         datas.formulaObj = formulaObj.toString();
         response.setDatas(datas);
@@ -268,13 +280,13 @@ public class Home {
             FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
             if (focusPhrase.isSuggestion()) {// 出入不完整
                 SuggestionResponse response = new SuggestionResponse(search);
-                SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
+                SuggestionDatas datas = new SuggestionDatas();
                 JSONObject json = SuggestionBuild.sug(tokens, focusInst);
                 datas.beginPos = json.getInteger("position");
                 datas.phraseBeginPos = datas.beginPos;
                 List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
                 focusNodes.forEach(node -> {
-                    SuggestionResponse.Suggestions suggestion = new SuggestionResponse.Suggestions();
+                    SuggestionSuggestions suggestion = new SuggestionSuggestions();
                     suggestion.suggestion = node.getValue();
                     suggestion.suggestionType = node.getType();
                     if (Constant.FNDType.TABLE.equalsIgnoreCase(node.getType())) {
@@ -302,7 +314,7 @@ public class Home {
                     JSONObject instruction = instructions.getJSONObject(i);
                     if (instruction.getString("instId").equals("annotation")) {
                         String content = instruction.getString("content");
-                        annotationResponse.datas.add(JSONObject.parseObject(content, AnnotationResponse.Datas.class));
+                        annotationResponse.datas.add(JSONObject.parseObject(content, AnnotationResponse.AnnotationDatas.class));
                     }
                 }
                 System.out.println(annotationResponse.response());
@@ -312,7 +324,7 @@ public class Home {
         } else {//  出错
             IllegalResponse response = new IllegalResponse(search);
             int strPosition = tokens.get(focusInst.position).getStart();
-            IllegalResponse.Datas datas = new IllegalResponse.Datas();
+            IllegalDatas datas = new IllegalDatas();
             datas.beginPos = strPosition;
             StringBuilder reason = new StringBuilder();
             List<FocusNode> focusNodes = SuggestionBuild.sug(focusInst.position, focusInst);

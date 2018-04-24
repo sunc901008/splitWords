@@ -4,9 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationFormulaToken;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.response.search.AmbiguityDatas;
 import focus.search.response.search.AmbiguityResponse;
 import focus.search.response.search.AnnotationResponse;
 
@@ -15,15 +19,15 @@ import focus.search.response.search.AnnotationResponse;
  * date: 2018/3/9
  * description:
  */
-public class AnnotationBuild {
+public class AnnotationBuild_bak {
 
-    public static AnnotationResponse.Datas build(FocusPhrase focusPhrase, int index, JSONObject amb) {
+    public static AnnotationDatas build(FocusPhrase focusPhrase, int index, JSONObject amb) {
         return null;
 //        return build(focusPhrase, index, amb, null);
     }
 
-    public static AnnotationResponse.Datas build(FocusPhrase focusPhrase, int index, JSONObject amb, Formula formula) {
-        AnnotationResponse.Datas datas = new AnnotationResponse.Datas();
+    public static AnnotationDatas build(FocusPhrase focusPhrase, int index, JSONObject amb, Formula formula) {
+        AnnotationDatas datas = new AnnotationDatas();
         datas.id = index;
         datas.begin = focusPhrase.getFirstNode().getBegin();
         datas.end = focusPhrase.getLastNode().getEnd();
@@ -41,7 +45,7 @@ public class AnnotationBuild {
                 datas.tokens.add(singleFormula(focusPhrase.getFirstNode(), formula));
             } else {
                 datas.category = "column";
-                datas.tokens.add(singleColumn(focusPhrase, hasTable, colPosition, amb));
+//                datas.tokens.add(singleColumn(focusPhrase, hasTable, colPosition, amb));
             }
 
             return datas;
@@ -55,8 +59,8 @@ public class AnnotationBuild {
             if (focusPhrase.getNode(colPosition - 1).getType().equals(Constant.FNDType.TABLE)) {
                 hasTable = true;
             }
-            AnnotationResponse.Tokens token = singleColumn(focusPhrase, hasTable, colPosition, amb);
-            datas.tokens.add(token);
+//            AnnotationResponse.AnnotationToken token = singleColumn(focusPhrase, hasTable, colPosition, amb);
+//            datas.tokens.add(token);
             return datas;
         }
         if (instName.equals("<simple-filter>")) {
@@ -69,11 +73,11 @@ public class AnnotationBuild {
                 hasTable = true;
                 colPosition = 1;
             }
-            AnnotationResponse.Tokens token1 = singleColumn(focusPhrase, hasTable, colPosition, amb);
+            AnnotationToken token1 = singleColumn(focusPhrase, hasTable, colPosition, amb);
             datas.tokens.add(token1);
 
             FocusNode operatorNode = focusPhrase.getNode(++colPosition);
-            AnnotationResponse.Tokens token2 = new AnnotationResponse.Tokens();
+            AnnotationToken token2 = new AnnotationToken();
             token2.type = operatorNode.getType();
             token2.value = operatorNode.getValue();
             token2.begin = operatorNode.getBegin();
@@ -81,7 +85,7 @@ public class AnnotationBuild {
             datas.tokens.add(token2);
 
             FocusNode numberNode = focusPhrase.getNode(++colPosition);
-            AnnotationResponse.Tokens token3 = new AnnotationResponse.Tokens();
+            AnnotationToken token3 = new AnnotationToken();
             token3.type = numberNode.getType();
             token3.value = numberNode.getValue();
             token3.begin = numberNode.getBegin();
@@ -98,12 +102,12 @@ public class AnnotationBuild {
      * @param focusPhrase list focusNode
      * @param hasTable    contains table or not
      * @param colPosition column position in focusPhrase
-     * @return AnnotationResponse.Tokens
+     * @return AnnotationResponse.AnnotationToken
      */
-    private static AnnotationResponse.Tokens singleColumn(FocusPhrase focusPhrase, boolean hasTable, int colPosition, JSONObject amb) {
+    private static AnnotationToken singleColumn(FocusPhrase focusPhrase, boolean hasTable, int colPosition, JSONObject amb) {
         FocusNode columnNode = focusPhrase.getNode(colPosition);
         Column column = columnNode.getColumn();
-        AnnotationResponse.Tokens token = new AnnotationResponse.Tokens();
+        AnnotationToken token = new AnnotationToken();
         token.description = column.getSourceName() + " " + column.getColumnDisplayName();
         token.columnId = column.getColumnId();
         token.columnName = column.getColumnDisplayName();
@@ -120,8 +124,8 @@ public class AnnotationBuild {
         } else {
             for (String id : amb.keySet()) {
                 AmbiguitiesResolve tmp = (AmbiguitiesResolve) amb.get(id);
-                if (tmp.value.equalsIgnoreCase(token.value)) {
-                    token.ambiguity = new AmbiguityResponse.Datas();
+                if (tmp.value.equalsIgnoreCase(token.value.toString())) {
+                    token.ambiguity = new AmbiguityDatas();
                     token.ambiguity.begin = token.begin;
                     token.ambiguity.end = token.end;
                     token.ambiguity.title = "ambiguity word: " + token.value;
@@ -135,8 +139,8 @@ public class AnnotationBuild {
         return token;
     }
 
-    private static AnnotationResponse.FormulaTokens singleFormula(FocusNode node, Formula formula) {
-        AnnotationResponse.FormulaTokens token = new AnnotationResponse.FormulaTokens();
+    private static AnnotationFormulaToken singleFormula(FocusNode node, Formula formula) {
+        AnnotationFormulaToken token = new AnnotationFormulaToken();
         token.begin = node.getBegin();
         token.end = node.getEnd();
         token.formula = formula;

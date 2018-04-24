@@ -23,8 +23,8 @@
               bottom <number-columns>;
 
 <sort-by> := sort by <all-columns> |
-             sort by <all-columns> desc |
-             sort by <all-columns> asc;
+             sort by <all-columns> descending |
+             sort by <all-columns> ascending;
 
 <growth-of> := growth of <growth-of-measure> by <all-date-column> |
                growth of <growth-of-measure> by <all-date-column> <year-over-year> |

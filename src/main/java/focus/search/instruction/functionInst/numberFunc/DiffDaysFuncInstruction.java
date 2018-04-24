@@ -6,7 +6,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationBuild;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.instruction.sourceInst.DateColInstruction;
 import focus.search.meta.Formula;
@@ -59,13 +59,17 @@ public class DiffDaysFuncInstruction {
         JSONArray args = new JSONArray();
 
         if ("<column-value>".equals(param1.getValue())) {
-            args.add(ColumnValueInstruction.arg(param1));
+            JSONObject json = ColumnValueInstruction.arg(param1);
+            json.put("type", Constant.InstType.DATE);
+            args.add(json);
         } else {//<date-columns>
             args.add(DateColInstruction.arg(param1.getChildren(), formulas));
         }
 
         if ("<column-value>".equals(param2.getValue())) {
-            args.add(ColumnValueInstruction.arg(param2));
+            JSONObject json = ColumnValueInstruction.arg(param2);
+            json.put("type", Constant.InstType.DATE);
+            args.add(json);
         } else {//<date-columns>
             args.add(DateColInstruction.arg(param2.getChildren(), formulas));
         }

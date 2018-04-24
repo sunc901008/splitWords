@@ -539,7 +539,7 @@ public class FocusParser {
 //            for (TokenString ts : rule.getAlternatives()) {
 //                FocusPhrase fp = new FocusPhrase();
 //                fp.setInstName(rule.getLeftHandSide().getName());
-//                for (Token token : ts) {
+//                for (AnnotationToken token : ts) {
 //                    FocusNode fn = new FocusNode(token.getName());
 //                    fn.setType(focusToken.getType());
 //                    fn.setTerminal(true);

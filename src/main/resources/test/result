@@ -122,7 +122,7 @@
 		"expression": {
 			"args": [{
 				"args": [{
-					"type": "columnValue",
+					"type": "string",
 					"value": "focus"
 				}],
 				"name": "strlen",
@@ -189,6 +189,319 @@
 			"name": ">",
 			"type": "function"
 		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "5>views",
+	"instructions": [{
+		"instId": "add_logical_filter",
+		"expression": {
+			"args": [{
+				"type": "number",
+				"value": 5
+			},
+			{
+				"type": "column",
+				"value": 14
+			}],
+			"name": ">",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "5>views and 9>2",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"args": [{
+					"type": "number",
+					"value": 5
+				},
+				{
+					"type": "column",
+					"value": 14
+				}],
+				"name": ">",
+				"type": "function"
+			},
+			{
+				"args": [{
+					"type": "number",
+					"value": 9
+				},
+				{
+					"type": "number",
+					"value": 2
+				}],
+				"name": ">",
+				"type": "function"
+			}],
+			"name": "and",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "year("9/9/1999") + 5",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"args": [{
+					"type": "date",
+					"value": "9/9/1999"
+				}],
+				"name": "year",
+				"type": "function"
+			},
+			{
+				"type": "number",
+				"value": 5
+			}],
+			"name": "+",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "sort by views",
+	"instructions": [{
+		"instId": "add_expression_for_sort",
+		"expression": {
+			"type": "column",
+			"value": 14
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "strlen("focus") > 5 and 9 > 5",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"args": [{
+					"args": [{
+						"type": "string",
+						"value": "focus"
+					}],
+					"name": "strlen",
+					"type": "function"
+				},
+				{
+					"type": "number",
+					"value": 5
+				}],
+				"name": ">",
+				"type": "function"
+			},
+			{
+				"args": [{
+					"type": "number",
+					"value": 9
+				},
+				{
+					"type": "number",
+					"value": 5
+				}],
+				"name": ">",
+				"type": "function"
+			}],
+			"name": "and",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "to_string(views)",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"type": "column",
+				"value": 14
+			}],
+			"name": "to_string",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "to_string(to_string(views+6))",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"args": [{
+					"args": [{
+						"column": 14,
+						"type": "column"
+					},
+					{
+						"type": "number",
+						"value": 6
+					}],
+					"name": "+",
+					"type": "function"
+				}],
+				"name": "to_string",
+				"type": "function"
+			}],
+			"name": "to_string",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "users views > 5",
+	"instructions": [{
+		"instId": "add_logical_filter",
+		"expression": {
+			"args": [{
+				"type": "column",
+				"value": 14
+			},
+			{
+				"type": "number",
+				"value": 5
+			}],
+			"name": ">",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "to_bool (3)",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"type": "number",
+				"value": 3
+			}],
+			"name": "to_bool",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "to_bool (views)",
+	"instructions": [{
+		"instId": "add_expression",
+		"expression": {
+			"args": [{
+				"type": "column",
+				"value": 14
+			}],
+			"name": "to_bool",
+			"type": "function"
+		},
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "top 4 views",
+	"instructions": [{
+		"instId": "set_top_n",
+		"expression": {
+			"type": "column",
+			"value": 14
+		},
+		"annotationId": [1],
+		"n": 4
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "growth of age by creationdate daily year over year",
+	"instructions": [{
+		"instId": "add_column_measure_for_growth",
+		"column": 15,
+		"annotationId": [1]
+	},
+	{
+		"instId": "use_column_for_growth_dimension",
+		"period": "year-over-year",
+		"column": 8,
+		"interval": "daily",
+		"annotationId": [1]
+	},
+	{
+		"instId": "annotation",
+		"annotationId": [1]
+	}]
+},
+{
+	"question": "growth of standard deviation age by creationdate daily year over year",
+	"instructions": [{
+		"instId": "add_column_measure_for_growth",
+		"column": 15,
+		"annotationId": [1],
+		"operation": "standard deviation"
+	},
+	{
+		"instId": "use_column_for_growth_dimension",
+		"period": "year-over-year",
+		"column": 8,
+		"interval": "daily",
 		"annotationId": [1]
 	},
 	{

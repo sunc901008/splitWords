@@ -11,9 +11,11 @@ views + 5+views
 views > 5
 5>views
 5>views and 9>2
-year("1992-9-9") + 9
+year("9/9/1999") + 5
+sort by views descending
 sort by views
 strlen("focus") > 5 and 9 > 5
+to_string(views)
 to_string(to_string(views+6))
 users views > 5
 to_bool (3)
@@ -23,3 +25,4 @@ contains ( name , "abcd" )
 top 4 views
 growth of age by creationdate daily year over year
 growth of standard deviation age by creationdate daily year over year
+growth of users age by creationdate daily

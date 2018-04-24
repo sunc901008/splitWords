@@ -1,10 +1,6 @@
 package focus.search.response.search;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * creator: sunc
@@ -14,52 +10,18 @@ import java.util.List;
 public class SuggestionResponse {
 
     private String question;
-    private Datas datas;
+    private SuggestionDatas datas;
 
     public SuggestionResponse(String question) {
         this.question = question;
     }
 
-    public Datas getDatas() {
+    public SuggestionDatas getDatas() {
         return datas;
     }
 
-    public void setDatas(Datas datas) {
+    public void setDatas(SuggestionDatas datas) {
         this.datas = datas;
-    }
-
-    public static class Datas {
-        public Integer beginPos;
-        public Integer phraseBeginPos;
-        public String guidance;
-        public List<Suggestions> suggestions = new ArrayList<>();
-
-        JSONObject toJSON() {
-            JSONObject json = new JSONObject();
-            json.put("beginPos", this.beginPos);
-            json.put("phraseBeginPos", this.phraseBeginPos);
-            json.put("guidance", this.guidance);
-            JSONArray jsonArray = new JSONArray();
-            this.suggestions.forEach(suggestion -> jsonArray.add(suggestion.toJSON()));
-            json.put("tokens", jsonArray);
-            return json;
-        }
-
-    }
-
-    public static class Suggestions {
-        public String suggestion;
-        public String suggestionType;
-        public String description;
-
-        JSONObject toJSON() {
-            JSONObject json = new JSONObject();
-            json.put("suggestion", this.suggestion);
-            json.put("suggestionType", this.suggestionType);
-            json.put("description", this.description);
-            return json;
-        }
-
     }
 
     public String response() {

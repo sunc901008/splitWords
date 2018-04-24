@@ -6,7 +6,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationBuild;
 import focus.search.instruction.functionInst.StringFuncInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;

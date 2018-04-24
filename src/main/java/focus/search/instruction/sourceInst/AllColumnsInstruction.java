@@ -28,44 +28,45 @@ public class AllColumnsInstruction {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<bool-columns>":
-                return BoolColInstruction.build(focusPhrase, index, amb, formulas);
+                return BoolColInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<date-columns>":
-                return DateColInstruction.build(focusPhrase, index, amb, formulas);
+                return DateColInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<number-columns>":
                 return NumberColInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<string-columns>":
-                return StringColInstruction.build(focusPhrase, index, amb, formulas);
+                return StringColInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }
     }
 
     // 其他指令的一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
-        JSONObject json = build(focusPhrase, formulas);
-        String type = json.getString("type");
-        JSONObject arg = new JSONObject();
-        // todo
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            arg.put("type", "column");
-            arg.put("value", ((Column) json.get("column")).getColumnId());
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            arg = json.getJSONObject(Constant.InstType.FUNCTION);
-        }
-        return arg;
-    }
+//    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+//        JSONObject json = build(focusPhrase, formulas);
+//        String type = json.getString("type");
+//        JSONObject arg = new JSONObject();
+//        // todo
+//        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
+//            arg.put("type", "column");
+//            arg.put("value", ((Column) json.get("column")).getColumnId());
+//        } else if (Constant.InstType.FUNCTION.equals(type)) {
+//            arg = json.getJSONObject(Constant.InstType.FUNCTION);
+//        }
+//        return arg;
+//    }
 
-    private static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    // 其他指令的一部分
+    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<bool-columns>":
-                return BoolColInstruction.build(focusPhrase, formulas);
+                return BoolColInstruction.build(fn.getChildren(), formulas);
             case "<date-columns>":
-                return DateColInstruction.build(focusPhrase, formulas);
+                return DateColInstruction.build(fn.getChildren(), formulas);
             case "<number-columns>":
                 return NumberColInstruction.build(fn.getChildren(), formulas);
             case "<string-columns>":
-                return StringColInstruction.build(focusPhrase, formulas);
+                return StringColInstruction.build(fn.getChildren(), formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

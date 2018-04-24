@@ -10,37 +10,23 @@ import com.alibaba.fastjson.JSONObject;
 public class IllegalResponse {
 
     private String question;
-    private Datas datas;
+    private IllegalDatas datas;
 
     public IllegalResponse(String question) {
         this.question = question;
     }
 
-    public IllegalResponse(String question, Datas datas) {
+    public IllegalResponse(String question, IllegalDatas datas) {
         this.question = question;
         this.datas = datas;
     }
 
-    public Datas getDatas() {
+    public IllegalDatas getDatas() {
         return datas;
     }
 
-    public void setDatas(Datas datas) {
+    public void setDatas(IllegalDatas datas) {
         this.datas = datas;
-    }
-
-    public static class Datas {
-        public Integer beginPos;
-        public Integer endPos;
-        public String reason;
-
-        public JSONObject toJSON() {
-            JSONObject json = new JSONObject();
-            json.put("beginPos", beginPos);
-            json.put("endPos", endPos);
-            json.put("reason", reason);
-            return json;
-        }
     }
 
     public String response() {

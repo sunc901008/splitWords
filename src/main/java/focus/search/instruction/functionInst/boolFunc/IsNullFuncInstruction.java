@@ -6,9 +6,10 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationBuild;
 import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
+import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -56,7 +57,17 @@ public class IsNullFuncInstruction {
         JSONArray args = new JSONArray();
 
         if ("<all-columns>".equals(param.getValue())) {
-            args.add(AllColumnsInstruction.arg(focusPhrase, formulas));
+            JSONObject json = AllColumnsInstruction.build(focusPhrase, formulas);
+            String type = json.getString("type");
+            JSONObject arg1 = new JSONObject();
+            // todo
+            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
+                arg1.put("type", "column");
+                arg1.put("value", ((Column) json.get("column")).getColumnId());
+            } else if (Constant.InstType.FUNCTION.equals(type)) {
+                arg1 = json.getJSONObject(Constant.InstType.FUNCTION);
+            }
+            args.add(arg1);
         } else if ("<number>".equals(param.getValue())) {
             args.add(NumberArg.arg(param));
         }

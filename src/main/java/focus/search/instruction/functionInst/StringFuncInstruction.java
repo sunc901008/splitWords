@@ -48,17 +48,17 @@ public class StringFuncInstruction {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_string-function>":
-                return ToStringFuncInstruction.arg(focusPhrase, formulas);
+                return ToStringFuncInstruction.arg(fn.getChildren(), formulas);
             case "<month-function>":
-                return MonthFuncInstruction.arg(focusPhrase, formulas);
+                return MonthFuncInstruction.arg(fn.getChildren(), formulas);
             case "<concat-function>":
-                return ConcatFuncInstruction.arg(focusPhrase, formulas);
+                return ConcatFuncInstruction.arg(fn.getChildren(), formulas);
             case "<substr-function>":
-                return SubstrFuncInstruction.arg(focusPhrase, formulas);
+                return SubstrFuncInstruction.arg(fn.getChildren(), formulas);
             case "<if-then-else-string-function>":
-                return IfThenElseStringColFuncInstruction.arg(focusPhrase, formulas);
+                return IfThenElseStringColFuncInstruction.arg(fn.getChildren(), formulas);
             case "<ifnull-string-function>":
-                return IfNullStringColFuncInstruction.arg(focusPhrase, formulas);
+                return IfNullStringColFuncInstruction.arg(fn.getChildren(), formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

@@ -6,7 +6,9 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.meta.Formula;
 import focus.search.response.search.FormulaResponse;
+import focus.search.response.search.FormulaSettings;
 
 import java.util.*;
 
@@ -157,8 +159,8 @@ public class FormulaAnalysis {
         return JSONObject.parseObject(stack.pop().toJSONString(), FormulaObj.class);
     }
 
-    public static FormulaResponse.Settings getSettings(FormulaObj formulaObj) {
-        FormulaResponse.Settings settings = new FormulaResponse.Settings();
+    public static FormulaSettings getSettings(FormulaObj formulaObj) {
+        FormulaSettings settings = new FormulaSettings();
         if (BOOL_OPERATOR.contains(formulaObj.name)) {
             settings.dataType = BOOLEAN;
             settings.aggregation = NONE;

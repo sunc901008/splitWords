@@ -2,10 +2,12 @@ package focus.search.instruction.phraseInst;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
@@ -13,7 +15,7 @@ import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/4/20
+ * date: 2018/4/24
  * description:
  */
 //<growth-of> := growth of <growth-of-measure> by <all-date-column> |
@@ -60,48 +62,130 @@ public class GrowthOfInstruction {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
+        AnnotationDatas datas = new AnnotationDatas();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_column_measure_for_growth");
 
+        datas.id = index;
+        datas.begin = focusPhrase.getFirstNode().getBegin();
+        datas.end = focusPhrase.getLastNode().getEnd();
+        datas.type = Constant.AnnotationType.PHRASE;
+        datas.category = Constant.AnnotationCategory.GROWTH_OF_BY;
+
+        AnnotationToken token1 = new AnnotationToken();
+        token1.tokens.add("growth");
+        token1.tokens.add("of");
+        token1.value = "growth of";
+        token1.type = Constant.AnnotationCategory.GROWTH_OF_BY;
+        token1.begin = focusNodes.get(0).getBegin();
+        token1.end = focusNodes.get(1).getEnd();
+        datas.tokens.add(token1);
+
         FocusNode growthOfMeasure = focusNodes.get(2);// growth of
         FocusPhrase growthOf = growthOfMeasure.getChildren();
         if (growthOf.getFocusNodes().size() == 1) {
-            Column column = growthOf.getNodeNew(0).getColumn();
+            Column column = growthOf.getLastNode().getColumn();
             json1.put("column", column.getColumnId());
+
+            int begin = growthOf.getFirstNode().getBegin();
+            int end = growthOf.getLastNode().getEnd();
+            datas.tokens.add(AnnotationToken.singleCol(column, growthOf.size() == 2, begin, end));
         } else {
             FocusPhrase growthOfMeasureOperation = growthOf.getFocusNodes().get(0).getChildren();
+            AnnotationToken token2 = new AnnotationToken();
             StringBuilder operation = new StringBuilder();
             for (int i = 0; i < growthOfMeasureOperation.size(); i++) {
                 if (operation.length() > 0) {
                     operation.append(" ");
                 }
-                operation.append(growthOfMeasureOperation.getNodeNew(i).getValue().toLowerCase());
+                String ope = growthOfMeasureOperation.getNodeNew(i).getValue().toLowerCase();
+                operation.append(ope);
+                token2.tokens.add(ope);
             }
-            json1.put("operation", operation);
-            Column column = growthOf.getFocusNodes().get(1).getChildren().getNodeNew(0).getColumn();
+
+            token2.value = operation.toString();
+            token2.type = "numberKeyword";
+            token2.begin = growthOfMeasureOperation.getFirstNode().getBegin();
+            token2.end = growthOfMeasureOperation.getLastNode().getEnd();
+            datas.tokens.add(token2);
+
+            json1.put("operation", operation.toString());
+            FocusPhrase tmp = growthOf.getFocusNodes().get(1).getChildren();
+            Column column = tmp.getLastNode().getColumn();
             json1.put("column", column.getColumnId());
+
+            int begin = tmp.getFirstNode().getBegin();
+            int end = tmp.getLastNode().getEnd();
+            datas.tokens.add(AnnotationToken.singleCol(column, tmp.size() == 2, begin, end));
         }
 
         instructions.add(json1);
+
+        AnnotationToken token4 = new AnnotationToken();
+        token4.tokens.add("by");
+        token4.value = "by";
+        token4.type = Constant.AnnotationCategory.GROWTH_OF_BY;
+        token4.begin = focusNodes.get(3).getBegin();
+        token4.end = focusNodes.get(3).getEnd();
+        datas.tokens.add(token4);
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
         json2.put("instId", "use_column_for_growth_dimension");
 
-        FocusNode dateColumn = focusNodes.get(4);// by
-        json2.put("column", dateColumn.getChildren().getLastNode().getColumn().getColumnId());
+        //<all-date-column>
+        FocusPhrase datePhrase = focusNodes.get(4).getChildren();// by
+        Column column = datePhrase.getLastNode().getColumn();
+        json2.put("column", column.getColumnId());
+
+        int begin = datePhrase.getFirstNode().getBegin();
+        int end = datePhrase.getLastNode().getEnd();
+        datas.tokens.add(AnnotationToken.singleCol(column, datePhrase.size() == 2, begin, end));
+
         if (focusNodes.size() == 6) {
             FocusNode param3 = focusNodes.get(5);
+            AnnotationToken token5 = new AnnotationToken();
+            token5.begin = param3.getChildren().getFirstNode().getBegin();
+            token5.end = param3.getChildren().getLastNode().getEnd();
             if ("<year-over-year>".equals(param3.getValue())) {
                 json2.put("period", "year-over-year");
+                token5.tokens.add("year");
+                token5.tokens.add("over");
+                token5.tokens.add("year");
+                token5.value = "year over year";
+                token5.type = "yearOverYear";
             } else {
-                json2.put("interval", param3.getChildren().getFirstNode().getValue().toLowerCase());
+                String interval = param3.getChildren().getFirstNode().getValue().toLowerCase();
+                json2.put("interval", interval);
+                token5.tokens.add(interval);
+                token5.value = interval;
+                token5.type = "growthOfByDateInterval";
             }
+            datas.tokens.add(token5);
         } else if (focusNodes.size() == 7) {
-            json2.put("interval", focusNodes.get(5).getChildren().getFirstNode().getValue().toLowerCase());
+            String interval = focusNodes.get(5).getChildren().getFirstNode().getValue().toLowerCase();
+            json2.put("interval", interval);
             json2.put("period", "year-over-year");
+
+            AnnotationToken token5 = new AnnotationToken();
+            token5.begin = focusNodes.get(5).getChildren().getFirstNode().getBegin();
+            token5.end = focusNodes.get(5).getChildren().getLastNode().getEnd();
+            token5.tokens.add(interval);
+            token5.value = interval;
+            token5.type = "growthOfByDateInterval";
+            datas.tokens.add(token5);
+
+            AnnotationToken token6 = new AnnotationToken();
+            token6.begin = focusNodes.get(6).getChildren().getFirstNode().getBegin();
+            token6.end = focusNodes.get(6).getChildren().getLastNode().getEnd();
+            token6.tokens.add("year");
+            token6.tokens.add("over");
+            token6.tokens.add("year");
+            token6.value = "year over year";
+            token6.type = "yearOverYear";
+            datas.tokens.add(token6);
         }
         instructions.add(json2);
 
@@ -109,7 +193,7 @@ public class GrowthOfInstruction {
         json3.put("annotationId", annotationId);
         json3.put("instId", "annotation");
         // annotation content
-        json3.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        json3.put("content", datas);
         instructions.add(json3);
 
         return instructions;
@@ -117,3 +201,85 @@ public class GrowthOfInstruction {
     }
 
 }
+//{
+//    "type": "phrase",
+//    "id": 1,
+//    "category": "growthOfBy",
+//    "begin": 0,
+//    "end": 69,
+//    "tokens": [{
+//    "tokens": ["growth",
+//    "of"],
+//    "type": "growthOfBy",
+//    "value": "growth of",
+//    "begin": 0,
+//    "end": 9
+//    },
+//    {
+//    "tokens": ["standard",
+//    "deviation"],
+//    "type": "numberKeyword",
+//    "value": "standard deviation",
+//    "begin": 9,
+//    "end": 28
+//    },
+//    {
+//    "description": "column <b>age<\\\/b> in <b>users<\\\/b>",
+//    "tableName": "users",
+//    "columnName": "age",
+//    "columnId": 11,
+//    "type": "measure",
+//    "detailType": "floatMeasureColumn",
+//    "tokens": ["age"],
+//    "value": "age",
+//    "begin": 28,
+//    "end": 32
+//    },
+//    {
+//    "tokens": ["by"],
+//    "type": "growthOfBy",
+//    "value": "by",
+//    "begin": 32,
+//    "end": 35
+//    },
+//    {
+//    "description": "column <b>creationdate<\\\/b> in <b>users<\\\/b>",
+//    "tableName": "users",
+//    "columnName": "creationdate",
+//    "columnId": 8,
+//    "type": "attribute",
+//    "detailType": "dateAttributeColumn",
+//    "tokens": ["creationdate"],
+//    "value": "creationdate",
+//    "begin": 35,
+//    "end": 48
+//    },
+//    {
+//    "tokens": ["daily"],
+//    "type": "growthOfByDateInterval",
+//    "value": "daily",
+//    "begin": 48,
+//    "end": 54
+//    },
+//    {
+//    "tokens": ["year"],
+//    "type": null,
+//    "value": "year",
+//    "begin": 54,
+//    "end": 59
+//    },
+//    {
+//    "tokens": ["over"],
+//    "type": null,
+//    "value": "over",
+//    "begin": 59,
+//    "end": 64
+//    },
+//    {
+//    "tokens": ["year"],
+//    "type": null,
+//    "value": "year",
+//    "begin": 64,
+//    "end": 69
+//    }]
+//}

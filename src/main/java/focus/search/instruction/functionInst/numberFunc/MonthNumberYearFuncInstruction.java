@@ -6,7 +6,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationBuild;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.instruction.sourceInst.DateColInstruction;
 import focus.search.meta.Formula;
@@ -59,7 +59,9 @@ public class MonthNumberYearFuncInstruction {
         if ("<date-columns>".equals(param.getValue())) {
             args.add(DateColInstruction.arg(param.getChildren(), formulas));
         } else if ("<column-value>".equals(param.getValue())) {
-            args.add(ColumnValueInstruction.arg(param));
+            JSONObject json = ColumnValueInstruction.arg(param);
+            json.put("type", Constant.InstType.DATE);
+            args.add(json);
         }
 
         expression.put("args", args);

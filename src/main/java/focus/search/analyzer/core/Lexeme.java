@@ -264,6 +264,9 @@ public class Lexeme implements Comparable<Lexeme> {
             case TYPE_SUGGEST:
                 return SUGGEST;
 
+            case TYPE_COMMA:
+                return "TYPE_COMMA";
+
             default:
                 return "UNKNOWN";
         }

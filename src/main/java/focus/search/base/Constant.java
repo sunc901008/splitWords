@@ -117,11 +117,28 @@ public class Constant {
 
     // build instruction type
     public static final class InstType {
-        public static final String COLUMN = "column";
         public static final String TABLE_COLUMN = "tblColumn";
+        public static final String COLUMN = "column";
+        public static final String STRING = "string";
+        public static final String FUNCTION = "function";
+        public static final String DATE = "date";
+        public static final String NUMBER = "number";
         public static final String FORMULA = "formula";
         public static final String COLUMN_VALUE = "columnValue";
-        public static final String FUNCTION = "function";
+    }
+
+    // annotation type
+    public static final class AnnotationType {
+        public static final String PHRASE = "phrase";
+        public static final String FILTER = "filter";
+    }
+
+    // annotation category
+    public static final class AnnotationCategory{
+        public static final String TOP_N = "topN";
+        public static final String BOTTOM_N = "bottomN";
+        public static final String SORT_BY_ORDER = "sortByOrder";
+        public static final String GROWTH_OF_BY = "growthOfBy";
     }
 
 }

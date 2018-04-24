@@ -16,6 +16,7 @@ import focus.search.controller.common.FormulaCase;
 import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
@@ -574,13 +575,13 @@ class SearchHandler {
                 FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
                 if (focusPhrase.isSuggestion()) {// 出入不完整
                     SuggestionResponse response = new SuggestionResponse(search);
-                    SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
+                    SuggestionDatas datas = new SuggestionDatas();
                     JSONObject json = SuggestionBuild.sug(tokens, focusInst);
                     datas.beginPos = json.getInteger("position");
                     datas.phraseBeginPos = datas.beginPos;
                     List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
                     focusNodes.forEach(node -> {
-                        SuggestionResponse.Suggestions suggestion = new SuggestionResponse.Suggestions();
+                        SuggestionSuggestions suggestion = new SuggestionSuggestions();
                         suggestion.suggestion = node.getValue();
                         suggestion.suggestionType = node.getType();
                         if (Constant.FNDType.TABLE.equalsIgnoreCase(node.getType())) {
@@ -599,7 +600,7 @@ class SearchHandler {
                     if (!isQuestion) {// formula
                         FormulaResponse response = new FormulaResponse(search);
                         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
-                        FormulaResponse.Datas datas = new FormulaResponse.Datas();
+                        FormulaDatas datas = new FormulaDatas();
                         datas.settings = FormulaAnalysis.getSettings(formulaObj);
                         datas.formulaObj = formulaObj.toString();
                         response.setDatas(datas);
@@ -628,7 +629,7 @@ class SearchHandler {
                         JSONObject instruction = instructions.getJSONObject(i);
                         if (instruction.getString("instId").equals("annotation")) {
                             String content = instruction.getString("content");
-                            annotationResponse.datas.add(JSONObject.parseObject(content, AnnotationResponse.Datas.class));
+                            annotationResponse.datas.add(JSONObject.parseObject(content, AnnotationDatas.class));
                         }
                     }
                     session.sendMessage(new TextMessage(annotationResponse.response()));
@@ -666,7 +667,7 @@ class SearchHandler {
             } else {//  出错
                 IllegalResponse response = new IllegalResponse(search);
                 int strPosition = tokens.get(focusInst.position).getStart();
-                IllegalResponse.Datas datas = new IllegalResponse.Datas();
+                IllegalDatas datas = new IllegalDatas();
                 datas.beginPos = strPosition;
                 StringBuilder reason = new StringBuilder();
                 if (focusInst.position == 0) {
@@ -702,7 +703,7 @@ class SearchHandler {
         } catch (AmbiguitiesException e) {
             AmbiguityResponse response = new AmbiguityResponse(search);
             FocusToken ft = tokens.get(e.position);
-            AmbiguityResponse.Datas datas = new AmbiguityResponse.Datas();
+            AmbiguityDatas datas = new AmbiguityDatas();
             datas.begin = ft.getStart();
             datas.end = ft.getEnd();
             datas.id = UUID.randomUUID().toString();
@@ -728,13 +729,13 @@ class SearchHandler {
 
     private static void errorResponse(WebSocketSession session, String search, JSONObject user) throws IOException {
         SuggestionResponse response = new SuggestionResponse(search);
-        SuggestionResponse.Datas datas = new SuggestionResponse.Datas();
+        SuggestionDatas datas = new SuggestionDatas();
         datas.beginPos = 0;
         datas.phraseBeginPos = datas.beginPos;
 
         List<Column> columns = SuggestionBuild.colRandomSuggestions(user);
         for (Column column : columns) {
-            SuggestionResponse.Suggestions suggestions = new SuggestionResponse.Suggestions();
+            SuggestionSuggestions suggestions = new SuggestionSuggestions();
             suggestions.suggestion = column.getColumnDisplayName();
             suggestions.suggestionType = Constant.FNDType.COLUMN;
             suggestions.description = column.getColumnDisplayName() + " in table " + column.getSourceName();

@@ -435,5 +435,615 @@
 			}]
 		}
 	}]
+},
+{
+	"question": "year("9/9/1999") + 5",
+	"command": {
+		"source": "searchUser",
+		"question": "year(\"9\/9\/1999\") + 5",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_expression\",\"category\":\"question\",\"name\":\"year(\\\"9\\\/9\\\/1999\\\") + 5\",\"expression\":{\"type\":\"function\",\"name\":\"+\",\"args\":[{\"type\":\"function\",\"name\":\"year\",\"args\":[{\"type\":\"string\",\"value\":\"9\\\/9\\\/1999\"}]},{\"type\":\"number\",\"value\":5}]}},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"expression\",\"begin\":0,\"end\":20,\"tokens\":[{\"type\":\"symbol\",\"value\":\"year\",\"begin\":0,\"end\":4},{\"type\":\"punctuationMark\",\"value\":\"(\",\"begin\":4,\"end\":5},{\"type\":\"wholeString\",\"value\":\"9\\\/9\\\/1999\",\"begin\":5,\"end\":15},{\"type\":\"punctuationMark\",\"value\":\")\",\"begin\":15,\"end\":16},{\"type\":\"punctuationMark\",\"value\":\"+\",\"begin\":16,\"end\":18},{\"isExpressionEnd\":true,\"type\":\"integer\",\"value\":5,\"begin\":18,\"end\":20}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_expression",
+		"category": "question",
+		"name": "year(\\"9\\\/9\\\/1999\\") + 5",
+		"expression": {
+			"type": "function",
+			"name": "+",
+			"args": [{
+				"type": "function",
+				"name": "year",
+				"args": [{
+					"type": "string",
+					"value": "9\\\/9\\\/1999"
+				}]
+			},
+			{
+				"type": "number",
+				"value": 5
+			}]
+		}
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "expression",
+			"begin": 0,
+			"end": 20,
+			"tokens": [{
+				"type": "symbol",
+				"value": "year",
+				"begin": 0,
+				"end": 4
+			},
+			{
+				"type": "punctuationMark",
+				"value": "(",
+				"begin": 4,
+				"end": 5
+			},
+			{
+				"type": "wholeString",
+				"value": "9\\\/9\\\/1999",
+				"begin": 5,
+				"end": 15
+			},
+			{
+				"type": "punctuationMark",
+				"value": ")",
+				"begin": 15,
+				"end": 16
+			},
+			{
+				"type": "punctuationMark",
+				"value": "+",
+				"begin": 16,
+				"end": 18
+			},
+			{
+				"isExpressionEnd": true,
+				"type": "integer",
+				"value": 5,
+				"begin": 18,
+				"end": 20
+			}]
+		}
+	}]
+},
+{
+	"question": "sort by views",
+	"command": {
+		"source": "searchUser",
+		"question": "sort by views",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_column_for_sort\",\"column\":7,\"sortOrder\":null},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"sortByOrder\",\"begin\":0,\"end\":13,\"tokens\":[{\"tokens\":[\"sort\",\"by\"],\"type\":\"sortByOrder\",\"value\":\"sort by\",\"begin\":0,\"end\":7},{\"description\":\"column <b>views<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"views\",\"columnId\":7,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"views\"],\"value\":\"views\",\"begin\":7,\"end\":13}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_column_for_sort",
+		"column": 7,
+		"sortOrder": null
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "sortByOrder",
+			"begin": 0,
+			"end": 13,
+			"tokens": [{
+				"tokens": ["sort",
+				"by"],
+				"type": "sortByOrder",
+				"value": "sort by",
+				"begin": 0,
+				"end": 7
+			},
+			{
+				"description": "column <b>views<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "views",
+				"columnId": 7,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["views"],
+				"value": "views",
+				"begin": 7,
+				"end": 13
+			}]
+		}
+	}]
+},
+{
+	"question": "users views > 5",
+	"command": {
+		"source": "searchUser",
+		"question": "users views > 5",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_simple_filter\",\"column\":7,\"operator\":\">\",\"value\":5},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"filter\",\"id\":1,\"category\":\"floatFilter\",\"begin\":0,\"end\":15,\"tokens\":[{\"description\":\"column <b>views<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"views\",\"columnId\":7,\"type\":\"measure\",\"detailType\":\"tableFloatMeasureColumn\",\"tokens\":[\"users\",\"views\"],\"value\":\"views\",\"begin\":0,\"end\":11},{\"type\":\"punctuationMark\",\"value\":\">\",\"begin\":11,\"end\":13},{\"type\":\"integer\",\"value\":5,\"begin\":13,\"end\":15}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_simple_filter",
+		"column": 7,
+		"operator": ">",
+		"value": 5
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "filter",
+			"id": 1,
+			"category": "floatFilter",
+			"begin": 0,
+			"end": 15,
+			"tokens": [{
+				"description": "column <b>views<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "views",
+				"columnId": 7,
+				"type": "measure",
+				"detailType": "tableFloatMeasureColumn",
+				"tokens": ["users",
+				"views"],
+				"value": "views",
+				"begin": 0,
+				"end": 11
+			},
+			{
+				"type": "punctuationMark",
+				"value": ">",
+				"begin": 11,
+				"end": 13
+			},
+			{
+				"type": "integer",
+				"value": 5,
+				"begin": 13,
+				"end": 15
+			}]
+		}
+	}]
+},
+{
+	"question": "to_bool (3)",
+	"command": {
+		"source": "searchUser",
+		"question": "to_bool (3)",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_expression\",\"category\":\"question\",\"name\":\"to_bool (3)\",\"expression\":{\"type\":\"function\",\"name\":\"to_bool\",\"args\":[{\"type\":\"number\",\"value\":3}]}},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"expression\",\"begin\":0,\"end\":11,\"tokens\":[{\"type\":\"symbol\",\"value\":\"to_bool\",\"begin\":0,\"end\":7},{\"type\":\"punctuationMark\",\"value\":\"(\",\"begin\":7,\"end\":9},{\"type\":\"integer\",\"value\":3,\"begin\":9,\"end\":10},{\"isExpressionEnd\":true,\"type\":\"punctuationMark\",\"value\":\")\",\"begin\":10,\"end\":11}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_expression",
+		"category": "question",
+		"name": "to_bool (3)",
+		"expression": {
+			"type": "function",
+			"name": "to_bool",
+			"args": [{
+				"type": "number",
+				"value": 3
+			}]
+		}
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "expression",
+			"begin": 0,
+			"end": 11,
+			"tokens": [{
+				"type": "symbol",
+				"value": "to_bool",
+				"begin": 0,
+				"end": 7
+			},
+			{
+				"type": "punctuationMark",
+				"value": "(",
+				"begin": 7,
+				"end": 9
+			},
+			{
+				"type": "integer",
+				"value": 3,
+				"begin": 9,
+				"end": 10
+			},
+			{
+				"isExpressionEnd": true,
+				"type": "punctuationMark",
+				"value": ")",
+				"begin": 10,
+				"end": 11
+			}]
+		}
+	}]
+},
+{
+	"question": "contains ( name , "abcd" )",
+	"command": {
+		"source": "searchUser",
+		"question": "contains ( displayname  , \"abcd\" )",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_expression\",\"category\":\"question\",\"name\":\"contains ( displayname  , \\\"abcd\\\" )\",\"expression\":{\"type\":\"function\",\"name\":\"contains\",\"args\":[{\"type\":\"column\",\"value\":10},{\"type\":\"string\",\"value\":\"abcd\"}]}},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"expression\",\"begin\":0,\"end\":34,\"tokens\":[{\"type\":\"symbol\",\"value\":\"contains\",\"begin\":0,\"end\":8},{\"type\":\"punctuationMark\",\"value\":\"(\",\"begin\":8,\"end\":10},{\"description\":\"column <b>displayname<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"displayname\",\"columnId\":10,\"type\":\"attribute\",\"detailType\":\"stringAttributeColumn\",\"tokens\":[\"displayname\"],\"value\":\"displayname\",\"begin\":10,\"end\":22},{\"type\":\"punctuationMark\",\"value\":\",\",\"begin\":22,\"end\":25},{\"type\":\"wholeString\",\"value\":\"abcd\",\"begin\":25,\"end\":32},{\"isExpressionEnd\":true,\"type\":\"punctuationMark\",\"value\":\")\",\"begin\":32,\"end\":34}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_expression",
+		"category": "question",
+		"name": "contains ( displayname  , \\"abcd\\" )",
+		"expression": {
+			"type": "function",
+			"name": "contains",
+			"args": [{
+				"type": "column",
+				"value": 10
+			},
+			{
+				"type": "string",
+				"value": "abcd"
+			}]
+		}
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "expression",
+			"begin": 0,
+			"end": 34,
+			"tokens": [{
+				"type": "symbol",
+				"value": "contains",
+				"begin": 0,
+				"end": 8
+			},
+			{
+				"type": "punctuationMark",
+				"value": "(",
+				"begin": 8,
+				"end": 10
+			},
+			{
+				"description": "column <b>displayname<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "displayname",
+				"columnId": 10,
+				"type": "attribute",
+				"detailType": "stringAttributeColumn",
+				"tokens": ["displayname"],
+				"value": "displayname",
+				"begin": 10,
+				"end": 22
+			},
+			{
+				"type": "punctuationMark",
+				"value": ",",
+				"begin": 22,
+				"end": 25
+			},
+			{
+				"type": "wholeString",
+				"value": "abcd",
+				"begin": 25,
+				"end": 32
+			},
+			{
+				"isExpressionEnd": true,
+				"type": "punctuationMark",
+				"value": ")",
+				"begin": 32,
+				"end": 34
+			}]
+		}
+	}]
+},
+{
+	"question": "top 4 views",
+	"command": {
+		"source": "searchUser",
+		"question": "top 4 views",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"set_top_n\",\"n\":4},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"top\",\"begin\":0,\"end\":5,\"tokens\":[{\"tokens\":[\"top\"],\"type\":\"topN\",\"value\":\"top\",\"begin\":0,\"end\":3},{\"type\":\"integer\",\"value\":4,\"begin\":3,\"end\":5}]}},{\"annotationId\":[2],\"instId\":\"add_column_for_measure\",\"column\":7},{\"annotationId\":[2],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":2,\"category\":\"floatMeasureColumn\",\"begin\":5,\"end\":11,\"tokens\":[{\"description\":\"column <b>views<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"views\",\"columnId\":7,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"views\"],\"value\":\"views\",\"begin\":5,\"end\":11}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "set_top_n",
+		"n": 4
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "top",
+			"begin": 0,
+			"end": 5,
+			"tokens": [{
+				"tokens": ["top"],
+				"type": "topN",
+				"value": "top",
+				"begin": 0,
+				"end": 3
+			},
+			{
+				"type": "integer",
+				"value": 4,
+				"begin": 3,
+				"end": 5
+			}]
+		}
+	},
+	{
+		"annotationId": [2],
+		"instId": "add_column_for_measure",
+		"column": 7
+	},
+	{
+		"annotationId": [2],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 2,
+			"category": "floatMeasureColumn",
+			"begin": 5,
+			"end": 11,
+			"tokens": [{
+				"description": "column <b>views<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "views",
+				"columnId": 7,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["views"],
+				"value": "views",
+				"begin": 5,
+				"end": 11
+			}]
+		}
+	}]
+},
+{
+	"question": "growth of age by creationdate daily year over year",
+	"command": {
+		"source": "searchUser",
+		"question": "growth of age by creationdate daily year over year",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_column_for_growth\",\"column\":11},{\"annotationId\":[1],\"instId\":\"use_column_for_growth_dimension\",\"column\":8},{\"annotationId\":[1],\"instId\":\"set_datetime_interval\",\"interval\":\"daily\",\"column\":8},{\"annotationId\":[1],\"instId\":\"compare_with_last_period\",\"period\":\"year-over-year\",\"column\":8},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"growthOfBy\",\"begin\":0,\"end\":50,\"tokens\":[{\"tokens\":[\"growth\",\"of\"],\"type\":\"growthOfBy\",\"value\":\"growth of\",\"begin\":0,\"end\":9},{\"description\":\"column <b>age<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"age\",\"columnId\":11,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"age\"],\"value\":\"age\",\"begin\":9,\"end\":13},{\"tokens\":[\"by\"],\"type\":\"growthOfBy\",\"value\":\"by\",\"begin\":13,\"end\":16},{\"description\":\"column <b>creationdate<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"creationdate\",\"columnId\":8,\"type\":\"attribute\",\"detailType\":\"dateAttributeColumn\",\"tokens\":[\"creationdate\"],\"value\":\"creationdate\",\"begin\":16,\"end\":29},{\"tokens\":[\"daily\"],\"type\":\"growthOfByDateInterval\",\"value\":\"daily\",\"begin\":29,\"end\":35},{\"tokens\":[\"year\"],\"type\":null,\"value\":\"year\",\"begin\":35,\"end\":40},{\"tokens\":[\"over\"],\"type\":null,\"value\":\"over\",\"begin\":40,\"end\":45},{\"tokens\":[\"year\"],\"type\":null,\"value\":\"year\",\"begin\":45,\"end\":50}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_column_for_growth",
+		"column": 11
+	},
+	{
+		"annotationId": [1],
+		"instId": "use_column_for_growth_dimension",
+		"column": 8
+	},
+	{
+		"annotationId": [1],
+		"instId": "set_datetime_interval",
+		"interval": "daily",
+		"column": 8
+	},
+	{
+		"annotationId": [1],
+		"instId": "compare_with_last_period",
+		"period": "year-over-year",
+		"column": 8
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "growthOfBy",
+			"begin": 0,
+			"end": 50,
+			"tokens": [{
+				"tokens": ["growth",
+				"of"],
+				"type": "growthOfBy",
+				"value": "growth of",
+				"begin": 0,
+				"end": 9
+			},
+			{
+				"description": "column <b>age<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "age",
+				"columnId": 11,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["age"],
+				"value": "age",
+				"begin": 9,
+				"end": 13
+			},
+			{
+				"tokens": ["by"],
+				"type": "growthOfBy",
+				"value": "by",
+				"begin": 13,
+				"end": 16
+			},
+			{
+				"description": "column <b>creationdate<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "creationdate",
+				"columnId": 8,
+				"type": "attribute",
+				"detailType": "dateAttributeColumn",
+				"tokens": ["creationdate"],
+				"value": "creationdate",
+				"begin": 16,
+				"end": 29
+			},
+			{
+				"tokens": ["daily"],
+				"type": "growthOfByDateInterval",
+				"value": "daily",
+				"begin": 29,
+				"end": 35
+			},
+			{
+				"tokens": ["year"],
+				"type": null,
+				"value": "year",
+				"begin": 35,
+				"end": 40
+			},
+			{
+				"tokens": ["over"],
+				"type": null,
+				"value": "over",
+				"begin": 40,
+				"end": 45
+			},
+			{
+				"tokens": ["year"],
+				"type": null,
+				"value": "year",
+				"begin": 45,
+				"end": 50
+			}]
+		}
+	}]
+},
+{
+	"question": "growth of standard deviation age by creationdate daily year over year",
+	"command": {
+		"source": "searchUser",
+		"question": "growth of standard deviation age by creationdate daily year over year",
+		"sourceToken": "9641fc35-99b6-421b-8fda-347b1c828e6d",
+		"instructions": "[{\"annotationId\":[1],\"instId\":\"add_column_measure_for_growth\",\"operation\":\"standard deviation\",\"column\":11},{\"annotationId\":[1],\"instId\":\"use_column_for_growth_dimension\",\"column\":8},{\"annotationId\":[1],\"instId\":\"set_datetime_interval\",\"interval\":\"daily\",\"column\":8},{\"annotationId\":[1],\"instId\":\"compare_with_last_period\",\"period\":\"year-over-year\",\"column\":8},{\"annotationId\":[1],\"instId\":\"annotation\",\"content\":{\"type\":\"phrase\",\"id\":1,\"category\":\"growthOfBy\",\"begin\":0,\"end\":69,\"tokens\":[{\"tokens\":[\"growth\",\"of\"],\"type\":\"growthOfBy\",\"value\":\"growth of\",\"begin\":0,\"end\":9},{\"tokens\":[\"standard\",\"deviation\"],\"type\":\"numberKeyword\",\"value\":\"standard deviation\",\"begin\":9,\"end\":28},{\"description\":\"column <b>age<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"age\",\"columnId\":11,\"type\":\"measure\",\"detailType\":\"floatMeasureColumn\",\"tokens\":[\"age\"],\"value\":\"age\",\"begin\":28,\"end\":32},{\"tokens\":[\"by\"],\"type\":\"growthOfBy\",\"value\":\"by\",\"begin\":32,\"end\":35},{\"description\":\"column <b>creationdate<\\\/b> in <b>users<\\\/b>\",\"tableName\":\"users\",\"columnName\":\"creationdate\",\"columnId\":8,\"type\":\"attribute\",\"detailType\":\"dateAttributeColumn\",\"tokens\":[\"creationdate\"],\"value\":\"creationdate\",\"begin\":35,\"end\":48},{\"tokens\":[\"daily\"],\"type\":\"growthOfByDateInterval\",\"value\":\"daily\",\"begin\":48,\"end\":54},{\"tokens\":[\"year\"],\"type\":null,\"value\":\"year\",\"begin\":54,\"end\":59},{\"tokens\":[\"over\"],\"type\":null,\"value\":\"over\",\"begin\":59,\"end\":64},{\"tokens\":[\"year\"],\"type\":null,\"value\":\"year\",\"begin\":64,\"end\":69}]}}]"
+	},
+	"instructions": [{
+		"annotationId": [1],
+		"instId": "add_column_measure_for_growth",
+		"operation": "standard deviation",
+		"column": 11
+	},
+	{
+		"annotationId": [1],
+		"instId": "use_column_for_growth_dimension",
+		"column": 8
+	},
+	{
+		"annotationId": [1],
+		"instId": "set_datetime_interval",
+		"interval": "daily",
+		"column": 8
+	},
+	{
+		"annotationId": [1],
+		"instId": "compare_with_last_period",
+		"period": "year-over-year",
+		"column": 8
+	},
+	{
+		"annotationId": [1],
+		"instId": "annotation",
+		"content": {
+			"type": "phrase",
+			"id": 1,
+			"category": "growthOfBy",
+			"begin": 0,
+			"end": 69,
+			"tokens": [{
+				"tokens": ["growth",
+				"of"],
+				"type": "growthOfBy",
+				"value": "growth of",
+				"begin": 0,
+				"end": 9
+			},
+			{
+				"tokens": ["standard",
+				"deviation"],
+				"type": "numberKeyword",
+				"value": "standard deviation",
+				"begin": 9,
+				"end": 28
+			},
+			{
+				"description": "column <b>age<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "age",
+				"columnId": 11,
+				"type": "measure",
+				"detailType": "floatMeasureColumn",
+				"tokens": ["age"],
+				"value": "age",
+				"begin": 28,
+				"end": 32
+			},
+			{
+				"tokens": ["by"],
+				"type": "growthOfBy",
+				"value": "by",
+				"begin": 32,
+				"end": 35
+			},
+			{
+				"description": "column <b>creationdate<\\\/b> in <b>users<\\\/b>",
+				"tableName": "users",
+				"columnName": "creationdate",
+				"columnId": 8,
+				"type": "attribute",
+				"detailType": "dateAttributeColumn",
+				"tokens": ["creationdate"],
+				"value": "creationdate",
+				"begin": 35,
+				"end": 48
+			},
+			{
+				"tokens": ["daily"],
+				"type": "growthOfByDateInterval",
+				"value": "daily",
+				"begin": 48,
+				"end": 54
+			},
+			{
+				"tokens": ["year"],
+				"type": null,
+				"value": "year",
+				"begin": 54,
+				"end": 59
+			},
+			{
+				"tokens": ["over"],
+				"type": null,
+				"value": "over",
+				"begin": 59,
+				"end": 64
+			},
+			{
+				"tokens": ["year"],
+				"type": null,
+				"value": "year",
+				"begin": 64,
+				"end": 69
+			}]
+		}
+	}]
 }
 ]

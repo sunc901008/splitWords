@@ -61,6 +61,10 @@ class AnalyzeContext {
         return this.segmentBuff[this.cursor];
     }
 
+    char getPreChar() {
+        return this.segmentBuff[this.cursor - 1];
+    }
+
     int getCurrentCharType() {
         return this.charTypes[this.cursor];
     }

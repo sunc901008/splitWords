@@ -192,8 +192,20 @@ class PunctuationSegmenter implements ISegmenter {
             }
         } else {// 当前的分词器正在处理数字字符
             if (CharacterUtil.CHAR_PUNCTUATION == context.getCurrentCharType()) {
-                // 记录当前指针位置为结束位置
-                this.punctuationEnd = context.getCursor();
+
+//                this.punctuationEnd = context.getCursor();
+                // 连续的符号分成多个token(>=,<=,!=除外)
+                List<Character> chars = Arrays.asList('>', '<', '!');
+                if (context.getCurrentChar() == '=' && chars.contains(context.getPreChar())) {
+                    // 记录当前指针位置为结束位置
+                    this.punctuationEnd = context.getCursor();
+                } else {
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.punctuationStart, this.punctuationEnd
+                            - this.punctuationStart + 1, Lexeme.TYPE_PUNC);
+                    context.addLexeme(newLexeme);
+                    this.punctuationStart = context.getCursor();
+                    this.punctuationEnd = this.punctuationStart;
+                }
             } else {
                 // 遇到非符号字符,输出词元
                 Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.punctuationStart, this.punctuationEnd
