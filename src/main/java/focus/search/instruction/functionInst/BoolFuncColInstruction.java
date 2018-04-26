@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.boolFunc.*;
 import focus.search.meta.Formula;
 
@@ -68,6 +69,30 @@ public class BoolFuncColInstruction {
                 return IsNullFuncInstruction.arg(focusPhrase, formulas);
             case "<not-function>":
                 return NotFuncInstruction.arg(focusPhrase, formulas);
+            default:
+                throw new InvalidRuleException("Build instruction fail!!!");
+        }
+    }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode fn = focusPhrase.getFocusNodes().get(0);
+        switch (fn.getValue()) {
+            case "<to_bool-function>":
+                return ToBoolFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<contains-function>":
+                return ContainsFuncInstruction.tokens(focusPhrase, formulas, amb);
+            case "<and-function>":
+            case "<or-function>":
+                return AndOrFuncInstruction.tokens(focusPhrase, formulas, amb);
+            case "<if-then-else-bool-column-function>":
+                return IfThenElseBoolColFuncInstruction.tokens(focusPhrase, formulas, amb);
+            case "<ifnull-bool-column-function>":
+                return IfNullBoolColFuncInstruction.tokens(focusPhrase, formulas, amb);
+            case "<isnull-function>":
+                return IsNullFuncInstruction.tokens(focusPhrase, formulas, amb);
+            case "<not-function>":
+                return NotFuncInstruction.tokens(focusPhrase, formulas, amb);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

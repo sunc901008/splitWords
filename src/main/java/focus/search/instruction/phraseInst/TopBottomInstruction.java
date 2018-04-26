@@ -29,7 +29,6 @@ public class TopBottomInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
-        AnnotationDatas datas = new AnnotationDatas();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
@@ -37,20 +36,15 @@ public class TopBottomInstruction {
         int n = 1;
         FocusNode keyword = focusPhrase.getFocusNodes().get(flag++);
         json1.put("instId", String.format("set_%s_n", keyword.getValue()));
-
-        datas.id = index;
-        datas.begin = focusPhrase.getFirstNode().getBegin();
-        datas.end = focusPhrase.getLastNode().getEnd();
-        datas.type = Constant.AnnotationType.PHRASE;
-        datas.category = keyword.getValue();
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, keyword.getValue());
 
         AnnotationToken token1 = new AnnotationToken();
-        token1.tokens.add(keyword.getValue());
+        token1.addToken(keyword.getValue());
         token1.value = keyword.getValue();
         token1.type = keyword.getValue() + "N";
         token1.begin = keyword.getBegin();
         token1.end = keyword.getEnd();
-        datas.tokens.add(token1);
+        datas.addToken(token1);
 
         FocusNode integer = focusPhrase.getFocusNodes().get(flag++);
         FocusNode param;
@@ -63,7 +57,7 @@ public class TopBottomInstruction {
             token2.type = Constant.FNDType.INTEGER;
             token2.begin = intBaseNode.getBegin();
             token2.end = intBaseNode.getEnd();
-            datas.tokens.add(token2);
+            datas.addToken(token2);
         } else {
             param = integer;
         }
@@ -72,16 +66,13 @@ public class TopBottomInstruction {
         JSONObject expression = new JSONObject();
         JSONObject json = NumberColInstruction.build(param.getChildren(), formulas);
         String type = json.getString("type");
-        // todo
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type))
-
-        {
+        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             expression.put("type", "column");
             Column column = (Column) json.get("column");
             expression.put("value", column.getColumnId());
             int begin = param.getChildren().getFirstNode().getBegin();
             int end = param.getChildren().getLastNode().getEnd();
-            datas.tokens.add(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end));
+            datas.addToken(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end, amb));
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
         }

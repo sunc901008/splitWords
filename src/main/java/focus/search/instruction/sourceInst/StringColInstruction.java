@@ -7,10 +7,13 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.StringFuncInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +25,6 @@ import java.util.List;
 //        <string-function-column>;
 public class StringColInstruction {
 
-    // todo
     // 完整指令 columns
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
@@ -32,20 +34,7 @@ public class StringColInstruction {
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_expression");
 
-        JSONObject json = build(focusPhrase, formulas);
-        String type = json.getString("type");
-        JSONObject expression = new JSONObject();
-        // todo
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            expression.put("type", "column");
-            Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
-            json1.put("instId", "add_column_for_group");
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            expression = json.getJSONObject(Constant.InstType.FUNCTION);
-        }
-
-        json1.put("expression", expression);
+        json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -53,11 +42,28 @@ public class StringColInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        datas.addTokens(tokens(focusPhrase, formulas, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
         return instructions;
+    }
+
+    // 其他指令的一部分
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+        JSONObject json = build(focusPhrase, formulas);
+        String type = json.getString("type");
+        JSONObject expression = new JSONObject();
+        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
+            expression.put("type", "column");
+            Column column = (Column) json.get("column");
+            expression.put("value", column.getColumnId());
+        } else if (Constant.InstType.FUNCTION.equals(type)) {
+            expression = json.getJSONObject(Constant.InstType.FUNCTION);
+        }
+        return expression;
     }
 
     // 其他指令的一部分
@@ -78,6 +84,21 @@ public class StringColInstruction {
                 res.put("type", Constant.InstType.FUNCTION);
                 res.put("function", StringFuncInstruction.arg(node.getChildren(), formulas));
                 return res;
+            default:
+                throw new InvalidRuleException("Build instruction fail!!!");
+        }
+    }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode node = focusPhrase.getFocusNodes().get(0);
+        switch (node.getValue()) {
+            case "<all-string-column>":
+                List<AnnotationToken> tokens = new ArrayList<>();
+                tokens.add(AnnotationToken.singleCol(node.getChildren(), amb));
+                return tokens;
+            case "<string-function-column>":
+                return StringFuncInstruction.tokens(node.getChildren(), formulas, amb);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

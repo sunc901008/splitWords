@@ -6,13 +6,16 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.BoolFuncColInstruction;
 import focus.search.instruction.nodeArgs.NoOrAndBoolFuncColInstruction;
+import focus.search.instruction.sourceInst.BoolColInstruction;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,15 +23,15 @@ import java.util.List;
  * date: 2018/4/18
  * description:
  */
-//<and-function> := <all-bool-column> and <bool-function-column> |
-//        <all-bool-column> and <and-function> |
-//        <all-bool-column> and <or-function> |
+//<and-function> := <bool-columns> and <bool-function-column> |
+//        <bool-columns> and <and-function> |
+//        <bool-columns> and <or-function> |
 //        <no-or-and-bool-function-column> and <bool-function-column> |
 //        <no-or-and-bool-function-column> and <no-or-and-bool-function-column>;
 
-//<or-function> := <all-bool-column> or <bool-function-column> |
-//        <all-bool-column> or <and-function> |
-//        <all-bool-column> or <or-function> |
+//<or-function> := <bool-columns> or <bool-function-column> |
+//        <bool-columns> or <and-function> |
+//        <bool-columns> or <or-function> |
 //        <no-or-and-bool-function-column> or <bool-function-column> |
 //        <no-or-and-bool-function-column> or <no-or-and-bool-function-column>;
 public class AndOrFuncInstruction {
@@ -37,7 +40,7 @@ public class AndOrFuncInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         switch (first.getValue()) {
-            case "<all-bool-column>":
+            case "<bool-columns>":
                 return allBoolColBuild(focusPhrase, index, amb, formulas);
             case "<no-or-and-bool-function-column>":
                 return noOrAndBoolFuncColBuild(focusPhrase, index, amb, formulas);
@@ -50,7 +53,7 @@ public class AndOrFuncInstruction {
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         switch (first.getValue()) {
-            case "<all-bool-column>":
+            case "<bool-columns>":
                 return allBoolColBuild(focusPhrase, formulas);
             case "<no-or-and-bool-function-column>":
                 return noOrAndBoolFuncColBuild(focusPhrase, formulas);
@@ -59,13 +62,26 @@ public class AndOrFuncInstruction {
         }
     }
 
-    //    <all-bool-column> and <bool-function-column>
-    //    <all-bool-column> and <and-function>
-    //    <all-bool-column> and <or-function>
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode first = focusPhrase.getFocusNodes().get(0);
+        switch (first.getValue()) {
+            case "<bool-columns>":
+                return allBoolColBuildTokens(focusPhrase, formulas, amb);
+            case "<no-or-and-bool-function-column>":
+                return noOrAndBoolFuncColBuildTokens(focusPhrase, formulas, amb);
+            default:
+                throw new InvalidRuleException("Build instruction fail!!!");
+        }
+    }
 
-    //    <all-bool-column> or <bool-function-column>
-    //    <all-bool-column> or <and-function>
-    //    <all-bool-column> or <or-function>
+    //    <bool-columns> and <bool-function-column>
+    //    <bool-columns> and <and-function>
+    //    <bool-columns> and <or-function>
+
+    //    <bool-columns> or <bool-function-column>
+    //    <bool-columns> or <and-function>
+    //    <bool-columns> or <or-function>
     // 完整指令
     private static JSONArray allBoolColBuild(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
@@ -74,6 +90,7 @@ public class AndOrFuncInstruction {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_logical_filter");
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
 
         json1.put("expression", allBoolColBuild(focusPhrase, formulas));
         instructions.add(json1);
@@ -83,7 +100,8 @@ public class AndOrFuncInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        datas.addTokens(allBoolColBuildTokens(focusPhrase, formulas, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
@@ -120,15 +138,40 @@ public class AndOrFuncInstruction {
         return expression;
     }
 
-    //    <no-or-and-bool-function-column> and <bool-function-column>
+    private static List<AnnotationToken> allBoolColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        List<AnnotationToken> tokens = new ArrayList<>();
+        List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
+        FocusNode param1 = focusNodes.get(0);
+        FocusNode symbol = focusNodes.get(1);
+        FocusNode param2 = focusNodes.get(2);
+
+        tokens.addAll(BoolColInstruction.tokens(param1, formulas, amb));
+
+        AnnotationToken token2 = new AnnotationToken();
+        token2.value = symbol.getValue();
+        token2.type = Constant.AnnotationTokenType.SYMBOL;
+        token2.begin = symbol.getBegin();
+        token2.end = symbol.getEnd();
+        tokens.add(token2);
+
+        if ("<bool-function-column>".equals(param2.getValue())) {
+            tokens.addAll(BoolFuncColInstruction.tokens(param2.getChildren(), formulas, amb));
+        } else if ("<and-function>".equals(param2.getValue()) || "<or-function>".equals(param2.getValue())) {
+            tokens.addAll(tokens(param2.getChildren(), formulas, amb));
+        }
+
+        return tokens;
+    }
+
     //    <no-or-and-bool-function-column> and <no-or-and-bool-function-column>
 
-    //    <no-or-and-bool-function-column> or <bool-function-column>
     //    <no-or-and-bool-function-column> or <no-or-and-bool-function-column>
     // 完整指令
     private static JSONArray noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
@@ -142,7 +185,8 @@ public class AndOrFuncInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        datas.addTokens(noOrAndBoolFuncColBuildTokens(focusPhrase, formulas, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
@@ -150,7 +194,7 @@ public class AndOrFuncInstruction {
     }
 
     // 其他指令的一部分
-    private static JSONObject noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);
         FocusNode symbol = focusPhrase.getFocusNodes().get(1);
@@ -161,13 +205,31 @@ public class AndOrFuncInstruction {
         JSONArray args = new JSONArray();
 
         args.add(NoOrAndBoolFuncColInstruction.arg(param1.getChildren(), formulas));
-        if ("<bool-function-column>".equals(param2.getValue())) {
-            args.add(BoolFuncColInstruction.arg(param2.getChildren(), formulas));
-        } else if ("<no-or-and-bool-function-column>".equals(param2.getValue())) {
-            args.add(NoOrAndBoolFuncColInstruction.arg(param2.getChildren(), formulas));
-        }
+        args.add(NoOrAndBoolFuncColInstruction.arg(param2.getChildren(), formulas));
+
         expression.put("args", args);
         return expression;
+    }
+
+    // annotation token
+    public static List<AnnotationToken> noOrAndBoolFuncColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        List<AnnotationToken> tokens = new ArrayList<>();
+        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
+        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
+        FocusNode symbol = focusPhrase.getFocusNodes().get(1);
+
+        tokens.addAll(NoOrAndBoolFuncColInstruction.tokens(param1.getChildren(), formulas, amb));
+
+        AnnotationToken token2 = new AnnotationToken();
+        token2.value = symbol.getValue();
+        token2.type = Constant.AnnotationTokenType.SYMBOL;
+        token2.begin = symbol.getBegin();
+        token2.end = symbol.getEnd();
+        tokens.add(token2);
+
+        tokens.addAll(NoOrAndBoolFuncColInstruction.tokens(param2.getChildren(), formulas, amb));
+
+        return tokens;
     }
 
 }

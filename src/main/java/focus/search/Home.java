@@ -34,7 +34,7 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-        search(28, 4);
+        search(0, 13);
 //        split(18, 1);
 //        split(",>");
     }
@@ -81,15 +81,16 @@ public class Home {
         int i = 0;
         while ((search = br.readLine()) != null) {
             i++;
-            if (search.startsWith("//"))
-                continue;
             last = search;
+            if (search.startsWith("//") || start < 0 || search.isEmpty())
+                continue;
             if (start == 0 || i >= start) {
+                print(i);
                 test(search);
                 System.out.println();
                 length--;
             }
-            if (length == 0) {
+            if (length == 0 && start != 0) {
                 break;
             }
         }
@@ -239,18 +240,6 @@ public class Home {
 //        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
 
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "chinese");
-
-//        List<String> keywords = FocusKWDict.getAllKeywords();
-//        int loop = tokens.size();
-//        while (loop > 0) {
-//            FocusToken ft = tokens.remove(0);
-//            if (keywords.contains(ft.getWord())) {
-//                ft.setType("keyword");
-//            }
-//            tokens.add(ft);
-//            loop--;
-//        }
-
 
         System.out.println(JSON.toJSONString(tokens));
         FocusInst focusInst;

@@ -7,10 +7,14 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.nodeArgs.NumberOrNumColInst;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,7 +44,9 @@ public class ToIntegerDoubleFuncInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        datas.addTokens(tokens(focusPhrase, formulas, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
@@ -58,7 +64,6 @@ public class ToIntegerDoubleFuncInstruction {
         JSONObject json = AllColumnsInstruction.build(param.getChildren(), formulas);
         String type = json.getString("type");
         JSONObject arg1 = new JSONObject();
-        // todo
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             arg1.put("type", "column");
             arg1.put("value", ((Column) json.get("column")).getColumnId());
@@ -71,5 +76,36 @@ public class ToIntegerDoubleFuncInstruction {
 
         return expression;
     }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        List<AnnotationToken> tokens = new ArrayList<>();
+        FocusNode param = focusPhrase.getFocusNodes().get(2);
+        AnnotationToken token1 = new AnnotationToken();
+        token1.value = focusPhrase.getFocusNodes().get(0).getValue();
+        token1.type = Constant.AnnotationTokenType.SYMBOL;
+        token1.begin = focusPhrase.getFocusNodes().get(0).getBegin();
+        token1.end = focusPhrase.getFocusNodes().get(0).getEnd();
+        tokens.add(token1);
+
+        AnnotationToken token2 = new AnnotationToken();
+        token2.value = focusPhrase.getFocusNodes().get(1).getValue();
+        token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token2.begin = focusPhrase.getFocusNodes().get(1).getBegin();
+        token2.end = focusPhrase.getFocusNodes().get(1).getEnd();
+        tokens.add(token2);
+
+        tokens.addAll(AllColumnsInstruction.tokens(param.getChildren(), formulas, amb));
+
+        AnnotationToken token4 = new AnnotationToken();
+        token4.value = focusPhrase.getFocusNodes().get(3).getValue();
+        token4.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token4.begin = focusPhrase.getFocusNodes().get(3).getBegin();
+        token4.end = focusPhrase.getFocusNodes().get(3).getEnd();
+        tokens.add(token4);
+
+        return tokens;
+    }
+
 
 }

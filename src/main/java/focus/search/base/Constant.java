@@ -134,11 +134,24 @@ public class Constant {
     }
 
     // annotation category
-    public static final class AnnotationCategory{
+    public static final class AnnotationCategory {
         public static final String TOP_N = "topN";
         public static final String BOTTOM_N = "bottomN";
         public static final String SORT_BY_ORDER = "sortByOrder";
         public static final String GROWTH_OF_BY = "growthOfBy";
+        public static final String FILTER = "filter";
+        public static final String EXPRESSION = "expression";
+        public static final String ATTRIBUTE_COLUMN = "attributeColumn";
+        public static final String MEASURE_COLUMN = "measureColumn";
+    }
+
+    // annotation token type
+    public static final class AnnotationTokenType {
+        public static final String FILTER = "filter";
+        public static final String PUNCTUATION_MARK = "punctuationMark";
+        public static final String NUMBER = "number";
+        public static final String SYMBOL = "symbol";
+        public static final String STRING = "string";
     }
 
 }

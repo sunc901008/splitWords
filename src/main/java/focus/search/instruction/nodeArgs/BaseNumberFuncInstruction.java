@@ -7,11 +7,14 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +47,9 @@ public class BaseNumberFuncInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        datas.addTokens(tokens(focusPhrase, formulas, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
@@ -79,6 +84,36 @@ public class BaseNumberFuncInstruction {
         expression.put("args", args);
         return expression;
 
+    }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
+        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
+        FocusNode symbol = focusPhrase.getFocusNodes().get(1).getChildren().getFirstNode();
+
+        List<AnnotationToken> tokens = new ArrayList<>();
+        if ("<number>".equals(param1.getValue())) {
+            tokens.add(NumberArg.token(param1));
+        } else if ("<number-source-column>".equals(param1.getValue())) {
+            FocusPhrase fp = param1.getChildren();
+            int begin = fp.getFirstNode().getBegin();
+            int end = fp.getLastNode().getEnd();
+            tokens.add(AnnotationToken.singleCol(fp.getLastNode().getColumn(), fp.size() == 2, begin, end, amb));
+        } else if ("<no-number-function-column>".equals(param1.getValue())) {
+            tokens.addAll(NumberFuncInstruction.tokens(param1.getChildren(), formulas, amb));
+        }
+
+        AnnotationToken token2 = new AnnotationToken();
+        token2.value = symbol.getValue();
+        token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token2.begin = symbol.getBegin();
+        token2.end = symbol.getEnd();
+        tokens.add(token2);
+
+        tokens.addAll(NumberOrNumColInst.tokens(param2, formulas, amb));
+
+        return tokens;
     }
 
 }

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.DateFunc.IfNullDateColFuncInstruction;
 import focus.search.instruction.functionInst.DateFunc.IfThenElseDateColFuncInstruction;
 import focus.search.instruction.functionInst.DateFunc.ToDateFuncInstruction;
@@ -28,11 +29,11 @@ public class DateFuncInstruction {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_date-function>":
-                return ToDateFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return ToDateFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<if-then-else-date-column-function>":
-                return IfThenElseDateColFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IfThenElseDateColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<ifnull-date-column-function>":
-                return IfNullDateColFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IfNullDateColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }
@@ -43,14 +44,28 @@ public class DateFuncInstruction {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_date-function>":
-                return ToDateFuncInstruction.arg(focusPhrase, formulas);
+                return ToDateFuncInstruction.arg(fn.getChildren(), formulas);
             case "<if-then-else-date-column-function>":
-                return IfThenElseDateColFuncInstruction.arg(focusPhrase, formulas);
+                return IfThenElseDateColFuncInstruction.arg(fn.getChildren(), formulas);
             case "<ifnull-date-column-function>":
-                return IfNullDateColFuncInstruction.arg(focusPhrase, formulas);
+                return IfNullDateColFuncInstruction.arg(fn.getChildren(), formulas);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }
     }
 
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode fn = focusPhrase.getFocusNodes().get(0);
+        switch (fn.getValue()) {
+            case "<to_date-function>":
+                return ToDateFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<if-then-else-date-column-function>":
+                return IfThenElseDateColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<ifnull-date-column-function>":
+                return IfNullDateColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            default:
+                throw new InvalidRuleException("Build instruction fail!!!");
+        }
+    }
 }

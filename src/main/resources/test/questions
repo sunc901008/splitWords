@@ -1,28 +1,51 @@
 5+8*2
 views > 5 1+5
 1+5
-count ( views )
-count(views)
 strlen("focus") > 5
 to_string(views+ )
-growth of views by name
-growth of views +
 views + 5+views
 views > 5
 5>views
-5>views and 9>2
 year("9/9/1999") + 5
 sort by views descending
 sort by views
-strlen("focus") > 5 and 9 > 5
-to_string(views)
-to_string(to_string(views+6))
 users views > 5
-to_bool (3)
-to_bool (views)
-contains ( name , "abcd" )
 //"focus","in","hello"
 top 4 views
 growth of age by creationdate daily year over year
 growth of standard deviation age by creationdate daily year over year
 growth of users age by creationdate daily
+col
+//if 3>2 then creationdate else to_date(3)
+//if 3>2 then "aa" else "bb"
+
+// function
+average(2)
+average(views)
+count(views)
+max(views)
+min(5)
+sum(views+1)
+to_double(views)
+to_integer(name)
+diff_days(creationdate, "1990/1/1")
+month_number ( lastaccessdate )
+strlen("focus")
+strlen(name)
+ifnull (name , name)
+to_bool(2)
+contains (name , "focus")
+5>views and 9>2
+to_bool(2) or strlen("focus") > 1
+isnull(name)
+not (4>5)
+to_date(123)
+month(creationdate)
+concat (name , "focus")
+substr("hello,world", 0, 5)
+
+// function contains function
+to_string(to_string(views+6))
+contains(to_string(to_string(views+6)) , "focus")
+month(to_date(123))
+ifnull(to_string(views+6) , name)

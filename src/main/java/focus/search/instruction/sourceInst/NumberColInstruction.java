@@ -7,10 +7,13 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +38,6 @@ public class NumberColInstruction {
         JSONObject expression = new JSONObject();
         JSONObject json = build(focusPhrase, formulas);
         String type = json.getString("type");
-        // todo
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             expression.put("type", "column");
             Column column = (Column) json.get("column");
@@ -57,7 +59,9 @@ public class NumberColInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        datas.addTokens(tokens(focusPhrase, formulas, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
@@ -87,4 +91,21 @@ public class NumberColInstruction {
                 throw new InvalidRuleException("Build instruction fail!!!");
         }
     }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode node = focusPhrase.getFocusNodes().get(0);
+        switch (node.getValue()) {
+            case "<all-int-column>":
+            case "<all-double-column>":
+                List<AnnotationToken> tokens = new ArrayList<>();
+                tokens.add(AnnotationToken.singleCol(node.getChildren(), amb));
+                return tokens;
+            case "<number-function-column>":
+                return NumberFuncInstruction.tokens(node.getChildren(), formulas, amb);
+            default:
+                throw new InvalidRuleException("Build instruction fail!!!");
+        }
+    }
+
 }

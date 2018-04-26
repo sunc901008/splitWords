@@ -2,6 +2,8 @@ package focus.search.instruction.annotations;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.bnf.FocusPhrase;
+import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.response.search.AmbiguityDatas;
 
@@ -23,8 +25,15 @@ public class AnnotationToken {
     public Object value;
     public Integer begin;
     public Integer end;
-    public List<String> tokens = new ArrayList<>();
+    public List<String> tokens;
     public AmbiguityDatas ambiguity;
+
+    public void addToken(String token) {
+        if (this.tokens == null) {
+            this.tokens = new ArrayList<>();
+        }
+        this.tokens.add(token);
+    }
 
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
@@ -45,7 +54,14 @@ public class AnnotationToken {
         return json;
     }
 
-    public static AnnotationToken singleCol(Column column, boolean hasTable, int begin, int end) {
+    public static AnnotationToken singleCol(FocusPhrase fp, JSONObject amb) {
+        int begin = fp.getFirstNode().getBegin();
+        int end = fp.getLastNode().getEnd();
+        Column column = fp.getLastNode().getColumn();
+        return singleCol(column, fp.size() == 2, begin, end, amb);
+    }
+
+    public static AnnotationToken singleCol(Column column, boolean hasTable, int begin, int end, JSONObject amb) {
         AnnotationToken token = new AnnotationToken();
         token.description = "column " + column.getColumnDisplayName() + " in " + column.getSourceName();
         token.tableName = column.getSourceName();
@@ -55,9 +71,22 @@ public class AnnotationToken {
         // todo modify detailType
         token.detailType = column.getDataType();
         if (hasTable) {
-            token.tokens.add(column.getSourceName());
+            token.addToken(column.getSourceName());
+        } else {
+            for (String id : amb.keySet()) {
+                AmbiguitiesResolve tmp = (AmbiguitiesResolve) amb.get(id);
+                if (tmp.value.equalsIgnoreCase(token.value.toString())) {
+                    token.ambiguity = new AmbiguityDatas();
+                    token.ambiguity.begin = token.begin;
+                    token.ambiguity.end = token.end;
+                    token.ambiguity.title = "ambiguity word: " + token.value;
+                    token.ambiguity.id = id;
+                    tmp.ars.forEach(a -> token.ambiguity.possibleMenus.add(a.columnName + " in table " + a.sourceName));
+                    break;
+                }
+            }
         }
-        token.tokens.add(column.getColumnDisplayName());
+        token.addToken(column.getColumnDisplayName());
         token.value = column.getColumnDisplayName();
         token.begin = begin;
         token.end = end;

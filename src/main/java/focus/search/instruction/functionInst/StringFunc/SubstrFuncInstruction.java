@@ -7,10 +7,13 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
 import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,7 +42,9 @@ public class SubstrFuncInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        datas.addTokens(tokens(focusPhrase, formulas, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
@@ -63,6 +68,52 @@ public class SubstrFuncInstruction {
 
         arg.put("args", args);
         return arg;
+    }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        List<AnnotationToken> tokens = new ArrayList<>();
+        AnnotationToken token1 = new AnnotationToken();
+        token1.value = focusPhrase.getFocusNodes().get(0).getValue();
+        token1.type = Constant.AnnotationTokenType.SYMBOL;
+        token1.begin = focusPhrase.getFocusNodes().get(0).getBegin();
+        token1.end = focusPhrase.getFocusNodes().get(0).getEnd();
+        tokens.add(token1);
+//        substr ( <column-value> , <integer> , <integer> );
+        AnnotationToken token2 = new AnnotationToken();
+        token2.value = focusPhrase.getFocusNodes().get(1).getValue();
+        token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token2.begin = focusPhrase.getFocusNodes().get(1).getBegin();
+        token2.end = focusPhrase.getFocusNodes().get(1).getEnd();
+        tokens.add(token2);
+
+        tokens.addAll(ColValueOrStringColInst.tokens(focusPhrase.getFocusNodes().get(2), formulas, amb));
+
+        AnnotationToken token4 = new AnnotationToken();
+        token4.value = focusPhrase.getFocusNodes().get(3).getValue();
+        token4.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token4.begin = focusPhrase.getFocusNodes().get(3).getBegin();
+        token4.end = focusPhrase.getFocusNodes().get(3).getEnd();
+        tokens.add(token4);
+
+        tokens.add(NumberArg.token(focusPhrase.getFocusNodes().get(4)));
+
+        AnnotationToken token6 = new AnnotationToken();
+        token6.value = focusPhrase.getFocusNodes().get(5).getValue();
+        token6.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token6.begin = focusPhrase.getFocusNodes().get(5).getBegin();
+        token6.end = focusPhrase.getFocusNodes().get(5).getEnd();
+        tokens.add(token6);
+
+        tokens.add(NumberArg.token(focusPhrase.getFocusNodes().get(6)));
+
+        AnnotationToken token8 = new AnnotationToken();
+        token8.value = focusPhrase.getFocusNodes().get(7).getValue();
+        token8.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token8.begin = focusPhrase.getFocusNodes().get(7).getBegin();
+        token8.end = focusPhrase.getFocusNodes().get(7).getEnd();
+        tokens.add(token8);
+        return tokens;
     }
 
 }

@@ -6,7 +6,8 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberOrNumColInst;
 import focus.search.meta.Formula;
 
@@ -33,6 +34,8 @@ public class FilterNumOrNumColInstruction {
 
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.FILTER, Constant.AnnotationCategory.FILTER);
+
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
@@ -42,9 +45,22 @@ public class FilterNumOrNumColInstruction {
         expression.put("type", Constant.InstType.FUNCTION);
         JSONArray args = new JSONArray();
 
-        expression.put("name", symbol.getChildren().getNodeNew(0).getValue());
+        expression.put("name", symbol.getChildren().getFirstNode().getValue());
+
         args.add(NumberOrNumColInst.arg(param1, formulas));
+
+        datas.addTokens(NumberOrNumColInst.tokens(param1, formulas, amb));
+
+        AnnotationToken token2 = new AnnotationToken();
+        token2.value = symbol.getChildren().getFirstNode().getValue();
+        token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token2.begin = symbol.getChildren().getFirstNode().getBegin();
+        token2.end = symbol.getChildren().getFirstNode().getEnd();
+        datas.addToken(token2);
+
         args.add(NumberOrNumColInst.arg(param2, formulas));
+
+        datas.addTokens(NumberOrNumColInst.tokens(param2, formulas, amb));
 
         expression.put("args", args);
         json1.put("expression", expression);
@@ -56,7 +72,7 @@ public class FilterNumOrNumColInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 

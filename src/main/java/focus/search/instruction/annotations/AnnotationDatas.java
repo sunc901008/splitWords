@@ -2,6 +2,9 @@ package focus.search.instruction.annotations;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.bnf.FocusPhrase;
+
+import java.util.List;
 
 /**
  * creator: sunc
@@ -14,7 +17,39 @@ public class AnnotationDatas {
     public String category;
     public Integer begin;
     public Integer end;
-    public JSONArray tokens = new JSONArray();
+    public JSONArray tokens;
+
+    public AnnotationDatas() {
+    }
+
+    public AnnotationDatas(FocusPhrase focusPhrase, int index, String type, String category) {
+        this.id = index;
+        this.begin = focusPhrase.getFirstNode().getBegin();
+        this.end = focusPhrase.getLastNode().getEnd();
+        this.type = type;
+        this.category = category;
+    }
+
+    public AnnotationDatas(FocusPhrase focusPhrase, int index, String type) {
+        this.id = index;
+        this.begin = focusPhrase.getFirstNode().getBegin();
+        this.end = focusPhrase.getLastNode().getEnd();
+        this.type = type;
+    }
+
+    public void addToken(AnnotationToken object) {
+        if (this.tokens == null) {
+            this.tokens = new JSONArray();
+        }
+        this.tokens.add(object);
+    }
+
+    public void addTokens(List<AnnotationToken> objects) {
+        if (this.tokens == null) {
+            this.tokens = new JSONArray();
+        }
+        this.tokens.addAll(objects);
+    }
 
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
@@ -23,7 +58,8 @@ public class AnnotationDatas {
         json.put("category", this.category);
         json.put("begin", this.begin);
         json.put("end", this.end);
-        json.put("tokens", this.tokens);
+        if (this.tokens != null && !this.tokens.isEmpty())
+            json.put("tokens", this.tokens);
         return json;
     }
 }

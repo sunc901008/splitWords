@@ -90,9 +90,6 @@
 <number-source-column> := <all-int-column> |
                           <all-double-column>;
 
-<symbol> := <bool-symbol> |
-            <math-symbol>;
-
 <bool-symbol> := > | < | >= | <= | = | !=;
 <math-symbol> := + | - | * | / | ^;
 <number> := <integer> |

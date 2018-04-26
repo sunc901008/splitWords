@@ -62,26 +62,20 @@ public class GrowthOfInstruction {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
-        AnnotationDatas datas = new AnnotationDatas();
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.GROWTH_OF_BY);
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_column_measure_for_growth");
 
-        datas.id = index;
-        datas.begin = focusPhrase.getFirstNode().getBegin();
-        datas.end = focusPhrase.getLastNode().getEnd();
-        datas.type = Constant.AnnotationType.PHRASE;
-        datas.category = Constant.AnnotationCategory.GROWTH_OF_BY;
-
         AnnotationToken token1 = new AnnotationToken();
-        token1.tokens.add("growth");
-        token1.tokens.add("of");
+        token1.addToken("growth");
+        token1.addToken("of");
         token1.value = "growth of";
         token1.type = Constant.AnnotationCategory.GROWTH_OF_BY;
         token1.begin = focusNodes.get(0).getBegin();
         token1.end = focusNodes.get(1).getEnd();
-        datas.tokens.add(token1);
+        datas.addToken(token1);
 
         FocusNode growthOfMeasure = focusNodes.get(2);// growth of
         FocusPhrase growthOf = growthOfMeasure.getChildren();
@@ -91,7 +85,7 @@ public class GrowthOfInstruction {
 
             int begin = growthOf.getFirstNode().getBegin();
             int end = growthOf.getLastNode().getEnd();
-            datas.tokens.add(AnnotationToken.singleCol(column, growthOf.size() == 2, begin, end));
+            datas.addToken(AnnotationToken.singleCol(column, growthOf.size() == 2, begin, end, amb));
         } else {
             FocusPhrase growthOfMeasureOperation = growthOf.getFocusNodes().get(0).getChildren();
             AnnotationToken token2 = new AnnotationToken();
@@ -102,14 +96,14 @@ public class GrowthOfInstruction {
                 }
                 String ope = growthOfMeasureOperation.getNodeNew(i).getValue().toLowerCase();
                 operation.append(ope);
-                token2.tokens.add(ope);
+                token2.addToken(ope);
             }
 
             token2.value = operation.toString();
             token2.type = "numberKeyword";
             token2.begin = growthOfMeasureOperation.getFirstNode().getBegin();
             token2.end = growthOfMeasureOperation.getLastNode().getEnd();
-            datas.tokens.add(token2);
+            datas.addToken(token2);
 
             json1.put("operation", operation.toString());
             FocusPhrase tmp = growthOf.getFocusNodes().get(1).getChildren();
@@ -118,18 +112,18 @@ public class GrowthOfInstruction {
 
             int begin = tmp.getFirstNode().getBegin();
             int end = tmp.getLastNode().getEnd();
-            datas.tokens.add(AnnotationToken.singleCol(column, tmp.size() == 2, begin, end));
+            datas.addToken(AnnotationToken.singleCol(column, tmp.size() == 2, begin, end, amb));
         }
 
         instructions.add(json1);
 
         AnnotationToken token4 = new AnnotationToken();
-        token4.tokens.add("by");
+        token4.addToken("by");
         token4.value = "by";
         token4.type = Constant.AnnotationCategory.GROWTH_OF_BY;
         token4.begin = focusNodes.get(3).getBegin();
         token4.end = focusNodes.get(3).getEnd();
-        datas.tokens.add(token4);
+        datas.addToken(token4);
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
@@ -142,7 +136,7 @@ public class GrowthOfInstruction {
 
         int begin = datePhrase.getFirstNode().getBegin();
         int end = datePhrase.getLastNode().getEnd();
-        datas.tokens.add(AnnotationToken.singleCol(column, datePhrase.size() == 2, begin, end));
+        datas.addToken(AnnotationToken.singleCol(column, datePhrase.size() == 2, begin, end, amb));
 
         if (focusNodes.size() == 6) {
             FocusNode param3 = focusNodes.get(5);
@@ -151,19 +145,19 @@ public class GrowthOfInstruction {
             token5.end = param3.getChildren().getLastNode().getEnd();
             if ("<year-over-year>".equals(param3.getValue())) {
                 json2.put("period", "year-over-year");
-                token5.tokens.add("year");
-                token5.tokens.add("over");
-                token5.tokens.add("year");
+                token5.addToken("year");
+                token5.addToken("over");
+                token5.addToken("year");
                 token5.value = "year over year";
                 token5.type = "yearOverYear";
             } else {
                 String interval = param3.getChildren().getFirstNode().getValue().toLowerCase();
                 json2.put("interval", interval);
-                token5.tokens.add(interval);
+                token5.addToken(interval);
                 token5.value = interval;
                 token5.type = "growthOfByDateInterval";
             }
-            datas.tokens.add(token5);
+            datas.addToken(token5);
         } else if (focusNodes.size() == 7) {
             String interval = focusNodes.get(5).getChildren().getFirstNode().getValue().toLowerCase();
             json2.put("interval", interval);
@@ -172,20 +166,20 @@ public class GrowthOfInstruction {
             AnnotationToken token5 = new AnnotationToken();
             token5.begin = focusNodes.get(5).getChildren().getFirstNode().getBegin();
             token5.end = focusNodes.get(5).getChildren().getLastNode().getEnd();
-            token5.tokens.add(interval);
+            token5.addToken(interval);
             token5.value = interval;
             token5.type = "growthOfByDateInterval";
-            datas.tokens.add(token5);
+            datas.addToken(token5);
 
             AnnotationToken token6 = new AnnotationToken();
             token6.begin = focusNodes.get(6).getChildren().getFirstNode().getBegin();
             token6.end = focusNodes.get(6).getChildren().getLastNode().getEnd();
-            token6.tokens.add("year");
-            token6.tokens.add("over");
-            token6.tokens.add("year");
+            token6.addToken("year");
+            token6.addToken("over");
+            token6.addToken("year");
             token6.value = "year over year";
             token6.type = "yearOverYear";
-            datas.tokens.add(token6);
+            datas.addToken(token6);
         }
         instructions.add(json2);
 

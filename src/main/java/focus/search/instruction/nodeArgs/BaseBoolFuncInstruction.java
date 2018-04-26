@@ -6,8 +6,10 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,6 +39,27 @@ public class BaseBoolFuncInstruction {
         expression.put("args", args);
         return expression;
 
+    }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
+        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
+        FocusNode symbol = focusPhrase.getFocusNodes().get(1).getChildren().getFirstNode();
+
+        List<AnnotationToken> tokens = new ArrayList<>();
+        tokens.addAll(NumberOrNumColInst.tokens(param1, formulas, amb));
+
+        AnnotationToken token2 = new AnnotationToken();
+        token2.value = symbol.getValue();
+        token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token2.begin = symbol.getBegin();
+        token2.end = symbol.getEnd();
+        tokens.add(token2);
+
+        tokens.addAll(NumberOrNumColInst.tokens(param2, formulas, amb));
+
+        return tokens;
     }
 
 }

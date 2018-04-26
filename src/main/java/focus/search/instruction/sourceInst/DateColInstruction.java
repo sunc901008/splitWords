@@ -6,11 +6,13 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.DateFuncInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,21 +32,18 @@ public class DateColInstruction {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_expression");
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE);
 
-        JSONObject expression = new JSONObject();
-        JSONObject json = build(focusPhrase, formulas);
-        String type = json.getString("type");
-        // todo
+        String type = focusPhrase.getFocusNodes().get(0).getValue();
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            expression.put("type", "column");
-            Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
-            json1.put("instId", "add_column_for_group");
+            datas.category = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
         } else if (Constant.InstType.FUNCTION.equals(type)) {
-            expression = json.getJSONObject(Constant.InstType.FUNCTION);
+            datas.category = Constant.AnnotationCategory.EXPRESSION;
         }
 
-        json1.put("expression", expression);
+        datas.addTokens(tokens(focusPhrase, formulas, amb));
+
+        json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -52,7 +51,7 @@ public class DateColInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
@@ -64,7 +63,6 @@ public class DateColInstruction {
         JSONObject json = build(focusPhrase, formulas);
         String type = json.getString("type");
         JSONObject arg = new JSONObject();
-        // todo
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             arg.put("type", "column");
             arg.put("value", ((Column) json.get("column")).getColumnId());
@@ -95,4 +93,20 @@ public class DateColInstruction {
                 throw new InvalidRuleException("Build instruction fail!!!");
         }
     }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode node = focusPhrase.getFocusNodes().get(0);
+        switch (node.getValue()) {
+            case "<all-date-column>":
+                List<AnnotationToken> tokens = new ArrayList<>();
+                tokens.add(AnnotationToken.singleCol(node.getChildren(), amb));
+                return tokens;
+            case "<date-function-column>":
+                return DateFuncInstruction.tokens(node.getChildren(), formulas, amb);
+            default:
+                throw new InvalidRuleException("Build instruction fail!!!");
+        }
+    }
+
 }

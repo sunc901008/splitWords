@@ -6,6 +6,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -34,5 +35,16 @@ public class ColumnValueInstruction {
         }
         return arg;
     }
+
+    public static AnnotationToken token(FocusNode focusNode) throws InvalidRuleException {
+        FocusPhrase fp = focusNode.getChildren();
+        AnnotationToken token = new AnnotationToken();
+        token.value = fp.getNodeNew(1).getValue();
+        token.type = Constant.AnnotationTokenType.STRING;
+        token.begin = fp.getFirstNode().getBegin();
+        token.end = fp.getLastNode().getEnd();
+        return token;
+    }
+
 
 }

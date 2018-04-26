@@ -6,10 +6,12 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.annotations.AnnotationBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,6 +29,7 @@ public class ContainsFuncInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
@@ -39,8 +42,9 @@ public class ContainsFuncInstruction {
         json2.put("annotationId", annotationId);
         json2.put("instId", "annotation");
 
+        datas.addTokens(tokens(focusPhrase, formulas, amb));
         // annotation content
-        json2.put("content", AnnotationBuild.build(focusPhrase, index, amb));
+        json2.put("content", datas);
 
         instructions.add(json2);
 
@@ -64,4 +68,91 @@ public class ContainsFuncInstruction {
         return arg;
     }
 
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        List<AnnotationToken> tokens = new ArrayList<>();
+        AnnotationToken token1 = new AnnotationToken();
+        token1.value = focusPhrase.getFocusNodes().get(0).getValue();
+        token1.type = Constant.AnnotationTokenType.SYMBOL;
+        token1.begin = focusPhrase.getFocusNodes().get(0).getBegin();
+        token1.end = focusPhrase.getFocusNodes().get(0).getEnd();
+        tokens.add(token1);
+
+        AnnotationToken token2 = new AnnotationToken();
+        token2.value = focusPhrase.getFocusNodes().get(1).getValue();
+        token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token2.begin = focusPhrase.getFocusNodes().get(1).getBegin();
+        token2.end = focusPhrase.getFocusNodes().get(1).getEnd();
+        tokens.add(token2);
+
+        tokens.addAll(ColValueOrStringColInst.tokens(focusPhrase.getFocusNodes().get(2), formulas, amb));
+
+        AnnotationToken token4 = new AnnotationToken();
+        token4.value = focusPhrase.getFocusNodes().get(3).getValue();
+        token4.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token4.begin = focusPhrase.getFocusNodes().get(3).getBegin();
+        token4.end = focusPhrase.getFocusNodes().get(3).getEnd();
+        tokens.add(token4);
+
+        tokens.addAll(ColValueOrStringColInst.tokens(focusPhrase.getFocusNodes().get(4), formulas, amb));
+
+        AnnotationToken token6 = new AnnotationToken();
+        token6.value = focusPhrase.getFocusNodes().get(5).getValue();
+        token6.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+        token6.begin = focusPhrase.getFocusNodes().get(5).getBegin();
+        token6.end = focusPhrase.getFocusNodes().get(5).getEnd();
+        tokens.add(token6);
+        return tokens;
+    }
+
 }
+//{
+//    "type": "phrase",
+//    "id": 1,
+//    "category": "expression",
+//    "begin": 0,
+//    "end": 34,
+//    "tokens": [{
+//    "type": "symbol",
+//    "value": "contains",
+//    "begin": 0,
+//    "end": 8
+//    },
+//    {
+//    "type": "punctuationMark",
+//    "value": "(",
+//    "begin": 8,
+//    "end": 10
+//    },
+//    {
+//    "description": "column <b>displayname<\\\/b> in <b>users<\\\/b>",
+//    "tableName": "users",
+//    "columnName": "displayname",
+//    "columnId": 10,
+//    "type": "attribute",
+//    "detailType": "stringAttributeColumn",
+//    "tokens": ["displayname"],
+//    "value": "displayname",
+//    "begin": 10,
+//    "end": 22
+//    },
+//    {
+//    "type": "punctuationMark",
+//    "value": ",",
+//    "begin": 22,
+//    "end": 25
+//    },
+//    {
+//    "type": "wholeString",
+//    "value": "abcd",
+//    "begin": 25,
+//    "end": 32
+//    },
+//    {
+//    "isExpressionEnd": true,
+//    "type": "punctuationMark",
+//    "value": ")",
+//    "begin": 32,
+//    "end": 34
+//    }]
+//}

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.StringFunc.*;
 import focus.search.meta.Formula;
 
@@ -59,6 +60,27 @@ public class StringFuncInstruction {
                 return IfThenElseStringColFuncInstruction.arg(fn.getChildren(), formulas);
             case "<ifnull-string-function>":
                 return IfNullStringColFuncInstruction.arg(fn.getChildren(), formulas);
+            default:
+                throw new InvalidRuleException("Build instruction fail!!!");
+        }
+    }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        FocusNode fn = focusPhrase.getFocusNodes().get(0);
+        switch (fn.getValue()) {
+            case "<to_string-function>":
+                return ToStringFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<month-function>":
+                return MonthFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<concat-function>":
+                return ConcatFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<substr-function>":
+                return SubstrFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<if-then-else-string-function>":
+                return IfThenElseStringColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<ifnull-string-function>":
+                return IfNullStringColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

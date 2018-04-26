@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.BoolFuncColInstruction;
 import focus.search.instruction.sourceInst.BoolColInstruction;
 import focus.search.meta.Column;
@@ -29,8 +30,24 @@ public class BoolColOrBoolFuncColInst {
                     arg.put("value", ((Column) json.get("column")).getColumnId());
                 }
                 return arg;
+            case "<no-or-and-bool-function-column>":
+                return NoOrAndBoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
+            default:
+                throw new InvalidRuleException("Build instruction fail!!!");
+        }
+    }
+
+    // annotation token
+    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+        switch (focusNode.getValue()) {
+            case "<bool-columns>":
+                return BoolColInstruction.tokens(focusNode, formulas, amb);
+            case "<no-or-and-bool-function-column>":
+                return NoOrAndBoolFuncColInstruction.tokens(focusNode.getChildren(), formulas, amb);
+            case "<bool-function-column>":
+                return BoolFuncColInstruction.tokens(focusNode.getChildren(), formulas, amb);
             default:
                 throw new InvalidRuleException("Build instruction fail!!!");
         }

@@ -29,40 +29,33 @@ public class SortByInstruction {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
-        AnnotationDatas datas = new AnnotationDatas();
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.SORT_BY_ORDER);
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_expression_for_sort");
 
-        datas.id = index;
-        datas.begin = focusPhrase.getFirstNode().getBegin();
-        datas.end = focusPhrase.getLastNode().getEnd();
-        datas.type = Constant.AnnotationType.PHRASE;
-        datas.category = Constant.AnnotationCategory.SORT_BY_ORDER;
-
         AnnotationToken token1 = new AnnotationToken();
-        token1.tokens.add("sort");
-        token1.tokens.add("by");
+        token1.addToken("sort");
+        token1.addToken("by");
         token1.value = "sort by";
         token1.type = Constant.AnnotationCategory.SORT_BY_ORDER;
         token1.begin = focusNodes.get(0).getBegin();
         token1.end = focusNodes.get(1).getEnd();
-        datas.tokens.add(token1);
+        datas.addToken(token1);
 
         FocusNode param = focusPhrase.getFocusNodes().get(2);
 
         JSONObject json = AllColumnsInstruction.build(param.getChildren(), formulas);
         String type = json.getString("type");
         JSONObject arg = new JSONObject();
-        // todo
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             arg.put("type", "column");
             Column column = (Column) json.get("column");
             arg.put("value", column.getColumnId());
             int begin = param.getChildren().getFirstNode().getBegin();
             int end = param.getChildren().getLastNode().getEnd();
-            datas.tokens.add(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end));
+            datas.addToken(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end, amb));
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             arg = json.getJSONObject(Constant.InstType.FUNCTION);
         }
@@ -76,8 +69,8 @@ public class SortByInstruction {
             token3.type = "sortOrder";
             token3.begin = focusNodes.get(3).getBegin();
             token3.end = focusNodes.get(3).getEnd();
-            token3.tokens.add(sortOrder);
-            datas.tokens.add(token3);
+            token3.addToken(sortOrder);
+            datas.addToken(token3);
         }
         json1.put("sortOrder", sortOrder);
 

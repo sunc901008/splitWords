@@ -79,9 +79,9 @@
                      strlen ( <column-value> );
 # number
 <if-then-else-number-function> := if <bool-columns> then <number> else <number> |
-                                  if <bool-function-column> then <number> else <number> |
+                                  if <no-or-and-bool-function-column> then <number> else <number> |
                                   if <bool-columns> then <number-columns> else <number-columns> |
-                                  if <bool-function-column> then <number-columns> else <number-columns>;
+                                  if <no-or-and-bool-function-column> then <number-columns> else <number-columns>;
 # number
 <ifnull-number-function> := ifnull ( <number> , <number> ) |
                             ifnull ( <number-columns> , <number-columns> );
@@ -102,28 +102,27 @@
                                   <if-then-else-bool-column-function> |
                                   <ifnull-bool-column-function> |
                                   <isnull-function> |
-                                  <not-function>;
+                                  <not-function> |
+                                  <bool-columns>;
 # bool
-<and-function> := <all-bool-column> and <bool-function-column> |
-                  <all-bool-column> and <and-function> |
-                  <all-bool-column> and <or-function> |
-                  <no-or-and-bool-function-column> and <bool-function-column> |
+<and-function> := <bool-columns> and <no-or-and-bool-function-column> |
+                  <bool-columns> and <and-function> |
+                  <bool-columns> and <or-function> |
                   <no-or-and-bool-function-column> and <no-or-and-bool-function-column>;
 
 # bool
-<or-function> := <all-bool-column> or <bool-function-column> |
-                 <all-bool-column> or <and-function> |
-                 <all-bool-column> or <or-function> |
-                 <no-or-and-bool-function-column> or <bool-function-column> |
+<or-function> := <bool-columns> or <no-or-and-bool-function-column> |
+                 <bool-columns> or <and-function> |
+                 <bool-columns> or <or-function> |
                  <no-or-and-bool-function-column> or <no-or-and-bool-function-column>;
 # bool
-<if-then-else-bool-column-function> := if <bool-columns> then <bool-columns> else <bool-function-column> |
-                                       if <bool-columns> then <bool-function-column> else <bool-columns> |
-                                       if <bool-function-column> then <bool-columns> else <bool-columns> |
-                                       if <bool-columns> then <bool-function-column> else <bool-function-column> |
-                                       if <bool-function-column> then <bool-columns> else <bool-function-column> |
-                                       if <bool-function-column> then <bool-function-column> else <bool-columns> |
-                                       if <bool-function-column> then <bool-function-column> else <bool-function-column> |
+<if-then-else-bool-column-function> := if <bool-columns> then <bool-columns> else <no-or-and-bool-function-column> |
+                                       if <bool-columns> then <no-or-and-bool-function-column> else <bool-columns> |
+                                       if <no-or-and-bool-function-column> then <bool-columns> else <bool-columns> |
+                                       if <bool-columns> then <no-or-and-bool-function-column> else <no-or-and-bool-function-column> |
+                                       if <no-or-and-bool-function-column> then <bool-columns> else <no-or-and-bool-function-column> |
+                                       if <no-or-and-bool-function-column> then <no-or-and-bool-function-column> else <bool-columns> |
+                                       if <no-or-and-bool-function-column> then <no-or-and-bool-function-column> else <no-or-and-bool-function-column> |
                                        if <bool-columns> then <bool-columns> else <bool-columns>;
 
 # bool
@@ -132,13 +131,13 @@
 
 # bool
 <not-function> := not ( <bool-columns> ) |
-                  not ( <bool-function-column> );
+                  not ( <no-or-and-bool-function-column> );
 
 # bool
 <ifnull-bool-column-function> := ifnull ( <bool-columns> , <bool-columns> ) |
-                                 ifnull ( <bool-function-column> , <bool-columns> ) |
-                                 ifnull ( <bool-columns> , <bool-function-column> ) |
-                                 ifnull ( <bool-function-column> , <bool-function-column> );
+                                 ifnull ( <no-or-and-bool-function-column> , <bool-columns> ) |
+                                 ifnull ( <bool-columns> , <no-or-and-bool-function-column> ) |
+                                 ifnull ( <no-or-and-bool-function-column> , <no-or-and-bool-function-column> );
 
 # date
 <to_date-function> := to_date ( <number-columns> ) |
@@ -146,7 +145,7 @@
 
 # date
 <if-then-else-date-column-function> := if <bool-columns> then <date-columns> else <date-columns> |
-                                       if <bool-function-column> then <date-columns> else <date-columns>;
+                                       if <no-or-and-bool-function-column> then <date-columns> else <date-columns>;
 
 # date
 <ifnull-date-column-function> := ifnull ( <date-columns> , <date-columns> );
@@ -171,9 +170,9 @@
 
 # string
 <if-then-else-string-function> := if <bool-columns> then <column-value> else <column-value> |
-                                  if <bool-function-column> then <column-value> else <column-value>|
+                                  if <no-or-and-bool-function-column> then <column-value> else <column-value>|
                                   if <bool-columns> then <string-columns> else <string-columns> |
-                                  if <bool-function-column> then <string-columns> else <string-columns>;
+                                  if <no-or-and-bool-function-column> then <string-columns> else <string-columns>;
 
 # string
 <ifnull-string-function> := ifnull ( <column-value> , <column-value> ) |
