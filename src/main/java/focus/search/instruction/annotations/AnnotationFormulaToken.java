@@ -2,7 +2,6 @@ package focus.search.instruction.annotations;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import focus.search.meta.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
  */
 public class AnnotationFormulaToken {
     public String description;
-    public Formula formula;
+    public JSONObject formula;
     public String type;
     public String detailType;
     public String value;
@@ -22,7 +21,7 @@ public class AnnotationFormulaToken {
     public Integer end;
     public List<String> tokens = new ArrayList<>();
 
-    JSONObject toJSON() {
+    public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("description", this.description);
         json.put("formula", this.formula);

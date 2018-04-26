@@ -535,23 +535,6 @@ public class FocusParser {
         List<FocusPhrase> focusPhrases = new ArrayList<>();
         List<BnfRule> removes = new ArrayList<>();
 
-//        if (rules.isEmpty()) {
-//            for (TokenString ts : rule.getAlternatives()) {
-//                FocusPhrase fp = new FocusPhrase();
-//                fp.setInstName(rule.getLeftHandSide().getName());
-//                for (AnnotationToken token : ts) {
-//                    FocusNode fn = new FocusNode(token.getName());
-//                    fn.setType(focusToken.getType());
-//                    fn.setTerminal(true);
-//                    if (token.getName().equalsIgnoreCase(focusToken.getWord())) {
-//                        fn.setBegin(focusToken.getStart());
-//                        fn.setEnd(focusToken.getEnd());
-//                    }
-//                    fp.addPn(fn);
-//                }
-//                focusPhrases.add(fp);
-//            }
-//        } else {
         for (TokenString alt : rule.getAlternatives()) {
             Token inst = alt.getFirst();
             BnfRule br = findRule(rules, inst);
@@ -577,7 +560,6 @@ public class FocusParser {
             }
         }
         rules.removeAll(removes);
-//        }
 
         replace(rules, focusPhrases, focusToken, 0);
 

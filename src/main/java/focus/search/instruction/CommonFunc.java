@@ -1,8 +1,6 @@
 package focus.search.instruction;
 
-import com.sun.istack.internal.NotNull;
 import focus.search.meta.Column;
-import focus.search.meta.Formula;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
 
@@ -29,16 +27,6 @@ public class CommonFunc {
             }
         }
         return columns;
-    }
-
-    @NotNull
-    public static Formula getFormula(List<Formula> formulas, String formulaName) {
-        for (Formula f : formulas) {
-            if (f.getName().equals(formulaName)) {
-                return f;
-            }
-        }
-        return null;
     }
 
 }

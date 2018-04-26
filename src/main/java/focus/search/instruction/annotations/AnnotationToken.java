@@ -2,9 +2,12 @@ package focus.search.instruction.annotations;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
+import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.response.search.AmbiguityDatas;
 
 import java.util.ArrayList;
@@ -47,10 +50,11 @@ public class AnnotationToken {
         json.put("begin", this.begin);
         json.put("columnId", this.columnId);
         json.put("end", this.end);
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.addAll(this.tokens);
-        if (!jsonArray.isEmpty())
+        if (this.tokens != null) {
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.addAll(this.tokens);
             json.put("tokens", jsonArray);
+        }
         return json;
     }
 
@@ -91,6 +95,22 @@ public class AnnotationToken {
         token.begin = begin;
         token.end = end;
         return token;
+    }
+
+    public static JSONObject singleFormula(FocusNode node, Formula formula) {
+        JSONObject json = new JSONObject();
+        json.put("description", "formula " + formula.getName() + ":" + formula.getFormula());
+        json.put("formula", formula.toJSON());
+        json.put("type", Constant.FNDType.FORMULA);
+        json.put("detailType", Constant.FNDType.FORMULA);
+        json.put("value", formula.getName());
+        json.put("begin", node.getBegin());
+        json.put("end", node.getEnd());
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.add(formula.getName());
+        json.put("tokens", jsonArray);
+        return json;
+
     }
 
 }

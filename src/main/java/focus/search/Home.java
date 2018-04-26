@@ -12,6 +12,8 @@ import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
+import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Column;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.search.*;
@@ -34,9 +36,64 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-        search(0, 13);
+//        search(0, 13);
 //        split(18, 1);
 //        split(",>");
+        ttt();
+    }
+
+    private static void ttt() {
+        // annotation content
+        AnnotationDatas datas = new AnnotationDatas();
+        JSONArray instructions = new JSONArray();
+
+        JSONObject json2 = new JSONObject();
+
+        List<AnnotationToken> objects = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            AnnotationToken token = new AnnotationToken();
+
+            token.value = "test" + i;
+            token.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+            token.begin = i;
+            token.end = i * i;
+
+            objects.add(token);
+        }
+
+        datas.addTokens(objects);
+
+
+        String in = "{\"args\": [{\"type\": \"number\",\"value\": 1},{\"type\": \"number\",\"value\": 1}],\"name\": \"+\",\"type\": \"function\"}";
+        JSONObject instruction = JSONObject.parseObject(in);
+
+        JSONObject formula = new JSONObject();
+        formula.put("id", 999);
+        formula.put("formula", "formula");
+        formula.put("name", "name");
+        formula.put("dataType", "dataType");
+        formula.put("aggregation", "aggregation");
+        formula.put("columnType", "columnType");
+        formula.put("instruction", instruction);
+
+        JSONObject json = new JSONObject();
+        json.put("description", "formula description");
+        json.put("formula", formula);
+        json.put("type", Constant.FNDType.FORMULA);
+        json.put("detailType", Constant.FNDType.FORMULA);
+        json.put("value", "formulaName");
+        json.put("begin", 3);
+        json.put("end", 23);
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.add("formulaName");
+        json.put("tokens", jsonArray);
+        datas.addToken(json);
+
+        json2.put("content", datas);
+
+        instructions.add(json2);
+
+        print(instructions);
     }
 
     private static void split(String search) throws IOException {
@@ -185,7 +242,7 @@ public class Home {
         return focusInst.getFocusPhrases().get(0);
     }
 
-    private static void formulaTest(FocusPhrase fp) {
+    private static void formulaTest(FocusPhrase fp) throws InvalidRuleException {
         long received = Calendar.getInstance().getTimeInMillis();
         System.out.println(received);
         String search = "";

@@ -6,8 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.meta.Formula;
-import focus.search.response.search.FormulaResponse;
+import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.instruction.InstructionBuild;
 import focus.search.response.search.FormulaSettings;
 
 import java.util.*;
@@ -52,7 +52,11 @@ public class FormulaAnalysis {
         public JSONArray args = new JSONArray();
 
         public JSONObject toJSON() {
-            return JSONObject.parseObject(JSON.toJSONString(this));
+            JSONObject json = new JSONObject();
+            json.put("type", type);
+            json.put("name", name);
+            json.put("args", args);
+            return json;
         }
 
         public String toString() {
@@ -140,7 +144,19 @@ public class FormulaAnalysis {
         return args;
     }
 
-    public static FormulaObj analysis(FocusPhrase focusPhrase) {
+    public static FormulaObj analysis(FocusPhrase focusPhrase) throws InvalidRuleException {
+        JSONArray instructions = InstructionBuild.build(focusPhrase, 1, new JSONObject(), new ArrayList<>());
+        for (int i = 0; i < instructions.size(); i++) {
+            JSONObject instruction = instructions.getJSONObject(i);
+            if (instruction.getString("instId").equals("add_expression")) {
+                JSONObject content = instruction.getJSONObject("expression");
+                return JSONObject.parseObject(content.toJSONString(), FormulaObj.class);
+            }
+        }
+        throw new InvalidRuleException("Build instruction fail!!!");
+    }
+
+    public static FormulaObj analysisBak(FocusPhrase focusPhrase) {
         List<Arg> args = getAfterList(focusPhrase);
         Stack<JSONObject> stack = new Stack<>();
         for (Arg arg : args) {

@@ -634,7 +634,6 @@ class SearchHandler {
                     }
                     session.sendMessage(new TextMessage(annotationResponse.response()));
 
-                    //  todo here
 //                    {"type":"state","question":"id","cost":16,"icount":0,"icost":0,"iRequestTime":0,"pcost":7,"datas":"searchFinished"}
                     session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
 

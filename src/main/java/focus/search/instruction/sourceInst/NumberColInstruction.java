@@ -6,7 +6,6 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.annotations.AnnotationBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
@@ -59,7 +58,14 @@ public class NumberColInstruction {
         json2.put("instId", "annotation");
 
         // annotation content
-        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE);
+
+        if ("<number-function-column>".equals(focusPhrase.getFocusNodes().get(0).getValue())) {
+            datas.category = Constant.AnnotationCategory.EXPRESSION;
+        } else {
+            datas.category = Constant.AnnotationCategory.MEASURE_COLUMN;
+        }
+
         datas.addTokens(tokens(focusPhrase, formulas, amb));
         json2.put("content", datas);
 

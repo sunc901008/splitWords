@@ -38,6 +38,10 @@ public class AnnotationDatas {
     }
 
     public void addToken(AnnotationToken object) {
+        addToken(object.toJSON());
+    }
+
+    public void addToken(JSONObject object) {
         if (this.tokens == null) {
             this.tokens = new JSONArray();
         }
@@ -45,10 +49,9 @@ public class AnnotationDatas {
     }
 
     public void addTokens(List<AnnotationToken> objects) {
-        if (this.tokens == null) {
-            this.tokens = new JSONArray();
+        for(AnnotationToken annotationToken : objects){
+            addToken(annotationToken);
         }
-        this.tokens.addAll(objects);
     }
 
     public JSONObject toJSON() {

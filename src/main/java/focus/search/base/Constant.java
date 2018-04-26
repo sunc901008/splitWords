@@ -140,8 +140,10 @@ public class Constant {
         public static final String GROWTH_OF_BY = "growthOfBy";
         public static final String FILTER = "filter";
         public static final String EXPRESSION = "expression";
+        public static final String EXPRESSION_OR_LOGICAL = "expressionOrLogicalExpression";
         public static final String ATTRIBUTE_COLUMN = "attributeColumn";
         public static final String MEASURE_COLUMN = "measureColumn";
+        public static final String FORMULA_NAME = "formulaName";
     }
 
     // annotation token type

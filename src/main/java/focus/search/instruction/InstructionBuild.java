@@ -32,11 +32,12 @@ public class InstructionBuild {
             instructions.addAll(build(focusPhrase, index, amb, formulas));
         }
 
-        data.put("instructions", instructions.toJSONString());
+        String ins = instructions.toJSONString();
+        data.put("instructions", ins);
         return data;
     }
 
-    private static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
         switch (focusPhrase.getInstName()) {
             case "<filter>":
                 return FilterInstruction.build(focusPhrase, index, amb, formulas);
