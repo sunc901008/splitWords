@@ -6,12 +6,9 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.annotations.AnnotationBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
-import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
-import focus.search.instruction.sourceInst.ColumnValueInstruction;
-import focus.search.instruction.sourceInst.DateColInstruction;
+import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
 import focus.search.meta.Formula;
 
 import java.util.ArrayList;
@@ -64,21 +61,9 @@ public class DiffDaysFuncInstruction {
         arg.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
 
-        if ("<column-value>".equals(param1.getValue())) {
-            JSONObject json = ColumnValueInstruction.arg(param1);
-            json.put("type", Constant.InstType.DATE);
-            args.add(json);
-        } else {//<date-columns>
-            args.add(DateColInstruction.arg(param1.getChildren(), formulas));
-        }
+        args.add(ColValueOrDateColInst.arg(param1, formulas));
 
-        if ("<column-value>".equals(param2.getValue())) {
-            JSONObject json = ColumnValueInstruction.arg(param2);
-            json.put("type", Constant.InstType.DATE);
-            args.add(json);
-        } else {//<date-columns>
-            args.add(DateColInstruction.arg(param2.getChildren(), formulas));
-        }
+        args.add(ColValueOrDateColInst.arg(param2, formulas));
 
         arg.put("args", args);
         return arg;
@@ -102,11 +87,7 @@ public class DiffDaysFuncInstruction {
         tokens.add(token2);
 
         FocusNode param1 = focusPhrase.getFocusNodes().get(2);
-        if ("<column-value>".equals(param1.getValue())) {
-            tokens.addAll(ColValueOrStringColInst.tokens(param1, formulas, amb));
-        } else {//<date-columns>
-            tokens.addAll(DateColInstruction.tokens(param1.getChildren(), formulas,amb));
-        }
+        tokens.addAll(ColValueOrDateColInst.tokens(param1, formulas, amb));
 
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusPhrase.getFocusNodes().get(3).getValue();
@@ -116,11 +97,7 @@ public class DiffDaysFuncInstruction {
         tokens.add(token4);
 
         FocusNode param2 = focusPhrase.getFocusNodes().get(4);
-        if ("<column-value>".equals(param2.getValue())) {
-            tokens.addAll(ColValueOrStringColInst.tokens(param2, formulas, amb));
-        } else {//<date-columns>
-            tokens.addAll(DateColInstruction.tokens(param2.getChildren(), formulas,amb));
-        }
+        tokens.addAll(ColValueOrDateColInst.tokens(param2, formulas, amb));
 
         AnnotationToken token6 = new AnnotationToken();
         token6.value = focusPhrase.getFocusNodes().get(5).getValue();

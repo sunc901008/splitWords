@@ -112,7 +112,6 @@ public class Constant {
         public static final String BIGINT = "bigint";
         public static final String SMALLINT = "smallint";
         public static final String BOOLEAN = "boolean";
-
     }
 
     // build instruction type

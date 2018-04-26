@@ -6,12 +6,9 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.instruction.annotations.AnnotationBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
-import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
-import focus.search.instruction.sourceInst.ColumnValueInstruction;
-import focus.search.instruction.sourceInst.DateColInstruction;
+import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
 import focus.search.meta.Formula;
 
 import java.util.ArrayList;
@@ -59,13 +56,7 @@ public class MonthFuncInstruction {
         expression.put("type", Constant.InstType.FUNCTION);
         expression.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
-        if ("<date-columns>".equals(param.getValue())) {
-            args.add(DateColInstruction.arg(param.getChildren(), formulas));
-        } else if ("<column-value>".equals(param.getValue())) {
-            JSONObject json = ColumnValueInstruction.arg(param);
-            json.put("type", Constant.InstType.DATE);
-            args.add(json);
-        }
+        args.add(ColValueOrDateColInst.arg(param, formulas));
 
         expression.put("args", args);
 
@@ -90,11 +81,7 @@ public class MonthFuncInstruction {
         tokens.add(token2);
 
         FocusNode param = focusPhrase.getFocusNodes().get(2);
-        if ("<column-value>".equals(param.getValue())) {
-            tokens.addAll(ColValueOrStringColInst.tokens(param, formulas, amb));
-        } else {//<date-columns>
-            tokens.addAll(DateColInstruction.tokens(param.getChildren(), formulas, amb));
-        }
+        tokens.addAll(ColValueOrDateColInst.tokens(param, formulas, amb));
 
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusPhrase.getFocusNodes().get(3).getValue();
