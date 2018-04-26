@@ -34,7 +34,7 @@ public class FormulaColumnInstruction {
         Formula formula = getFormula(formulas, formulaNode.getValue());
         json1.put("aggregation", formula.getAggregation());
         json1.put("type", formula.getColumnType());
-        json1.put("expression", formula.getInstruction());
+        json1.put("expression", JSONObject.parse(formula.getInstruction().toJSONString()));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();

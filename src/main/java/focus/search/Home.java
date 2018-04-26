@@ -15,6 +15,7 @@ import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.search.*;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -49,36 +50,17 @@ public class Home {
 
         JSONObject json2 = new JSONObject();
 
-        List<AnnotationToken> objects = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            AnnotationToken token = new AnnotationToken();
-
-            token.value = "test" + i;
-            token.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
-            token.begin = i;
-            token.end = i * i;
-
-            objects.add(token);
-        }
-
-        datas.addTokens(objects);
-
-
         String in = "{\"args\": [{\"type\": \"number\",\"value\": 1},{\"type\": \"number\",\"value\": 1}],\"name\": \"+\",\"type\": \"function\"}";
         JSONObject instruction = JSONObject.parseObject(in);
 
-        JSONObject formula = new JSONObject();
-        formula.put("id", 999);
-        formula.put("formula", "formula");
-        formula.put("name", "name");
-        formula.put("dataType", "dataType");
-        formula.put("aggregation", "aggregation");
-        formula.put("columnType", "columnType");
-        formula.put("instruction", instruction);
+        Formula formula = new Formula();
+        formula.setId("asdfois");
+        formula.setFormula("formula");
+        formula.setInstruction(instruction);
 
         JSONObject json = new JSONObject();
         json.put("description", "formula description");
-        json.put("formula", formula);
+        json.put("formula", formula.toJSON());
         json.put("type", Constant.FNDType.FORMULA);
         json.put("detailType", Constant.FNDType.FORMULA);
         json.put("value", "formulaName");
@@ -93,7 +75,15 @@ public class Home {
 
         instructions.add(json2);
 
-        print(instructions);
+        JSONObject json1 = new JSONObject();
+        json1.put("instId", "add_expression");
+        json1.put("category", Constant.AnnotationCategory.EXPRESSION_OR_LOGICAL);
+        String ss = formula.getInstruction().toJSONString();
+        json1.put("expression", JSONObject.parse(ss));
+        instructions.add(json1);
+
+        in = instructions.toJSONString();
+        print(in);
     }
 
     private static void split(String search) throws IOException {
