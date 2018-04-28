@@ -55,4 +55,8 @@ public class FocusInst {
         return json;
     }
 
+    public int size() {
+        return focusPhrases.size();
+    }
+
 }

@@ -25,17 +25,17 @@ import java.util.Scanner;
  * date: 2018/1/24
  * description:
  */
-public class FocusParser_bak {
+public class FocusParserBak {
 
     private BnfParser parser = null;
     public FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
     private final static int MAX_RULE_LOOP = 10;
 
-    public FocusParser_bak() {
+    public FocusParserBak() {
         init();
     }
 
-    public FocusParser_bak(String file) {
+    public FocusParserBak(String file) {
         init(file);
     }
 
@@ -223,15 +223,16 @@ public class FocusParser_bak {
                     if (fp.size() < i + 1) {
                         continue;
                     }
-                    FocusNode tmpNode = fp.getNode(i);
+                    FocusNode tmpNode = fp.getNodeNew(i);
                     if (ColumnValueTerminalToken.COLUMNVALUE.equals(tmpNode.getValue())) {
                         tmpNode.setValue(ft.getWord());
                         tmpNode.setBegin(ft.getStart());
                         tmpNode.setEnd(ft.getEnd());
                         tmpNode.setType(Constant.FNDType.COLUMNVALUE);
                         tmpNode.setTerminal(true);
-                        fp.removeNode(i);
-                        fp.addPn(i, tmpNode);
+//                        fp.removeNode(i);
+//                        fp.addPn(i, tmpNode);
+                        fp.replaceNode(i, tmpNode);
                         focusPhrases.add(fp);
                     }
                 }
@@ -249,7 +250,7 @@ public class FocusParser_bak {
             if (rules.isEmpty()) {
                 focusPhrases.clear();
                 for (FocusPhrase fp : tmp) {
-                    if (fp.size() > i && fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+                    if (fp.size() > i && fp.getNodeNew(i).getValue().equalsIgnoreCase(ft.getWord())) {
                         if (fp.size() == i + 1) {
                             fp.setType(Constant.INSTRUCTION);
                         }
@@ -273,10 +274,10 @@ public class FocusParser_bak {
                         remove.add(fp);
                         continue;
                     }
-                    if (!fp.getNode(i).getValue().equalsIgnoreCase(ft.getWord())) {
+                    if (!fp.getNodeNew(i).getValue().equalsIgnoreCase(ft.getWord())) {
                         remove.add(fp);
                     }
-                    if (fp.getNode(i).getValue().toLowerCase().startsWith(ft.getWord().toLowerCase())) {
+                    if (fp.getNodeNew(i).getValue().toLowerCase().startsWith(ft.getWord().toLowerCase())) {
                         startWith.add(fp);
                     }
                 }
@@ -362,7 +363,7 @@ public class FocusParser_bak {
 //            }
 //        }
 
-        String value = focusPhrases.get(0).getNode(index).getValue();
+        String value = focusPhrases.get(0).getNodeNew(index).getValue();
         AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(value, amb);
         boolean isResolved = false;
         AmbiguitiesRecord resolve = null;
@@ -376,7 +377,7 @@ public class FocusParser_bak {
         List<Integer> added = new ArrayList<>();
         List<FocusPhrase> remove = new ArrayList<>();
         for (FocusPhrase fp : focusPhrases) {
-            FocusNode fn = fp.getNode(index);
+            FocusNode fn = fp.getNodeNew(index);
             if (isResolved) {
                 if (!fn.getType().equals(resolve.type) || (Constant.FNDType.COLUMN.equals(fn.getType()) && fn.getColumn().getColumnId() != resolve.columnId)) {
                     remove.add(fp);
@@ -447,17 +448,16 @@ public class FocusParser_bak {
                     focusPhrase.setType(Constant.INSTRUCTION);
                     focusPhrases.add(focusPhrase);
                 } else {
-                    FocusNode fn = focusPhrase.getNode(position);
+                    FocusNode fn = focusPhrase.getNodeNew(position);
                     TerminalToken tt = terminal(fn.getValue());
                     if (tt != null) {
                         if (fn.getValue().equalsIgnoreCase(focusToken.getWord())) {
-                            focusPhrase.removeNode(position);
                             fn.setTerminal(true);
                             fn.setType(tt.getType());
 //                            fn.setColumn(tt.getColumn());
                             fn.setBegin(focusToken.getStart());
                             fn.setEnd(focusToken.getEnd());
-                            focusPhrase.addPn(position, fn);
+                            focusPhrase.replaceNode(position, fn);
                             if (focusPhrase.size() == position + 1) {
                                 focusPhrase.setType(Constant.INSTRUCTION);
                             }
@@ -476,8 +476,7 @@ public class FocusParser_bak {
                             continue;
                         }
                         for (TokenString ts : br.getAlternatives()) {
-                            FocusPhrase newFp = new FocusPhrase(focusPhrase.getInstName());
-                            newFp.addPns(focusPhrase.subNodes(0, position));
+                            FocusPhrase newFp = new FocusPhrase(br.getLeftHandSide().getName());
                             for (int i = 0; i < ts.size(); i++) {
                                 Token token = ts.get(i);
                                 FocusNode newFn = new FocusNode(token.getName());
@@ -500,11 +499,15 @@ public class FocusParser_bak {
                                 }
                                 newFp.addPn(newFn);
                             }
-                            newFp.addPns(focusPhrase.subNodes(position + 1));
-                            if (newFp.size() == position + 1 && newFp.getNode(position).getValue().equalsIgnoreCase(focusToken.getWord())) {
-                                newFp.setType(Constant.INSTRUCTION);
+                            FocusPhrase focusPhraseNew = JSONObject.parseObject(focusPhrase.toJSON().toJSONString(), FocusPhrase.class);
+                            FocusNode focusNodeNew = new FocusNode(br.getLeftHandSide().getName());
+                            focusNodeNew.setChildren(newFp);
+                            focusPhraseNew.replaceNode(position, focusNodeNew);
+                            if (focusPhraseNew.size() == position + 1 && focusPhraseNew.getNodeNew(position).getValue().equalsIgnoreCase(focusToken
+                                    .getWord())) {
+                                focusPhraseNew.setType(Constant.INSTRUCTION);
                             }
-                            focusPhrases.add(newFp);
+                            focusPhrases.add(focusPhraseNew);
                         }
                     }
                 }
@@ -515,9 +518,9 @@ public class FocusParser_bak {
             }
 
             //  比较替换之前和替换之后的phrase，如果无变化则表示该次替换完成
-            if (same(copy, focusPhrases)) {
-                break;
-            }
+//            if (same(copy, focusPhrases)) {
+//                break;
+//            }
         }
     }
 
@@ -525,56 +528,38 @@ public class FocusParser_bak {
         String word = focusToken.getWord();
         List<BnfRule> rules = parseRules(parser.getM_rules(), word);
 
-        if (rules.size() == 0) {
+        if (rules.size() <= 1) {
             return null;
         }
         BnfRule rule = rules.remove(0);
         List<FocusPhrase> focusPhrases = new ArrayList<>();
         List<BnfRule> removes = new ArrayList<>();
 
-        if (rules.isEmpty()) {
-            for (TokenString ts : rule.getAlternatives()) {
+        for (TokenString alt : rule.getAlternatives()) {
+            Token inst = alt.getFirst();
+            BnfRule br = findRule(rules, inst);
+            removes.add(br);
+            for (TokenString ts : br.getAlternatives()) {
                 FocusPhrase fp = new FocusPhrase();
-                fp.setInstName(rule.getLeftHandSide().getName());
+                fp.setInstName(inst.getName());
                 for (Token token : ts) {
                     FocusNode fn = new FocusNode(token.getName());
-                    fn.setType(focusToken.getType());
-                    fn.setTerminal(true);
-                    if (token.getName().equalsIgnoreCase(focusToken.getWord())) {
-                        fn.setBegin(focusToken.getStart());
-                        fn.setEnd(focusToken.getEnd());
+                    TerminalToken tt = terminal(fn.getValue());
+                    if (tt != null) {
+                        fn.setTerminal(true);
+                        fn.setType(tt.getType());
+                        fn.setColumn(tt.getColumn());
+                        if (token.getName().equalsIgnoreCase(focusToken.getWord())) {
+                            fn.setBegin(focusToken.getStart());
+                            fn.setEnd(focusToken.getEnd());
+                        }
                     }
                     fp.addPn(fn);
                 }
                 focusPhrases.add(fp);
             }
-        } else {
-            for (TokenString alt : rule.getAlternatives()) {
-                Token inst = alt.getFirst();
-                BnfRule br = findRule(rules, inst);
-                removes.add(br);
-                for (TokenString ts : br.getAlternatives()) {
-                    FocusPhrase fp = new FocusPhrase();
-                    fp.setInstName(inst.getName());
-                    for (Token token : ts) {
-                        FocusNode fn = new FocusNode(token.getName());
-                        TerminalToken tt = terminal(fn.getValue());
-                        if (tt != null) {
-                            fn.setTerminal(true);
-                            fn.setType(tt.getType());
-                            fn.setColumn(tt.getColumn());
-                            if (token.getName().equalsIgnoreCase(focusToken.getWord())) {
-                                fn.setBegin(focusToken.getStart());
-                                fn.setEnd(focusToken.getEnd());
-                            }
-                        }
-                        fp.addPn(fn);
-                    }
-                    focusPhrases.add(fp);
-                }
-            }
-            rules.removeAll(removes);
         }
+        rules.removeAll(removes);
 
         replace(rules, focusPhrases, focusToken, 0);
 

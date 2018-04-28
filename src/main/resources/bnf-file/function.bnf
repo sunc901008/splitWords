@@ -195,6 +195,7 @@
 
 # number # todo base
 <number-function> := <number> <math-symbol> <number-columns> |
+                     #<number> <math-symbol> <number-function> |
                      <number> <math-symbol> <number> |
                      <number-source-column> <math-symbol> <number-columns> |
                      <number-source-column> <math-symbol> <number> |

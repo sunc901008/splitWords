@@ -1,9 +1,9 @@
 <question> := <number-columns>;
 
 <number-columns> := <int-column> |
-                    <number-function-column>;
+                    <number-function>;
 
-<number-function-column> := <number-columns> + <integer> |
-                            <integer> + <number-columns>;
+<number-function> := <integer> + <number-function> |
+                     <integer> + <integer>;
 
 <integer> := 1;

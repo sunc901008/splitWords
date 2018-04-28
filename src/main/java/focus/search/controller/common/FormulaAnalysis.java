@@ -22,16 +22,15 @@ public class FormulaAnalysis {
     private static final String RIGHT_BRACKET = ")";
 
     // 运算优先级
-    //  todo 增加函数的优先级
     private static final List<String> LEVEL1 = Arrays.asList("*", "/");
     private static final List<String> LEVEL2 = Arrays.asList("+", "-");
-    private static final List<String> LEVEL3 = Arrays.asList(">", "<", "=", "!=");
+    //    private static final List<String> LEVEL3 = Arrays.asList(">", "<", "=", "!=");
     private static final List<String> LEVEL4 = Arrays.asList(LEFT_BRACKET, RIGHT_BRACKET);
 
     // 公式操作符返回的数据类型
     private static final List<String> BOOL_OPERATOR = Arrays.asList(">", "<", "=", "!=");
     private static final List<String> STRING_OPERATOR = Arrays.asList("", "");
-    private static final List<String> NUMERIC_OPERATOR = Arrays.asList("*", "/", "+", "-");
+    private static final List<String> NUMERIC_OPERATOR = Arrays.asList("*", "/", "+", "-", "^");
 
     // 聚合类型
     private static final List<String> ALL_AGGREGATION = Arrays.asList("SUM", "MIN", "MAX", "AVERAGE", "STD_DEVIATION", "VARIANCE", "NONE", "COUNT",
@@ -83,21 +82,17 @@ public class FormulaAnalysis {
     private static List<Arg> getAfterList(FocusPhrase focusPhrase) {
         List<Arg> args = new ArrayList<>();
 
+        List<FocusNode> focusNodes = focusPhrase.allNode();
+
         Stack<Arg> stack = new Stack<>();
-        for (FocusNode temp : focusPhrase.getFocusNodes()) {
+        for (FocusNode temp : focusNodes) {
             String type = temp.getType();
-            if (temp.getType().equalsIgnoreCase(Constant.FNDType.TABLE)) {
+            if (type.equalsIgnoreCase(Constant.FNDType.TABLE)) {
                 continue;
             }
-
             if (temp.getValue().equals(LEFT_BRACKET)) {// 左括号入栈
                 Arg arg = new Arg();
                 arg.type = "bracket";
-                arg.value = temp.getValue();
-                stack.push(arg);
-            } else if (type.equalsIgnoreCase(Constant.FNDType.SYMBOL)) {
-                Arg arg = new Arg();
-                arg.type = "function";
                 arg.value = temp.getValue();
                 stack.push(arg);
             } else if (temp.getValue().equals(RIGHT_BRACKET)) {
@@ -105,34 +100,32 @@ public class FormulaAnalysis {
                     args.add(stack.pop());
                 }
                 stack.pop();    // 把左括号弹出
+            } else if (type.equalsIgnoreCase(Constant.FNDType.COLUMN)) {     // 若为列
+                Arg arg = new Arg();
+                arg.type = "column";
+                arg.value = temp.getColumn().getColumnId();
+                args.add(arg);
+            } else if (type.equalsIgnoreCase(Constant.FNDType.INTEGER)) {
+                // 若为数字
+                Arg arg = new Arg();
+                arg.type = "number";
+                arg.value = Integer.parseInt(temp.getValue());
+                args.add(arg);
+            } else if (type.equalsIgnoreCase(Constant.FNDType.DOUBLE)) {
+                // 若为数字
+                Arg arg = new Arg();
+                arg.type = "number";
+                arg.value = Double.parseDouble(temp.getValue());
+                args.add(arg);
             } else {
-                if (temp.getType().equalsIgnoreCase(Constant.FNDType.COLUMN)) {     // 若为列
-                    Arg arg = new Arg();
-                    arg.type = "column";
-                    arg.value = temp.getColumn().getColumnId();
-                    args.add(arg);
-                } else if (temp.getType().equalsIgnoreCase(Constant.FNDType.INTEGER)) {
-                    // 若为数字
-                    Arg arg = new Arg();
-                    arg.type = "number";
-                    arg.value = Integer.parseInt(temp.getValue());
-                    args.add(arg);
-                } else if (temp.getType().equalsIgnoreCase(Constant.FNDType.DOUBLE)) {
-                    // 若为数字
-                    Arg arg = new Arg();
-                    arg.type = "number";
-                    arg.value = Double.parseDouble(temp.getValue());
-                    args.add(arg);
-                } else {
-                    // 从栈中弹出所有优先级比当前运算符高的运算符, 并放进队列中
-                    while (!stack.isEmpty() && compareOperatorPriority(stack.peek().type, temp.getType()) >= 0) {
-                        args.add(stack.pop());
-                    }
-                    Arg arg = new Arg();
-                    arg.type = "function";
-                    arg.value = temp.getValue();
-                    stack.push(arg);   // 操作符进栈
+                // 从栈中弹出所有优先级比当前运算符高的运算符, 并放进队列中
+                while (!stack.isEmpty() && compareOperatorPriority(stack.peek().value.toString(), temp.getValue()) >= 0) {
+                    args.add(stack.pop());
                 }
+                Arg arg = new Arg();
+                arg.type = "function";
+                arg.value = temp.getValue();
+                stack.push(arg);   // 操作符进栈
             }
         }
 
@@ -156,7 +149,7 @@ public class FormulaAnalysis {
         throw new InvalidRuleException("Build instruction fail!!!");
     }
 
-    public static FormulaObj analysisBak(FocusPhrase focusPhrase) {
+    public static FormulaObj numberAnalysis(FocusPhrase focusPhrase) {
         List<Arg> args = getAfterList(focusPhrase);
         Stack<JSONObject> stack = new Stack<>();
         for (Arg arg : args) {
@@ -190,7 +183,7 @@ public class FormulaAnalysis {
     }
 
     private static boolean isOperator(String value) {
-        return LEVEL1.contains(value) || LEVEL2.contains(value) || LEVEL3.contains(value);
+        return NUMERIC_OPERATOR.contains(value);
     }
 
     private static int compareOperatorPriority(String type1, String type2) {
@@ -200,9 +193,6 @@ public class FormulaAnalysis {
         if (LEVEL2.contains(type1) && LEVEL2.contains(type2)) {
             return 0;
         }
-        if (LEVEL3.contains(type1) && LEVEL3.contains(type2)) {
-            return 0;
-        }
         if (LEVEL4.contains(type1) && LEVEL4.contains(type2)) {
             return 0;
         }
@@ -210,9 +200,6 @@ public class FormulaAnalysis {
             return 1;
         }
         if (LEVEL2.contains(type1) && !LEVEL1.contains(type2)) {
-            return 1;
-        }
-        if (LEVEL3.contains(type1) && LEVEL4.contains(type2)) {
             return 1;
         }
         return -1;

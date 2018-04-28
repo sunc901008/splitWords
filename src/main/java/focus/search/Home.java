@@ -8,16 +8,16 @@ import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.common.FormulaAnalysis;
-import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
-import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
-import focus.search.response.search.*;
+import focus.search.response.search.AnnotationResponse;
+import focus.search.response.search.FormulaDatas;
+import focus.search.response.search.FormulaResponse;
+import focus.search.response.search.SearchFinishedResponse;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
@@ -37,10 +37,13 @@ public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
 
-//        search(0, 13);
+//        boolean expression = false;
+//        search(-1, 13, expression);
 //        split(18, 1);
 //        split(",>");
-        ttt();
+//        ttt();
+//        formulaTest(makeFp());
+        formula("2 + 3 + 7");
     }
 
     private static void ttt() {
@@ -120,7 +123,7 @@ public class Home {
     }
 
     // params:  start 需要执行的questions文件中的起始行号，为0时执行所有, length 执行的行数
-    private static void search(int start, int length) throws IOException, InvalidRuleException {
+    private static void search(int start, int length, boolean expression) throws IOException, InvalidRuleException {
         ResourceLoader resolver = new DefaultResourceLoader();
         BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
         String search;
@@ -133,7 +136,11 @@ public class Home {
                 continue;
             if (start == 0 || i >= start) {
                 print(i);
-                test(search);
+                if (!expression) {
+                    test(search);
+                } else {
+                    formula(search);
+                }
                 System.out.println();
                 length--;
             }
@@ -142,10 +149,24 @@ public class Home {
             }
         }
         if (start < 0) {
-            test(last);
+            if (!expression) {
+                test(last);
+            } else {
+                formula(last);
+            }
         }
 
         br.close();
+    }
+
+    private static void formula(String search) throws IOException, InvalidRuleException {
+        FocusInst fi = search(search);
+        if (fi != null && fi.size() == 1) {
+            FocusPhrase fp = fi.lastFocusPhrase();
+            FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(fp);
+            System.out.println(fp.toJSON());
+            System.out.println(formulaObj.toString());
+        }
     }
 
     private static void print(Object object) {
@@ -208,13 +229,13 @@ public class Home {
         fn1.setValue("5");
         FocusNode fn2 = new FocusNode();
         fn2.setType("symbol");
-        fn2.setValue("+");
+        fn2.setValue("*");
         FocusNode fn3 = new FocusNode();
         fn3.setType("integer");
         fn3.setValue("8");
         FocusNode fn4 = new FocusNode();
         fn4.setType("symbol");
-        fn4.setValue("*");
+        fn4.setValue("+");
         FocusNode fn5 = new FocusNode();
         fn5.setType("integer");
         fn5.setValue("2");
@@ -233,32 +254,11 @@ public class Home {
     }
 
     private static void formulaTest(FocusPhrase fp) throws InvalidRuleException {
-        long received = Calendar.getInstance().getTimeInMillis();
-        System.out.println(received);
-        String search = "";
-
-        FormulaResponse response = new FormulaResponse(search);
-        received = Calendar.getInstance().getTimeInMillis();
-        System.out.println(received);
 
         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(fp);
-        received = Calendar.getInstance().getTimeInMillis();
-        System.out.println(received);
 
         System.out.println(fp.toJSON());
         System.out.println(formulaObj.toString());
-
-        FormulaDatas datas = new FormulaDatas();
-        datas.settings = FormulaAnalysis.getSettings(formulaObj);
-        datas.formulaObj = formulaObj.toString();
-        response.setDatas(datas);
-        received = Calendar.getInstance().getTimeInMillis();
-        System.out.println(received);
-
-        System.out.println(response.response());
-        System.out.println(SearchFinishedResponse.response(search, received));
-        received = Calendar.getInstance().getTimeInMillis();
-        System.out.println(received);
 
     }
 
@@ -279,72 +279,84 @@ public class Home {
         return json;
     }
 
-    private static void test(String search) throws IOException, InvalidRuleException {
-
+    private static FocusInst search(String search) throws IOException, InvalidRuleException {
+        String test = "bnf-file/test.bnf";
         FocusParser parser = new FocusParser();
-        ModelBuild.buildTable(parser, ModelBuild.test(1));
+//        FocusParser parser = new FocusParser(test);
+//        ModelBuild.buildTable(parser, ModelBuild.test(1));
 
 //        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
 
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, "chinese");
 
         System.out.println(JSON.toJSONString(tokens));
-        FocusInst focusInst;
         try {
-            focusInst = parser.parseQuestion(tokens, new JSONObject());
+            FocusInst focusInst = parser.parseQuestion(tokens, new JSONObject());
+            System.out.println("-------------------");
+            System.out.println(focusInst.toJSON());
+            System.out.println("-------------------");
+            String q = search;
+            boolean over = false;
+            if (focusInst.position >= 0) {
+                over = true;
+                q = q + "  |  " + focusInst.position + ":" + tokens.get(focusInst.position).getWord();
+            }
+            System.out.println(q);
+
+            if (over) {
+                return null;
+            }
+            return focusInst;
+
         } catch (AmbiguitiesException e) {
             System.out.println("Ambiguity:");
             System.out.println(e.toString());
-            return;
         }
-        System.out.println("-------------------");
-        System.out.println(focusInst.toJSON());
-        System.out.println("-------------------");
-        String q = search;
-        boolean over = false;
-        if (focusInst.position >= 0) {
-            over = true;
-            q = q + "  |  " + focusInst.position + ":" + tokens.get(focusInst.position).getWord();
-        }
-        System.out.println(q);
-        if (over) {
+        return null;
+    }
+
+    private static void test(String search) throws IOException, InvalidRuleException {
+
+        FocusInst focusInst = search(search);
+
+        if (focusInst == null) {
             return;
         }
 
         String msg;
         if (focusInst.position < 0) {// 未出错
-            FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
-            if (focusPhrase.isSuggestion()) {// 出入不完整
-                SuggestionResponse response = new SuggestionResponse(search);
-                SuggestionDatas datas = new SuggestionDatas();
-                JSONObject json = SuggestionBuild.sug(tokens, focusInst);
-                datas.beginPos = json.getInteger("position");
-                datas.phraseBeginPos = datas.beginPos;
-                List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
-                focusNodes.forEach(node -> {
-                    SuggestionSuggestions suggestion = new SuggestionSuggestions();
-                    suggestion.suggestion = node.getValue();
-                    suggestion.suggestionType = node.getType();
-                    if (Constant.FNDType.TABLE.equalsIgnoreCase(node.getType())) {
-                        suggestion.description = "this is a table name";
-                    } else if (Constant.FNDType.COLUMN.equalsIgnoreCase(node.getType())) {
-                        Column col = node.getColumn();
-                        suggestion.description = "column '" + node.getValue() + "' in table '" + col.getSourceName() + "'";
-                    }
-                    datas.suggestions.add(suggestion);
-                });
-                response.setDatas(datas);
-                System.out.println("提示:\n\t" + JSON.toJSONString(response) + "\n");
-            } else {//  输入完整
+//            FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
+//            if (focusPhrase.isSuggestion()) {// 出入不完整
+//                SuggestionResponse response = new SuggestionResponse(search);
+//                SuggestionDatas datas = new SuggestionDatas();
+//                JSONObject json = SuggestionBuild.sug(tokens, focusInst);
+//                datas.beginPos = json.getInteger("position");
+//                datas.phraseBeginPos = datas.beginPos;
+//                List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
+//                focusNodes.forEach(node -> {
+//                    SuggestionSuggestions suggestion = new SuggestionSuggestions();
+//                    suggestion.suggestion = node.getValue();
+//                    suggestion.suggestionType = node.getType();
+//                    if (Constant.FNDType.TABLE.equalsIgnoreCase(node.getType())) {
+//                        suggestion.description = "this is a table name";
+//                    } else if (Constant.FNDType.COLUMN.equalsIgnoreCase(node.getType())) {
+//                        Column col = node.getColumn();
+//                        suggestion.description = "column '" + node.getValue() + "' in table '" + col.getSourceName() + "'";
+//                    }
+//                    datas.suggestions.add(suggestion);
+//                });
+//                response.setDatas(datas);
+//                System.out.println("提示:\n\t" + JSON.toJSONString(response) + "\n");
+//            } else {//  输入完整
 
-                JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
+            JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
 
-                System.out.println("指令:\n\t" + json + "\n");
+            System.out.println("指令:\n\t" + json + "\n");
 
-                // Annotations
-                AnnotationResponse annotationResponse = new AnnotationResponse(search);
-                JSONArray instructions = json.getJSONArray("instructions");
-                print(instructions);
+            // Annotations
+            AnnotationResponse annotationResponse = new AnnotationResponse(search);
+            JSONArray instructions = json.getJSONArray("instructions");
+            print(instructions);
                 /*
                 for (int i = 0; i < instructions.size(); i++) {
                     JSONObject instruction = instructions.getJSONObject(i);
@@ -356,41 +368,32 @@ public class Home {
                 System.out.println(annotationResponse.response());
                 */
 
-            }
+//            }
         } else {//  出错
-            IllegalResponse response = new IllegalResponse(search);
-            int strPosition = tokens.get(focusInst.position).getStart();
-            IllegalDatas datas = new IllegalDatas();
-            datas.beginPos = strPosition;
-            StringBuilder reason = new StringBuilder();
-            List<FocusNode> focusNodes = SuggestionBuild.sug(focusInst.position, focusInst);
-            focusNodes.forEach(node -> {
-                reason.append(node.getValue());
-                if (node.getType() != null) {
-                    reason.append(",").append(node.getType());
-                }
-                if (node.getColumn() != null) {
-                    reason.append(",").append(node.getColumn().getColumnId());
-                }
-                reason.append("\r\n");
-            });
-            datas.reason = reason.toString();
-            response.setDatas(datas);
-            msg = "错误:\n\t" + "位置: " + strPosition + "\t错误: " + search.substring(strPosition) + "\n";
-            System.out.println(msg);
-            msg = "提示:\n\t" + reason + "\n";
-            System.out.println(msg);
+//            IllegalResponse response = new IllegalResponse(search);
+//            int strPosition = tokens.get(focusInst.position).getStart();
+//            IllegalDatas datas = new IllegalDatas();
+//            datas.beginPos = strPosition;
+//            StringBuilder reason = new StringBuilder();
+//            List<FocusNode> focusNodes = SuggestionBuild.sug(focusInst.position, focusInst);
+//            focusNodes.forEach(node -> {
+//                reason.append(node.getValue());
+//                if (node.getType() != null) {
+//                    reason.append(",").append(node.getType());
+//                }
+//                if (node.getColumn() != null) {
+//                    reason.append(",").append(node.getColumn().getColumnId());
+//                }
+//                reason.append("\r\n");
+//            });
+//            datas.reason = reason.toString();
+//            response.setDatas(datas);
+//            msg = "错误:\n\t" + "位置: " + strPosition + "\t错误: " + search.substring(strPosition) + "\n";
+//            System.out.println(msg);
+//            msg = "提示:\n\t" + reason + "\n";
+//            System.out.println(msg);
         }
 
-    }
-
-    private static Boolean isBaseRule(BnfRule rule, String token) {
-        for (TerminalToken tt : rule.getTerminalTokens()) {
-            if (tt.getName().toLowerCase().startsWith(token.toLowerCase())) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

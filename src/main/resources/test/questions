@@ -49,3 +49,9 @@ to_string(to_string(views+6))
 contains(to_string(to_string(views+6)) , "focus")
 month(to_date(123))
 ifnull(to_string(views+6) , name)
+
+// other
+7 - 2 * 3
+2 * 3 - 7
+strlen("focus") * 5 - 1
+2 * 3 + 6 - 7

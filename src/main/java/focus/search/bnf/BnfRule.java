@@ -227,4 +227,19 @@ public class BnfRule implements Serializable {
         return out.toString();
     }
 
+    public boolean equals(BnfRule br) {
+        if (!m_leftHandSide.getName().equals(br.getLeftHandSide().getName())) {
+            return false;
+        }
+        if (m_alternatives.size() != br.getAlternatives().size()) {
+            return false;
+        }
+        for (int i = 0; i < m_alternatives.size(); i++) {
+            if (!m_alternatives.get(i).equals(br.getAlternatives().get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

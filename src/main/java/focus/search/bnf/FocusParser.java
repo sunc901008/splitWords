@@ -475,8 +475,13 @@ public class FocusParser {
                             loop--;
                             continue;
                         }
+                        String brName = br.getLeftHandSide().getName();
+                        if ("<number-function>".equals(brName)) {
+                            replaceBnf(br);
+                        }
                         for (TokenString ts : br.getAlternatives()) {
-                            FocusPhrase newFp = new FocusPhrase(br.getLeftHandSide().getName());
+                            FocusPhrase newFp = new FocusPhrase(brName);
+                            boolean filter = false;
                             for (int i = 0; i < ts.size(); i++) {
                                 Token token = ts.get(i);
                                 FocusNode newFn = new FocusNode(token.getName());
@@ -499,8 +504,11 @@ public class FocusParser {
                                 }
                                 newFp.addPn(newFn);
                             }
+                            if (filter) {
+                                continue;
+                            }
                             FocusPhrase focusPhraseNew = JSONObject.parseObject(focusPhrase.toJSON().toJSONString(), FocusPhrase.class);
-                            FocusNode focusNodeNew = new FocusNode(br.getLeftHandSide().getName());
+                            FocusNode focusNodeNew = new FocusNode(brName);
                             focusNodeNew.setChildren(newFp);
                             focusPhraseNew.replaceNode(position, focusNodeNew);
                             if (focusPhraseNew.size() == position + 1 && focusPhraseNew.getNodeNew(position).getValue().equalsIgnoreCase(focusToken
@@ -620,7 +628,7 @@ public class FocusParser {
                 if (newBr == null && !token.getName().endsWith("-column>")) {
                     throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
-                    if (parse(newBr, word) != null) {
+                    if (newBr.equals(rule) || parse(newBr, word) != null) {
                         br.addAlternative(alt);
                     }
                 }
@@ -658,6 +666,42 @@ public class FocusParser {
             }
         }
         return null;
+    }
+
+    // 迭代替换bnf规则
+//<number-function-column> := <number-function-column> + <integer> |
+//                            <integer> + <integer>;
+//							替换为
+//<number-function-column> := <number-function-column> + <integer> + <integer> |
+//							<integer> + <integer> + <integer> |
+//                            <integer> + <integer>;
+    private void replaceBnf(BnfRule br) {
+        List<TokenString> list = new ArrayList<>();
+        BnfRule rule = new BnfRule();
+        rule.addAlternatives(br.getAlternatives());
+
+        for (TokenString ts : rule.getAlternatives()) {
+            boolean in = false;
+            for (int i = 0; i < ts.size(); i++) {
+                Token token = ts.get(i);
+                if (token.getName().equals(br.getLeftHandSide().getName())) {
+                    in = true;
+                    for (TokenString t : br.getAlternatives()) {
+                        TokenString tokenString = new TokenString();
+                        tokenString.addAll(ts.subList(0, i));
+                        tokenString.addAll(t);
+                        if (i + 1 < ts.size()) {
+                            tokenString.addAll(ts.subList(i + 1, ts.size()));
+                        }
+                        list.add(tokenString);
+                    }
+                    break;
+                }
+            }
+            if (!in)
+                list.add(ts);
+        }
+        br.resetAlternatives(list);
     }
 
 }
