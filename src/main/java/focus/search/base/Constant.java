@@ -120,6 +120,7 @@ public class Constant {
         public static final String COLUMN = "column";
         public static final String STRING = "string";
         public static final String FUNCTION = "function";
+        public static final String NUMBER_FUNCTION = "numberFunction";
         public static final String DATE = "date";
         public static final String NUMBER = "number";
         public static final String FORMULA = "formula";

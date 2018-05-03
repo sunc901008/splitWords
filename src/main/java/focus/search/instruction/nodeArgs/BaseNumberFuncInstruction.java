@@ -6,6 +6,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
@@ -58,27 +59,30 @@ public class BaseNumberFuncInstruction {
 
     // 其他指令的一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
-        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
-        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
-        FocusNode symbol = focusPhrase.getFocusNodes().get(1);
+//        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
+//        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
+//        FocusNode symbol = focusPhrase.getFocusNodes().get(1);
+
+        FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.numberAnalysis(focusPhrase);
 
         JSONObject expression = new JSONObject();
-        expression.put("type", Constant.InstType.FUNCTION);
-        expression.put("name", symbol.getChildren().getNodeNew(0).getValue());
+        expression.put("type", formulaObj.type);
+        expression.put("name", formulaObj.name);
         JSONArray args = new JSONArray();
+        args.addAll(formulaObj.args);
 
-        if ("<number>".equals(param1.getValue())) {
-            args.add(NumberArg.arg(param1));
-        } else if ("<number-source-column>".equals(param1.getValue())) {
-            JSONObject arg1 = new JSONObject();
-            JSONObject json = ColumnInstruction.build(param1.getChildren());
-            arg1.put("type", Constant.InstType.COLUMN);
-            arg1.put("column", ((Column) json.get("column")).getColumnId());
-            args.add(arg1);
-        } else if ("<no-number-function-column>".equals(param1.getValue())) {
-            args.add(NumberFuncInstruction.arg(param1.getChildren(), formulas));
-        }
-        args.add(NumberOrNumColInst.arg(param2, formulas));
+//        if ("<number>".equals(param1.getValue())) {
+//            args.add(NumberArg.arg(param1));
+//        } else if ("<number-source-column>".equals(param1.getValue())) {
+//            JSONObject arg1 = new JSONObject();
+//            JSONObject json = ColumnInstruction.build(param1.getChildren());
+//            arg1.put("type", Constant.InstType.COLUMN);
+//            arg1.put("column", ((Column) json.get("column")).getColumnId());
+//            args.add(arg1);
+//        } else if ("<no-number-function-column>".equals(param1.getValue())) {
+//            args.add(NumberFuncInstruction.arg(param1.getChildren(), formulas));
+//        }
+//        args.add(NumberOrNumColInst.arg(param2, formulas));
 
         expression.put("args", args);
         return expression;

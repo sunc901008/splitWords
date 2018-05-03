@@ -8,8 +8,7 @@
             <bottom-n> |
             <sort-by> |
             <growth-of> |
-            <all-columns> |
-            <formula-column>;
+            <all-columns>;
 
 <simple-filter> := <number-columns> <bool-symbol> <number> |
                    <number> <bool-symbol> <number-columns> |
@@ -58,15 +57,18 @@
 
 <number-columns> := <all-int-column> |
                     <all-double-column> |
-                    <number-function-column>;
+                    <number-function-column> |
+                    ( <number-function-column> );
 
 <string-columns> := <all-string-column> |
-                    <string-function-column>;
+                    <string-function-column> |
+                    ( <string-function-column> );
 
 <bool-columns> := <all-bool-column>;
 
 <date-columns> := <all-date-column> |
-                  <date-function-column>;
+                  <date-function-column> |
+                  ( <date-function-column> );
 
 <all-int-column> := <int-column> |
                     <table-int-column>;

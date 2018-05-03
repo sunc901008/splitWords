@@ -15,9 +15,6 @@ import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.search.AnnotationResponse;
-import focus.search.response.search.FormulaDatas;
-import focus.search.response.search.FormulaResponse;
-import focus.search.response.search.SearchFinishedResponse;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
@@ -36,14 +33,27 @@ import java.util.List;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException {
-
+//        test("average()");
 //        boolean expression = false;
-//        search(-1, 13, expression);
+        search(0, 2);
 //        split(18, 1);
 //        split(",>");
 //        ttt();
 //        formulaTest(makeFp());
-        formula("2 + 3 + 7");
+//        test("if 4>3 then (if 5>2 then 3 else 5) else 6");
+//        test("average(views+6)+2*(9-7) >5");
+//        formula("5+2");
+
+//        FocusInst fi = search("views+average(4)*2");
+//        FocusPhrase fp = fi.lastFocusPhrase();
+//        print(JSONObject.toJSONString(fp.allFormulaNode()));
+
+    }
+
+    private static void allNumberFunc() {
+        FocusParser fp = new FocusParser();
+        BnfRule rule = fp.getRule("<no-number-function-column>");
+        rule.getAlternatives().forEach(alt -> System.out.print("\"" + alt.get(0).getName() + "\","));
     }
 
     private static void ttt() {
@@ -123,7 +133,7 @@ public class Home {
     }
 
     // params:  start 需要执行的questions文件中的起始行号，为0时执行所有, length 执行的行数
-    private static void search(int start, int length, boolean expression) throws IOException, InvalidRuleException {
+    private static void search(int start, int length) throws IOException, InvalidRuleException {
         ResourceLoader resolver = new DefaultResourceLoader();
         BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
         String search;
@@ -136,11 +146,10 @@ public class Home {
                 continue;
             if (start == 0 || i >= start) {
                 print(i);
-                if (!expression) {
-                    test(search);
-                } else {
-                    formula(search);
-                }
+                long begin = Calendar.getInstance().getTime().getTime();
+                test(search);
+                long end = Calendar.getInstance().getTime().getTime();
+                print(end - begin);
                 System.out.println();
                 length--;
             }
@@ -149,11 +158,7 @@ public class Home {
             }
         }
         if (start < 0) {
-            if (!expression) {
-                test(last);
-            } else {
-                formula(last);
-            }
+            test(last);
         }
 
         br.close();
@@ -163,7 +168,7 @@ public class Home {
         FocusInst fi = search(search);
         if (fi != null && fi.size() == 1) {
             FocusPhrase fp = fi.lastFocusPhrase();
-            FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(fp);
+            FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.numberAnalysis(fp);
             System.out.println(fp.toJSON());
             System.out.println(formulaObj.toString());
         }
@@ -283,7 +288,7 @@ public class Home {
         String test = "bnf-file/test.bnf";
         FocusParser parser = new FocusParser();
 //        FocusParser parser = new FocusParser(test);
-//        ModelBuild.buildTable(parser, ModelBuild.test(1));
+        ModelBuild.buildTable(parser, ModelBuild.test(1));
 
 //        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
 

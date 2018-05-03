@@ -72,6 +72,11 @@ public class NumberFuncInstruction {
     // 其他指令一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
+        return arg(fn, formulas);
+    }
+
+    // 其他指令一部分
+    public static JSONObject arg(FocusNode fn, List<Formula> formulas) throws InvalidRuleException {
         switch (fn.getValue()) {
             case "<average-function>":
                 return AverageFuncInstruction.arg(fn.getChildren(), formulas);

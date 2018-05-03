@@ -16,8 +16,9 @@ growth of age by creationdate daily year over year
 growth of standard deviation age by creationdate daily year over year
 growth of users age by creationdate daily
 col
-//if 3>2 then creationdate else to_date(3)
-//if 3>2 then "aa" else "bb"
+// if 3>2 then creationdate else to_date(3)
+// if 3>2 then "aa" else "bb"
+// if 3>2 then if 3>2 then "aa" else "bb" else if 3>2 then "aa" else "bb"
 
 // function
 average(2)
@@ -55,3 +56,4 @@ ifnull(to_string(views+6) , name)
 2 * 3 - 7
 strlen("focus") * 5 - 1
 2 * 3 + 6 - 7
+average(views+6)+2*(9-7)

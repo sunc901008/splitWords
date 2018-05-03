@@ -8,6 +8,7 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.InstructionBuild;
+import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.response.search.FormulaSettings;
 
 import java.util.*;
@@ -18,7 +19,13 @@ import java.util.*;
  * description:
  */
 public class FormulaAnalysis {
-    private static final String LEFT_BRACKET = "(";
+
+    public static final List<String> func = Arrays.asList("<average-function>", "<count-function>", "<max-function>", "<min-function>",
+            "<sum-function>", "<to_double-function>", "<to_integer-function>", "<diff_days-function>", "<month_number-function>", "<year-function>", "<strlen-function>", "<ifnull-number-function>");
+
+    private static final String BRACKET = "bracket";
+
+    public static final String LEFT_BRACKET = "(";
     private static final String RIGHT_BRACKET = ")";
 
     // 运算优先级
@@ -92,7 +99,7 @@ public class FormulaAnalysis {
             }
             if (temp.getValue().equals(LEFT_BRACKET)) {// 左括号入栈
                 Arg arg = new Arg();
-                arg.type = "bracket";
+                arg.type = BRACKET;
                 arg.value = temp.getValue();
                 stack.push(arg);
             } else if (temp.getValue().equals(RIGHT_BRACKET)) {
@@ -137,6 +144,77 @@ public class FormulaAnalysis {
         return args;
     }
 
+    /**
+     * 解析后的表达式转换为后缀表达式
+     *
+     * @param focusPhrase 解析后的表达式
+     * @return 返回后缀表达式
+     */
+    private static List<Arg> getNumberAfterList(FocusPhrase focusPhrase) throws InvalidRuleException {
+        List<Arg> args = new ArrayList<>();
+
+        List<FocusNode> focusNodes = focusPhrase.allFormulaNode();
+
+        Stack<Arg> stack = new Stack<>();
+        for (FocusNode temp : focusNodes) {
+            if (func.contains(temp.getValue())) {
+                Arg arg = new Arg();
+                arg.type = Constant.InstType.NUMBER_FUNCTION;
+                arg.value = NumberFuncInstruction.arg(temp, null);
+                args.add(arg);
+                continue;
+            }
+            String type = temp.getType();
+            if (type.equalsIgnoreCase(Constant.FNDType.TABLE)) {
+                continue;
+            }
+            if (temp.getValue().equals(LEFT_BRACKET)) {// 左括号入栈
+                Arg arg = new Arg();
+                arg.type = "bracket";
+                arg.value = temp.getValue();
+                stack.push(arg);
+            } else if (temp.getValue().equals(RIGHT_BRACKET)) {
+                while (!stack.peek().value.equals(LEFT_BRACKET)) {// 输出左右括号之前的栈顶元素
+                    args.add(stack.pop());
+                }
+                stack.pop();    // 把左括号弹出
+            } else if (type.equalsIgnoreCase(Constant.FNDType.COLUMN)) {     // 若为列
+                Arg arg = new Arg();
+                arg.type = Constant.InstType.COLUMN;
+                arg.value = temp.getColumn().getColumnId();
+                args.add(arg);
+            } else if (type.equalsIgnoreCase(Constant.FNDType.INTEGER)) {
+                // 若为数字
+                Arg arg = new Arg();
+                arg.type = Constant.InstType.NUMBER;
+                arg.value = Integer.parseInt(temp.getValue());
+                args.add(arg);
+            } else if (type.equalsIgnoreCase(Constant.FNDType.DOUBLE)) {
+                // 若为数字
+                Arg arg = new Arg();
+                arg.type = Constant.InstType.NUMBER;
+                arg.value = Double.parseDouble(temp.getValue());
+                args.add(arg);
+            } else {
+                // 从栈中弹出所有优先级比当前运算符高的运算符, 并放进队列中
+                while (!stack.isEmpty() && compareOperatorPriority(stack.peek().value.toString(), temp.getValue()) >= 0) {
+                    args.add(stack.pop());
+                }
+                Arg arg = new Arg();
+                arg.type = Constant.InstType.FUNCTION;
+                arg.value = temp.getValue();
+                stack.push(arg);   // 操作符进栈
+            }
+        }
+
+        // 把栈中的所有元素弹出, 放进队列中
+        while (!stack.isEmpty()) {
+            args.add(stack.pop());
+        }
+
+        return args;
+    }
+
     public static FormulaObj analysis(FocusPhrase focusPhrase) throws InvalidRuleException {
         JSONArray instructions = InstructionBuild.build(focusPhrase, 1, new JSONObject(), new ArrayList<>());
         for (int i = 0; i < instructions.size(); i++) {
@@ -149,12 +227,16 @@ public class FormulaAnalysis {
         throw new InvalidRuleException("Build instruction fail!!!");
     }
 
-    public static FormulaObj numberAnalysis(FocusPhrase focusPhrase) {
-        List<Arg> args = getAfterList(focusPhrase);
+    public static FormulaObj numberAnalysis(FocusPhrase focusPhrase) throws InvalidRuleException {
+        List<Arg> args = getNumberAfterList(focusPhrase);
         Stack<JSONObject> stack = new Stack<>();
         for (Arg arg : args) {
             if (!isOperator(arg.value.toString())) {// 不是操作符
-                stack.push(arg.toJSON());
+                if (Constant.InstType.NUMBER_FUNCTION.equals(arg.type)) {
+                    stack.push((JSONObject) arg.value);
+                } else {
+                    stack.push(arg.toJSON());
+                }
             } else {
                 FormulaObj formulaObj = new FormulaObj();
                 formulaObj.type = arg.type;

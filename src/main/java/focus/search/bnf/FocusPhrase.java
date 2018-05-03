@@ -3,8 +3,10 @@ package focus.search.bnf;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
+import focus.search.controller.common.FormulaAnalysis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -82,6 +84,19 @@ public class FocusPhrase {
         }
         return all;
     }
+
+    public List<FocusNode> allFormulaNode() {
+        List<FocusNode> all = new ArrayList<>();
+        for (FocusNode fn : focusNodes) {
+            if (fn.isHasChild() && !FormulaAnalysis.func.contains(fn.getValue())) {
+                all.addAll(fn.getChildren().allFormulaNode());
+            } else {
+                all.add(fn);
+            }
+        }
+        return all;
+    }
+
 
     public FocusNode getNode(int index) {
         if (focusNodes.size() > index && index >= 0)

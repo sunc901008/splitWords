@@ -190,7 +190,6 @@
                             <month_number-function> |
                             <year-function> |
                             <strlen-function> |
-                            <if-then-else-number-function> |
                             <ifnull-number-function>;
 
 # number # todo base

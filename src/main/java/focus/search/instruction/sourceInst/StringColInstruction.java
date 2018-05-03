@@ -6,6 +6,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.StringFuncInstruction;
@@ -20,8 +21,10 @@ import java.util.List;
  * date: 2018/4/17
  * description:
  */
+
 //<string-columns> := <all-string-column> |
-//        <string-function-column>;
+//        <string-function-column> |
+//        ( <string-function-column> );
 public class StringColInstruction {
 
     // 完整指令 columns
@@ -91,10 +94,28 @@ public class StringColInstruction {
     // annotation token
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
+        List<AnnotationToken> tokens = new ArrayList<>();
         switch (node.getValue()) {
             case "<all-string-column>":
-                List<AnnotationToken> tokens = new ArrayList<>();
                 tokens.add(AnnotationToken.singleCol(node.getChildren(), amb));
+                return tokens;
+            case FormulaAnalysis.LEFT_BRACKET:
+                AnnotationToken token1 = new AnnotationToken();
+                token1.value = node.getValue();
+                token1.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+                token1.begin = node.getBegin();
+                token1.end = node.getEnd();
+                tokens.add(token1);
+
+                tokens.addAll(StringFuncInstruction.tokens(focusPhrase.getFocusNodes().get(1).getChildren(), formulas, amb));
+
+                AnnotationToken token2 = new AnnotationToken();
+                token2.value = focusPhrase.getFocusNodes().get(2).getValue();
+                token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+                token2.begin = focusPhrase.getFocusNodes().get(2).getBegin();
+                token2.end = focusPhrase.getFocusNodes().get(2).getEnd();
+                tokens.add(token2);
+
                 return tokens;
             case "<string-function-column>":
                 return StringFuncInstruction.tokens(node.getChildren(), formulas, amb);
