@@ -12,6 +12,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,6 +26,8 @@ import java.util.UUID;
  * description:
  */
 public class MyHttpClient {
+    private static final Logger logger = Logger.getLogger(MyHttpClient.class);
+
     private static final int timeOut = 10;
     private static final RequestConfig defaultConfig = RequestConfig.custom().setConnectTimeout(timeOut).build();
 
@@ -38,11 +41,10 @@ public class MyHttpClient {
                 res = EntityUtils.toString(response.getEntity(), Charset.forName("UTF-8"));
             }
         } catch (IOException e) {
-            LoggerHandler.error(e.getMessage());
+            logger.error(e.getMessage());
         }
         String msg = uuid + ":request response:" + res;
-        msg = msg.substring(0, Math.min(1000, msg.length()));
-        LoggerHandler.info(msg, Constant.PRINT_LOG);
+        logger.info(Common.cut(msg));
         if (res.isEmpty()) {
             return new JSONObject();
         }
@@ -68,7 +70,7 @@ public class MyHttpClient {
     private static JSONObject request(String url, String method, String entity, List<Header> headers) {
         String uuid = UUID.randomUUID().toString();
         String msg = uuid + ":request. url:" + url + " method:" + method + " params:" + entity;
-        LoggerHandler.info(msg, Constant.PRINT_LOG);
+        logger.info(msg);
         HttpEntityEnclosingRequestBase request;
         switch (method) {
             case "get":

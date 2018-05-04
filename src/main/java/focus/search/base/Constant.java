@@ -1,5 +1,6 @@
 package focus.search.base;
 
+import org.apache.log4j.Logger;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
@@ -11,6 +12,7 @@ import java.util.Properties;
  * data: 2018/1/26.
  */
 public class Constant {
+    private static final Logger logger = Logger.getLogger(Constant.class);
 
     public static final String SUGGESTION = "suggestion";
     public static final String INSTRUCTION = "instruction";
@@ -60,16 +62,28 @@ public class Constant {
             PRINT_LOG = Boolean.parseBoolean(properties.getProperty("printLog"));
 
         } catch (Exception e) {
-            LoggerHandler.error(e.getMessage());
+            logger.error(e.getMessage());
         } finally {
             try {
                 if (inputStream != null) {
                     inputStream.close();
                 }
             } catch (IOException e) {
-                LoggerHandler.error(e.getMessage());
+                logger.error(e.getMessage());
             }
         }
+    }
+
+    // response status
+    public static final class Status {
+        public static final String SUCCESS = "success";
+        public static final String ERROR = "error";
+    }
+
+    // language
+    public static final class Language {
+        public static final String ENGLISH = "english";
+        public static final String CHINESE = "chinese";
     }
 
     //  search event type

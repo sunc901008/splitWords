@@ -7,7 +7,6 @@ import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
-import focus.search.base.LoggerHandler;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
@@ -24,6 +23,7 @@ import focus.search.meta.Formula;
 import focus.search.metaReceived.*;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.search.*;
+import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -39,10 +39,12 @@ import java.util.UUID;
  * description:
  */
 class SearchHandler {
+    private static final Logger logger = Logger.getLogger(SearchHandler.class);
+
     private static final List<String> array = Arrays.asList("putFormula", "modifyFormula", "deleteFormula");
 
     static void preHandle(WebSocketSession session, JSONObject params) throws IOException {
-        LoggerHandler.info("params: " + params);
+        logger.info("params: " + params);
         Object object = session.getAttributes().get("user");
         JSONObject user = object == null ? new JSONObject() : (JSONObject) object;
         String type = params.getString("type");
@@ -216,7 +218,7 @@ class SearchHandler {
             }
             user.put("ambiguities", ambiguities);
 
-            System.out.println(JSON.toJSONString(srs));
+            logger.info(JSON.toJSONString(srs));
 
             //todo will delete next line
             session.sendMessage(new TextMessage(JSON.toJSONString(rrs)));
@@ -229,7 +231,7 @@ class SearchHandler {
             user.put("parser", fp);
         }
         response.setDatas(init.toJson());
-        LoggerHandler.info(response.response(), Constant.PRINT_LOG);
+        logger.info(response.response());
         session.sendMessage(new TextMessage(response.response()));
 
     }
@@ -401,7 +403,7 @@ class SearchHandler {
                 json.put("message", "done");
                 json.put("status", "success");
             } catch (InvalidRuleException | AmbiguitiesException e) {
-                LoggerHandler.info(e.getMessage());
+                logger.error(e.getMessage());
 
                 json.put("status", "illegal");
 
@@ -461,7 +463,7 @@ class SearchHandler {
                         json.put("message", "done");
                         json.put("status", "success");
                     } catch (InvalidRuleException | AmbiguitiesException e) {
-                        LoggerHandler.info(e.getMessage());
+                        logger.error(e.getMessage());
 
                         json.put("status", "illegal");
 
@@ -548,9 +550,15 @@ class SearchHandler {
 
         boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(category);
 
+        if (Common.isEmpty(search)) {
+            // TODO: 2018/5/4 return suggestions
+            errorResponse(session, search, user);
+            return;
+        }
+
         // 分词
         List<FocusToken> tokens = fp.focusAnalyzer.test(search, language);
-        System.out.println("split words:" + JSON.toJSONString(tokens));
+        logger.info("split words:" + JSON.toJSONString(tokens));
 
         if (tokens.size() == 0) {
             errorResponse(session, search, user);
@@ -568,7 +576,7 @@ class SearchHandler {
                 focusInst = fp.parseFormula(tokens, amb);
             }
 
-            System.out.println(focusInst.toJSON().toJSONString());
+            logger.info(focusInst.toJSON().toJSONString());
 
             String msg;
             if (focusInst.position < 0) {// 未出错
@@ -594,7 +602,7 @@ class SearchHandler {
                     });
                     response.setDatas(datas);
                     session.sendMessage(new TextMessage(response.response()));
-                    System.out.println("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
+                    logger.info("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
                 } else {//  输入完整
 
                     if (!isQuestion) {// formula
@@ -620,7 +628,7 @@ class SearchHandler {
                     json.put("source", "searchUser");
                     json.put("sourceToken", user.getString("sourceToken"));
 
-                    System.out.println("指令:\n\t" + json + "\n");
+                    logger.info("指令:\n\t" + json + "\n");
 
                     // Annotations
                     AnnotationResponse annotationResponse = new AnnotationResponse(search);
@@ -692,9 +700,9 @@ class SearchHandler {
                 response.setDatas(datas);
                 session.sendMessage(new TextMessage(response.response()));
                 msg = "错误:\n\t" + "位置: " + strPosition + "\t错误: " + search.substring(strPosition) + "\n";
-                System.out.println(msg);
+                logger.info(msg);
                 msg = "提示:\n\t" + reason + "\n";
-                System.out.println(msg);
+                logger.info(msg);
             }
 
         } catch (InvalidRuleException e) {
@@ -710,7 +718,7 @@ class SearchHandler {
             e.ars.forEach(a -> datas.possibleMenus.add(a.columnName + " in table " + a.sourceName));
             response.setDatas(datas);
             session.sendMessage(new TextMessage(response.response()));
-            System.out.println(response.response());
+            logger.info(response.response());
 
             AmbiguitiesResolve ar = new AmbiguitiesResolve();
             ar.ars = e.ars;
@@ -742,7 +750,7 @@ class SearchHandler {
         }
         response.setDatas(datas);
         session.sendMessage(new TextMessage(response.response()));
-        System.out.println("提示:\n\t" + response.response() + "\n");
+        logger.info("提示:\n\t" + response.response() + "\n");
     }
 
     private static String fnamecheck(String name, String id, JSONObject user) {
@@ -802,7 +810,7 @@ class SearchHandler {
         return false;
     }
 
-    private static List<Formula> getFormula(JSONObject user) {
+    static List<Formula> getFormula(JSONObject user) {
         List<Formula> formulas;
         Object obj = user.get("formulas");
         if (obj == null) {

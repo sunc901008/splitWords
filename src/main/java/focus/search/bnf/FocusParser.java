@@ -32,19 +32,24 @@ public class FocusParser {
     private final static int MAX_RULE_LOOP = 10;
 
     public FocusParser() {
-        init();
+        this(Constant.Language.ENGLISH);
     }
 
-    public FocusParser(String file) {
-        init(file);
+    public FocusParser(String language) {
+        init(language);
     }
 
-    private void init() {
-        init("bnf-file/question.bnf");
-        init("bnf-file/function.bnf");
+    private void init(String language) {
+        if (Constant.Language.ENGLISH.equals(language)) {
+            initBnf("bnf-file/question.bnf");
+            initBnf("bnf-file/function.bnf");
+        } else {
+            initBnf("bnf-file/question.bnf");
+            initBnf("bnf-file/function.bnf");
+        }
     }
 
-    private void init(String file) {
+    private void initBnf(String file) {
         ResourceLoader resolver = new DefaultResourceLoader();
         try {
             if (parser == null) {

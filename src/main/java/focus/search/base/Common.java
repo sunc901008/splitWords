@@ -2,6 +2,9 @@ package focus.search.base;
 
 import com.alibaba.fastjson.serializer.NameFilter;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DecimalFormat;
 
 /**
@@ -61,6 +64,21 @@ public class Common {
     public static String decimalFormat(double d) {
         DecimalFormat df = new DecimalFormat("#.00");
         return df.format(d);
+    }
+
+    public static String cut(String msg) {
+        return msg.substring(0, Math.min(1000, msg.length()));
+    }
+
+    public static String printStacktrace(Exception e) throws IOException {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        pw.flush();
+        sw.flush();
+        sw.close();
+        pw.close();
+        return sw.toString();
     }
 
 }
