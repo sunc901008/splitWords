@@ -1,6 +1,5 @@
 package focus.search.analyzer.focus;
 
-import com.alibaba.fastjson.JSON;
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
 import focus.search.meta.Formula;
@@ -12,18 +11,19 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FocusAnalyzer {
+public class FocusAnalyzer implements Serializable {
 
     private IKAnalyzer analyzer;
 
     private void init() {
         analyzer = new IKAnalyzer();
-        Dictionary.addWords(FocusKWDict.dictionaries);
+        Dictionary.addWords(FocusKWDict.allKeywords());
     }
 
     // 添加表名列名到分词中
@@ -49,7 +49,7 @@ public class FocusAnalyzer {
 
     public void reset() {
         Dictionary.reset();
-        Dictionary.addWords(FocusKWDict.dictionaries);
+        Dictionary.addWords(FocusKWDict.allKeywords());
     }
 
     public List<FocusToken> test(String str, String language) throws IOException {

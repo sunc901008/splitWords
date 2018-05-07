@@ -10,6 +10,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.controller.common.FormulaCase;
 import focus.search.controller.common.SuggestionBuild;
@@ -169,40 +170,7 @@ class SearchHandler {
             // 根据 context 恢复歧义|上下文|语言等
             if (context != null) {
                 JSONObject contextJson = JSONObject.parseObject(context);
-                String contextStr = contextJson.getString("disambiguations");// 检测 lisp 返回的空值 nil
-                if (!Common.isEmpty(contextStr) && !contextStr.equalsIgnoreCase("NIL")) {
-
-                    // 恢复歧义
-                    JSONArray disambiguations = JSONArray.parseArray(contextStr);
-
-                    for (Object obj : disambiguations) {
-                        JSONObject col = JSONObject.parseObject(obj.toString());
-                        String columnName = col.getString("columnName");
-                        int columnId = col.getInteger("columnId");
-                        AmbiguitiesResolve ar = new AmbiguitiesResolve();
-                        ar.value = columnName;
-                        ar.isResolved = true;
-
-                        List<Column> columns = CommonFunc.getColumns(columnName, srs);
-                        for (Column column : columns) {
-                            AmbiguitiesRecord ambiguitiesRecord = new AmbiguitiesRecord();
-                            ambiguitiesRecord.sourceName = column.getSourceName();
-                            ambiguitiesRecord.columnName = columnName;
-                            ambiguitiesRecord.columnId = column.getColumnId();
-                            ambiguitiesRecord.type = Constant.FNDType.COLUMN;
-                            ar.ars.add(ambiguitiesRecord);
-                        }
-                        for (AmbiguitiesRecord a : ar.ars) {
-                            if (a.columnId == columnId) {
-                                ar.ars.remove(a);
-                                ar.ars.add(0, a);
-                                break;
-                            }
-                        }
-
-                        ambiguities.put(UUID.randomUUID().toString(), ar);
-                    }
-                }
+                ambiguities = Base.context(contextJson, srs);
 
                 // 恢复语言环境
                 user.put("language", contextJson.getString("language"));
@@ -226,7 +194,7 @@ class SearchHandler {
                 init.addSource(sr.transfer());
             }
 
-            FocusParser fp = new FocusParser();
+            FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
             ModelBuild.buildTable(fp, srs);
             user.put("parser", fp);
         }
@@ -580,6 +548,38 @@ class SearchHandler {
 
             String msg;
             if (focusInst.position < 0) {// 未出错
+                int n = tokens.size();
+                for (FocusPhrase f : focusInst.getFocusPhrases()) {
+                    for (int i = 0; i < f.size(); i++) {
+                        if (n <= 0) {
+                            break;
+                        }
+                        FocusNode node = f.getNodeNew(i);
+                        if (Constant.FNDType.COLUMN.equals(node.getType())) {
+                            Column col = node.getColumn();
+                            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(col.getColumnDisplayName(), amb);
+                            if (ambiguitiesResolve == null) {
+                                ambiguitiesResolve = new AmbiguitiesResolve();
+
+                                AmbiguitiesRecord ar = new AmbiguitiesRecord();
+                                ar.type = Constant.FNDType.COLUMN;
+                                ar.sourceName = col.getSourceName();
+                                ar.columnId = col.getColumnId();
+                                ar.columnName = col.getColumnDisplayName();
+
+                                ambiguitiesResolve.ars.add(0, ar);
+                                ambiguitiesResolve.isResolved = true;
+                                amb.put(UUID.randomUUID().toString(), ambiguitiesResolve);
+                            }
+                        }
+                        n--;
+                    }
+                    if (n <= 0) {
+                        break;
+                    }
+                }
+                user.put("ambiguities", amb);
+
                 FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
                 if (focusPhrase.isSuggestion()) {// 出入不完整
                     SuggestionResponse response = new SuggestionResponse(search);

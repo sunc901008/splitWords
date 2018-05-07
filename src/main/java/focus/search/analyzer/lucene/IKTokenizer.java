@@ -32,12 +32,13 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Serializable;
 
 /**
  * IK分词器 Lucene Tokenizer适配器类
  * 兼容Lucene 4.0版本
  */
-public final class IKTokenizer extends Tokenizer {
+public final class IKTokenizer extends Tokenizer implements Serializable {
 
     // IK分词器实现
     private IKSegmenter _IKImplement;

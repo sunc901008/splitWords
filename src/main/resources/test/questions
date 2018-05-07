@@ -57,3 +57,4 @@ ifnull(to_string(views+6) , name)
 strlen("focus") * 5 - 1
 2 * 3 + 6 - 7
 average(views+6)+2*(9-7)
+strlen(concat("focus", name))+2

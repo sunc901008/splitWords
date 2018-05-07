@@ -38,7 +38,6 @@ public class Clients {
 
     private static final BasicHeader baseHeader = new BasicHeader("Content-Type", "application/json");
 
-
     private static JSONObject get(String url, String entity, List<Header> headers) throws Exception {
         JSONObject res = MyHttpClient.get(url, entity, headers);
         if (res.isEmpty()) {
@@ -73,6 +72,17 @@ public class Clients {
     public static class WebServer {
 
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.webServerHost, Constant.webServerPort, Constant.webServerBaseUrl);
+        private static final String GET_SOURCE = "getSource";
+
+        public static JSONObject getSource(String sourceToken) throws Exception {
+            BasicHeader header = new BasicHeader("sourceToken", sourceToken);
+            return get(baseUrl + GET_SOURCE, null, Arrays.asList(header, baseHeader));
+        }
+    }
+
+    public static class Uc {
+
+        private static String baseUrl = String.format("http://%s:%d%s/", Constant.ucHost, Constant.ucPort, Constant.ucBaseUrl);
         private static final String GET_SOURCE = "getSource";
 
         public static JSONObject getSource(String sourceToken) throws Exception {

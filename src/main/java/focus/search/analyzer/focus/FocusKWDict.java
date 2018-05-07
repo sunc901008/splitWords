@@ -1,5 +1,9 @@
 package focus.search.analyzer.focus;
 
+import focus.search.base.Constant;
+import focus.search.bnf.tokens.TerminalToken;
+import focus.search.controller.common.Base;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,25 +14,12 @@ import java.util.List;
  */
 public class FocusKWDict {
 
-    public static final List<FocusKWDict> dictionaries = new ArrayList<>();
-
     private String word;
     private String type;
 
-    public FocusKWDict(String word, String type) {
+    FocusKWDict(String word, String type) {
         this.word = word;
         this.type = type;
-    }
-
-    static {
-        dictionaries.add(new FocusKWDict("的最大值", "keyword"));
-        dictionaries.add(new FocusKWDict("最大值", "keyword"));
-        dictionaries.add(new FocusKWDict("的最小值", "keyword"));
-        dictionaries.add(new FocusKWDict("最小值", "keyword"));
-        dictionaries.add(new FocusKWDict("前", "keyword"));
-        dictionaries.add(new FocusKWDict("sort", "keyword"));
-        dictionaries.add(new FocusKWDict("by", "keyword"));
-        dictionaries.add(new FocusKWDict("top", "keyword"));
     }
 
     public String getWord() {
@@ -39,10 +30,15 @@ public class FocusKWDict {
         return type;
     }
 
-    public static List<String> getAllKeywords() {
-        List<String> list = new ArrayList<>();
-        dictionaries.forEach(dict -> list.add(dict.getWord()));
-        return list;
+    static List<FocusKWDict> allKeywords() {
+        List<FocusKWDict> dictionaries = new ArrayList<>();
+        for (TerminalToken token : Base.englishParser.getTerminalTokens()) {
+            dictionaries.add(new FocusKWDict(token.getName().toLowerCase(), Constant.FNDType.KEYWORD));
+        }
+        for (TerminalToken token : Base.chineseParser.getTerminalTokens()) {
+            dictionaries.add(new FocusKWDict(token.getName().toLowerCase(), Constant.FNDType.KEYWORD));
+        }
+        return dictionaries;
     }
 
 }

@@ -14,8 +14,7 @@ import focus.search.response.exception.AmbiguitiesException;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -25,7 +24,7 @@ import java.util.Scanner;
  * date: 2018/1/24
  * description:
  */
-public class FocusParser {
+public class FocusParser implements Serializable {
 
     private BnfParser parser = null;
     public FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
@@ -37,6 +36,19 @@ public class FocusParser {
 
     public FocusParser(String language) {
         init(language);
+    }
+
+    /**
+     * for debug
+     *
+     * @param str   file path or language
+     * @param debug debug is true, str is file else str is language
+     */
+    public FocusParser(String str, boolean debug) {
+        if (!debug)
+            init(str);
+        else
+            initBnf(str);
     }
 
     private void init(String language) {
@@ -707,6 +719,22 @@ public class FocusParser {
                 list.add(ts);
         }
         br.resetAlternatives(list);
+    }
+
+    // 拷贝对象
+    public FocusParser deepClone() {
+        FocusParser outer = null;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(this);
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            outer = (FocusParser) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return outer;
     }
 
 }

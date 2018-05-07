@@ -27,9 +27,9 @@ import focus.search.analyzer.dic.Dictionary;
 import org.apache.lucene.analysis.Analyzer;
 
 import java.io.Reader;
-import java.util.Set;
+import java.io.Serializable;
 
-public final class IKAnalyzer extends Analyzer {
+public final class IKAnalyzer extends Analyzer implements Serializable {
 
     private IKTokenizer _IKTokenizer;
 

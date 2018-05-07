@@ -8,6 +8,7 @@ import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
@@ -35,7 +36,7 @@ public class Home {
     public static void main(String[] args) throws IOException, InvalidRuleException {
 //        test("average()");
 //        boolean expression = false;
-        search(0, 2);
+//        search(-1, 2);
 //        split(18, 1);
 //        split(",>");
 //        ttt();
@@ -47,6 +48,13 @@ public class Home {
 //        FocusInst fi = search("views+average(4)*2");
 //        FocusPhrase fp = fi.lastFocusPhrase();
 //        print(JSONObject.toJSONString(fp.allFormulaNode()));
+        FocusParser parser = Base.englishParser.deepClone();
+        long start = Calendar.getInstance().getTimeInMillis();
+        FocusParser parser1 = parser.deepClone();
+        print(Calendar.getInstance().getTimeInMillis() - start);
+        ModelBuild.buildTable(parser, ModelBuild.test(1));
+        print(parser.getTerminalTokens().size());
+        print(parser1.getTerminalTokens().size());
 
     }
 

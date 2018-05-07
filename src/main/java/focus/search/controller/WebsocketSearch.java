@@ -9,6 +9,7 @@ import focus.search.bnf.FocusParser;
 import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
 import focus.search.response.api.GetInstsResponse;
@@ -127,7 +128,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
             }
         }
         if (fp == null) {
-            fp = new FocusParser(language);
+            fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
         }
 
         NameCheckResponse response = new NameCheckResponse(Constant.Status.ERROR);
