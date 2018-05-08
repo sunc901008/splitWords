@@ -10,16 +10,24 @@ import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.controller.WebsocketSearch;
 import focus.search.controller.common.Base;
+import focus.search.controller.common.QuartzManager;
 import focus.search.meta.Column;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.api.AnswerCheckResponse;
 import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.search.ChartsResponse;
+import focus.search.response.search.ExceptionResponse;
 import org.apache.log4j.Logger;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.SchedulerException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 import javax.servlet.ServletRequest;
 import java.io.IOException;
@@ -33,9 +41,21 @@ public class Webservice {
 
     @ResponseBody
     @RequestMapping(value = "/queryResult", method = RequestMethod.POST)
-    public JSONObject queryResult(@RequestBody String data) throws IOException {
+    public JSONObject queryResult(@RequestBody String data) throws IOException, SchedulerException {
         logger.info(Common.cut(data));
-        WebsocketSearch.queryResult(data);
+        JSONObject json = JSONObject.parseObject(data);
+        String taskId = json.getString("taskId");
+        JobDetail jobDetail = QuartzManager.getJob(taskId);
+        ChartsResponse chartsResponse = new ChartsResponse(json.getString("question"), json.getString("sourceToken"));
+        chartsResponse.setDatas(json);
+        if (jobDetail != null) {
+            JobDataMap params = jobDetail.getJobDataMap();
+            WebSocketSession session = (WebSocketSession) params.get("session");
+            session.sendMessage(new TextMessage(chartsResponse.response()));
+            QuartzManager.deleteJob(taskId);
+        } else {
+            WebsocketSearch.queryResult(chartsResponse, taskId);
+        }
         JSONObject response = new JSONObject();
         response.put("success", true);
         return response;
@@ -76,7 +96,7 @@ public class Webservice {
             try {
                 getSource = Clients.WebServer.getSource(answer.getString("sourceToken"));
             } catch (Exception e) {
-                // todo exception controller
+                logger.error(ExceptionResponse.response(e.getMessage()));
                 continue;
             }
             List<SourceReceived> srs;

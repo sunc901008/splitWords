@@ -33,11 +33,10 @@ public class WebsocketSearch extends TextWebSocketHandler {
     public static final String RECEIVED_TIMESTAMP = "RECEIVED_TIMESTAMP";
 
     private static final ArrayList<WebSocketSession> users = new ArrayList<>();
-    private static final Integer WebsocketLimit = 10;
 
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
-        if (users.size() >= WebsocketLimit) {
+        if (users.size() >= Base.WebsocketLimit) {
             String warn = "Websocket connected too much.";
             logger.warn(warn);
             session.sendMessage(new TextMessage(warn));
@@ -71,13 +70,9 @@ public class WebsocketSearch extends TextWebSocketHandler {
 //        session.sendMessage(new TextMessage(exception.getMessage()));
 //    }
 
-    public static void queryResult(String data) throws IOException {
-        JSONObject json = JSONObject.parseObject(data);
-        String taskId = json.getString("taskId");
+    public static void queryResult(ChartsResponse chartsResponse, String taskId) throws IOException {
         for (WebSocketSession session : users) {
             if (session.getAttributes().get("taskId").toString().equalsIgnoreCase(taskId)) {
-                ChartsResponse chartsResponse = new ChartsResponse(json.getString("question"), json.getString("sourceToken"));
-                chartsResponse.setDatas(json);
                 session.sendMessage(new TextMessage(chartsResponse.response()));
                 break;
             }
@@ -104,7 +99,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
                 if (focusInst.position < 0) {
                     FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
                     if (!focusPhrase.isSuggestion()) {
-                        JSONObject json = InstructionBuild.build(focusInst, question, amb, SearchHandler.getFormula(user));
+                        JSONObject json = InstructionBuild.build(focusInst, question, amb, Base.getFormula(user));
                         response = new GetInstsResponse(Constant.Status.SUCCESS);
                         response.instructions = json.getString("instructions");
                     }

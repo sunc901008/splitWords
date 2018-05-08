@@ -11,12 +11,16 @@ import java.util.Calendar;
  */
 public class SearchFinishedResponse {
 
+    public static String response(String question) {
+        return response(question, 0);
+    }
+
     public static String response(String question, long cost) {
-        long now = Calendar.getInstance().getTimeInMillis();
         JSONObject json = new JSONObject();
         json.put("type", "state");
         json.put("question", question);
-        json.put("cost", now - cost);
+        if (cost > 0)
+            json.put("cost", Calendar.getInstance().getTimeInMillis() - cost);
         json.put("datas", "searchFinished");
         return json.toJSONString();
     }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
+import java.util.Calendar;
 
 /**
  * creator: sunc
@@ -79,6 +80,17 @@ public class Common {
         sw.close();
         pw.close();
         return sw.toString();
+    }
+
+    // 获取定时任务时间 cron
+    public static String getCron() {
+        String time = "%s %s %s * * *";
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND, 120);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
+        return String.format(time, hour, minute, second);
     }
 
 }
