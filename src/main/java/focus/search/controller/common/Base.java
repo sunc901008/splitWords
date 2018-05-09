@@ -11,7 +11,6 @@ import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.controller.WebsocketSearch;
 import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
@@ -20,13 +19,17 @@ import focus.search.meta.*;
 import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.AmbiguitiesException;
-import focus.search.response.exception.MyHttpException;
+import focus.search.response.exception.FocusHttpException;
+import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.*;
 import org.apache.log4j.Logger;
+import org.quartz.SchedulerException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -145,7 +148,7 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user) throws IOException {
+    public static void response(WebSocketSession session, String search, JSONObject user) throws IOException, SchedulerException, ParseException, FocusHttpException, FocusParserException, FocusInstructionException {
         response(session, search, user, null);
     }
 
@@ -157,7 +160,7 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities) throws IOException {
+    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities) throws IOException, ParseException, SchedulerException, FocusHttpException, FocusParserException, FocusInstructionException {
         // 接收请求的时间戳
         long received = Long.parseLong(session.getAttributes().get(WebsocketSearch.RECEIVED_TIMESTAMP).toString());
 
@@ -301,7 +304,10 @@ public class Base {
                     // 指令检测
                     response.setDatas("precheck");
                     session.sendMessage(new TextMessage(response.response()));
-                    // todo 发送BI检测指定是否可执行
+
+                    if (checkQuery(session, json)) {
+                        return;
+                    }
 
                     // 指令检测完毕
                     response.setDatas("precheckDone");
@@ -353,8 +359,6 @@ public class Base {
                 logger.info(msg);
             }
 
-        } catch (InvalidRuleException e) {
-            e.printStackTrace();
         } catch (AmbiguitiesException e) {
             AmbiguityResponse response = new AmbiguityResponse(search);
             FocusToken ft = tokens.get(e.position);
@@ -374,11 +378,6 @@ public class Base {
             amb.put(datas.id, ar);
             user.put("ambiguities", amb);
 
-//            session.getAttributes().put("user", user);
-
-        } catch (Exception e) {
-            String exc = e.getMessage();
-            session.sendMessage(new TextMessage(exc == null ? "something error" : exc));
         }
     }
 
@@ -422,7 +421,7 @@ public class Base {
      * @param current question, instruction, taskId
      * @param user    websocket 用户信息
      */
-    private static void addQuestion(HistoryQuestion current, JSONObject user) throws MyHttpException {
+    private static void addQuestion(HistoryQuestion current, JSONObject user) throws FocusHttpException {
         JSONArray questions = user.getJSONArray("historyQuestions");
         if (questions.size() > 0) {
             HistoryQuestion last = (HistoryQuestion) questions.get(0);
@@ -448,6 +447,36 @@ public class Base {
             if (col.getColumnId() == column.getInteger("id")) {
                 return !col.getColumnDisplayName().equalsIgnoreCase(column.getString("columnDisplayName"));
             }
+        }
+        return false;
+    }
+
+    /**
+     * @param accessToken userCenter accessToken
+     * @return is login
+     * @throws FocusHttpException http exception
+     */
+    public static boolean isLogin(String accessToken) throws FocusHttpException {
+        return Constant.passUc || Clients.Uc.isLogin(accessToken);
+    }
+
+    /**
+     * @param session websocket session
+     * @param json    指令参数
+     * @return 是否停止执行
+     * @throws IOException sendMessage 异常
+     */
+    public static boolean checkQuery(WebSocketSession session, JSONObject json) throws IOException {
+        JSONObject checkQuery = new JSONObject();
+        try {
+            checkQuery = Clients.Bi.checkQuery(json.toJSONString());
+            if (!checkQuery.getBooleanValue("success")) {
+                session.sendMessage(new TextMessage(ExceptionResponse.response("Bi not support.").toJSONString()));
+                return true;
+            }
+        } catch (FocusHttpException e) {
+            session.sendMessage(new TextMessage(ExceptionResponse.response(checkQuery.getString("exception")).toJSONString()));
+            return true;
         }
         return false;
     }

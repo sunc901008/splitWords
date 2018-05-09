@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.StringFunc.*;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ import java.util.List;
 //        <ifnull-string-function>;
 public class StringFuncInstruction {
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_string-function>":
@@ -41,11 +41,11 @@ public class StringFuncInstruction {
             case "<ifnull-string-function>":
                 return IfNullStringColFuncInstruction.build(focusPhrase, index, amb, formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_string-function>":
@@ -61,12 +61,12 @@ public class StringFuncInstruction {
             case "<ifnull-string-function>":
                 return IfNullStringColFuncInstruction.arg(fn.getChildren(), formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_string-function>":
@@ -82,7 +82,7 @@ public class StringFuncInstruction {
             case "<ifnull-string-function>":
                 return IfNullStringColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 

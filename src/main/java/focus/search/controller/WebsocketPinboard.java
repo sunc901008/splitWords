@@ -90,7 +90,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             try {
                 getSource = Clients.WebServer.getSource(sourceToken);
             } catch (Exception e) {
-                session.sendMessage(new TextMessage(ExceptionResponse.response(e.getMessage())));
+                session.sendMessage(new TextMessage(ExceptionResponse.response(e.getMessage()).toJSONString()));
                 continue;
             }
             List<SourceReceived> srs;
@@ -197,7 +197,10 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         response.setDatas("precheck");
         // precheck response
         session.sendMessage(new TextMessage(response.response()));
-        // todo 发送BI检测指定是否可执行
+
+        if (Base.checkQuery(session, json)) {
+            return;
+        }
 
         // 指令检测完毕
         response.setDatas("precheckDone");

@@ -1,13 +1,12 @@
 package focus.search.instruction.nodeArgs;
 
 import com.alibaba.fastjson.JSONObject;
-import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.instruction.sourceInst.StringColInstruction;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
  */
 public class ColValueOrStringColInst {
 
-    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException {
         if (focusNode.getValue().equals("<string-columns>")) {
             return StringColInstruction.arg(focusNode.getChildren(), formulas);
         }
@@ -28,7 +27,7 @@ public class ColValueOrStringColInst {
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         if (focusNode.getValue().equals("<string-columns>")) {
             return StringColInstruction.tokens(focusNode.getChildren(), formulas, amb);
         }

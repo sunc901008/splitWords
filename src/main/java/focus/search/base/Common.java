@@ -71,13 +71,16 @@ public class Common {
         return msg.substring(0, Math.min(1000, msg.length()));
     }
 
-    public static String printStacktrace(Exception e) throws IOException {
+    public static String printStacktrace(Exception e) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         pw.flush();
         sw.flush();
-        sw.close();
+        try {
+            sw.close();
+        } catch (IOException ignored) {
+        }
         pw.close();
         return sw.toString();
     }

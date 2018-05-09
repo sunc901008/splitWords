@@ -25,7 +25,7 @@ public class ColumnValueInstruction {
         return null;
     }
 
-    public static JSONObject arg(FocusNode focusNode) throws InvalidRuleException {
+    public static JSONObject arg(FocusNode focusNode) {
         JSONObject arg = new JSONObject();
         FocusPhrase fp = focusNode.getChildren();
         // todo 多个columnValue
@@ -36,7 +36,7 @@ public class ColumnValueInstruction {
         return arg;
     }
 
-    public static AnnotationToken token(FocusNode focusNode) throws InvalidRuleException {
+    public static AnnotationToken token(FocusNode focusNode) {
         FocusPhrase fp = focusNode.getChildren();
         AnnotationToken token = new AnnotationToken();
         token.value = fp.getNodeNew(1).getValue();

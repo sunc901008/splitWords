@@ -5,11 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
 public class IfThenElseBoolColFuncInstruction {
 
     // 完整指令
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
@@ -57,7 +57,7 @@ public class IfThenElseBoolColFuncInstruction {
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(1).getChildren().getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(3).getChildren().getFocusNodes().get(0);
         FocusNode param3 = focusPhrase.getFocusNodes().get(5).getChildren().getFocusNodes().get(0);
@@ -74,7 +74,7 @@ public class IfThenElseBoolColFuncInstruction {
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(1);
         FocusNode param2 = focusPhrase.getFocusNodes().get(3);
         FocusNode param3 = focusPhrase.getFocusNodes().get(5);

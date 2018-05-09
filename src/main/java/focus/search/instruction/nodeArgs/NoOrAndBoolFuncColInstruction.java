@@ -3,11 +3,11 @@ package focus.search.instruction.nodeArgs;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.boolFunc.*;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
 
 public class NoOrAndBoolFuncColInstruction {
 
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
         switch (node.getValue()) {
             case "<to_bool-function>":
@@ -48,12 +48,12 @@ public class NoOrAndBoolFuncColInstruction {
             case "<bool-columns>":
                 return ColumnInstruction.arg(node.getChildren());
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
         switch (node.getValue()) {
             case "<to_bool-function>":
@@ -78,7 +78,7 @@ public class NoOrAndBoolFuncColInstruction {
                 tokens.add(AnnotationToken.singleCol(fp.getLastNode().getColumn(), fp.size() == 2, begin, end, amb));
                 return tokens;
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 

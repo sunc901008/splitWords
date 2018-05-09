@@ -1,9 +1,8 @@
 package focus.search.base;
 
 import com.alibaba.fastjson.JSONObject;
-import focus.search.response.exception.MyHttpException;
+import focus.search.response.exception.FocusHttpException;
 import org.apache.http.Header;
-import org.apache.http.HttpException;
 import org.apache.http.message.BasicHeader;
 
 import java.util.Arrays;
@@ -19,26 +18,35 @@ public class Clients {
 
     private static final BasicHeader baseHeader = new BasicHeader("Content-Type", "application/json");
 
-    private static JSONObject get(String url, String entity, List<Header> headers) throws MyHttpException {
+    private static JSONObject get(String url, String entity, List<Header> headers) throws FocusHttpException {
         JSONObject res = MyHttpClient.get(url, entity, headers);
         if (res.isEmpty()) {
-            throw new MyHttpException();
+            throw new FocusHttpException(url, entity, headers);
         }
         return res;
     }
 
-    private static JSONObject post(String url, String entity, List<Header> headers) throws MyHttpException {
+    private static JSONObject post(String url, String entity, List<Header> headers) throws FocusHttpException {
         JSONObject res = MyHttpClient.post(url, entity, headers);
         if (res.isEmpty()) {
-            throw new MyHttpException();
+            throw new FocusHttpException(url, entity, headers);
         }
         return res;
     }
 
-    private static void delete(String url, String entity, List<Header> headers) throws MyHttpException {
+    private static void delete(String url, String entity, List<Header> headers) throws FocusHttpException {
         JSONObject res = MyHttpClient.delete(url, entity, headers);
         if (res.isEmpty()) {
-            throw new MyHttpException();
+            throw new FocusHttpException(url, entity, headers);
+        }
+    }
+
+    public static class Bi {
+        private static String baseUrl = String.format("http://%s:%d%s/", Constant.biHost, Constant.biPort, Constant.biBaseUrl);
+        private static final String CHECK_QUERY = "checkQuery";
+
+        public static JSONObject checkQuery(String params) throws FocusHttpException {
+            return get(baseUrl + CHECK_QUERY, params, Collections.singletonList(baseHeader));
         }
     }
 
@@ -48,16 +56,16 @@ public class Clients {
         private static final String GET_SOURCE = "getSource";
         private static final String QUERY_URL = "query";
 
-        public static JSONObject getSource(String sourceToken) throws MyHttpException {
+        public static JSONObject getSource(String sourceToken) throws FocusHttpException {
             BasicHeader header = new BasicHeader("sourceToken", sourceToken);
             return get(baseUrl + GET_SOURCE, null, Arrays.asList(header, baseHeader));
         }
 
-        public static JSONObject query(String params) throws MyHttpException {
+        public static JSONObject query(String params) throws FocusHttpException {
             return post(baseUrl + QUERY_URL, params, Collections.singletonList(baseHeader));
         }
 
-        public static void abortQuery(String params) throws MyHttpException {
+        public static void abortQuery(String params) throws FocusHttpException {
             delete(baseUrl + QUERY_URL, params, Collections.singletonList(baseHeader));
         }
 
@@ -66,12 +74,27 @@ public class Clients {
     public static class Uc {
 
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.ucHost, Constant.ucPort, Constant.ucBaseUrl);
-        private static final String GET_SOURCE = "getSource";
+        private static final String USERINFO = "userinfo";
+        private static final String STATUS = "status";
 
-        public static JSONObject getSource(String sourceToken) throws MyHttpException {
-            BasicHeader header = new BasicHeader("sourceToken", sourceToken);
-            return get(baseUrl + GET_SOURCE, null, Arrays.asList(header, baseHeader));
+        public static boolean isLogin(String accessToken) throws FocusHttpException {
+            if (Common.isEmpty(accessToken))
+                return false;
+            JSONObject res = get(baseUrl + STATUS, null, Arrays.asList(new BasicHeader("Access-Token", accessToken), baseHeader));
+            return res.getString("status").equals("success");
         }
+
+        public static JSONObject getUserInfo(String accessToken) throws FocusHttpException {
+            String url = baseUrl + USERINFO;
+            List<Header> headers = Arrays.asList(new BasicHeader("Access-Token", accessToken), baseHeader);
+            JSONObject response = get(url, null, headers);
+            if (response.getString("status").equals("success")) {
+                return response.getJSONObject("user");
+            } else {
+                throw new FocusHttpException(url, null, headers);
+            }
+        }
+
     }
 
 }

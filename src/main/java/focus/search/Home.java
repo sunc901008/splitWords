@@ -15,6 +15,8 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.AnnotationResponse;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
@@ -48,6 +50,12 @@ public class Home {
 //        FocusInst fi = search("views+average(4)*2");
 //        FocusPhrase fp = fi.lastFocusPhrase();
 //        print(JSONObject.toJSONString(fp.allFormulaNode()));
+
+        print("abcd");
+
+    }
+
+    private static void deepCloneTest(){
         FocusParser parser = Base.englishParser.deepClone();
         long start = Calendar.getInstance().getTimeInMillis();
         FocusParser parser1 = parser.deepClone();
@@ -55,7 +63,6 @@ public class Home {
         ModelBuild.buildTable(parser, ModelBuild.test(1));
         print(parser.getTerminalTokens().size());
         print(parser1.getTerminalTokens().size());
-
     }
 
     private static void allNumberFunc() {
@@ -141,7 +148,7 @@ public class Home {
     }
 
     // params:  start 需要执行的questions文件中的起始行号，为0时执行所有, length 执行的行数
-    private static void search(int start, int length) throws IOException, InvalidRuleException {
+    private static void search(int start, int length) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
         ResourceLoader resolver = new DefaultResourceLoader();
         BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
         String search;
@@ -172,7 +179,7 @@ public class Home {
         br.close();
     }
 
-    private static void formula(String search) throws IOException, InvalidRuleException {
+    private static void formula(String search) throws IOException, InvalidRuleException, FocusParserException, FocusInstructionException {
         FocusInst fi = search(search);
         if (fi != null && fi.size() == 1) {
             FocusPhrase fp = fi.lastFocusPhrase();
@@ -266,7 +273,7 @@ public class Home {
         return focusInst.getFocusPhrases().get(0);
     }
 
-    private static void formulaTest(FocusPhrase fp) throws InvalidRuleException {
+    private static void formulaTest(FocusPhrase fp) throws FocusInstructionException {
 
         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(fp);
 
@@ -292,7 +299,7 @@ public class Home {
         return json;
     }
 
-    private static FocusInst search(String search) throws IOException, InvalidRuleException {
+    private static FocusInst search(String search) throws IOException, InvalidRuleException, FocusParserException {
         String test = "bnf-file/test.bnf";
         FocusParser parser = new FocusParser();
 //        FocusParser parser = new FocusParser(test);
@@ -328,7 +335,7 @@ public class Home {
         return null;
     }
 
-    private static void test(String search) throws IOException, InvalidRuleException {
+    private static void test(String search) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
 
         FocusInst focusInst = search(search);
 

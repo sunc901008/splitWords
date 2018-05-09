@@ -5,9 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
 //        <number> <bool-symbol> <number>;
 public class BaseBoolFuncInstruction {
 
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);
         FocusNode symbol = focusPhrase.getFocusNodes().get(1);
@@ -42,7 +42,7 @@ public class BaseBoolFuncInstruction {
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);
         FocusNode symbol = focusPhrase.getFocusNodes().get(1).getChildren().getFirstNode();

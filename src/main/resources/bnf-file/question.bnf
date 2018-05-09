@@ -8,7 +8,8 @@
             <bottom-n> |
             <sort-by> |
             <growth-of> |
-            <all-columns>;
+            <all-columns> |
+            <formula-column>;
 
 <simple-filter> := <number-columns> <bool-symbol> <number> |
                    <number> <bool-symbol> <number-columns> |

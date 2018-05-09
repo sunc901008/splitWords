@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.boolFunc.*;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
 public class BoolFuncColInstruction {
 
     // 完整指令
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_bool-function>":
@@ -46,12 +46,12 @@ public class BoolFuncColInstruction {
             case "<not-function>":
                 return NotFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_bool-function>":
@@ -70,12 +70,12 @@ public class BoolFuncColInstruction {
             case "<not-function>":
                 return NotFuncInstruction.arg(focusPhrase, formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_bool-function>":
@@ -94,7 +94,7 @@ public class BoolFuncColInstruction {
             case "<not-function>":
                 return NotFuncInstruction.tokens(focusPhrase, formulas, amb);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 

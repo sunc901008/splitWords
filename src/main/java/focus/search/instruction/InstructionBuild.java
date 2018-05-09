@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.filterInst.FilterInstruction;
 import focus.search.instruction.phraseInst.PhraseInstruction;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class InstructionBuild {
 
-    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONObject data = new JSONObject();
         data.put("question", question);
 
@@ -37,14 +37,14 @@ public class InstructionBuild {
         return data;
     }
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         switch (focusPhrase.getInstName()) {
             case "<filter>":
                 return FilterInstruction.build(focusPhrase, index, amb, formulas);
             case "<phrase>":
                 return PhraseInstruction.build(focusPhrase, index, amb, formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 

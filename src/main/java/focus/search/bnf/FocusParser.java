@@ -3,14 +3,15 @@ package focus.search.bnf;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
+import focus.search.base.Common;
 import focus.search.base.Constant;
-import focus.search.bnf.exception.InvalidGrammarException;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.*;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.exception.FocusParserException;
+import org.apache.log4j.Logger;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
@@ -25,6 +26,7 @@ import java.util.Scanner;
  * description:
  */
 public class FocusParser implements Serializable {
+    private static final Logger logger = Logger.getLogger(FocusParser.class);
 
     private BnfParser parser = null;
     public FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
@@ -69,8 +71,8 @@ public class FocusParser implements Serializable {
             } else {
                 parser.setGrammar(new Scanner(new FileInputStream(resolver.getResource(file).getFile())));
             }
-        } catch (InvalidGrammarException | IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error(Common.printStacktrace(e));
         }
     }
 
@@ -95,7 +97,7 @@ public class FocusParser implements Serializable {
         return parser.getRule(name);
     }
 
-    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb) throws IOException, InvalidRuleException, AmbiguitiesException {
+    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb) throws IOException, AmbiguitiesException, FocusParserException {
         List<FocusToken> copyTokens = new ArrayList<>(tokens);
         FocusInst fi = new FocusInst();
         int flag = 0;
@@ -152,7 +154,7 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
-    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb) throws IOException, InvalidRuleException, AmbiguitiesException {
+    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb) throws IOException, FocusParserException, AmbiguitiesException {
         FocusInst fi = new FocusInst();
         int flag = 0;
         int position = 0;
@@ -180,7 +182,7 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
-    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb) throws InvalidRuleException, AmbiguitiesException {
+    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb) throws AmbiguitiesException, FocusParserException {
         FocusToken focusToken = tokens.get(0);
 
         List<FocusPhrase> focusPhrases = focusPhrases(focusToken);
@@ -193,44 +195,7 @@ public class FocusParser implements Serializable {
 
         for (int i = 1; i < tokens.size(); i++) {
             FocusToken ft = tokens.get(i);
-            List<FocusPhrase> tmp = new ArrayList<>(focusPhrases);/*
-            List<FocusPhrase> notTerminal = new ArrayList<>();
-            TerminalToken tt = terminal(ft.getWord());
-            if (tt != null && Constant.FNDType.KEYWORD.equals(tt.getType())) {
-                int loop = focusPhrases.size();
-                boolean isTer = false;
-                while (loop > 0) {
-                    loop--;
-                    FocusPhrase focusPhrase = focusPhrases.remove(0);
-                    FocusNode fn = focusPhrase.getNode(i);
-                    if (fn.isTerminal()) {
-                        isTer = true;
-                    }
-                    if (fn.isTerminal() && fn.getValue().equalsIgnoreCase(ft.getWord())) {
-                        focusPhrase.removeNode(i);
-                        fn.setTerminal(true);
-                        fn.setType(Constant.FNDType.KEYWORD);
-                        fn.setBegin(focusToken.getStart());
-                        fn.setEnd(focusToken.getEnd());
-                        focusPhrase.addPn(i, fn);
-                        if (focusPhrase.size() == i + 1) {
-                            focusPhrase.setType(Constant.INSTRUCTION);
-                        }
-                        focusPhrases.add(focusPhrase);
-                    } else if (!fn.isTerminal()) {
-                        notTerminal.add(focusPhrase);
-                    }
-                }
-                if (notTerminal.isEmpty() && focusPhrases.isEmpty()) {// 出错结束
-                    FocusSubInst fsi = new FocusSubInst();
-                    fsi.setIndex(i);
-                    fsi.setFps(tmp);
-                    fsi.setError(true);
-                    return fsi;
-                }
-                if()
-                continue;
-            }*/
+            List<FocusPhrase> tmp = new ArrayList<>(focusPhrases);
 
             if (Constant.FNDType.COLUMNVALUE.equals(ft.getType())) {
                 int loop = focusPhrases.size();
@@ -357,28 +322,6 @@ public class FocusParser implements Serializable {
      */
     private void ambiguitiesCheck(List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
         List<AmbiguitiesRecord> ars = new ArrayList<>();
-//        List<Integer> added = new ArrayList<>();
-//        boolean hasSourceName = false;
-//        for (FocusPhrase fp : focusPhrases) {
-//            FocusNode fn = fp.getNode(index);
-//            AmbiguitiesRecord ar = new AmbiguitiesRecord();
-//            if (Constant.FNDType.TABLE.equals(fn.getType()) && !hasSourceName) {
-//                hasSourceName = true;
-//                ar.type = Constant.FNDType.TABLE;
-//                ar.sourceName = fn.getValue();
-//                ars.add(ar);
-//            } else if (Constant.FNDType.COLUMN.equals(fn.getType())) {
-//                Column column = fn.getColumn();
-//                if (!added.contains(column.getColumnId())) {
-//                    added.add(column.getColumnId());
-//                    ar.type = Constant.FNDType.COLUMN;
-//                    ar.sourceName = column.getSourceName();
-//                    ar.columnId = column.getColumnId();
-//                    ar.columnName = column.getColumnDisplayName();
-//                    ars.add(ar);
-//                }
-//            }
-//        }
 
         String value = focusPhrases.get(0).getNodeNew(index).getValue();
         AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(value, amb);
@@ -488,7 +431,7 @@ public class FocusParser implements Serializable {
                         BnfRule br;
                         try {
                             br = findRule(rules, fn.getValue());
-                        } catch (InvalidRuleException e) {
+                        } catch (FocusParserException e) {
                             loop--;
                             continue;
                         }
@@ -549,7 +492,7 @@ public class FocusParser implements Serializable {
         }
     }
 
-    private List<FocusPhrase> focusPhrases(FocusToken focusToken) throws InvalidRuleException {
+    private List<FocusPhrase> focusPhrases(FocusToken focusToken) throws FocusParserException {
         String word = focusToken.getWord();
         List<BnfRule> rules = parseRules(parser.getM_rules(), word);
 
@@ -591,24 +534,24 @@ public class FocusParser implements Serializable {
         return focusPhrases;
     }
 
-    private BnfRule findRule(List<BnfRule> rules, Token token) throws InvalidRuleException {
+    private BnfRule findRule(List<BnfRule> rules, Token token) throws FocusParserException {
         return findRule(rules, token.getName());
     }
 
-    private BnfRule findRule(List<BnfRule> rules, String token) throws InvalidRuleException {
+    private BnfRule findRule(List<BnfRule> rules, String token) throws FocusParserException {
         for (BnfRule rule : rules) {
             if (rule.getLeftHandSide().getName().equals(token)) {
                 return rule;
             }
         }
-        throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
+        throw new FocusParserException("Cannot find rule for token " + JSONObject.toJSONString(token));
     }
 
-    public List<BnfRule> parseRules(String word) throws InvalidRuleException {
+    public List<BnfRule> parseRules(String word) throws FocusParserException {
         return parseRules(parser.getM_rules(), word);
     }
 
-    private List<BnfRule> parseRules(List<BnfRule> rules, String word) throws InvalidRuleException {
+    private List<BnfRule> parseRules(List<BnfRule> rules, String word) throws FocusParserException {
         List<BnfRule> res = new ArrayList<>();
         for (BnfRule br : rules) {
             BnfRule rule = parse(br, word);
@@ -619,7 +562,7 @@ public class FocusParser implements Serializable {
         return res;
     }
 
-    private BnfRule parse(BnfRule rule, String word) throws InvalidRuleException {
+    private BnfRule parse(BnfRule rule, String word) throws FocusParserException {
         BnfRule br = new BnfRule();
         br.setLeftHandSide(rule.getLeftHandSide());
         for (TokenString alt : rule.getAlternatives()) {
@@ -643,7 +586,7 @@ public class FocusParser implements Serializable {
                 // 过滤公式|列规则|列中值
 //                List<String> filter = Arrays.asList("<function-columns>", "<value>");
                 if (newBr == null && !token.getName().endsWith("-column>")) {
-                    throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
+                    throw new FocusParserException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
                     if (newBr.equals(rule) || parse(newBr, word) != null) {
                         br.addAlternative(alt);

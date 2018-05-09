@@ -5,14 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
-import focus.search.instruction.sourceInst.ColumnInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,7 @@ import java.util.List;
 public class BaseNumberFuncInstruction {
 
     // 完整指令
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -58,7 +56,7 @@ public class BaseNumberFuncInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
 //        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
 //        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
 //        FocusNode symbol = focusPhrase.getFocusNodes().get(1);
@@ -90,7 +88,7 @@ public class BaseNumberFuncInstruction {
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);
         FocusNode symbol = focusPhrase.getFocusNodes().get(1).getChildren().getFirstNode();

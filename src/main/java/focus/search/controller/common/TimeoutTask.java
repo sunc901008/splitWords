@@ -20,7 +20,7 @@ public class TimeoutTask implements Job {
         WebSocketSession session = (WebSocketSession) params.get("session");
         try {
             // TODO: 2018/5/8 超时异常返回
-            session.sendMessage(new TextMessage(ExceptionResponse.response("timeout")));
+            session.sendMessage(new TextMessage(ExceptionResponse.response("timeout").toJSONString()));
         } catch (IOException e) {
             e.printStackTrace();
         }

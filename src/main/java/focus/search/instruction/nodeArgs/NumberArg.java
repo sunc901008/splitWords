@@ -3,7 +3,6 @@ package focus.search.instruction.nodeArgs;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 
 /**
@@ -13,7 +12,7 @@ import focus.search.instruction.annotations.AnnotationToken;
  */
 public class NumberArg {
 
-    public static JSONObject arg(FocusNode focusNode) throws InvalidRuleException {
+    public static JSONObject arg(FocusNode focusNode) {
         JSONObject arg = new JSONObject();
         FocusNode numberNode = focusNode.getChildren().getNodeNew(0);
         Object number;
@@ -27,7 +26,7 @@ public class NumberArg {
         return arg;
     }
 
-    public static AnnotationToken token(FocusNode focusNode) throws InvalidRuleException {
+    public static AnnotationToken token(FocusNode focusNode) {
         AnnotationToken token = new AnnotationToken();
         FocusNode numberNode = focusNode.getChildren().getNodeNew(0);
         Object number;

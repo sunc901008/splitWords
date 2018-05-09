@@ -2,12 +2,12 @@ package focus.search.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
+import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.SuggestionBuild;
@@ -15,16 +15,23 @@ import focus.search.instruction.InstructionBuild;
 import focus.search.response.api.GetInstsResponse;
 import focus.search.response.api.NameCheckResponse;
 import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.exception.FocusHttpException;
+import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.ChartsResponse;
+import focus.search.response.search.ExceptionResponse;
 import org.apache.log4j.Logger;
+import org.quartz.SchedulerException;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 public class WebsocketSearch extends TextWebSocketHandler {
@@ -34,8 +41,20 @@ public class WebsocketSearch extends TextWebSocketHandler {
 
     private static final ArrayList<WebSocketSession> users = new ArrayList<>();
 
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    private JSONObject userInfo(String accessToken) throws FocusHttpException {
+        if (Constant.passUc) {
+            JSONObject user = new JSONObject();
+            user.put("id", 1);
+            user.put("accessToken", accessToken);
+            user.put("name", "admin");
+            user.put("username", "admin");
+            user.put("privileges", Collections.singletonList("[\"ADMIN\"]"));
+            return user;
+        }
+        return Clients.Uc.getUserInfo(accessToken);
+    }
 
+    public void afterConnectionEstablished(WebSocketSession session) throws IOException {
         if (users.size() >= Base.WebsocketLimit) {
             String warn = "Websocket connected too much.";
             logger.warn(warn);
@@ -44,31 +63,60 @@ public class WebsocketSearch extends TextWebSocketHandler {
                 session.close();
             return;
         }
-
-        JSONObject user = (JSONObject) session.getAttributes().get("user");
+        String accessToken = session.getAttributes().get("accessToken").toString();
+        JSONObject user;
+        try {
+            // 获取用户信息
+            user = userInfo(accessToken);
+            user.put("accessToken", accessToken);
+        } catch (FocusHttpException e) {
+            logger.error(Common.printStacktrace(e));
+            session.close();
+            return;
+        }
+        session.getAttributes().put("user", user);
         logger.info(user.getString("name") + " connected to server.");
         users.add(session);
-
     }
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
-        JSONObject user = (JSONObject) session.getAttributes().get("user");
+        JSONObject user = (JSONObject) session.getAttributes().getOrDefault("user", new JSONObject());
         users.remove(session);
         logger.info(user.getString("name") + " disconnected to server.");
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException, InvalidRuleException {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         session.getAttributes().put(RECEIVED_TIMESTAMP, Calendar.getInstance().getTimeInMillis());
         String input = message.getPayload();
-        SearchHandler.preHandle(session, JSONObject.parseObject(input));
+
+        // 每次通信前检测用户是否还处于登录状态
+        String accessToken = session.getAttributes().get("accessToken").toString();
+        try {
+            if (!Base.isLogin(accessToken)) {
+                session.sendMessage(new TextMessage(ExceptionResponse.response("user is logout").toJSONString()));
+                session.close();
+                return;
+            }
+        } catch (FocusHttpException e) {
+            logger.error(Common.printStacktrace(e));
+            session.sendMessage(new TextMessage(ExceptionResponse.response("user is logout").toJSONString()));
+            session.close();
+            return;
+        }
+
+        try {
+            SearchHandler.preHandle(session, JSONObject.parseObject(input));
+        } catch (IOException | FocusHttpException | ParseException | SchedulerException | FocusInstructionException | FocusParserException e) {
+            FocusExceptionHandler.handle(session, e);
+        }
     }
-//
-//    @Override
-//    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-//        logger.info("get an error:" + exception.getMessage());
-//        session.sendMessage(new TextMessage(exception.getMessage()));
-//    }
+
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+        logger.info("get an error:" + exception.getMessage());
+        session.sendMessage(new TextMessage(exception.getMessage()));
+    }
 
     public static void queryResult(ChartsResponse chartsResponse, String taskId) throws IOException {
         for (WebSocketSession session : users) {
@@ -104,7 +152,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
                         response.instructions = json.getString("instructions");
                     }
                 }
-            } catch (AmbiguitiesException | InvalidRuleException e) {
+            } catch (AmbiguitiesException | FocusParserException | FocusInstructionException e) {
                 logger.error(Common.printStacktrace(e));
             }
             break;

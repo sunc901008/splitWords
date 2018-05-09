@@ -3,12 +3,12 @@ package focus.search.instruction.nodeArgs;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.BoolFuncColInstruction;
 import focus.search.instruction.sourceInst.BoolColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class BoolColOrBoolFuncColInst {
 
-    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException {
         switch (focusNode.getValue()) {
             case "<bool-columns>":
                 JSONObject arg = new JSONObject();
@@ -35,12 +35,12 @@ public class BoolColOrBoolFuncColInst {
             case "<bool-function-column>":
                 return BoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusNode.toJSON());
         }
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         switch (focusNode.getValue()) {
             case "<bool-columns>":
                 return BoolColInstruction.tokens(focusNode, formulas, amb);
@@ -49,7 +49,7 @@ public class BoolColOrBoolFuncColInst {
             case "<bool-function-column>":
                 return BoolFuncColInstruction.tokens(focusNode.getChildren(), formulas, amb);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusNode.toJSON());
         }
     }
 

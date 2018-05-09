@@ -15,6 +15,7 @@ import focus.search.meta.Column;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.api.AnswerCheckResponse;
 import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.ChartsResponse;
 import focus.search.response.search.ExceptionResponse;
 import org.apache.log4j.Logger;
@@ -81,7 +82,7 @@ public class Webservice {
 
     @ResponseBody
     @RequestMapping(value = "/answerCheck", method = RequestMethod.POST)
-    public JSONObject answerCheck(@RequestBody String data) throws IOException, AmbiguitiesException, InvalidRuleException {
+    public JSONObject answerCheck(@RequestBody String data) throws IOException, AmbiguitiesException, InvalidRuleException, FocusParserException {
         JSONObject params = JSONObject.parseObject(data);
         JSONObject model = params.getJSONObject("model");
         JSONArray answers = params.getJSONArray("answers");

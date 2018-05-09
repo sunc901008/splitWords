@@ -1,5 +1,10 @@
 // search 中 user 结构
 {
+"id":1,
+"name":"name",
+"username":"username",
+"email":"email",
+"accessToken": "access_token",
 "category":"category",
 "language":"language",
 "sourceToken":"sourceToken",
@@ -13,6 +18,11 @@
 
 -----------------------------------------
 参数解释:
+id                  uc 用户 id
+name                uc 用户 name
+username            uc 用户 username
+email               uc 用户 email
+accessToken         uc 用户 accessToken
 category            解析策略 String
 language            语言环境
 sourceToken         sourceToken

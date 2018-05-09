@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.BoolFuncColInstruction;
@@ -14,6 +13,7 @@ import focus.search.instruction.sourceInst.BoolColInstruction;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.List;
 public class AndOrFuncInstruction {
 
     // 完整指令
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         switch (first.getValue()) {
             case "<bool-columns>":
@@ -45,12 +45,12 @@ public class AndOrFuncInstruction {
             case "<no-or-and-bool-function-column>":
                 return noOrAndBoolFuncColBuild(focusPhrase, index, amb, formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
     // 其他指令的一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         switch (first.getValue()) {
             case "<bool-columns>":
@@ -58,12 +58,12 @@ public class AndOrFuncInstruction {
             case "<no-or-and-bool-function-column>":
                 return noOrAndBoolFuncColBuild(focusPhrase, formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         switch (first.getValue()) {
             case "<bool-columns>":
@@ -71,7 +71,7 @@ public class AndOrFuncInstruction {
             case "<no-or-and-bool-function-column>":
                 return noOrAndBoolFuncColBuildTokens(focusPhrase, formulas, amb);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
@@ -83,7 +83,7 @@ public class AndOrFuncInstruction {
     //    <bool-columns> or <and-function>
     //    <bool-columns> or <or-function>
     // 完整指令
-    private static JSONArray allBoolColBuild(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    private static JSONArray allBoolColBuild(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -109,7 +109,7 @@ public class AndOrFuncInstruction {
     }
 
     // 其他指令的一部分
-    private static JSONObject allBoolColBuild(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    private static JSONObject allBoolColBuild(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode param1 = focusNodes.get(0);
         FocusNode symbol = focusNodes.get(1);
@@ -138,7 +138,7 @@ public class AndOrFuncInstruction {
         return expression;
     }
 
-    private static List<AnnotationToken> allBoolColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    private static List<AnnotationToken> allBoolColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         List<AnnotationToken> tokens = new ArrayList<>();
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode param1 = focusNodes.get(0);
@@ -167,7 +167,7 @@ public class AndOrFuncInstruction {
 
     //    <no-or-and-bool-function-column> or <no-or-and-bool-function-column>
     // 完整指令
-    private static JSONArray noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    private static JSONArray noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
@@ -194,7 +194,7 @@ public class AndOrFuncInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);
         FocusNode symbol = focusPhrase.getFocusNodes().get(1);
@@ -212,7 +212,7 @@ public class AndOrFuncInstruction {
     }
 
     // annotation token
-    public static List<AnnotationToken> noOrAndBoolFuncColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> noOrAndBoolFuncColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);

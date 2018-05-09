@@ -8,6 +8,7 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.NumberColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class NumberOrNumColInst {
 
-    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException {
         JSONObject arg = new JSONObject();
         if ("<number-columns>".equals(focusNode.getValue())) {
             JSONObject json = NumberColInstruction.build(focusNode.getChildren(), formulas);
@@ -34,11 +35,11 @@ public class NumberOrNumColInst {
         } else if ("<number>".equals(focusNode.getValue())) {
             return NumberArg.arg(focusNode);
         }
-        throw new InvalidRuleException("Build instruction fail!!!");
+        throw new FocusInstructionException(focusNode.toJSON());
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         if ("<number-columns>".equals(focusNode.getValue())) {
             return NumberColInstruction.tokens(focusNode.getChildren(), formulas, amb);
         } else if ("<number>".equals(focusNode.getValue())) {
@@ -46,6 +47,6 @@ public class NumberOrNumColInst {
             tokens.add(NumberArg.token(focusNode));
             return tokens;
         }
-        throw new InvalidRuleException("Build instruction fail!!!");
+        throw new FocusInstructionException(focusNode.toJSON());
     }
 }

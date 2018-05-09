@@ -9,10 +9,10 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class ExceptionResponse {
 
-    public static String response(String msg) {
+    public static JSONObject response(String msg) {
         JSONObject json = new JSONObject();
         json.put("type", "error");
         json.put("message", msg);
-        return json.toJSONString();
+        return json;
     }
 }

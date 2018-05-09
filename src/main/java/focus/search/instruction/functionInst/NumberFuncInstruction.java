@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.numberFunc.*;
 import focus.search.instruction.nodeArgs.BaseNumberFuncInstruction;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ import java.util.List;
 public class NumberFuncInstruction {
 
     // 完整指令
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<average-function>":
@@ -65,18 +65,18 @@ public class NumberFuncInstruction {
             case "<ifnull-number-function>":
                 return IfNullNumberColFuncInstruction.build(focusPhrase, index, amb, formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         return arg(fn, formulas);
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusNode fn, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONObject arg(FocusNode fn, List<Formula> formulas) throws FocusInstructionException {
         switch (fn.getValue()) {
             case "<average-function>":
                 return AverageFuncInstruction.arg(fn.getChildren(), formulas);
@@ -104,12 +104,12 @@ public class NumberFuncInstruction {
             case "<ifnull-number-function>":
                 return IfNullNumberColFuncInstruction.arg(fn.getChildren(), formulas);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(fn.toJSON());
         }
     }
 
     // annotation
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws InvalidRuleException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<average-function>":
@@ -138,7 +138,7 @@ public class NumberFuncInstruction {
             case "<ifnull-number-function>":
                 return IfNullNumberColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             default:
-                throw new InvalidRuleException("Build instruction fail!!!");
+                throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 

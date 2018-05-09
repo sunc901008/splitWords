@@ -5,10 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import java.util.List;
 public class FormulaColumnInstruction {
 
     // 完整指令 formula-column
-    public static JSONArray build(FocusPhrase focusPhrase, int index, List<Formula> formulas) throws InvalidRuleException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, List<Formula> formulas) throws FocusInstructionException {
         FocusNode formulaNode = focusPhrase.getFirstNode();
 
         JSONArray instructions = new JSONArray();
@@ -53,13 +53,16 @@ public class FormulaColumnInstruction {
         return instructions;
     }
 
-    private static Formula getFormula(List<Formula> formulas, String formulaName) throws InvalidRuleException {
+    private static Formula getFormula(List<Formula> formulas, String formulaName) throws FocusInstructionException {
         for (Formula f : formulas) {
             if (f.getName().equalsIgnoreCase(formulaName)) {
                 return f;
             }
         }
-        throw new InvalidRuleException("Build instruction fail!!!");
+        JSONObject exception = new JSONObject();
+        exception.put("formulas", formulas);
+        exception.put("formulaName", formulaName);
+        throw new FocusInstructionException(exception);
     }
 
 }
