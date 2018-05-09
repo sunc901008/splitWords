@@ -35,10 +35,10 @@ import java.util.List;
  */
 public class Home {
 
-    public static void main(String[] args) throws IOException, InvalidRuleException {
+    public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
 //        test("average()");
 //        boolean expression = false;
-//        search(-1, 2);
+        search(3, 1);
 //        split(18, 1);
 //        split(",>");
 //        ttt();
@@ -51,7 +51,7 @@ public class Home {
 //        FocusPhrase fp = fi.lastFocusPhrase();
 //        print(JSONObject.toJSONString(fp.allFormulaNode()));
 
-        print("abcd");
+//        print("abcd");
 
     }
 

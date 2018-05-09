@@ -19,6 +19,7 @@ import java.util.List;
 //        <number> <bool-symbol> <number-columns> |
 //        <number-columns> <bool-symbol> <number-columns> |
 //        <number> <bool-symbol> <number> |
+//        <all-string-column> = <column-value> |
 //        <bool-function-column>;
 public class SimpleFilterInstruction {
 
@@ -30,6 +31,8 @@ public class SimpleFilterInstruction {
                 return FilterNumOrNumColInstruction.build(focusPhrase, index, amb, formulas);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<all-string-column>":
+                return FilterStringColEqualInstruction.build(focusPhrase, index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

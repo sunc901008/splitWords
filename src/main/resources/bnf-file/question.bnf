@@ -15,6 +15,7 @@
                    <number> <bool-symbol> <number-columns> |
                    <number-columns> <bool-symbol> <number-columns> |
                    <number> <bool-symbol> <number> |
+                   <all-string-column> = <column-value> |
                    <bool-function-column>;
 
 <top-n> := top <integer> <number-columns> |
