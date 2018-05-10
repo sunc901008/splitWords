@@ -68,7 +68,7 @@ public class Common {
     }
 
     public static String cut(String msg) {
-        return msg.substring(0, Math.min(1000, msg.length()));
+        return msg.substring(0, Math.min(2000, msg.length()));
     }
 
     public static String printStacktrace(Exception e) {
@@ -89,11 +89,11 @@ public class Common {
     public static String getCron() {
         String time = "%s %s %s * * *";
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.SECOND, 120);
+        calendar.add(Calendar.SECOND, Constant.BiTimeout);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
-        return String.format(time, hour, minute, second);
+        return String.format(time, second, minute, hour);
     }
 
 }

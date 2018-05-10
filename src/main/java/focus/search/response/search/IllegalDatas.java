@@ -12,6 +12,15 @@ public class IllegalDatas {
     public Integer endPos;
     public String reason;
 
+    public IllegalDatas() {
+    }
+
+    public IllegalDatas(int beginPos, int endPos, String reason) {
+        this.beginPos = beginPos;
+        this.endPos = endPos;
+        this.reason = reason;
+    }
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("beginPos", beginPos);

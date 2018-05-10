@@ -24,12 +24,10 @@ import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.*;
 import org.apache.log4j.Logger;
-import org.quartz.SchedulerException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -148,7 +146,7 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user) throws IOException, SchedulerException, ParseException, FocusHttpException, FocusParserException, FocusInstructionException {
+    public static void response(WebSocketSession session, String search, JSONObject user) throws IOException, FocusHttpException, FocusParserException, FocusInstructionException {
         response(session, search, user, null);
     }
 
@@ -160,7 +158,7 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities) throws IOException, ParseException, SchedulerException, FocusHttpException, FocusParserException, FocusInstructionException {
+    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities) throws IOException, FocusHttpException, FocusParserException, FocusInstructionException {
         // 接收请求的时间戳
         long received = Long.parseLong(session.getAttributes().get(WebsocketSearch.RECEIVED_TIMESTAMP).toString());
 
@@ -281,21 +279,14 @@ public class Base {
                     session.sendMessage(new TextMessage(response.response()));
                     JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user));
 
-                    json.put("source", "searchUser");
+                    json.put("source", "searchUser"); // 区分是search框还是pinboard
                     json.put("sourceToken", user.getString("sourceToken"));
 
                     logger.info("指令:\n\t" + json + "\n");
 
                     // Annotations
                     AnnotationResponse annotationResponse = new AnnotationResponse(search);
-                    JSONArray instructions = json.getJSONArray("instructions");
-                    for (int i = 0; i < instructions.size(); i++) {
-                        JSONObject instruction = instructions.getJSONObject(i);
-                        if (instruction.getString("instId").equals("annotation")) {
-                            String content = instruction.getString("content");
-                            annotationResponse.datas.add(JSONObject.parseObject(content, AnnotationDatas.class));
-                        }
-                    }
+                    annotationResponse.datas.addAll(getAnnotationDatas(json.getJSONArray("instructions")));
                     session.sendMessage(new TextMessage(annotationResponse.response()));
 
 //                    {"type":"state","question":"id","cost":16,"icount":0,"icost":0,"iRequestTime":0,"pcost":7,"datas":"searchFinished"}
@@ -305,7 +296,7 @@ public class Base {
                     response.setDatas("precheck");
                     session.sendMessage(new TextMessage(response.response()));
 
-                    if (checkQuery(session, json)) {
+                    if (checkQuery(session, json, search)) {
                         return;
                     }
 
@@ -319,7 +310,7 @@ public class Base {
 
                     JSONObject res = Clients.WebServer.query(json.toJSONString());
                     String taskId = res.getString("taskId");
-                    QuartzManager.addJob(taskId, Common.getCron(), session);
+                    QuartzManager.addJob(taskId, session);
 
                     // 添加到历史记录中,并且放弃上一次搜索
                     addQuestion(new HistoryQuestion(search, json, taskId), user);
@@ -466,19 +457,35 @@ public class Base {
      * @return 是否停止执行
      * @throws IOException sendMessage 异常
      */
-    public static boolean checkQuery(WebSocketSession session, JSONObject json) throws IOException {
+    public static boolean checkQuery(WebSocketSession session, JSONObject json, String question) throws IOException {
         JSONObject checkQuery = new JSONObject();
         try {
             checkQuery = Clients.Bi.checkQuery(json.toJSONString());
             if (!checkQuery.getBooleanValue("success")) {
-                session.sendMessage(new TextMessage(ExceptionResponse.response("Bi not support.").toJSONString()));
+                IllegalDatas datas = new IllegalDatas(0, question.length() - 1, "Bi not support.");
+                IllegalResponse illegal = new IllegalResponse(question, datas);
+                session.sendMessage(new TextMessage(illegal.response()));
                 return true;
             }
         } catch (FocusHttpException e) {
-            session.sendMessage(new TextMessage(ExceptionResponse.response(checkQuery.getString("exception")).toJSONString()));
+            IllegalDatas datas = new IllegalDatas(0, question.length() - 1, checkQuery.getString("exception"));
+            IllegalResponse illegal = new IllegalResponse(question, datas);
+            session.sendMessage(new TextMessage(illegal.response()));
             return true;
         }
         return false;
+    }
+
+    public static List<AnnotationDatas> getAnnotationDatas(JSONArray instructions) {
+        List<AnnotationDatas> datas = new ArrayList<>();
+        for (int i = 0; i < instructions.size(); i++) {
+            JSONObject instruction = instructions.getJSONObject(i);
+            if (instruction.getString("instId").equals("annotation")) {
+                String content = instruction.getString("content");
+                datas.add(JSONObject.parseObject(content, AnnotationDatas.class));
+            }
+        }
+        return datas;
     }
 
 }

@@ -1,6 +1,12 @@
 package focus.search.controller;
 
 import focus.search.base.Common;
+import focus.search.base.Constant;
+import focus.search.response.exception.FocusHttpException;
+import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.FocusParserException;
+import focus.search.response.search.ErrorResponse;
+import focus.search.response.search.FatalResponse;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -12,7 +18,20 @@ class FocusExceptionHandler {
 
     static void handle(WebSocketSession session, Exception e) throws IOException {
         logger.error(Common.printStacktrace(e));
-        // todo 构造错误信息返回结构
-        session.sendMessage(new TextMessage(e.getMessage()));
+        if (e instanceof IOException) {
+            handle(session, ErrorResponse.response(e.getMessage()).toJSONString());
+        } else if (e instanceof FocusHttpException) {
+            handle(session, ErrorResponse.response(Constant.ErrorType.ERROR).toJSONString());
+        } else if (e instanceof FocusInstructionException) {
+            handle(session, FatalResponse.response(e.getMessage(), session.getAttributes().get("sourceToken").toString()));
+        } else if (e instanceof FocusParserException) {
+            handle(session, FatalResponse.response(e.getMessage(), session.getAttributes().get("sourceToken").toString()));
+        } else {
+            handle(session, e.getMessage());
+        }
+    }
+
+    static void handle(WebSocketSession session, String textMessage) throws IOException {
+        session.sendMessage(new TextMessage(textMessage));
     }
 }

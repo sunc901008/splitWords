@@ -38,7 +38,7 @@ public class Home {
     public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
 //        test("average()");
 //        boolean expression = false;
-        search(3, 1);
+//        search(3, 1);
 //        split(18, 1);
 //        split(",>");
 //        ttt();
@@ -52,7 +52,17 @@ public class Home {
 //        print(JSONObject.toJSONString(fp.allFormulaNode()));
 
 //        print("abcd");
+t();
+    }
 
+    private static void t(){
+        List<String > list = new ArrayList<>();
+        list.add("asd");
+        list.add("bbb");
+        String r = list.remove(1);
+        print(r);
+        r = list.remove(1);
+        print(r);
     }
 
     private static void deepCloneTest(){

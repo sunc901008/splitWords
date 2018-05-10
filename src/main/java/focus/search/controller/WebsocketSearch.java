@@ -19,16 +19,14 @@ import focus.search.response.exception.FocusHttpException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.ChartsResponse;
-import focus.search.response.search.ExceptionResponse;
+import focus.search.response.search.ErrorResponse;
 import org.apache.log4j.Logger;
-import org.quartz.SchedulerException;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -94,20 +92,19 @@ public class WebsocketSearch extends TextWebSocketHandler {
         String accessToken = session.getAttributes().get("accessToken").toString();
         try {
             if (!Base.isLogin(accessToken)) {
-                session.sendMessage(new TextMessage(ExceptionResponse.response("user is logout").toJSONString()));
+                FocusExceptionHandler.handle(session, ErrorResponse.response(Constant.ErrorType.NOT_LOGIN).toJSONString());
                 session.close();
                 return;
             }
         } catch (FocusHttpException e) {
             logger.error(Common.printStacktrace(e));
-            session.sendMessage(new TextMessage(ExceptionResponse.response("user is logout").toJSONString()));
-            session.close();
+            FocusExceptionHandler.handle(session, ErrorResponse.response(Constant.ErrorType.NOT_LOGIN).toJSONString());
             return;
         }
 
         try {
             SearchHandler.preHandle(session, JSONObject.parseObject(input));
-        } catch (IOException | FocusHttpException | ParseException | SchedulerException | FocusInstructionException | FocusParserException e) {
+        } catch (IOException | FocusHttpException | FocusInstructionException | FocusParserException e) {
             FocusExceptionHandler.handle(session, e);
         }
     }

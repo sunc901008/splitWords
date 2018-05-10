@@ -17,14 +17,14 @@ public class Constant {
     public static final String SUGGESTION = "suggestion";
     public static final String INSTRUCTION = "instruction";
 
-    public static Boolean PRINT_LOG = true;
+    public static Integer BiTimeout = 120;
 
     public static String biHost = "localhost";
     public static Integer biPort = 8005;
     public static String biBaseUrl = "/api/bi_srv";
 
     public static String webServerHost = "localhost";
-    public static Integer webServerPort = 8004;
+    public static Integer webServerPort = 8003;
     public static String webServerBaseUrl = "/api/bi";
 
     public static String ucHost = "localhost";
@@ -45,21 +45,21 @@ public class Constant {
             }
             inputStream = new BufferedInputStream(new FileInputStream(file));
             properties.load(inputStream);
-            biHost = properties.getProperty("biHost");
-            biPort = Integer.parseInt(properties.getProperty("biPort"));
-            biBaseUrl = properties.getProperty("biBaseUrl");
+            biHost = properties.getProperty("biHost", "localhost");
+            biPort = Integer.parseInt(properties.getProperty("biPort", "8005"));
+            biBaseUrl = properties.getProperty("biBaseUrl", "/api/bi_srv");
 
-            webServerHost = properties.getProperty("webServerHost");
-            webServerPort = Integer.parseInt(properties.getProperty("webServerPort"));
-            webServerBaseUrl = properties.getProperty("webServerBaseUrl");
+            webServerHost = properties.getProperty("webServerHost", "localhost");
+            webServerPort = Integer.parseInt(properties.getProperty("webServerPort", "8003"));
+            webServerBaseUrl = properties.getProperty("webServerBaseUrl", "/api/bi");
 
             ucHost = properties.getProperty("ucHost", "localhost");
-            ucPort = Integer.parseInt(properties.getProperty("ucPort"));
-            ucBaseUrl = properties.getProperty("ucBaseUrl");
+            ucPort = Integer.parseInt(properties.getProperty("ucPort", "8004"));
+            ucBaseUrl = properties.getProperty("ucBaseUrl", "/api/uc");
 
-            passUc = Boolean.parseBoolean(properties.getProperty("passUc"));
+            passUc = Boolean.parseBoolean(properties.getProperty("passUc", "false"));
 
-            PRINT_LOG = Boolean.parseBoolean(properties.getProperty("printLog"));
+            BiTimeout = Integer.parseInt(properties.getProperty("biTimeout", "120"));
 
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -168,6 +168,23 @@ public class Constant {
         public static final String NUMBER = "number";
         public static final String SYMBOL = "symbol";
         public static final String STRING = "string";
+    }
+
+    // search engine error type
+    public static final class ErrorType {
+        public static final String ERROR = "error"; //请求出错
+        public static final String NOT_LOGIN = "notLogin"; //您当前已退出登录，请重新登录
+        public static final String BI_TIMEOUT = "biTimeout"; //BI返回数据超时
+        public static final String NULL_SOURCETOKEN = "nullSourceToken"; //当前SourceToken为空
+        public static final String NO_AMBIGUITY = "noAmbiguity"; //消除歧义时，请确保完全没有歧义
+        public static final String AMBIGUITY_EXPIRED = "ambiguityExpired"; //消除歧义时，传入的歧义ID无法找到
+        public static final String AMBIGUITY_OUT_OF_INDEX = "ambiguityIndexExceedLimit"; //消除歧义时，歧义的索引值超过上限
+    }
+
+    // search type; pinboard or search
+    public static final class SearchOrPinboard {
+        public static final String SEARCH_USER = "searchUser";
+        public static final String PINBOARD_USER = "pinboardUser";
     }
 
 }

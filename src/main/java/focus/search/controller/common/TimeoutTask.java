@@ -1,6 +1,7 @@
 package focus.search.controller.common;
 
-import focus.search.response.search.ExceptionResponse;
+import focus.search.base.Constant;
+import focus.search.response.search.ErrorResponse;
 import org.quartz.*;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -19,8 +20,7 @@ public class TimeoutTask implements Job {
         JobDataMap params = jobDetail.getJobDataMap();
         WebSocketSession session = (WebSocketSession) params.get("session");
         try {
-            // TODO: 2018/5/8 超时异常返回
-            session.sendMessage(new TextMessage(ExceptionResponse.response("timeout").toJSONString()));
+            session.sendMessage(new TextMessage(ErrorResponse.response(Constant.ErrorType.BI_TIMEOUT).toJSONString()));
         } catch (IOException e) {
             e.printStackTrace();
         }

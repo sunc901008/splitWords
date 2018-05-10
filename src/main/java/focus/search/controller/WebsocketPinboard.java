@@ -8,12 +8,10 @@ import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusParser;
-import focus.search.bnf.FocusPhrase;
 import focus.search.bnf.ModelBuild;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.QuartzManager;
 import focus.search.instruction.InstructionBuild;
-import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.meta.Formula;
 import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.SourceReceived;
@@ -90,7 +88,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             try {
                 getSource = Clients.WebServer.getSource(sourceToken);
             } catch (Exception e) {
-                session.sendMessage(new TextMessage(ExceptionResponse.response(e.getMessage()).toJSONString()));
+                session.sendMessage(new TextMessage(ErrorResponse.response(Constant.ErrorType.ERROR, e.getMessage()).toJSONString()));
                 continue;
             }
             List<SourceReceived> srs;
@@ -152,16 +150,13 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         List<FocusToken> tokens = fp.focusAnalyzer.test(search, language);
         if (tokens.size() == 0) {
             // TODO: 2018/5/8 return error
+
             return;
         }
         FocusInst focusInst = fp.parseQuestion(tokens, amb);
-        if (focusInst.position >= 0) {
+        if (focusInst.position >= 0 || focusInst.lastFocusPhrase().isSuggestion()) {
             // TODO: 2018/5/8 return error
-            return;
-        }
-        FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
-        if (focusPhrase.isSuggestion()) {// 出入不完整
-            // TODO: 2018/5/8 return error
+
             return;
         }
 
@@ -172,21 +167,14 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         session.sendMessage(new TextMessage(response.response()));
         JSONObject json = InstructionBuild.build(focusInst, search, amb, formulas);
 
-        json.put("source", "searchUser");
+        json.put("source", "pinboardUser");
         json.put("sourceToken", sourceToken);
 
         logger.info("指令:\n\t" + json + "\n");
 
         // Annotations
         AnnotationResponse annotationResponse = new AnnotationResponse(search);
-        JSONArray instructions = json.getJSONArray("instructions");
-        for (int i = 0; i < instructions.size(); i++) {
-            JSONObject instruction = instructions.getJSONObject(i);
-            if (instruction.getString("instId").equals("annotation")) {
-                String content = instruction.getString("content");
-                annotationResponse.datas.add(JSONObject.parseObject(content, AnnotationDatas.class));
-            }
-        }
+        annotationResponse.datas.addAll(Base.getAnnotationDatas(json.getJSONArray("instructions")));
         // Annotations response
         session.sendMessage(new TextMessage(annotationResponse.response()));
 
@@ -198,7 +186,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         // precheck response
         session.sendMessage(new TextMessage(response.response()));
 
-        if (Base.checkQuery(session, json)) {
+        if (Base.checkQuery(session, json, search)) {
             return;
         }
 
@@ -215,7 +203,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         JSONObject res = Clients.WebServer.query(json.toJSONString());
         String taskId = res.getString("taskId");
 
-        QuartzManager.addJob(taskId, Common.getCron(), session);
+        QuartzManager.addJob(taskId, session);
 
     }
 
@@ -223,6 +211,15 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         JSONObject response = new JSONObject();
         response.put("type", "echo");
         session.sendMessage(new TextMessage(response.toJSONString()));
+    }
+
+    public static void queryResult(ChartsResponse chartsResponse, String taskId) throws IOException {
+        for (WebSocketSession session : users) {
+            if (session.getAttributes().get("taskId").toString().equalsIgnoreCase(taskId)) {
+                session.sendMessage(new TextMessage(chartsResponse.response()));
+                break;
+            }
+        }
     }
 
 }

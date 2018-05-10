@@ -1,6 +1,8 @@
 package focus.search.controller.common;
 
 
+import focus.search.base.Common;
+import org.apache.log4j.Logger;
 import org.quartz.*;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.StdSchedulerFactory;
@@ -16,6 +18,8 @@ import java.text.ParseException;
  * description:
  */
 public class QuartzManager {
+    private static final Logger logger = Logger.getLogger(QuartzManager.class);
+
     private static SchedulerFactory sf = new StdSchedulerFactory();
 
     /**
@@ -24,24 +28,28 @@ public class QuartzManager {
      * @param taskId taskId
      * @param time   时间设置，参考quartz说明文档
      */
-    public static void addJob(String taskId, String time, WebSocketSession session) throws SchedulerException, ParseException {
-        Scheduler sched = sf.getScheduler();
-        // create job
-        JobDetailImpl job = new JobDetailImpl();
-        JobKey key = new JobKey(taskId);
-        job.setJobClass(TimeoutTask.class);
-        job.setKey(key);
-        // add params
-        JobDataMap map = new JobDataMap();
-        map.put("session", session);
-        job.setJobDataMap(map);
-        // create trigger
-        CronTriggerImpl trigger = new CronTriggerImpl();
-        trigger.setCronExpression(time);
-        trigger.setName("TRIGGER_GROUP");
-        // add job to scheduler with trigger
-        sched.scheduleJob(job, trigger);
-        sched.start();
+    public static void addJob(String taskId, WebSocketSession session) {
+        try {
+            Scheduler sched = sf.getScheduler();
+            // create job
+            JobDetailImpl job = new JobDetailImpl();
+            JobKey key = new JobKey(taskId);
+            job.setJobClass(TimeoutTask.class);
+            job.setKey(key);
+            // add params
+            JobDataMap map = new JobDataMap();
+            map.put("session", session);
+            job.setJobDataMap(map);
+            // create trigger
+            CronTriggerImpl trigger = new CronTriggerImpl();
+            trigger.setCronExpression(Common.getCron());
+            trigger.setName("TRIGGER_GROUP");
+            // add job to scheduler with trigger
+            sched.scheduleJob(job, trigger);
+            sched.start();
+        } catch (ParseException | SchedulerException e) {
+            logger.error(Common.printStacktrace(e));
+        }
     }
 
     /**

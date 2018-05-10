@@ -25,12 +25,10 @@ import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.*;
 import org.apache.log4j.Logger;
-import org.quartz.SchedulerException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +44,7 @@ class SearchHandler {
 
     private static final List<String> array = Arrays.asList("putFormula", "modifyFormula", "deleteFormula");
 
-    static void preHandle(WebSocketSession session, JSONObject params) throws IOException, FocusHttpException, ParseException, SchedulerException, FocusInstructionException, FocusParserException {
+    static void preHandle(WebSocketSession session, JSONObject params) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException {
         logger.info("params: " + params);
         Object object = session.getAttributes().get("user");
         JSONObject user = object == null ? new JSONObject() : (JSONObject) object;
@@ -137,19 +135,20 @@ class SearchHandler {
         String language = datas.getString("lang");
         String sourceToken = datas.getString("sourceToken");
 
+        if (Common.isEmpty(sourceToken)) {
+            session.sendMessage(new TextMessage(ErrorResponse.response(Constant.ErrorType.NULL_SOURCETOKEN).toJSONString()));
+            return;
+        }
+
         user.put("category", category);
         user.put("language", language);
         user.put("sourceToken", sourceToken);
+        session.getAttributes().put("sourceToken", sourceToken);
         user.put("curSearchToken", curSearchToken);
         user.put("historyQuestions", new JSONArray());
         JSONObject getSource;
-//        try {
         getSource = Clients.WebServer.getSource(sourceToken);
         logger.info(getSource.toJSONString());
-//        } catch (FocusHttpException e) {
-//            session.sendMessage(new TextMessage(ExceptionResponse.response(e.getMessage())));
-//            return;
-//        }
 
         InitResponse response = new InitResponse("response", "init");
         response.setSourceToken(sourceToken);
@@ -205,7 +204,7 @@ class SearchHandler {
 
     }
 
-    private static void search(WebSocketSession session, JSONObject params, JSONObject user) throws IOException, SchedulerException, ParseException, FocusHttpException, FocusInstructionException, FocusParserException {
+    private static void search(WebSocketSession session, JSONObject params, JSONObject user) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException {
         String search = params.getString("search");
         String event = params.getString("event");
         int position = params.getInteger("position");
@@ -233,6 +232,14 @@ class SearchHandler {
         int index = params.getInteger("index");
         JSONObject amb = user.getJSONObject("ambiguities");
         AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getById(id, amb);
+        if (ambiguitiesResolve == null) {
+            FocusExceptionHandler.handle(session, ErrorResponse.response(Constant.ErrorType.AMBIGUITY_EXPIRED).toJSONString());
+            return;
+        }
+        if (index >= ambiguitiesResolve.ars.size()) {
+            FocusExceptionHandler.handle(session, ErrorResponse.response(Constant.ErrorType.AMBIGUITY_OUT_OF_INDEX).toJSONString());
+            return;
+        }
         AmbiguitiesRecord ar = ambiguitiesResolve.ars.remove(index);
         ambiguitiesResolve.ars.add(0, ar);
         ambiguitiesResolve.isResolved = true;
@@ -266,7 +273,7 @@ class SearchHandler {
 
     }
 
-    private static void formula(WebSocketSession session, JSONObject params, JSONObject user) throws IOException, ParseException, SchedulerException, FocusHttpException, FocusInstructionException, FocusParserException {
+    private static void formula(WebSocketSession session, JSONObject params, JSONObject user) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException {
         String search = params.getString("formula");
         int position = params.getInteger("position");
         boolean debug = params.getBoolean("debug");

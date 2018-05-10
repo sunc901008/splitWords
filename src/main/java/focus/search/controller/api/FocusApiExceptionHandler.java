@@ -5,7 +5,7 @@ import focus.search.base.Common;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusParserException;
-import focus.search.response.search.ExceptionResponse;
+import focus.search.response.search.ErrorResponse;
 import org.apache.log4j.Logger;
 import org.quartz.SchedulerException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,9 +20,9 @@ public class FocusApiExceptionHandler {
 
     @ExceptionHandler({IOException.class, AmbiguitiesException.class, InvalidRuleException.class, FocusParserException.class, SchedulerException.class})
     @ResponseBody
-    public JSONObject ShiroException(IOException e) {
+    public JSONObject exception(IOException e) {
         logger.error(Common.printStacktrace(e));
-        return ExceptionResponse.response(e.getMessage());
+        return ErrorResponse.response(e.getMessage());
     }
 
 }
