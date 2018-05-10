@@ -24,7 +24,7 @@ import java.util.List;
 public class CountFuncInstruction {
 
     // 完整指令 count
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -50,7 +50,7 @@ public class CountFuncInstruction {
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) {
         FocusNode param = focusPhrase.getFocusNodes().get(2);
         JSONObject expression = new JSONObject();
         expression.put("type", Constant.InstType.FUNCTION);
@@ -69,7 +69,7 @@ public class CountFuncInstruction {
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusNode param = focusPhrase.getFocusNodes().get(2);
         AnnotationToken token1 = new AnnotationToken();

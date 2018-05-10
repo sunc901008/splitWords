@@ -78,7 +78,7 @@ public class FocusParserBak {
         return parser.getRule(name);
     }
 
-    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb) throws IOException, InvalidRuleException, AmbiguitiesException {
+    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb) throws InvalidRuleException, AmbiguitiesException {
         List<FocusToken> copyTokens = new ArrayList<>(tokens);
         FocusInst fi = new FocusInst();
         int flag = 0;
@@ -135,7 +135,7 @@ public class FocusParserBak {
         return fi;
     }
 
-    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb) throws IOException, InvalidRuleException, AmbiguitiesException {
+    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb) throws InvalidRuleException, AmbiguitiesException {
         FocusInst fi = new FocusInst();
         int flag = 0;
         int position = 0;
@@ -229,7 +229,7 @@ public class FocusParserBak {
                         tmpNode.setBegin(ft.getStart());
                         tmpNode.setEnd(ft.getEnd());
                         tmpNode.setType(Constant.FNDType.COLUMNVALUE);
-                        tmpNode.setTerminal(true);
+                        tmpNode.setTerminal();
 //                        fp.removeNode(i);
 //                        fp.addPn(i, tmpNode);
                         fp.replaceNode(i, tmpNode);
@@ -240,7 +240,7 @@ public class FocusParserBak {
                     FocusSubInst fsi = new FocusSubInst();
                     fsi.setIndex(i);
                     fsi.setFps(tmp);
-                    fsi.setError(true);
+                    fsi.setError();
                     return fsi;
                 }
                 continue;
@@ -261,7 +261,7 @@ public class FocusParserBak {
                     FocusSubInst fsi = new FocusSubInst();
                     fsi.setIndex(i);
                     fsi.setFps(tmp);
-                    fsi.setError(true);
+                    fsi.setError();
                     return fsi;
                 }
             } else {
@@ -295,12 +295,12 @@ public class FocusParserBak {
                         return fsi;
                     }
                     if (startWith.isEmpty()) {
-                        fsi.setError(true);
+                        fsi.setError();
                         fsi.setFps(remove);
                         return fsi;
                     } else {
                         if (i < tokens.size() - 1) {//不是最后一个token,说明中间出错
-                            fsi.setError(true);
+                            fsi.setError();
                         }
                         fsi.setFps(startWith);
                         return fsi;
@@ -452,7 +452,7 @@ public class FocusParserBak {
                     TerminalToken tt = terminal(fn.getValue());
                     if (tt != null) {
                         if (fn.getValue().equalsIgnoreCase(focusToken.getWord())) {
-                            fn.setTerminal(true);
+                            fn.setTerminal();
                             fn.setType(tt.getType());
 //                            fn.setColumn(tt.getColumn());
                             fn.setBegin(focusToken.getStart());
@@ -491,7 +491,7 @@ public class FocusParserBak {
                                         }
                                     }
                                     newFn.setColumn(((TerminalToken) token).getColumn());
-                                    newFn.setTerminal(true);
+                                    newFn.setTerminal();
                                 }
                                 if (i == 0) {
                                     newFn.setBegin(focusToken.getStart());
@@ -546,7 +546,7 @@ public class FocusParserBak {
                     FocusNode fn = new FocusNode(token.getName());
                     TerminalToken tt = terminal(fn.getValue());
                     if (tt != null) {
-                        fn.setTerminal(true);
+                        fn.setTerminal();
                         fn.setType(tt.getType());
                         fn.setColumn(tt.getColumn());
                         if (token.getName().equalsIgnoreCase(focusToken.getWord())) {

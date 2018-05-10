@@ -114,7 +114,7 @@ class LetterSegmenter implements ISegmenter {
         boolean unLetter = false;
         for (char input : text.toCharArray()) {
             if (input == ' ') {
-                return letter && unLetter;
+                return false;
             }
             // 含有非英文字符
             if ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') || LetterSegmenter.CONNECT_SYMBOL.contains(input)) {

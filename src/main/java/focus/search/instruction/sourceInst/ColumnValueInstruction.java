@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
 

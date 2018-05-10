@@ -6,7 +6,6 @@ import focus.search.base.Constant;
 import focus.search.controller.common.FormulaAnalysis;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

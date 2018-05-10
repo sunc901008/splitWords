@@ -158,7 +158,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
         return response.toJSON();
     }
 
-    public static JSONObject modelNameCheck(String name, String language, String type) throws IOException {
+    public static JSONObject modelNameCheck(String name, String language, String type) {
         FocusParser fp = null;
         for (WebSocketSession session : users) {
             JSONObject user = (JSONObject) session.getAttributes().get("user");

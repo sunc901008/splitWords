@@ -76,7 +76,7 @@ public class BoolColInstruction {
     }
 
     // annotation token
-    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
+    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusPhrase fp = focusNode.getChildren();
         int begin = fp.getFirstNode().getBegin();

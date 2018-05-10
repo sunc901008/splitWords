@@ -1,6 +1,5 @@
 package focus.search.bnf.tokens;
 
-import focus.search.base.Common;
 import focus.search.base.Constant;
 
 public class ColumnValueTerminalToken extends TerminalToken {

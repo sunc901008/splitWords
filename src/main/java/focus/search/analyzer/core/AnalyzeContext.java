@@ -209,7 +209,7 @@ class AnalyzeContext {
      * 2.将map中存在的分词结果推入results
      * 3.将map中不存在的CJDK字符以单字方式推入results
      */
-    void outputToResult() throws IOException {
+    void outputToResult() {
         int index = 0;
         for (; index <= this.cursor; ) {
             if (CharacterUtil.CHAR_USELESS == this.charTypes[index]) {

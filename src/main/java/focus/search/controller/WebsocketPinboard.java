@@ -200,7 +200,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         // executeQuery response
         session.sendMessage(new TextMessage(response.response()));
 
-        JSONObject res = Clients.WebServer.query(json.toJSONString());
+        JSONObject res = Clients.Bi.query(json.toJSONString());
         String taskId = res.getString("taskId");
 
         QuartzManager.addJob(taskId, session);

@@ -10,7 +10,6 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.meta.Formula;
-import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ import java.util.List;
 //<all-string-column> = <column-value>
 public class FilterStringColEqualInstruction {
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode param1 = focusNodes.get(0);
         FocusNode symbol = focusNodes.get(1);

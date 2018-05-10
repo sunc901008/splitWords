@@ -44,9 +44,18 @@ public class Clients {
     public static class Bi {
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.biHost, Constant.biPort, Constant.biBaseUrl);
         private static final String CHECK_QUERY = "checkQuery";
+        private static final String QUERY = "query";
 
         public static JSONObject checkQuery(String params) throws FocusHttpException {
             return get(baseUrl + CHECK_QUERY, params, Collections.singletonList(baseHeader));
+        }
+
+        public static JSONObject query(String params) throws FocusHttpException {
+            return post(baseUrl + QUERY, params, Collections.singletonList(baseHeader));
+        }
+
+        public static void abortQuery(String params) throws FocusHttpException {
+            delete(baseUrl + QUERY, params, Collections.singletonList(baseHeader));
         }
     }
 
@@ -54,19 +63,10 @@ public class Clients {
 
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.webServerHost, Constant.webServerPort, Constant.webServerBaseUrl);
         private static final String GET_SOURCE = "getSource";
-        private static final String QUERY_URL = "query";
 
         public static JSONObject getSource(String sourceToken) throws FocusHttpException {
             BasicHeader header = new BasicHeader("sourceToken", sourceToken);
             return get(baseUrl + GET_SOURCE, null, Arrays.asList(header, baseHeader));
-        }
-
-        public static JSONObject query(String params) throws FocusHttpException {
-            return post(baseUrl + QUERY_URL, params, Collections.singletonList(baseHeader));
-        }
-
-        public static void abortQuery(String params) throws FocusHttpException {
-            delete(baseUrl + QUERY_URL, params, Collections.singletonList(baseHeader));
         }
 
     }

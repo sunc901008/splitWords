@@ -289,7 +289,6 @@ public class Base {
                     annotationResponse.datas.addAll(getAnnotationDatas(json.getJSONArray("instructions")));
                     session.sendMessage(new TextMessage(annotationResponse.response()));
 
-//                    {"type":"state","question":"id","cost":16,"icount":0,"icost":0,"iRequestTime":0,"pcost":7,"datas":"searchFinished"}
                     session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
 
                     // 指令检测
@@ -308,7 +307,7 @@ public class Base {
                     response.setDatas("executeQuery");
                     session.sendMessage(new TextMessage(response.response()));
 
-                    JSONObject res = Clients.WebServer.query(json.toJSONString());
+                    JSONObject res = Clients.Bi.query(json.toJSONString());
                     String taskId = res.getString("taskId");
                     QuartzManager.addJob(taskId, session);
 
@@ -395,6 +394,7 @@ public class Base {
      * @param user websocket用户信息
      * @return 返回用户中的公式列表
      */
+    @SuppressWarnings("unchecked")
     public static List<Formula> getFormula(JSONObject user) {
         List<Formula> formulas;
         Object obj = user.get("formulas");
@@ -420,7 +420,7 @@ public class Base {
             if (taskId != null) {
                 questions.add(0, current);
                 user.put("historyQuestions", questions);
-                Clients.WebServer.abortQuery(taskId);
+                Clients.Bi.abortQuery(taskId);
             }
         }
     }

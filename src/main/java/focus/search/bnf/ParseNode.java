@@ -52,11 +52,11 @@ public class ParseNode {
      */
     public List<ParseNode> getChildren() {
         if (m_children != null) {
-            ArrayList<ParseNode> nodes = new ArrayList<ParseNode>(m_children.size());
+            ArrayList<ParseNode> nodes = new ArrayList<>(m_children.size());
             nodes.addAll(m_children);
             return nodes;
         }
-        return new ArrayList<ParseNode>(0);
+        return new ArrayList<>(0);
     }
 
     /**

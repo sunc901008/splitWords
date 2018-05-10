@@ -144,7 +144,7 @@ public class ContainsFuncInstruction {
 //    },
 //    {
 //    "type": "wholeString",
-//    "value": "abcd",
+//    "value": "a",
 //    "begin": 25,
 //    "end": 32
 //    },

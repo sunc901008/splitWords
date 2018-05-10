@@ -97,7 +97,7 @@ public class FocusParser implements Serializable {
         return parser.getRule(name);
     }
 
-    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb) throws IOException, AmbiguitiesException, FocusParserException {
+    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb) throws AmbiguitiesException, FocusParserException {
         List<FocusToken> copyTokens = new ArrayList<>(tokens);
         FocusInst fi = new FocusInst();
         int flag = 0;
@@ -154,7 +154,7 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
-    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb) throws IOException, FocusParserException, AmbiguitiesException {
+    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb) throws FocusParserException, AmbiguitiesException {
         FocusInst fi = new FocusInst();
         int flag = 0;
         int position = 0;
@@ -211,7 +211,7 @@ public class FocusParser implements Serializable {
                         tmpNode.setBegin(ft.getStart());
                         tmpNode.setEnd(ft.getEnd());
                         tmpNode.setType(Constant.FNDType.COLUMNVALUE);
-                        tmpNode.setTerminal(true);
+                        tmpNode.setTerminal();
 //                        fp.removeNode(i);
 //                        fp.addPn(i, tmpNode);
                         fp.replaceNode(i, tmpNode);
@@ -222,7 +222,7 @@ public class FocusParser implements Serializable {
                     FocusSubInst fsi = new FocusSubInst();
                     fsi.setIndex(i);
                     fsi.setFps(tmp);
-                    fsi.setError(true);
+                    fsi.setError();
                     return fsi;
                 }
                 continue;
@@ -243,7 +243,7 @@ public class FocusParser implements Serializable {
                     FocusSubInst fsi = new FocusSubInst();
                     fsi.setIndex(i);
                     fsi.setFps(tmp);
-                    fsi.setError(true);
+                    fsi.setError();
                     return fsi;
                 }
             } else {
@@ -277,12 +277,12 @@ public class FocusParser implements Serializable {
                         return fsi;
                     }
                     if (startWith.isEmpty()) {
-                        fsi.setError(true);
+                        fsi.setError();
                         fsi.setFps(remove);
                         return fsi;
                     } else {
                         if (i < tokens.size() - 1) {//不是最后一个token,说明中间出错
-                            fsi.setError(true);
+                            fsi.setError();
                         }
                         fsi.setFps(startWith);
                         return fsi;
@@ -412,7 +412,7 @@ public class FocusParser implements Serializable {
                     TerminalToken tt = terminal(fn.getValue());
                     if (tt != null) {
                         if (fn.getValue().equalsIgnoreCase(focusToken.getWord())) {
-                            fn.setTerminal(true);
+                            fn.setTerminal();
                             fn.setType(tt.getType());
 //                            fn.setColumn(tt.getColumn());
                             fn.setBegin(focusToken.getStart());
@@ -441,7 +441,6 @@ public class FocusParser implements Serializable {
                         }
                         for (TokenString ts : br.getAlternatives()) {
                             FocusPhrase newFp = new FocusPhrase(brName);
-                            boolean filter = false;
                             for (int i = 0; i < ts.size(); i++) {
                                 Token token = ts.get(i);
                                 FocusNode newFn = new FocusNode(token.getName());
@@ -456,16 +455,13 @@ public class FocusParser implements Serializable {
                                         }
                                     }
                                     newFn.setColumn(((TerminalToken) token).getColumn());
-                                    newFn.setTerminal(true);
+                                    newFn.setTerminal();
                                 }
                                 if (i == 0) {
                                     newFn.setBegin(focusToken.getStart());
                                     newFn.setEnd(focusToken.getEnd());
                                 }
                                 newFp.addPn(newFn);
-                            }
-                            if (filter) {
-                                continue;
                             }
                             FocusPhrase focusPhraseNew = JSONObject.parseObject(focusPhrase.toJSON().toJSONString(), FocusPhrase.class);
                             FocusNode focusNodeNew = new FocusNode(brName);
@@ -514,7 +510,7 @@ public class FocusParser implements Serializable {
                     FocusNode fn = new FocusNode(token.getName());
                     TerminalToken tt = terminal(fn.getValue());
                     if (tt != null) {
-                        fn.setTerminal(true);
+                        fn.setTerminal();
                         fn.setType(tt.getType());
                         fn.setColumn(tt.getColumn());
                         if (token.getName().equalsIgnoreCase(focusToken.getWord())) {
@@ -668,11 +664,11 @@ public class FocusParser implements Serializable {
     public FocusParser deepClone() {
         FocusParser outer = null;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            ByteArrayOutputStream bao = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bao);
             oos.writeObject(this);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
+            ByteArrayInputStream bai = new ByteArrayInputStream(bao.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bai);
             outer = (FocusParser) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

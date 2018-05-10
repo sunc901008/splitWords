@@ -25,8 +25,8 @@ public class QuartzManager {
     /**
      * 添加一个定时任务，触发表示查询超时
      *
-     * @param taskId taskId
-     * @param time   时间设置，参考quartz说明文档
+     * @param taskId  taskId
+     * @param session websocket session
      */
     public static void addJob(String taskId, WebSocketSession session) {
         try {
@@ -42,7 +42,7 @@ public class QuartzManager {
             job.setJobDataMap(map);
             // create trigger
             CronTriggerImpl trigger = new CronTriggerImpl();
-            trigger.setCronExpression(Common.getCron());
+            trigger.setCronExpression(Common.getCron());//时间设置，参考quartz说明文档
             trigger.setName("TRIGGER_GROUP");
             // add job to scheduler with trigger
             sched.scheduleJob(job, trigger);

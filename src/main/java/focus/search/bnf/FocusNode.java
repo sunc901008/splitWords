@@ -45,8 +45,8 @@ public class FocusNode {
         return isTerminal;
     }
 
-    public void setTerminal(boolean terminal) {
-        isTerminal = terminal;
+    public void setTerminal() {
+        isTerminal = true;
     }
 
     public String getType() {

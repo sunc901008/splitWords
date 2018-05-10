@@ -213,7 +213,7 @@ class LexemePath extends QuickSortSet implements Comparable<LexemePath> {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append("pathBegin  : ").append(pathBegin).append("\r\n");
     sb.append("pathEnd  : ").append(pathEnd).append("\r\n");
     sb.append("payloadLength  : ").append(payloadLength).append("\r\n");

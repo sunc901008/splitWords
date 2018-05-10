@@ -25,7 +25,7 @@ class DictSegment implements Comparable<DictSegment> {
     private int nodeState = 0;
 
     // 默认类型
-    private String nodeType = "UNKNOW";
+    private String nodeType = "UNKNOWN";
 
     DictSegment(Character nodeChar) {
         if (nodeChar == null) {
@@ -145,7 +145,7 @@ class DictSegment implements Comparable<DictSegment> {
         }
 
         // 搜索当前节点的存储，查询对应keyChar的keyChar，如果没有则创建
-        DictSegment ds = lookforSegment(keyChar, enabled);
+        DictSegment ds = lookForSegment(keyChar, enabled);
         if (ds != null) {
             // 处理keyChar对应的segment
             if (length > 1) {
@@ -166,7 +166,7 @@ class DictSegment implements Comparable<DictSegment> {
      *
      * @param create =1如果没有找到，则创建新的segment ; =0如果没有找到，不创建，返回null
      */
-    private DictSegment lookforSegment(Character keyChar, int create) {
+    private DictSegment lookForSegment(Character keyChar, int create) {
 
         // 获取Map容器，如果Map未创建,则创建Map
         Map<Character, DictSegment> segmentMap = getChildrenMap();

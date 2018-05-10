@@ -61,7 +61,7 @@ class IKArbitrator {
      */
     private LexemePath judge(QuickSortSet.Cell lexemeCell, int fullTextLength) {
         // 候选路径集合
-        TreeSet<LexemePath> pathOptions = new TreeSet<LexemePath>();
+        TreeSet<LexemePath> pathOptions = new TreeSet<>();
         // 候选结果路径
         LexemePath option = new LexemePath();
 
@@ -72,7 +72,7 @@ class IKArbitrator {
         pathOptions.add(option.copy());
 
         // 存在歧义词，处理
-        QuickSortSet.Cell c = null;
+        QuickSortSet.Cell c;
         while (!lexemeStack.isEmpty()) {
             c = lexemeStack.pop();
             // 回滚词元链
@@ -92,7 +92,7 @@ class IKArbitrator {
      */
     private Stack<QuickSortSet.Cell> forwardPath(QuickSortSet.Cell lexemeCell, LexemePath option) {
         // 发生冲突的Lexeme栈
-        Stack<QuickSortSet.Cell> conflictStack = new Stack<QuickSortSet.Cell>();
+        Stack<QuickSortSet.Cell> conflictStack = new Stack<>();
         QuickSortSet.Cell c = lexemeCell;
         // 迭代遍历Lexeme链表
         while (c != null && c.getLexeme() != null) {

@@ -224,7 +224,7 @@ class SearchHandler {
 
     }
 
-    private static void selectSuggest(WebSocketSession session, JSONObject params) throws IOException {
+    private static void selectSuggest(WebSocketSession session, JSONObject params) {
     }
 
     private static void disambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
@@ -265,11 +265,11 @@ class SearchHandler {
         session.sendMessage(new TextMessage(response.toJSONString()));
     }
 
-    private static void axis(WebSocketSession session, JSONObject params) throws IOException {
+    private static void axis(WebSocketSession session, JSONObject params) {
 
     }
 
-    private static void test(WebSocketSession session, JSONObject params) throws IOException {
+    private static void test(WebSocketSession session, JSONObject params) {
 
     }
 

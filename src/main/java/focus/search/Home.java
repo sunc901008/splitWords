@@ -130,7 +130,7 @@ t();
         print(JSONArray.toJSONString(tokens));
     }
 
-    private static void split(int start, int length) throws IOException, InvalidRuleException {
+    private static void split(int start, int length) throws IOException {
         ResourceLoader resolver = new DefaultResourceLoader();
         BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
         String search;
@@ -189,7 +189,7 @@ t();
         br.close();
     }
 
-    private static void formula(String search) throws IOException, InvalidRuleException, FocusParserException, FocusInstructionException {
+    private static void formula(String search) throws IOException, FocusParserException, FocusInstructionException {
         FocusInst fi = search(search);
         if (fi != null && fi.size() == 1) {
             FocusPhrase fp = fi.lastFocusPhrase();
@@ -309,7 +309,7 @@ t();
         return json;
     }
 
-    private static FocusInst search(String search) throws IOException, InvalidRuleException, FocusParserException {
+    private static FocusInst search(String search) throws IOException, FocusParserException {
         String test = "bnf-file/test.bnf";
         FocusParser parser = new FocusParser();
 //        FocusParser parser = new FocusParser(test);
@@ -345,7 +345,7 @@ t();
         return null;
     }
 
-    private static void test(String search) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
+    private static void test(String search) throws IOException, FocusInstructionException, FocusParserException {
 
         FocusInst focusInst = search(search);
 

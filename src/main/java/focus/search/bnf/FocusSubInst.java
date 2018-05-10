@@ -45,8 +45,8 @@ public class FocusSubInst {
         return error;
     }
 
-    public void setError(boolean error) {
-        this.error = error;
+    public void setError() {
+        this.error = true;
     }
 
     public boolean isEmpty() {
