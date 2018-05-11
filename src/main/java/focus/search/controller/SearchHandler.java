@@ -43,6 +43,7 @@ class SearchHandler {
     private static final Logger logger = Logger.getLogger(SearchHandler.class);
 
     private static final List<String> array = Arrays.asList("putFormula", "modifyFormula", "deleteFormula");
+    private static final List<String> noImmediateResponse = Arrays.asList("init", "echo", "exportContext");
 
     static void preHandle(WebSocketSession session, JSONObject params) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException {
         logger.info("params: " + params);
@@ -60,7 +61,7 @@ class SearchHandler {
             datas = params.getJSONObject("datas");
         }
 
-        if (!type.equals("exportContext"))
+        if (!noImmediateResponse.contains(type))
             // response immediately
             session.sendMessage(new TextMessage(Response.response(type)));
 

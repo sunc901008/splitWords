@@ -41,6 +41,7 @@ public class WebsocketCheck extends HttpSessionHandshakeInterceptor {
         }
         // check user login
         attributes.put("accessToken", accessToken);
+        logger.info("current accessToken:" + accessToken);
         return Base.isLogin(accessToken);
     }
 

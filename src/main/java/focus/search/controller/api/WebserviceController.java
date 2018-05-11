@@ -38,8 +38,8 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/api/search")
-public class Webservice {
-    private static final Logger logger = Logger.getLogger(Webservice.class);
+public class WebserviceController {
+    private static final Logger logger = Logger.getLogger(WebserviceController.class);
 
     @ResponseBody
     @RequestMapping(value = "/queryResult", method = RequestMethod.POST)

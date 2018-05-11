@@ -9,8 +9,8 @@
     <bean id="pinboard" class="focus.search.controller.WebsocketPinboard"/>
     <!--<bean id="init" class="focus.search.DefaultModel" init-method="defaultRules"/>-->
     <websocket:handlers allowed-origins="*">
-        <websocket:mapping path="/search/websocket/search" handler="search"/>
-        <websocket:mapping path="/search/websocket/pinboard" handler="pinboard"/>
+        <websocket:mapping path="/websocket/search" handler="search"/>
+        <websocket:mapping path="/websocket/pinboard" handler="pinboard"/>
         <websocket:handshake-interceptors>
             <bean class="focus.search.controller.WebsocketCheck"/>
         </websocket:handshake-interceptors>

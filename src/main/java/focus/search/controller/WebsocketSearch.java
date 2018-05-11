@@ -62,6 +62,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
             return;
         }
         String accessToken = session.getAttributes().get("accessToken").toString();
+        logger.info("current accessToken:" + accessToken);
         JSONObject user;
         try {
             // 获取用户信息
@@ -69,6 +70,8 @@ public class WebsocketSearch extends TextWebSocketHandler {
             user.put("accessToken", accessToken);
         } catch (FocusHttpException e) {
             logger.error(Common.printStacktrace(e));
+            String warn = ErrorResponse.response(Constant.ErrorType.ERROR, "Get Userinfo fail.").toJSONString();
+            session.sendMessage(new TextMessage(warn));
             session.close();
             return;
         }

@@ -74,7 +74,7 @@ public class Clients {
     public static class Uc {
 
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.ucHost, Constant.ucPort, Constant.ucBaseUrl);
-        private static final String USERINFO = "userinfo";
+        private static final String USERINFO = "user/userinfo";
         private static final String STATUS = "status";
 
         public static boolean isLogin(String accessToken) throws FocusHttpException {

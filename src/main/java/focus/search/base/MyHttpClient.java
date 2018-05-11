@@ -41,7 +41,7 @@ public class MyHttpClient {
                 res = EntityUtils.toString(response.getEntity(), Charset.forName("UTF-8"));
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error(Common.printStacktrace(e));
         }
         String msg = uuid + ":request response:" + res;
         logger.info(Common.cut(msg));
