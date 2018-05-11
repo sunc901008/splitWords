@@ -8,6 +8,7 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.boolFunc.*;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -25,9 +26,11 @@ import java.util.List;
 //        <isnull-function> |
 //        <not-function>;
 public class BoolFuncColInstruction {
+    private static final Logger logger = Logger.getLogger(BoolFuncColInstruction.class);
 
     // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+        logger.info("BoolFunctionColumn instruction build. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_bool-function>":

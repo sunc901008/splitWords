@@ -8,6 +8,7 @@ import focus.search.instruction.filterInst.FilterInstruction;
 import focus.search.instruction.phraseInst.PhraseInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
  * description:
  */
 public class InstructionBuild {
+    private static final Logger logger = Logger.getLogger(InstructionBuild.class);
 
     public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONObject data = new JSONObject();
@@ -27,7 +29,9 @@ public class InstructionBuild {
         List<FocusPhrase> focusPhrases = focusInst.getFocusPhrases();
 
         int index;
+        int loop = 1;
         for (FocusPhrase focusPhrase : focusPhrases) {
+            logger.info("Build instruction. Loop:" + loop++ + " focusPhrase:" + focusPhrase.toJSON() + " ambiguities:" + amb);
             index = instructions.size() / 2 + 1;
             instructions.addAll(build(focusPhrase, index, amb, formulas));
         }
@@ -38,6 +42,7 @@ public class InstructionBuild {
     }
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+        logger.info("Start building instructions. focusPhrase:" + focusPhrase.toJSON());
         switch (focusPhrase.getInstName()) {
             case "<filter>":
                 return FilterInstruction.build(focusPhrase, index, amb, formulas);

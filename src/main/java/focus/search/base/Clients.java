@@ -47,7 +47,7 @@ public class Clients {
         private static final String QUERY = "query";
 
         public static JSONObject checkQuery(String params) throws FocusHttpException {
-            return get(baseUrl + CHECK_QUERY, params, Collections.singletonList(baseHeader));
+            return post(baseUrl + CHECK_QUERY, params, Collections.singletonList(baseHeader));
         }
 
         public static JSONObject query(String params) throws FocusHttpException {

@@ -147,7 +147,7 @@ public class Base {
      */
     //  search 输出返回结果
     public static void response(WebSocketSession session, String search, JSONObject user) throws IOException, FocusHttpException, FocusParserException, FocusInstructionException {
-        response(session, search, user, null);
+        response(session, search, user, null, null);
     }
 
     /**
@@ -158,7 +158,8 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities) throws IOException, FocusHttpException, FocusParserException, FocusInstructionException {
+    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities, String event) throws
+            IOException, FocusHttpException, FocusParserException, FocusInstructionException {
         // 接收请求的时间戳
         long received = Long.parseLong(session.getAttributes().get(WebsocketSearch.RECEIVED_TIMESTAMP).toString());
 
@@ -188,13 +189,14 @@ public class Base {
             @SuppressWarnings("unchecked")
             List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
             ambiguities(ambiguities, srs, amb);
+            user.put("ambiguities", amb);
         }
-        user.put("ambiguities", amb);
 
         try {
             // 解析结果
             FocusInst focusInst;
             if (isQuestion) {
+                logger.info("search question. tokens:" + JSON.toJSONString(tokens) + " ambiguities:" + amb);
                 focusInst = fp.parseQuestion(tokens, amb);
             } else {
                 focusInst = fp.parseFormula(tokens, amb);
@@ -225,6 +227,7 @@ public class Base {
 
                                 ambiguitiesResolve.ars.add(0, ar);
                                 ambiguitiesResolve.isResolved = true;
+                                ambiguitiesResolve.value = col.getColumnName();
                                 amb.put(UUID.randomUUID().toString(), ambiguitiesResolve);
                             }
                         }
@@ -289,7 +292,14 @@ public class Base {
                     annotationResponse.datas.addAll(getAnnotationDatas(json.getJSONArray("instructions")));
                     session.sendMessage(new TextMessage(annotationResponse.response()));
 
+                    // TODO: 2018/5/11  add suggestion here
+
+                    // search finish
                     session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
+
+                    if (Constant.Event.FOCUS_IN.equalsIgnoreCase(event)) {
+                        return;
+                    }
 
                     // 指令检测
                     response.setDatas("precheck");
@@ -352,21 +362,21 @@ public class Base {
         } catch (AmbiguitiesException e) {
             AmbiguityResponse response = new AmbiguityResponse(search);
             FocusToken ft = tokens.get(e.position);
+
+            String id = AmbiguitiesResolve.mergeAmbiguities(e.ars, ft.getWord(), amb);
+            user.put("ambiguities", amb);
+
             AmbiguityDatas datas = new AmbiguityDatas();
             datas.begin = ft.getStart();
             datas.end = ft.getEnd();
-            datas.id = UUID.randomUUID().toString();
+            datas.id = id;
             datas.title = "ambiguity word: " + ft.getWord();
             e.ars.forEach(a -> datas.possibleMenus.add(a.columnName + " in table " + a.sourceName));
             response.setDatas(datas);
             session.sendMessage(new TextMessage(response.response()));
             logger.info(response.response());
 
-            AmbiguitiesResolve ar = new AmbiguitiesResolve();
-            ar.ars = e.ars;
-            ar.value = ft.getWord();
-            amb.put(datas.id, ar);
-            user.put("ambiguities", amb);
+            session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
 
         }
     }

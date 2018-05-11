@@ -12,6 +12,7 @@ import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +28,11 @@ import java.util.List;
 //        <number-function-column> |
 //        ( <number-function-column> );
 public class NumberColInstruction {
+    private static final Logger logger = Logger.getLogger(NumberFuncInstruction.class);
 
     // 完整指令 columns
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+        logger.info("NumberColumns instruction build. focusPhrase:" + focusPhrase.toJSON());
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -39,6 +42,7 @@ public class NumberColInstruction {
 
         JSONObject expression = new JSONObject();
         JSONObject json = build(focusPhrase, formulas);
+        logger.debug(json);
         String type = json.getString("type");
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             expression.put("type", "column");
@@ -55,6 +59,7 @@ public class NumberColInstruction {
 
         json1.put("expression", expression);
         instructions.add(json1);
+        logger.debug(instructions);
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);

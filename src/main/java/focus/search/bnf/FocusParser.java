@@ -1,5 +1,6 @@
 package focus.search.bnf;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
@@ -189,6 +190,7 @@ public class FocusParser implements Serializable {
         if (focusPhrases == null || focusPhrases.isEmpty()) {
             return null;
         }
+        logger.info("Adaptation parse bnf size:" + focusPhrases.size());
 
         // 歧义检测
         ambiguitiesCheck(focusPhrases, 0, amb);
@@ -247,6 +249,7 @@ public class FocusParser implements Serializable {
                     return fsi;
                 }
             } else {
+                logger.info("replace focusPhrase loop: " + i);
                 replace(rules, focusPhrases, ft, i);
                 List<FocusPhrase> remove = new ArrayList<>();
                 List<FocusPhrase> startWith = new ArrayList<>();
@@ -555,6 +558,8 @@ public class FocusParser implements Serializable {
                 res.add(rule);
             }
         }
+
+        logger.info("adaptation " + word + " rules size:" + rules.size());
         return res;
     }
 

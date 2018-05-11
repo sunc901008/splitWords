@@ -206,6 +206,7 @@ class SearchHandler {
     }
 
     private static void search(WebSocketSession session, JSONObject params, JSONObject user) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException {
+        logger.info("params:" + params);
         String search = params.getString("search");
         String event = params.getString("event");
         int position = params.getInteger("position");
@@ -214,14 +215,10 @@ class SearchHandler {
         List<String> queryFlags = JSONArray.parseArray(params.getString("queryFlags"), String.class);
         List<Ambiguities> ambiguities = JSONArray.parseArray(params.getString("ambiguities"), Ambiguities.class);
 
-        if (Constant.Event.FOCUS_IN.equalsIgnoreCase(event)) {
-            return;
-        }
-
         user.put("category", Constant.CategoryType.QUESTION);
 //        session.getAttributes().put("user", user);
 
-        Base.response(session, search, user, ambiguities);
+        Base.response(session, search, user, ambiguities, event);
 
     }
 
@@ -229,14 +226,17 @@ class SearchHandler {
     }
 
     private static void disambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
+        logger.info("params:" + params);
         String id = params.getString("id");
         int index = params.getInteger("index");
         JSONObject amb = user.getJSONObject("ambiguities");
+        logger.info("current all ambiguities:" + amb);
         AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getById(id, amb);
         if (ambiguitiesResolve == null) {
             FocusExceptionHandler.handle(session, ErrorResponse.response(Constant.ErrorType.AMBIGUITY_EXPIRED).toJSONString());
             return;
         }
+        logger.info("current ambiguities:" + ambiguitiesResolve.toJSON());
         if (index >= ambiguitiesResolve.ars.size()) {
             FocusExceptionHandler.handle(session, ErrorResponse.response(Constant.ErrorType.AMBIGUITY_OUT_OF_INDEX).toJSONString());
             return;
@@ -251,6 +251,7 @@ class SearchHandler {
         response.put("type", "state");
         response.put("message", "disambiguateDone");
         session.sendMessage(new TextMessage(response.toJSONString()));
+
     }
 
     private static void reDisambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {

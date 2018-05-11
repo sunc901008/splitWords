@@ -10,6 +10,7 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberOrNumColInst;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -25,8 +26,10 @@ import java.util.List;
 //<number> <bool-symbol> <number>
 
 public class FilterNumOrNumColInstruction {
+    private static final Logger logger = Logger.getLogger(FilterNumOrNumColInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+        logger.info("instruction build. focusPhrase:" + focusPhrase.toJSON());
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode param1 = focusNodes.get(0);
         FocusNode symbol = focusNodes.get(1);

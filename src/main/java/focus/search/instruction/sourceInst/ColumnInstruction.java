@@ -1,8 +1,10 @@
 package focus.search.instruction.sourceInst;
 
 import com.alibaba.fastjson.JSONObject;
+import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.meta.Column;
+import org.apache.log4j.Logger;
 
 /**
  * creator: sunc
@@ -10,14 +12,19 @@ import focus.search.meta.Column;
  * description:
  */
 public class ColumnInstruction {
+    private static final Logger logger = Logger.getLogger(ColumnInstruction.class);
 
     public static JSONObject build(FocusPhrase focusPhrase) {
+        logger.info("ColumnInstruction build. focusPhrase:" + focusPhrase.toJSON());
         JSONObject json = new JSONObject();
         json.put("hasTable", false);
         if (focusPhrase.size() > 1) {
+            logger.info("size here");
             json.put("hasTable", true);
         }
-        json.put("column", focusPhrase.getLastNode().getColumn());
+        FocusNode fn = focusPhrase.getLastNode();
+        logger.info(fn.toJSON());
+        json.put("column", fn.getColumn());
         return json;
     }
 

@@ -108,6 +108,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
         try {
             SearchHandler.preHandle(session, JSONObject.parseObject(input));
         } catch (IOException | FocusHttpException | FocusInstructionException | FocusParserException e) {
+            logger.error(Common.printStacktrace(e));
             FocusExceptionHandler.handle(session, e);
         }
     }

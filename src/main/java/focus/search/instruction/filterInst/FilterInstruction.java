@@ -7,6 +7,7 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -18,8 +19,10 @@ import java.util.List;
 //<filter> := <simple-filter> |
 //        <column-value>;
 public class FilterInstruction {
+    private static final Logger logger = Logger.getLogger(FilterInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+        logger.info("Filter instruction build. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<simple-filter>":

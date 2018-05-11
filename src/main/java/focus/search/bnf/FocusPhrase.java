@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.controller.common.FormulaAnalysis;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.List;
  * description:
  */
 public class FocusPhrase {
+    private static final Logger logger = Logger.getLogger(FocusPhrase.class);
+
     private String instName;
     private String type = Constant.SUGGESTION;
     private List<FocusNode> focusNodes = new ArrayList<>();
@@ -51,6 +54,7 @@ public class FocusPhrase {
 
     public FocusNode getLastNode() {
         List<FocusNode> all = allNode();
+        logger.info("all nodes:" + JSONArray.toJSONString(all));
         return all.get(all.size() - 1);
     }
 

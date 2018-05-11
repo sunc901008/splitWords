@@ -14,6 +14,7 @@ import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.metaReceived.Ambiguities;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.FocusParserException;
@@ -38,7 +39,7 @@ public class Home {
     public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
 //        test("average()");
 //        boolean expression = false;
-//        search(3, 1);
+        search(0, 1);
 //        split(18, 1);
 //        split(",>");
 //        ttt();
@@ -52,20 +53,16 @@ public class Home {
 //        print(JSONObject.toJSONString(fp.allFormulaNode()));
 
 //        print("abcd");
-t();
+//        t();
     }
 
-    private static void t(){
-        List<String > list = new ArrayList<>();
-        list.add("asd");
-        list.add("bbb");
-        String r = list.remove(1);
-        print(r);
-        r = list.remove(1);
-        print(r);
+    private static void t() {
+
+        List<Ambiguities> ambiguities = JSONArray.parseArray(null, Ambiguities.class);
+        print(ambiguities == null);
     }
 
-    private static void deepCloneTest(){
+    private static void deepCloneTest() {
         FocusParser parser = Base.englishParser.deepClone();
         long start = Calendar.getInstance().getTimeInMillis();
         FocusParser parser1 = parser.deepClone();

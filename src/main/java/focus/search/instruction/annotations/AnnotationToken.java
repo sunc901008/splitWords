@@ -9,6 +9,7 @@ import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.search.AmbiguityDatas;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.List;
  * description:
  */
 public class AnnotationToken {
+    private static final Logger logger = Logger.getLogger(AnnotationToken.class);
+
     public String description;
     public String columnName;
     public String tableName;
@@ -79,7 +82,8 @@ public class AnnotationToken {
         } else {
             for (String id : amb.keySet()) {
                 AmbiguitiesResolve tmp = (AmbiguitiesResolve) amb.get(id);
-                if (tmp.value.equalsIgnoreCase(token.value.toString())) {
+                logger.debug(tmp.toJSON());
+                if (tmp.ars.size() > 1 && tmp.value.equalsIgnoreCase(token.value.toString())) {
                     token.ambiguity = new AmbiguityDatas();
                     token.ambiguity.begin = token.begin;
                     token.ambiguity.end = token.end;
