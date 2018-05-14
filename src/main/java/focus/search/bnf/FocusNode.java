@@ -13,7 +13,7 @@ public class FocusNode {
 
     private String value;
 
-    private boolean isTerminal = false;
+    private boolean isTerminal;
 
     private String type;
 
@@ -47,6 +47,10 @@ public class FocusNode {
 
     public void setTerminal() {
         isTerminal = true;
+    }
+
+    public void setTerminal(boolean terminal) {
+        isTerminal = terminal;
     }
 
     public String getType() {

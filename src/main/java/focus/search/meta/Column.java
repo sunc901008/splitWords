@@ -16,6 +16,7 @@ public class Column {
 
     private String sourceName;
     private Integer tableId;
+    private String aggregation;
 
     public Column() {
     }
@@ -97,5 +98,13 @@ public class Column {
 
     public void setTableId(Integer tableId) {
         this.tableId = tableId;
+    }
+
+    public String getAggregation() {
+        return aggregation;
+    }
+
+    public void setAggregation(String aggregation) {
+        this.aggregation = aggregation;
     }
 }

@@ -13,6 +13,8 @@ import focus.search.response.search.FormulaSettings;
 
 import java.util.*;
 
+import static focus.search.base.Constant.AggregationType.*;
+
 /**
  * creator: sunc
  * date: 2018/3/21
@@ -40,9 +42,7 @@ public class FormulaAnalysis {
     private static final List<String> NUMERIC_OPERATOR = Arrays.asList("*", "/", "+", "-", "^");
 
     // 聚合类型
-    private static final List<String> ALL_AGGREGATION = Arrays.asList("SUM", "MIN", "MAX", "AVERAGE", "STD_DEVIATION", "VARIANCE", "NONE", "COUNT",
-            "COUNT_DISTINCT");
-    private static final List<String> NONE = Collections.singletonList("NONE");
+    private static final List<String> ALL_AGGREGATION = Arrays.asList(SUM, MIN, MAX, AVERAGE, STD_DEVIATION, VARIANCE, NONE, COUNT, COUNT_DISTINCT);
     // 数据类型
     private static final String TIMESTAMP = "Timestamp";
     private static final String STRING = "String";
@@ -254,7 +254,7 @@ public class FormulaAnalysis {
         FormulaSettings settings = new FormulaSettings();
         if (BOOL_OPERATOR.contains(formulaObj.name)) {
             settings.dataType = BOOLEAN;
-            settings.aggregation = NONE;
+            settings.aggregation = Collections.singletonList(NONE);
             settings.columnType = ATTRIBUTE;
         } else if (NUMERIC_OPERATOR.contains(formulaObj.name)) {
             settings.dataType = NUMERIC;

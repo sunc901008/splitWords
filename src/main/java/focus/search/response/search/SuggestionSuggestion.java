@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONObject;
  * date: 2018/2/7
  * description:
  */
-public class SuggestionSuggestions {
+public class SuggestionSuggestion {
 
     public String suggestion;
     public String suggestionType;

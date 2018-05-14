@@ -187,4 +187,17 @@ public class Constant {
         public static final String PINBOARD_USER = "pinboardUser";
     }
 
+    // aggregation type
+    public static final class AggregationType {
+        public static final String SUM = "SUM";
+        public static final String MIN = "MIN";
+        public static final String MAX = "MAX";
+        public static final String AVERAGE = "AVERAGE";
+        public static final String STD_DEVIATION = "STD_DEVIATION";
+        public static final String VARIANCE = "VARIANCE";
+        public static final String NONE = "NONE";
+        public static final String COUNT = "COUNT";
+        public static final String COUNT_DISTINCT = "COUNT_DISTINCT";
+    }
+
 }

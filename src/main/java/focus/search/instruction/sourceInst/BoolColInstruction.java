@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Column;
@@ -30,6 +31,7 @@ public class BoolColInstruction {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_expression");
+        json1.put("category", Constant.AnnotationCategory.EXPRESSION);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.ATTRIBUTE_COLUMN);
 
         JSONObject expression = new JSONObject();
@@ -42,6 +44,9 @@ public class BoolColInstruction {
             int begin = focusPhrase.getFirstNode().getBegin();
             int end = focusPhrase.getLastNode().getEnd();
             datas.addToken(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end, amb));
+            json1.put("type", column.getColumnType());
+            json1.put("name", Base.InstName(focusPhrase));
+            json1.put("aggregation", column.getAggregation());
         }
         json1.put("expression", expression);
         instructions.add(json1);

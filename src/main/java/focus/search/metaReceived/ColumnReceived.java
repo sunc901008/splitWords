@@ -38,6 +38,7 @@ public class ColumnReceived {
         column.setDescription(this.description);
         column.setColumnType(this.columnType);
         column.setColumnModify(this.columnModify.transfer());
+        column.setAggregation(this.aggregation);
         return column;
     }
 

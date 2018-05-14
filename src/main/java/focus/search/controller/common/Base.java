@@ -244,23 +244,17 @@ public class Base {
                     SuggestionResponse response = new SuggestionResponse(search);
                     SuggestionDatas datas = new SuggestionDatas();
                     JSONObject json = SuggestionBuild.sug(tokens, focusInst);
+                    logger.debug("Get Suggestions:" + json);
                     datas.beginPos = json.getInteger("position");
                     datas.phraseBeginPos = datas.beginPos;
                     List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
-                    focusNodes.forEach(node -> {
-                        SuggestionSuggestions suggestion = new SuggestionSuggestions();
-                        suggestion.suggestion = node.getValue();
-                        suggestion.suggestionType = node.getType();
-                        if (Constant.FNDType.TABLE.equalsIgnoreCase(node.getType())) {
-                            suggestion.description = "this is a table name";
-                        } else if (Constant.FNDType.COLUMN.equalsIgnoreCase(node.getType())) {
-                            Column col = node.getColumn();
-                            suggestion.description = "column '" + node.getValue() + "' in table '" + col.getSourceName() + "'";
-                        }
-                        datas.suggestions.add(suggestion);
-                    });
+                    focusNodes.forEach(node -> datas.suggestions.addAll(SuggestionBuild.buildSug(fp, user, node)));
                     response.setDatas(datas);
+                    // search suggestions
                     session.sendMessage(new TextMessage(response.response()));
+
+                    // search finish
+                    session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
                     logger.info("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
                 } else {//  输入完整
 
@@ -389,7 +383,7 @@ public class Base {
 
         List<Column> columns = SuggestionBuild.colRandomSuggestions(user);
         for (Column column : columns) {
-            SuggestionSuggestions suggestions = new SuggestionSuggestions();
+            SuggestionSuggestion suggestions = new SuggestionSuggestion();
             suggestions.suggestion = column.getColumnDisplayName();
             suggestions.suggestionType = Constant.FNDType.COLUMN;
             suggestions.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
@@ -497,5 +491,29 @@ public class Base {
         }
         return datas;
     }
+
+    public static String InstName(FocusPhrase fp) {
+        StringBuilder instName = new StringBuilder();
+        FocusNode first = fp.getNodeNew(0);
+        int space = first.getEnd();
+        instName.append(first.getValue());
+        for (int i = 1; i < fp.size(); i++) {
+            FocusNode fn = fp.getNodeNew(i);
+            instName.append(fn.getValue());
+            instName.append(space(fn.getBegin() - space));
+            space = fn.getEnd();
+        }
+        return instName.toString();
+    }
+
+    private static String space(int count) {
+        StringBuilder space = new StringBuilder("");
+        int i = 0;
+        while (i++ < count) {
+            space.append(" ");
+        }
+        return space.toString();
+    }
+
 
 }

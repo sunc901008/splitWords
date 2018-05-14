@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
@@ -35,18 +36,29 @@ public class DateColInstruction {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_expression");
+        json1.put("category", Constant.AnnotationCategory.EXPRESSION);
+        json1.put("type", Constant.ColumnType.ATTRIBUTE);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE);
 
-        String type = focusPhrase.getFocusNodes().get(0).getValue();
+        String aggregation = Constant.AggregationType.NONE;
+        JSONObject expression = new JSONObject();
+        JSONObject json = build(focusPhrase, formulas);
+        String type = json.getString("type");
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            datas.category = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
+            Column column = (Column) json.get("column");
+            expression.put("type", "column");
+            expression.put("value", column.getColumnId());
+            aggregation = column.getAggregation();
         } else if (Constant.InstType.FUNCTION.equals(type)) {
-            datas.category = Constant.AnnotationCategory.EXPRESSION;
+            expression = json.getJSONObject(Constant.InstType.FUNCTION);
         }
+
+        json1.put("name", Base.InstName(focusPhrase));
+        json1.put("aggregation", aggregation);
 
         datas.addTokens(tokens(focusPhrase, formulas, amb));
 
-        json1.put("expression", arg(focusPhrase, formulas));
+        json1.put("expression", expression);
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();

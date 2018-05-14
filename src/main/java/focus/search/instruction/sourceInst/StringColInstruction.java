@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
@@ -35,8 +36,26 @@ public class StringColInstruction {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", "add_expression");
+        json1.put("category", Constant.AnnotationCategory.EXPRESSION);
+        json1.put("type", Constant.ColumnType.ATTRIBUTE);
 
-        json1.put("expression", arg(focusPhrase, formulas));
+        String aggregation = Constant.AggregationType.NONE;
+        JSONObject json = build(focusPhrase, formulas);
+        String type = json.getString("type");
+        JSONObject expression = new JSONObject();
+        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
+            expression.put("type", "column");
+            Column column = (Column) json.get("column");
+            expression.put("value", column.getColumnId());
+            aggregation = column.getAggregation();
+        } else if (Constant.InstType.FUNCTION.equals(type)) {
+            expression = json.getJSONObject(Constant.InstType.FUNCTION);
+        }
+
+        json1.put("name", Base.InstName(focusPhrase));
+        json1.put("aggregation", aggregation);
+
+        json1.put("expression", expression);
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();

@@ -16,7 +16,7 @@ public class SuggestionDatas {
     public Integer beginPos;
     public Integer phraseBeginPos;
     public String guidance;
-    public List<SuggestionSuggestions> suggestions = new ArrayList<>();
+    public List<SuggestionSuggestion> suggestions = new ArrayList<>();
 
     JSONObject toJSON() {
         JSONObject json = new JSONObject();
@@ -25,7 +25,7 @@ public class SuggestionDatas {
         json.put("guidance", this.guidance);
         JSONArray jsonArray = new JSONArray();
         this.suggestions.forEach(suggestion -> jsonArray.add(suggestion.toJSON()));
-        json.put("tokens", jsonArray);
+        json.put("suggestions", jsonArray);
         return json;
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
  * description:
  */
 public class AmbiguitiesRecord {
-    public Integer columnId;
+    public int columnId;
     public String type;
     public String columnName;
     public String sourceName;
@@ -23,7 +23,7 @@ public class AmbiguitiesRecord {
     }
 
     public boolean equals(AmbiguitiesRecord a) {
-        return columnId.equals(a.columnId) && type.equals(a.type) && columnName.equals(a.columnName) && sourceName.equals(a.sourceName);
+        return columnId == a.columnId && type.equals(a.type) && columnName.equals(a.columnName) && sourceName.equals(a.sourceName);
     }
 
 }

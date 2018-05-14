@@ -10,11 +10,11 @@ import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
+import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
-import focus.search.metaReceived.Ambiguities;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.FocusParserException;
@@ -36,10 +36,10 @@ import java.util.List;
  */
 public class Home {
 
-    public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
+    public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException {
 //        test("average()");
 //        boolean expression = false;
-        search(0, 1);
+//        search(0, 1);
 //        split(18, 1);
 //        split(",>");
 //        ttt();
@@ -53,13 +53,22 @@ public class Home {
 //        print(JSONObject.toJSONString(fp.allFormulaNode()));
 
 //        print("abcd");
-//        t();
+        t();
     }
 
-    private static void t() {
-
-        List<Ambiguities> ambiguities = JSONArray.parseArray(null, Ambiguities.class);
-        print(ambiguities == null);
+    private static void t() throws IOException, FocusParserException, AmbiguitiesException {
+//        FocusParser parser = new FocusParser();
+//
+//        List<FocusToken> tokens = parser.focusAnalyzer.test("co", "chinese");
+//
+//        System.out.println(JSON.toJSONString(tokens));
+//        FocusInst focusInst = parser.parseQuestion(tokens, new JSONObject());
+//        JSONObject json = SuggestionBuild.sug(tokens, focusInst);
+//        print(json);
+//        String str = json.getJSONArray("suggestions").toJSONString();
+        String str = "[{\"hasChild\":true,\"isTerminal\":true,\"end\":2,\"type\":\"keyword\",\"value\":\"count\",\"begin\":0}]";
+        List<FocusNode> focusNodes = JSONArray.parseArray(str, FocusNode.class);
+        focusNodes.forEach(node -> print(JSONObject.toJSONString(node)));
     }
 
     private static void deepCloneTest() {
@@ -361,7 +370,7 @@ public class Home {
 //                datas.phraseBeginPos = datas.beginPos;
 //                List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
 //                focusNodes.forEach(node -> {
-//                    SuggestionSuggestions suggestion = new SuggestionSuggestions();
+//                    SuggestionSuggestion suggestion = new SuggestionSuggestion();
 //                    suggestion.suggestion = node.getValue();
 //                    suggestion.suggestionType = node.getType();
 //                    if (Constant.FNDType.TABLE.equalsIgnoreCase(node.getType())) {

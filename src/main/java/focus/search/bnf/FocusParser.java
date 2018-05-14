@@ -1,6 +1,5 @@
 package focus.search.bnf;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
@@ -31,7 +30,7 @@ public class FocusParser implements Serializable {
 
     private BnfParser parser = null;
     public FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
-    private final static int MAX_RULE_LOOP = 10;
+    private final static int MAX_RULE_LOOP = 20;
 
     public FocusParser() {
         this(Constant.Language.ENGLISH);
@@ -337,11 +336,13 @@ public class FocusParser implements Serializable {
             }
         }
 
+        logger.debug("check ambiguities. index:" + index + ". value:" + value + ". Ambiguities:" + amb + ". resolve:" + JSONObject.toJSONString(resolve));
         List<Integer> added = new ArrayList<>();
         List<FocusPhrase> remove = new ArrayList<>();
         for (FocusPhrase fp : focusPhrases) {
             FocusNode fn = fp.getNodeNew(index);
             if (isResolved) {
+                logger.debug("current focusNode:" + fn.toJSON());
                 if (!fn.getType().equals(resolve.type) || (Constant.FNDType.COLUMN.equals(fn.getType()) && fn.getColumn().getColumnId() != resolve.columnId)) {
                     remove.add(fp);
                 }
