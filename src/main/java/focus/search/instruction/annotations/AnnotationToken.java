@@ -58,6 +58,8 @@ public class AnnotationToken {
             jsonArray.addAll(this.tokens);
             json.put("tokens", jsonArray);
         }
+        if (ambiguity != null)
+            json.put("ambiguity", ambiguity.toJSON());
         return json;
     }
 
@@ -75,14 +77,18 @@ public class AnnotationToken {
         token.columnName = column.getColumnDisplayName();
         token.columnId = column.getColumnId();
         token.type = column.getColumnType().toLowerCase();
+        token.value = column.getColumnDisplayName();
+        token.begin = begin;
+        token.end = end;
         // todo modify detailType
         token.detailType = column.getDataType();
         if (hasTable) {
             token.addToken(column.getSourceName());
         } else {
+            logger.info("current all ambiguities:" + amb);
             for (String id : amb.keySet()) {
                 AmbiguitiesResolve tmp = (AmbiguitiesResolve) amb.get(id);
-                logger.debug(tmp.toJSON());
+                logger.info("current ambiguities:" + tmp.toJSON());
                 if (tmp.ars.size() > 1 && tmp.value.equalsIgnoreCase(token.value.toString())) {
                     token.ambiguity = new AmbiguityDatas();
                     token.ambiguity.begin = token.begin;
@@ -95,9 +101,7 @@ public class AnnotationToken {
             }
         }
         token.addToken(column.getColumnDisplayName());
-        token.value = column.getColumnDisplayName();
-        token.begin = begin;
-        token.end = end;
+        logger.info("TEST: token:" + token.toJSON());
         return token;
     }
 

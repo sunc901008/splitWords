@@ -43,7 +43,7 @@ class SearchHandler {
     private static final Logger logger = Logger.getLogger(SearchHandler.class);
 
     private static final List<String> array = Arrays.asList("putFormula", "modifyFormula", "deleteFormula");
-    private static final List<String> noImmediateResponse = Arrays.asList("init", "echo", "exportContext");
+    private static final List<String> noImmediateResponse = Arrays.asList("init", "echo", "exportContext", "formulaCase");
 
     static void preHandle(WebSocketSession session, JSONObject params) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException {
         logger.info("params: " + params);
@@ -278,7 +278,7 @@ class SearchHandler {
     private static void formula(WebSocketSession session, JSONObject params, JSONObject user) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException {
         String search = params.getString("formula");
         int position = params.getInteger("position");
-        boolean debug = params.getBoolean("debug");
+        Boolean debug = params.getBoolean("debug");
 
         user.put("category", Constant.CategoryType.EXPRESSION);
 //        session.getAttributes().put("user", user);
@@ -479,7 +479,19 @@ class SearchHandler {
         //        {"keyword":"+", "cases":["4 + 1", "47.69 + 99.34", "userid + userid"]}
         JSONObject datas = new JSONObject();
         datas.put("keyword", keyword);
-        datas.put("cases", FormulaCase.buildCase(user, keyword));
+        JSONArray jsonArray = FormulaCase.buildCase(user, keyword);
+        JSONArray cases = new JSONArray();
+        if (jsonArray == null || jsonArray.size() <= 2) {
+            cases = jsonArray;
+        } else {
+            while (cases.size() < 2) {
+                String value = jsonArray.get(SuggestionBuild.decimalSug(jsonArray.size())).toString();
+                if (!cases.contains(value)) {
+                    cases.add(value);
+                }
+            }
+        }
+        datas.put("cases", cases);
         response.setDatas(datas);
         session.sendMessage(new TextMessage(response.response()));
     }

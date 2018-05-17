@@ -1,0 +1,78 @@
+<question> := <filter> |
+              <phrase>;
+
+<filter> := <simple-filter> |
+            <column-value>;
+
+<phrase> := <top-n> |
+            <bottom-n> |
+            <sort-by> |
+            <all-columns> |
+            <formula-column>;
+
+<simple-filter> := <number-columns> <bool-symbol> <number> |
+                   <number> <bool-symbol> <number-columns> |
+                   <number-columns> <bool-symbol> <number-columns> |
+                   <number> <bool-symbol> <number> |
+                   <all-string-column> = <column-value>;
+
+<top-n> := 前 <integer> <number-columns>;
+
+<bottom-n> := 倒数 <integer> <number-columns>;
+
+<sort-by> := 按 <all-columns> 升序 |
+             按 <all-columns> 降序 |
+             按 <all-columns> 排序;
+
+<all-columns> := <number-columns> |
+                 <string-columns> |
+                 <bool-columns> |
+                 <date-columns>;
+
+<number-columns> := <all-int-column> |
+                    <all-double-column>;
+
+<string-columns> := <all-string-column>;
+
+<bool-columns> := <all-bool-column>;
+
+<date-columns> := <all-date-column>;
+
+<all-int-column> := <int-column> |
+                    <table-int-column>;
+
+<all-double-column> := <double-column> |
+                       <table-double-column>;
+
+<all-string-column> := <string-column> |
+                       <table-string-column>;
+
+<all-bool-column> := <bool-column> |
+                     <table-bool-column>;
+
+<all-date-column> := <date-column> |
+                     <table-date-column>;
+
+<all-source-column> := <number-source-column> |
+                       <all-string-column> |
+                       <all-bool-column> |
+                       <all-date-column>;
+
+<number-source-column> := <all-int-column> |
+                          <all-double-column>;
+
+<bool-symbol> := 大于 | 小于 | 不小于 | 大于等于 | 不大于 | 小于等于 | 等于 | 不等于;
+<math-symbol> := + | - | * | / | ^;
+<number> := <integer> |
+            <double>;
+<integer> := 1;
+<double> := 1;
+
+<column-value> := <double-quote-column-value> |
+                  <single-quote-column-value> |
+                  <double-quote-column-value> , <column-value> |
+                  <single-quote-column-value> , <column-value>;
+
+<double-quote-column-value> := " <value> ";
+<single-quote-column-value> := ' <value> ';
+<value> := 1;

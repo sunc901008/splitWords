@@ -55,7 +55,6 @@ public class WebserviceController {
             JobDataMap params = jobDetail.getJobDataMap();
             WebSocketSession session = (WebSocketSession) params.get("session");
             session.sendMessage(new TextMessage(chartsResponse.response()));
-            QuartzManager.deleteJob(taskId);
         } else {
             if (Constant.SearchOrPinboard.SEARCH_USER.equals(source)) {
                 WebsocketSearch.queryResult(chartsResponse, taskId);
@@ -63,6 +62,7 @@ public class WebserviceController {
                 WebsocketPinboard.queryResult(chartsResponse, taskId);
             }
         }
+        QuartzManager.deleteJob(taskId);
         JSONObject response = new JSONObject();
         response.put("success", true);
         return response;

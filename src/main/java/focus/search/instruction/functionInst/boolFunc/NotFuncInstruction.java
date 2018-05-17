@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
@@ -22,6 +23,7 @@ import java.util.List;
 //<not-function> := not ( <bool-columns> ) |
 //        not ( <bool-function-column> );
 public class NotFuncInstruction {
+    private static final String example = "not ( %s )";
 
     // 完整指令 not
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
@@ -91,5 +93,13 @@ public class NotFuncInstruction {
         return tokens;
     }
 
+    // formula case
+    public static JSONArray buildCase(JSONObject user) {
+        JSONArray cases = new JSONArray();
+        IsNullFuncInstruction.buildCase(user).forEach(c -> cases.add(String.format(example, c)));
+        ToBoolFuncInstruction.buildCase(user).forEach(c -> cases.add(String.format(example, c)));
+        cases.addAll(FormulaCase.buildCaseBoolCol(example, user));
+        return cases;
+    }
 
 }

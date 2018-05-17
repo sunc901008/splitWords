@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberOrNumColInst;
@@ -22,6 +23,7 @@ import java.util.List;
 //<average-function> := average ( <number-columns> ) |
 //        average ( <number> );
 public class AverageFuncInstruction {
+    private static final String example = "average ( %s )";
 
     // 完整指令 average
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
@@ -92,5 +94,11 @@ public class AverageFuncInstruction {
         return tokens;
     }
 
-
+    // formula case
+    public static JSONArray buildCase(JSONObject user) {
+        JSONArray cases = new JSONArray();
+        cases.addAll(FormulaCase.buildCaseNumber(example));
+        cases.addAll(FormulaCase.buildCaseNumberCol(example, user));
+        return cases;
+    }
 }

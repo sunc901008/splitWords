@@ -38,7 +38,8 @@
                       average ( <number> );
 
 # number
-<count-function> := count ( <all-source-column> );
+<count-function> := count ( <all-source-column> ) |
+                    count ( <number> );
 
 # number
 <max-function> := max ( <all-date-column> ) |

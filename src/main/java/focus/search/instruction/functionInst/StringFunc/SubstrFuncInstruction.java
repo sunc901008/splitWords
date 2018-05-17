@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
+import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
@@ -23,7 +25,6 @@ import java.util.List;
 //<substr-function> := substr ( <string-columns> , <integer> , <integer> ) |
 //        substr ( <column-value> , <integer> , <integer> );
 public class SubstrFuncInstruction {
-
     // 完整指令 substr
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();
@@ -113,6 +114,23 @@ public class SubstrFuncInstruction {
         token8.end = focusPhrase.getFocusNodes().get(7).getEnd();
         tokens.add(token8);
         return tokens;
+    }
+
+    // formula case
+    public static JSONArray buildCase(JSONObject user) {
+        String example = "substr ( %s )";
+
+        JSONArray cases = new JSONArray();
+        String value = SuggestionBuild.stringSug();
+        int start = SuggestionBuild.decimalSug(value.length());
+        int length = value.length() - SuggestionBuild.decimalSug(value.length());
+        if (length == 1) {
+            start--;
+        }
+        example = String.format(example, "%s , " + String.format("%s , %s", start, length));
+        cases.add(String.format(example, value));
+        cases.addAll(FormulaCase.buildCaseStringCol(example, user));
+        return cases;
     }
 
 }

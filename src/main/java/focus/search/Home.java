@@ -4,21 +4,23 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
+import focus.search.analyzer.focus.FocusKWDict;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
-import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
+import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.FocusParserException;
-import focus.search.response.search.AnnotationResponse;
+import focus.search.response.search.AmbiguityDatas;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
@@ -37,9 +39,9 @@ import java.util.List;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException {
-//        test("average()");
+        split("大于你", Constant.Language.CHINESE);
 //        boolean expression = false;
-//        search(0, 1);
+//        search(0, 1, Constant.Language.CHINESE);
 //        split(18, 1);
 //        split(",>");
 //        ttt();
@@ -53,7 +55,13 @@ public class Home {
 //        print(JSONObject.toJSONString(fp.allFormulaNode()));
 
 //        print("abcd");
-        t();
+//        t();
+
+
+//        String example = "diff_days ( %s )";
+//        example = String.format(example, "%s , " + SuggestionBuild.dateSug());
+//        print(example);
+
     }
 
     private static void t() throws IOException, FocusParserException, AmbiguitiesException {
@@ -66,9 +74,19 @@ public class Home {
 //        JSONObject json = SuggestionBuild.sug(tokens, focusInst);
 //        print(json);
 //        String str = json.getJSONArray("suggestions").toJSONString();
-        String str = "[{\"hasChild\":true,\"isTerminal\":true,\"end\":2,\"type\":\"keyword\",\"value\":\"count\",\"begin\":0}]";
-        List<FocusNode> focusNodes = JSONArray.parseArray(str, FocusNode.class);
-        focusNodes.forEach(node -> print(JSONObject.toJSONString(node)));
+        AnnotationToken token = new AnnotationToken();
+        token.value = "id";
+        String str = "{\"ars\":[{\"columnId\":2,\"sourceName\":\"badges\",\"type\":\"column\",\"columnName\":\"id\"},{\"columnId\":7,\"sourceName\":\"users\",\"type\":\"column\",\"columnName\":\"id\"}],\"isResolved\":true,\"value\":\"id\"}";
+        AmbiguitiesResolve tmp = JSONArray.parseObject(str, AmbiguitiesResolve.class);
+        print("current ambiguities:" + tmp.toJSON());
+        if (tmp.ars.size() > 1 && tmp.value.equalsIgnoreCase(token.value.toString())) {
+            token.ambiguity = new AmbiguityDatas();
+            token.ambiguity.begin = token.begin;
+            token.ambiguity.end = token.end;
+            token.ambiguity.title = "ambiguity word: " + token.value;
+            tmp.ars.forEach(a -> token.ambiguity.possibleMenus.add(a.columnName + " in table " + a.sourceName));
+        }
+        print("TEST: token:" + token.toJSON());
     }
 
     private static void deepCloneTest() {
@@ -164,9 +182,20 @@ public class Home {
     }
 
     // params:  start 需要执行的questions文件中的起始行号，为0时执行所有, length 执行的行数
-    private static void search(int start, int length) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
+    private static void search(int start, int length) throws IOException, InvalidRuleException, FocusInstructionException,
+            FocusParserException {
+        search(start, length, Constant.Language.ENGLISH);
+    }
+
+    private static void search(int start, int length, String language) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
+        String file;
+        if (Constant.Language.ENGLISH.equals(language)) {
+            file = "test/questions";
+        } else {
+            file = "test/cquestions";
+        }
         ResourceLoader resolver = new DefaultResourceLoader();
-        BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
+        BufferedReader br = new BufferedReader(new FileReader(resolver.getResource(file).getFile()));
         String search;
         String last = null;
         int i = 0;
@@ -178,7 +207,7 @@ public class Home {
             if (start == 0 || i >= start) {
                 print(i);
                 long begin = Calendar.getInstance().getTime().getTime();
-                test(search);
+                test(search, language);
                 long end = Calendar.getInstance().getTime().getTime();
                 print(end - begin);
                 System.out.println();
@@ -189,7 +218,7 @@ public class Home {
             }
         }
         if (start < 0) {
-            test(last);
+            test(last, language);
         }
 
         br.close();
@@ -283,6 +312,14 @@ public class Home {
         return fp;
     }
 
+    private static void split(String search, String language) throws IOException {
+        FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
+        focusAnalyzer.testInit(new FocusKWDict("于是", Constant.FNDType.KEYWORD));
+        List<FocusToken> tokens = focusAnalyzer.test(search, language);
+
+        print(JSON.toJSONString(tokens));
+    }
+
     private static FocusPhrase make() {
         String str = "{\"focusPhrases\":[{\"focusNodes\":[{\"isTerminal\":true,\"end\":6,\"type\":\"keyword\",\"value\":\"strlen\",\"begin\":0},{\"isTerminal\":true,\"end\":7,\"type\":\"keyword\",\"value\":\"(\",\"begin\":6},{\"isTerminal\":true,\"end\":8,\"type\":\"keyword\",\"value\":\"\\\"\",\"begin\":7},{\"isTerminal\":true,\"end\":13,\"type\":\"columnValue\",\"value\":\"focus\",\"begin\":8},{\"isTerminal\":true,\"end\":14,\"type\":\"keyword\",\"value\":\"\\\"\",\"begin\":13},{\"isTerminal\":true,\"end\":15,\"type\":\"keyword\",\"value\":\")\",\"begin\":14},{\"isTerminal\":true,\"end\":17,\"type\":\"symbol\",\"value\":\">\",\"begin\":16},{\"isTerminal\":true,\"end\":19,\"type\":\"integer\",\"value\":\"5\",\"begin\":18}],\"instName\":\"<filter>\",\"type\":\"instruction\"}],\"position\":-1}";
         FocusInst focusInst = JSONObject.parseObject(str, FocusInst.class);
@@ -316,14 +353,18 @@ public class Home {
     }
 
     private static FocusInst search(String search) throws IOException, FocusParserException {
+        return search(search, Constant.Language.ENGLISH);
+    }
+
+    private static FocusInst search(String search, String language) throws IOException, FocusParserException {
         String test = "bnf-file/test.bnf";
-        FocusParser parser = new FocusParser();
+        FocusParser parser = new FocusParser(language);
 //        FocusParser parser = new FocusParser(test);
         ModelBuild.buildTable(parser, ModelBuild.test(1));
 
 //        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
 
-        List<FocusToken> tokens = parser.focusAnalyzer.test(search, "chinese");
+        List<FocusToken> tokens = parser.focusAnalyzer.test(search, language);
 
         System.out.println(JSON.toJSONString(tokens));
         try {
@@ -352,82 +393,29 @@ public class Home {
     }
 
     private static void test(String search) throws IOException, FocusInstructionException, FocusParserException {
+        test(search, Constant.Language.ENGLISH);
+    }
 
-        FocusInst focusInst = search(search);
+    private static void test(String search, String language) throws IOException, FocusInstructionException, FocusParserException {
+
+        FocusInst focusInst = search(search, language);
 
         if (focusInst == null) {
             return;
         }
 
-        String msg;
-        if (focusInst.position < 0) {// 未出错
-//            FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
-//            if (focusPhrase.isSuggestion()) {// 出入不完整
-//                SuggestionResponse response = new SuggestionResponse(search);
-//                SuggestionDatas datas = new SuggestionDatas();
-//                JSONObject json = SuggestionBuild.sug(tokens, focusInst);
-//                datas.beginPos = json.getInteger("position");
-//                datas.phraseBeginPos = datas.beginPos;
-//                List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
-//                focusNodes.forEach(node -> {
-//                    SuggestionSuggestion suggestion = new SuggestionSuggestion();
-//                    suggestion.suggestion = node.getValue();
-//                    suggestion.suggestionType = node.getType();
-//                    if (Constant.FNDType.TABLE.equalsIgnoreCase(node.getType())) {
-//                        suggestion.description = "this is a table name";
-//                    } else if (Constant.FNDType.COLUMN.equalsIgnoreCase(node.getType())) {
-//                        Column col = node.getColumn();
-//                        suggestion.description = "column '" + node.getValue() + "' in table '" + col.getSourceName() + "'";
-//                    }
-//                    datas.suggestions.add(suggestion);
-//                });
-//                response.setDatas(datas);
-//                System.out.println("提示:\n\t" + JSON.toJSONString(response) + "\n");
-//            } else {//  输入完整
+        if (focusInst.position < 0) {
 
             JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
 
-            System.out.println("指令:\n\t" + json + "\n");
+            print("指令:\n\t" + json + "\n");
 
             // Annotations
-            AnnotationResponse annotationResponse = new AnnotationResponse(search);
             JSONArray instructions = json.getJSONArray("instructions");
             print(instructions);
-                /*
-                for (int i = 0; i < instructions.size(); i++) {
-                    JSONObject instruction = instructions.getJSONObject(i);
-                    if (instruction.getString("instId").equals("annotation")) {
-                        String content = instruction.getString("content");
-                        annotationResponse.datas.add(JSONObject.parseObject(content, AnnotationResponse.AnnotationDatas.class));
-                    }
-                }
-                System.out.println(annotationResponse.response());
-                */
 
-//            }
-        } else {//  出错
-//            IllegalResponse response = new IllegalResponse(search);
-//            int strPosition = tokens.get(focusInst.position).getStart();
-//            IllegalDatas datas = new IllegalDatas();
-//            datas.beginPos = strPosition;
-//            StringBuilder reason = new StringBuilder();
-//            List<FocusNode> focusNodes = SuggestionBuild.sug(focusInst.position, focusInst);
-//            focusNodes.forEach(node -> {
-//                reason.append(node.getValue());
-//                if (node.getType() != null) {
-//                    reason.append(",").append(node.getType());
-//                }
-//                if (node.getColumn() != null) {
-//                    reason.append(",").append(node.getColumn().getColumnId());
-//                }
-//                reason.append("\r\n");
-//            });
-//            datas.reason = reason.toString();
-//            response.setDatas(datas);
-//            msg = "错误:\n\t" + "位置: " + strPosition + "\t错误: " + search.substring(strPosition) + "\n";
-//            System.out.println(msg);
-//            msg = "提示:\n\t" + reason + "\n";
-//            System.out.println(msg);
+        } else {
+            print("error!");
         }
 
     }

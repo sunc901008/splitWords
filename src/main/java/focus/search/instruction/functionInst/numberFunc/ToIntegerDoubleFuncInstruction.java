@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
@@ -105,5 +106,12 @@ public class ToIntegerDoubleFuncInstruction {
         return tokens;
     }
 
+    // formula case
+    public static JSONArray buildCase(JSONObject user, String keyword) {
+        String example = keyword + " ( %s )";
+        JSONArray cases = new JSONArray();
+        cases.addAll(FormulaCase.buildCaseAllCol(example, user));
+        return cases;
+    }
 
 }

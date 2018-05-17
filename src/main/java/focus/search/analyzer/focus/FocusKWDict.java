@@ -17,7 +17,7 @@ public class FocusKWDict {
     private String word;
     private String type;
 
-    FocusKWDict(String word, String type) {
+    public FocusKWDict(String word, String type) {
         this.word = word;
         this.type = type;
     }
@@ -32,11 +32,20 @@ public class FocusKWDict {
 
     static List<FocusKWDict> allKeywords() {
         List<FocusKWDict> dictionaries = new ArrayList<>();
+        List<String> added = new ArrayList<>();
         for (TerminalToken token : Base.englishParser.getTerminalTokens()) {
-            dictionaries.add(new FocusKWDict(token.getName().toLowerCase(), Constant.FNDType.KEYWORD));
+            String value = token.getName().toLowerCase();
+            if (!added.contains(value)) {
+                dictionaries.add(new FocusKWDict(token.getName().toLowerCase(), Constant.FNDType.KEYWORD));
+                added.add(value);
+            }
         }
         for (TerminalToken token : Base.chineseParser.getTerminalTokens()) {
-            dictionaries.add(new FocusKWDict(token.getName().toLowerCase(), Constant.FNDType.KEYWORD));
+            String value = token.getName().toLowerCase();
+            if (!added.contains(value)) {
+                dictionaries.add(new FocusKWDict(token.getName().toLowerCase(), Constant.FNDType.KEYWORD));
+                added.add(value);
+            }
         }
         return dictionaries;
     }

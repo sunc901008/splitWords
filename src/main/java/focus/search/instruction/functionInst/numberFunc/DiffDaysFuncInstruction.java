@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
+import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
@@ -106,6 +108,16 @@ public class DiffDaysFuncInstruction {
         token6.end = focusPhrase.getFocusNodes().get(5).getEnd();
         tokens.add(token6);
         return tokens;
+    }
+
+    // formula case
+    public static JSONArray buildCase(JSONObject user) {
+        String example = "diff_days ( %s )";
+        example = String.format(example, "%s , " + SuggestionBuild.dateSug());
+        JSONArray cases = new JSONArray();
+        cases.addAll(FormulaCase.buildCaseDateCol(example, user));
+        cases.add(String.format(example, SuggestionBuild.dateSug() + " , " + SuggestionBuild.dateSug()));
+        return cases;
     }
 
 }

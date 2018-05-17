@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberArg;
@@ -24,6 +25,7 @@ import java.util.List;
 //<isnull-function> := isnull ( <all-columns> ) |
 //        isnull ( <number> );
 public class IsNullFuncInstruction {
+    private static final String example = "isnull ( %s )";
 
     // 完整指令 isnull
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
@@ -112,4 +114,11 @@ public class IsNullFuncInstruction {
         return tokens;
     }
 
+    // formula case
+    public static JSONArray buildCase(JSONObject user) {
+        JSONArray cases = new JSONArray();
+        cases.addAll(FormulaCase.buildCaseNumber(example));
+        cases.addAll(FormulaCase.buildCaseAllCol(example, user));
+        return cases;
+    }
 }

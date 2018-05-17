@@ -10,6 +10,9 @@ import org.quartz.impl.triggers.CronTriggerImpl;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -20,6 +23,7 @@ import java.text.ParseException;
 public class QuartzManager {
     private static final Logger logger = Logger.getLogger(QuartzManager.class);
 
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
     private static SchedulerFactory sf = new StdSchedulerFactory();
 
     /**
@@ -43,10 +47,11 @@ public class QuartzManager {
             // create trigger
             CronTriggerImpl trigger = new CronTriggerImpl();
             trigger.setCronExpression(Common.getCron());//时间设置，参考quartz说明文档
-            trigger.setName("TRIGGER_GROUP");
+            trigger.setName(taskId);
             // add job to scheduler with trigger
-            sched.scheduleJob(job, trigger);
+            Date ft = sched.scheduleJob(job, trigger);
             sched.start();
+            logger.info(key.getName() + " start at : " + sdf.format(ft) + ", time scheduler cron: " + trigger.getCronExpression());
         } catch (ParseException | SchedulerException e) {
             logger.error(Common.printStacktrace(e));
         }
@@ -83,6 +88,7 @@ public class QuartzManager {
         Scheduler sched = sf.getScheduler();
         if (sched.getJobDetail(jobKey) != null) {
             sched.deleteJob(jobKey);
+            logger.info(jobKey.getName() + " delete at : " + sdf.format(Calendar.getInstance().getTime()));
         }
     }
 

@@ -5,12 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
+import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
-import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +22,10 @@ import java.util.List;
  * date: 2018/4/20
  * description:
  */
-//<count-function> := count ( <all-source-column> );
+//<count-function> := count ( <all-source-column> ) |
+//        count ( <number> );
 public class CountFuncInstruction {
+    private static final String example = "count ( %s )";
 
     // 完整指令 count
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
@@ -58,9 +62,13 @@ public class CountFuncInstruction {
         JSONArray args = new JSONArray();
 
         JSONObject arg1 = new JSONObject();
-        JSONObject json = ColumnInstruction.build(param.getChildren());
-        arg1.put("type", Constant.InstType.COLUMN);
-        arg1.put("column", ((Column) json.get("column")).getColumnId());
+        if ("<number>".equals(param.getValue())) {
+            arg1 = NumberArg.arg(param);
+        } else {
+            JSONObject json = ColumnInstruction.build(param.getChildren());
+            arg1.put("type", Constant.InstType.COLUMN);
+            arg1.put("column", ((Column) json.get("column")).getColumnId());
+        }
         args.add(arg1);
 
         expression.put("args", args);
@@ -86,12 +94,15 @@ public class CountFuncInstruction {
         token2.end = focusPhrase.getFocusNodes().get(1).getEnd();
         tokens.add(token2);
 
-        JSONObject json = ColumnInstruction.build(param.getChildren());
-        FocusPhrase third = param.getChildren();
-        int begin = third.getFirstNode().getBegin();
-        int end = third.getLastNode().getEnd();
-        tokens.add(AnnotationToken.singleCol((Column) json.get("column"), third.size() == 2, begin, end, amb));
-
+        if ("<number>".equals(param.getValue())) {
+            tokens.add(NumberArg.token(param));
+        } else {
+            JSONObject json = ColumnInstruction.build(param.getChildren());
+            FocusPhrase third = param.getChildren();
+            int begin = third.getFirstNode().getBegin();
+            int end = third.getLastNode().getEnd();
+            tokens.add(AnnotationToken.singleCol((Column) json.get("column"), third.size() == 2, begin, end, amb));
+        }
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusPhrase.getFocusNodes().get(3).getValue();
         token4.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
@@ -102,5 +113,12 @@ public class CountFuncInstruction {
         return tokens;
     }
 
+    // formula case
+    public static JSONArray buildCase(JSONObject user) {
+        JSONArray cases = new JSONArray();
+        cases.addAll(FormulaCase.buildCaseNumber(example));
+        cases.addAll(FormulaCase.buildCaseAllCol(example, user));
+        return cases;
+    }
 
 }

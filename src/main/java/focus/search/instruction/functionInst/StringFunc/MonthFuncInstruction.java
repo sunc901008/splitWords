@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
+import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
@@ -22,6 +24,7 @@ import java.util.List;
 //<month-function> := month ( <date-columns> ) |
 //        month ( <column-value> );
 public class MonthFuncInstruction {
+    private static final String example = "month ( %s )";
 
     // 完整指令 month
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
@@ -93,5 +96,12 @@ public class MonthFuncInstruction {
         return tokens;
     }
 
+    // formula case
+    public static JSONArray buildCase(JSONObject user) {
+        JSONArray cases = new JSONArray();
+        cases.add(String.format(example, SuggestionBuild.dateSug()));
+        cases.addAll(FormulaCase.buildCaseDateCol(example, user));
+        return cases;
+    }
 
 }

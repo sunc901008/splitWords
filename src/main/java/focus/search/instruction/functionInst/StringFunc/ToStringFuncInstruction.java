@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.FormulaCase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberArg;
@@ -24,6 +25,7 @@ import java.util.List;
 //<to_string-function> := to_string ( <all-columns> ) |
 //        to_string ( <number> );
 public class ToStringFuncInstruction {
+    private static final String example = "to_string ( %s )";
 
     // 完整指令 to_string
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
@@ -108,6 +110,14 @@ public class ToStringFuncInstruction {
         tokens.add(token4);
 
         return tokens;
+    }
+
+    // formula case
+    public static JSONArray buildCase(JSONObject user) {
+        JSONArray cases = new JSONArray();
+        cases.addAll(FormulaCase.buildCaseNumber(example));
+        cases.addAll(FormulaCase.buildCaseAllCol(example, user));
+        return cases;
     }
 
 }

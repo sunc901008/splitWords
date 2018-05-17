@@ -26,6 +26,14 @@ public class FocusAnalyzer implements Serializable {
         Dictionary.addWords(FocusKWDict.allKeywords());
     }
 
+    /**
+     * for debug test
+     */
+    public void testInit(FocusKWDict fk) {
+        init();
+        Dictionary.addWord(fk);
+    }
+
     // 添加表名列名到分词中
     public void addTable(List<SourceReceived> sources) {
         if (analyzer == null)

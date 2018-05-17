@@ -58,7 +58,7 @@ public class FocusParser implements Serializable {
             initBnf("bnf-file/question.bnf");
             initBnf("bnf-file/function.bnf");
         } else {
-            initBnf("bnf-file/question.bnf");
+            initBnf("bnf-file/chinese.bnf");
             initBnf("bnf-file/function.bnf");
         }
     }
@@ -192,7 +192,7 @@ public class FocusParser implements Serializable {
         logger.info("Adaptation parse bnf size:" + focusPhrases.size());
 
         // 歧义检测
-        ambiguitiesCheck(focusPhrases, 0, amb);
+        ambiguitiesCheck(focusToken.getWord(), focusPhrases, 0, amb);
 
         for (int i = 1; i < tokens.size(); i++) {
             FocusToken ft = tokens.get(i);
@@ -293,7 +293,7 @@ public class FocusParser implements Serializable {
 //                }
             }
             // 歧义检测
-            ambiguitiesCheck(focusPhrases, i, amb);
+            ambiguitiesCheck(ft.getWord(), focusPhrases, i, amb);
 
             // 去除重复
             distinct(focusPhrases);
@@ -322,7 +322,7 @@ public class FocusParser implements Serializable {
      * date: 2018/3/1
      * description: 检测歧义
      */
-    private void ambiguitiesCheck(List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
+    private void ambiguitiesCheck(String token, List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
         List<AmbiguitiesRecord> ars = new ArrayList<>();
 
         String value = focusPhrases.get(0).getNodeNew(index).getValue();
@@ -336,13 +336,15 @@ public class FocusParser implements Serializable {
             }
         }
 
-        logger.debug("check ambiguities. index:" + index + ". value:" + value + ". Ambiguities:" + amb + ". resolve:" + JSONObject.toJSONString(resolve));
+        logger.debug("check ambiguities. index:" + index + ". value:" + token + ". Ambiguities:" + amb + ". resolve:" + JSONObject.toJSONString(resolve));
         List<Integer> added = new ArrayList<>();
         List<FocusPhrase> remove = new ArrayList<>();
         for (FocusPhrase fp : focusPhrases) {
             FocusNode fn = fp.getNodeNew(index);
+            if (!token.equals(fn.getValue())) {
+                continue;
+            }
             if (isResolved) {
-                logger.debug("current focusNode:" + fn.toJSON());
                 if (!fn.getType().equals(resolve.type) || (Constant.FNDType.COLUMN.equals(fn.getType()) && fn.getColumn().getColumnId() != resolve.columnId)) {
                     remove.add(fp);
                 }

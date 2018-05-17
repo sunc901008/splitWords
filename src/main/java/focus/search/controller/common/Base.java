@@ -170,19 +170,38 @@ public class Base {
         boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(category);
 
         if (Common.isEmpty(search)) {
-            // TODO: 2018/5/4 return suggestions
-            errorResponse(session, search, user);
+            // TODO: 2018/5/16 modify suggestions
+            SuggestionResponse response = new SuggestionResponse(search);
+            SuggestionDatas datas = new SuggestionDatas();
+            datas.beginPos = 0;
+            datas.phraseBeginPos = datas.beginPos;
+
+            JSONArray historyQuestions = user.getJSONArray("historyQuestions");
+            for (Object history : historyQuestions) {
+                SuggestionSuggestion suggestions = new SuggestionSuggestion();
+                suggestions.suggestion = history.toString();
+                suggestions.suggestionType = "history";
+                suggestions.description = "history";
+                datas.suggestions.add(suggestions);
+            }
+
+            List<Column> columns = SuggestionBuild.colRandomSuggestions(user);
+            for (Column column : columns) {
+                SuggestionSuggestion suggestions = new SuggestionSuggestion();
+                suggestions.suggestion = column.getColumnDisplayName();
+                suggestions.suggestionType = Constant.FNDType.COLUMN;
+                suggestions.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                datas.suggestions.add(suggestions);
+            }
+            response.setDatas(datas);
+            session.sendMessage(new TextMessage(response.response()));
+            logger.info("提示:\n\t" + response.response() + "\n");
             return;
         }
 
         // 分词
         List<FocusToken> tokens = fp.focusAnalyzer.test(search, language);
         logger.info("split words:" + JSON.toJSONString(tokens));
-
-        if (tokens.size() == 0) {
-            errorResponse(session, search, user);
-            return;
-        }
 
         JSONObject amb = user.getJSONObject("ambiguities");
         if (ambiguities != null) {
@@ -250,6 +269,7 @@ public class Base {
                     List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
                     focusNodes.forEach(node -> datas.suggestions.addAll(SuggestionBuild.buildSug(fp, user, node)));
                     response.setDatas(datas);
+
                     // search suggestions
                     session.sendMessage(new TextMessage(response.response()));
 
@@ -272,15 +292,12 @@ public class Base {
 
                     StateResponse response = new StateResponse(search);
                     // 生成指令
-                    response.setDatas("prepareQuery");
-                    session.sendMessage(new TextMessage(response.response()));
                     JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user));
 
                     json.put("source", "searchUser"); // 区分是search框还是pinboard
                     json.put("sourceToken", user.getString("sourceToken"));
 
                     logger.info("指令:\n\t" + json + "\n");
-
                     // Annotations
                     AnnotationResponse annotationResponse = new AnnotationResponse(search);
                     annotationResponse.datas.addAll(getAnnotationDatas(json.getJSONArray("instructions")));
@@ -291,9 +308,12 @@ public class Base {
                     // search finish
                     session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
 
-                    if (Constant.Event.FOCUS_IN.equalsIgnoreCase(event)) {
+                    if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event)) {
                         return;
                     }
+                    // prepareQuery
+                    response.setDatas("prepareQuery");
+                    session.sendMessage(new TextMessage(response.response()));
 
                     // 指令检测
                     response.setDatas("precheck");
@@ -312,7 +332,9 @@ public class Base {
                     session.sendMessage(new TextMessage(response.response()));
 
                     JSONObject res = Clients.Bi.query(json.toJSONString());
+                    logger.debug("executeQuery result:" + res);
                     String taskId = res.getString("taskId");
+                    session.getAttributes().put("taskId", taskId);
                     QuartzManager.addJob(taskId, session);
 
                     // 添加到历史记录中,并且放弃上一次搜索
@@ -373,25 +395,6 @@ public class Base {
             session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
 
         }
-    }
-
-    private static void errorResponse(WebSocketSession session, String search, JSONObject user) throws IOException {
-        SuggestionResponse response = new SuggestionResponse(search);
-        SuggestionDatas datas = new SuggestionDatas();
-        datas.beginPos = 0;
-        datas.phraseBeginPos = datas.beginPos;
-
-        List<Column> columns = SuggestionBuild.colRandomSuggestions(user);
-        for (Column column : columns) {
-            SuggestionSuggestion suggestions = new SuggestionSuggestion();
-            suggestions.suggestion = column.getColumnDisplayName();
-            suggestions.suggestionType = Constant.FNDType.COLUMN;
-            suggestions.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
-            datas.suggestions.add(suggestions);
-        }
-        response.setDatas(datas);
-        session.sendMessage(new TextMessage(response.response()));
-        logger.info("提示:\n\t" + response.response() + "\n");
     }
 
     /**

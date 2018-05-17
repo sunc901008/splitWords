@@ -15,10 +15,8 @@ import focus.search.metaReceived.SourceReceived;
 import focus.search.response.search.SuggestionSuggestion;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * creator: sunc
@@ -27,6 +25,8 @@ import java.util.Set;
  */
 public class SuggestionBuild {
     private static final Logger logger = Logger.getLogger(SuggestionBuild.class);
+    private static final List<String> randomString = Arrays.asList("hello", "world", "focus", "example");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // suggestions| 出错
     public static List<FocusNode> sug(int position, FocusInst focusInst) {
@@ -119,11 +119,28 @@ public class SuggestionBuild {
 
     // 随机获取几个列信息
     public static List<Column> colRandomSuggestions(JSONObject user) {
-        return colRandomSuggestions(user, null);
+        return colRandomSuggestions(user, "");
     }
 
     // 随机获取几个指定类型的列信息
     public static List<Column> colRandomSuggestions(JSONObject user, String type) {
+        List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
+        List<Column> columns = new ArrayList<>();
+        for (SourceReceived source : srs) {
+            for (ColumnReceived col : source.columns) {
+                if (Common.isEmpty(type) || col.dataType.equals(type)) {
+                    Column column = col.transfer();
+                    column.setSourceName(source.sourceName);
+                    column.setTableId(source.tableId);
+                    columns.add(column);
+                }
+            }
+        }
+        return columns;
+    }
+
+    // 随机获取几个指定类型的列信息
+    public static List<Column> colRandomSuggestions(JSONObject user, List<String> types) {
         List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
         List<Column> columns = new ArrayList<>();
         int count = 10;
@@ -132,7 +149,7 @@ public class SuggestionBuild {
                 break;
             }
             for (ColumnReceived col : source.columns) {
-                if (type == null || col.dataType.equals(type)) {
+                if (types.contains(col.dataType)) {
                     Column column = col.transfer();
                     column.setSourceName(source.sourceName);
                     column.setTableId(source.tableId);
@@ -157,6 +174,28 @@ public class SuggestionBuild {
 
     public static String decimalSug() {
         return decimalSug(true);
+    }
+
+    public static int decimalSug(int max) {
+        Double d = Math.random() * max;
+        return d.intValue();
+    }
+
+    /**
+     * @return 随机的一个字符串单词, 带双引号
+     * @see #randomString {@link #randomString}
+     */
+    public static String stringSug() {
+        return String.format("\"%s\"", randomString.get(decimalSug(randomString.size())));
+    }
+
+    /**
+     * @return 随机的一个时间字符串, 带双引号
+     * @see #sdf {@link #sdf}
+     */
+    public static String dateSug() {
+        Date date = Calendar.getInstance().getTime();
+        return String.format("\"%s\"", sdf.format(date));
     }
 
     /**
