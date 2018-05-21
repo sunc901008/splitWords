@@ -22,7 +22,7 @@ import java.util.List;
  * description:
  */
 //<month-function> := month ( <date-columns> ) |
-//        month ( <column-value> );
+//        month ( <column-realValue> );
 public class MonthFuncInstruction {
     private static final String example = "month ( %s )";
 

@@ -1,7 +1,10 @@
 package focus.search.analyzer.core;
 
-import java.util.Stack;
-import java.util.TreeSet;
+import focus.search.base.Constant;
+import focus.search.meta.AmbiguitiesRecord;
+import focus.search.response.exception.AmbiguitiesException;
+
+import java.util.*;
 
 class IKArbitrator {
 
@@ -11,7 +14,7 @@ class IKArbitrator {
     /**
      * 分词歧义处理
      */
-    void process(AnalyzeContext context) {
+    void process(AnalyzeContext context) throws AmbiguitiesException {
         QuickSortSet orgLexemes = context.getOrgLexemes();
         Lexeme orgLexeme = orgLexemes.pollFirst();
 
@@ -26,7 +29,7 @@ class IKArbitrator {
                 } else {
                     // 对当前的crossPath进行歧义处理
                     QuickSortSet.Cell headCell = crossPath.getHead();
-                    LexemePath judgeResult = this.judge(headCell, crossPath.getPathLength());
+                    LexemePath judgeResult = this.judge(headCell, crossPath, context);
                     // 输出歧义处理结果judgeResult
                     context.addLexemePath(judgeResult);
                 }
@@ -46,7 +49,7 @@ class IKArbitrator {
         } else {
             // 对当前的crossPath进行歧义处理
             QuickSortSet.Cell headCell = crossPath.getHead();
-            LexemePath judgeResult = this.judge(headCell, crossPath.getPathLength());
+            LexemePath judgeResult = this.judge(headCell, crossPath, context);
             // 输出歧义处理结果judgeResult
             context.addLexemePath(judgeResult);
         }
@@ -55,11 +58,11 @@ class IKArbitrator {
     /**
      * 歧义识别
      *
-     * @param lexemeCell     歧义路径链表头
-     * @param fullTextLength 歧义路径文本长度
+     * @param lexemeCell 歧义路径链表头
+     * @param crossPath  歧义路径文本
      * @return
      */
-    private LexemePath judge(QuickSortSet.Cell lexemeCell, int fullTextLength) {
+    private LexemePath judge(QuickSortSet.Cell lexemeCell, LexemePath crossPath, AnalyzeContext context) throws AmbiguitiesException {
         // 候选路径集合
         TreeSet<LexemePath> pathOptions = new TreeSet<>();
         // 候选结果路径
@@ -81,10 +84,40 @@ class IKArbitrator {
             this.forwardPath(c, option);
             pathOptions.add(option.copy());
         }
+        int begin = crossPath.getPathBegin();
+        int end = crossPath.getPathEnd();
 
         // 返回集合中的最优方案
-        return pathOptions.first();
+        // 有多种合法的分词时，提示歧义
+//        return pathOptions.first();
+        return checkAmbiguity(pathOptions, begin, end, context);
+    }
 
+    private LexemePath checkAmbiguity(TreeSet<LexemePath> pathOptions, int begin, int end, AnalyzeContext context) throws AmbiguitiesException {
+        Queue<LexemePath> queue = new LinkedList<>();
+        while (!pathOptions.isEmpty()) {
+            LexemePath lexemePath = pathOptions.pollFirst();
+            if (lexemePath.getPathBegin() == begin && lexemePath.getPathEnd() == end) {
+                queue.add(lexemePath);
+            }
+        }
+        if (queue.size() > 1) {// 有歧义
+            String realValue = String.valueOf(context.getSegmentBuff(), begin, end - begin);
+            List<AmbiguitiesRecord> ars = new ArrayList<>();
+            while (!queue.isEmpty()) {
+                AmbiguitiesRecord ar = new AmbiguitiesRecord(Constant.AmbiguityType.CHINESE, realValue);
+                LexemePath tmp = queue.poll();
+                StringBuilder possibleValue = new StringBuilder();
+                while (tmp.size() > 0) {
+                    Lexeme lexeme = tmp.pollFirst();
+                    possibleValue.append(String.valueOf(context.getSegmentBuff(), lexeme.getBegin(), lexeme.getLength())).append(" ");
+                }
+                ar.possibleValue = possibleValue.toString().trim();
+                ars.add(ar);
+            }
+            throw new AmbiguitiesException(ars, begin, end);
+        }
+        return queue.poll();
     }
 
     /**

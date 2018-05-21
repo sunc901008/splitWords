@@ -66,17 +66,16 @@ public class Base {
             JSONArray disambiguations = JSONArray.parseArray(contextStr);
 
             for (Object obj : disambiguations) {
-                JSONObject col = JSONObject.parseObject(obj.toString());
-                String columnName = col.getString("columnName");
-                int columnId = col.getInteger("columnId");
+                AmbiguitiesRecord record = JSON.parseObject(obj.toString(), AmbiguitiesRecord.class);
                 AmbiguitiesResolve ar = new AmbiguitiesResolve();
-                ar.value = columnName;
+                ar.value = record.realValue;
                 ar.isResolved = true;
 
-                List<Column> columns = CommonFunc.getColumns(columnName, srs);
+                List<Column> columns = CommonFunc.getColumns(record.realValue, srs);
                 ar.ars.addAll(getRecords(columns));
+                ar.addRecord(record);
                 for (AmbiguitiesRecord a : ar.ars) {
-                    if (a.columnId == columnId) {
+                    if (a.equals(record)) {
                         ar.ars.remove(a);
                         ar.ars.add(0, a);
                         break;
@@ -133,7 +132,9 @@ public class Base {
             ambiguitiesRecord.sourceName = column.getSourceName();
             ambiguitiesRecord.columnName = column.getColumnDisplayName();
             ambiguitiesRecord.columnId = column.getColumnId();
-            ambiguitiesRecord.type = Constant.FNDType.COLUMN;
+            ambiguitiesRecord.type = Constant.AmbiguityType.COLUMN;
+            ambiguitiesRecord.realValue = ambiguitiesRecord.columnName;
+            ambiguitiesRecord.possibleValue = ambiguitiesRecord.columnName;
             records.add(ambiguitiesRecord);
         }
         return records;
@@ -198,12 +199,33 @@ public class Base {
             logger.info("提示:\n\t" + response.response() + "\n");
             return;
         }
+        JSONObject amb = user.getJSONObject("ambiguities");
 
-        // 分词
-        List<FocusToken> tokens = fp.focusAnalyzer.test(search, language);
+        // 分词  中文分词会出现歧义
+        List<FocusToken> tokens;
+        try {
+            tokens = fp.focusAnalyzer.test(search, language);
+        } catch (AmbiguitiesException e) {
+            AmbiguityResponse response = new AmbiguityResponse(search);
+            String ambiguityWord = search.substring(e.begin, e.end);
+            String id = AmbiguitiesResolve.mergeAmbiguities(e.ars, ambiguityWord, amb);
+            user.put("ambiguities", amb);
+
+            AmbiguityDatas datas = new AmbiguityDatas();
+            datas.begin = e.begin;
+            datas.end = e.end;
+            datas.id = id;
+            datas.title = "ambiguity word: " + ambiguityWord;
+            e.ars.forEach(a -> datas.possibleMenus.add(a.possibleValue));
+            response.setDatas(datas);
+            session.sendMessage(new TextMessage(response.response()));
+            logger.info(response.response());
+
+            session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
+            return;
+        }
         logger.info("split words:" + JSON.toJSONString(tokens));
 
-        JSONObject amb = user.getJSONObject("ambiguities");
         if (ambiguities != null) {
             @SuppressWarnings("unchecked")
             List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
@@ -239,10 +261,12 @@ public class Base {
                                 ambiguitiesResolve = new AmbiguitiesResolve();
 
                                 AmbiguitiesRecord ar = new AmbiguitiesRecord();
-                                ar.type = Constant.FNDType.COLUMN;
+                                ar.type = Constant.AmbiguityType.COLUMN;
                                 ar.sourceName = col.getSourceName();
                                 ar.columnId = col.getColumnId();
                                 ar.columnName = col.getColumnDisplayName();
+                                ar.realValue = ar.columnName;
+                                ar.possibleValue = ar.columnName;
 
                                 ambiguitiesResolve.ars.add(0, ar);
                                 ambiguitiesResolve.isResolved = true;
@@ -383,8 +407,8 @@ public class Base {
             user.put("ambiguities", amb);
 
             AmbiguityDatas datas = new AmbiguityDatas();
-            datas.begin = ft.getStart();
-            datas.end = ft.getEnd();
+            datas.begin = e.begin;
+            datas.end = e.end;
             datas.id = id;
             datas.title = "ambiguity word: " + ft.getWord();
             e.ars.forEach(a -> datas.possibleMenus.add(a.columnName + " in table " + a.sourceName));

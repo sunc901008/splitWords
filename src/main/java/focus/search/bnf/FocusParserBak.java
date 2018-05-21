@@ -172,7 +172,7 @@ public class FocusParserBak {
         }
 
         // 歧义检测
-        ambiguitiesCheck(focusPhrases, 0, amb);
+        ambiguitiesCheck(focusToken, focusPhrases, 0, amb);
 
         for (int i = 1; i < tokens.size(); i++) {
             FocusToken ft = tokens.get(i);
@@ -309,7 +309,7 @@ public class FocusParserBak {
 //                }
             }
             // 歧义检测
-            ambiguitiesCheck(focusPhrases, i, amb);
+            ambiguitiesCheck(ft, focusPhrases, i, amb);
 
             // 去除重复
             distinct(focusPhrases);
@@ -338,7 +338,7 @@ public class FocusParserBak {
      * date: 2018/3/1
      * description: 检测歧义
      */
-    private void ambiguitiesCheck(List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
+    private void ambiguitiesCheck(FocusToken focusToken, List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
         List<AmbiguitiesRecord> ars = new ArrayList<>();
 //        List<Integer> added = new ArrayList<>();
 //        boolean hasSourceName = false;
@@ -379,7 +379,7 @@ public class FocusParserBak {
         for (FocusPhrase fp : focusPhrases) {
             FocusNode fn = fp.getNodeNew(index);
             if (isResolved) {
-                if (!fn.getType().equals(resolve.type) || (Constant.FNDType.COLUMN.equals(fn.getType()) && fn.getColumn().getColumnId() != resolve.columnId)) {
+                if (!fn.getType().equals(resolve.type) || (Constant.AmbiguityType.COLUMN.equals(fn.getType()) && fn.getColumn().getColumnId() != resolve.columnId)) {
                     remove.add(fp);
                 }
             } else if (Constant.FNDType.COLUMN.equals(fn.getType())) {
@@ -387,17 +387,19 @@ public class FocusParserBak {
                 AmbiguitiesRecord ar = new AmbiguitiesRecord();
                 if (!added.contains(column.getColumnId())) {
                     added.add(column.getColumnId());
-                    ar.type = Constant.FNDType.COLUMN;
+                    ar.type = Constant.AmbiguityType.COLUMN;
                     ar.sourceName = column.getSourceName();
                     ar.columnId = column.getColumnId();
                     ar.columnName = column.getColumnDisplayName();
+                    ar.realValue = ar.columnName;
+                    ar.possibleValue = ar.columnName;
                     ars.add(ar);
                 }
             }
         }
         focusPhrases.removeAll(remove);
         if (!isResolved && ars.size() > 1) {
-            throw new AmbiguitiesException(ars, index);
+            throw new AmbiguitiesException(ars, focusToken.getStart(), focusToken.getEnd(), index);
         }
     }
 
@@ -616,7 +618,7 @@ public class FocusParserBak {
             } else {
                 BnfRule newBr = getRule(token);
                 // 过滤公式|列规则|列中值
-//                List<String> filter = Arrays.asList("<function-columns>", "<value>");
+//                List<String> filter = Arrays.asList("<function-columns>", "<realValue>");
                 if (newBr == null && !token.getName().endsWith("-column>")) {
                     throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {

@@ -204,7 +204,7 @@ public class GrowthOfInstruction {
 //    "tokens": ["growth",
 //    "of"],
 //    "type": "growthOfBy",
-//    "value": "growth of",
+//    "realValue": "growth of",
 //    "begin": 0,
 //    "end": 9
 //    },
@@ -212,7 +212,7 @@ public class GrowthOfInstruction {
 //    "tokens": ["standard",
 //    "deviation"],
 //    "type": "numberKeyword",
-//    "value": "standard deviation",
+//    "realValue": "standard deviation",
 //    "begin": 9,
 //    "end": 28
 //    },
@@ -224,14 +224,14 @@ public class GrowthOfInstruction {
 //    "type": "measure",
 //    "detailType": "floatMeasureColumn",
 //    "tokens": ["age"],
-//    "value": "age",
+//    "realValue": "age",
 //    "begin": 28,
 //    "end": 32
 //    },
 //    {
 //    "tokens": ["by"],
 //    "type": "growthOfBy",
-//    "value": "by",
+//    "realValue": "by",
 //    "begin": 32,
 //    "end": 35
 //    },
@@ -243,35 +243,35 @@ public class GrowthOfInstruction {
 //    "type": "attribute",
 //    "detailType": "dateAttributeColumn",
 //    "tokens": ["creationdate"],
-//    "value": "creationdate",
+//    "realValue": "creationdate",
 //    "begin": 35,
 //    "end": 48
 //    },
 //    {
 //    "tokens": ["daily"],
 //    "type": "growthOfByDateInterval",
-//    "value": "daily",
+//    "realValue": "daily",
 //    "begin": 48,
 //    "end": 54
 //    },
 //    {
 //    "tokens": ["year"],
 //    "type": null,
-//    "value": "year",
+//    "realValue": "year",
 //    "begin": 54,
 //    "end": 59
 //    },
 //    {
 //    "tokens": ["over"],
 //    "type": null,
-//    "value": "over",
+//    "realValue": "over",
 //    "begin": 59,
 //    "end": 64
 //    },
 //    {
 //    "tokens": ["year"],
 //    "type": null,
-//    "value": "year",
+//    "realValue": "year",
 //    "begin": 64,
 //    "end": 69
 //    }]

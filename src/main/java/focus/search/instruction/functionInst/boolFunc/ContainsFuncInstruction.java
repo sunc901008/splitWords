@@ -22,9 +22,9 @@ import java.util.List;
  * description:
  */
 //<contains-function> := contains ( <string-columns> , <string-columns> ) |
-//        contains ( <column-value> , <string-columns> ) |
-//        contains ( <string-columns> , <column-value> ) |
-//        contains ( <column-value> , <column-value> );
+//        contains ( <column-realValue> , <string-columns> ) |
+//        contains ( <string-columns> , <column-realValue> ) |
+//        contains ( <column-realValue> , <column-realValue> );
 public class ContainsFuncInstruction {
 
     // 完整指令 contains
@@ -125,13 +125,13 @@ public class ContainsFuncInstruction {
 //    "end": 34,
 //    "tokens": [{
 //    "type": "symbol",
-//    "value": "contains",
+//    "realValue": "contains",
 //    "begin": 0,
 //    "end": 8
 //    },
 //    {
 //    "type": "punctuationMark",
-//    "value": "(",
+//    "realValue": "(",
 //    "begin": 8,
 //    "end": 10
 //    },
@@ -143,26 +143,26 @@ public class ContainsFuncInstruction {
 //    "type": "attribute",
 //    "detailType": "stringAttributeColumn",
 //    "tokens": ["displayname"],
-//    "value": "displayname",
+//    "realValue": "displayname",
 //    "begin": 10,
 //    "end": 22
 //    },
 //    {
 //    "type": "punctuationMark",
-//    "value": ",",
+//    "realValue": ",",
 //    "begin": 22,
 //    "end": 25
 //    },
 //    {
 //    "type": "wholeString",
-//    "value": "a",
+//    "realValue": "a",
 //    "begin": 25,
 //    "end": 32
 //    },
 //    {
 //    "isExpressionEnd": true,
 //    "type": "punctuationMark",
-//    "value": ")",
+//    "realValue": ")",
 //    "begin": 32,
 //    "end": 34
 //    }]

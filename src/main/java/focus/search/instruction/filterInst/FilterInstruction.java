@@ -17,7 +17,7 @@ import java.util.List;
  * description:
  */
 //<filter> := <simple-filter> |
-//        <column-value>;
+//        <column-realValue>;
 public class FilterInstruction {
     private static final Logger logger = Logger.getLogger(FilterInstruction.class);
 
@@ -27,7 +27,7 @@ public class FilterInstruction {
         switch (fn.getValue()) {
             case "<simple-filter>":
                 return SimpleFilterInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "<column-value>":
+            case "<column-realValue>":
                 return ColumnValueInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());

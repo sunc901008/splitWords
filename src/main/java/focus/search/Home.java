@@ -39,7 +39,10 @@ import java.util.List;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException {
-        split("大于你", Constant.Language.CHINESE);
+        split("小于大于是的", Constant.Language.CHINESE);
+
+//        te();
+
 //        boolean expression = false;
 //        search(0, 1, Constant.Language.CHINESE);
 //        split(18, 1);
@@ -64,6 +67,18 @@ public class Home {
 
     }
 
+    private static void te() {
+        String str = "{\"ars\":[{\"realValue\":\"大于是的\",\"columnId\":0,\"type\":\"chinese\",\"possibleValue\":\"大于 是的\"},{\"realValue\":\"大于是的\",\"columnId\":0,\"type\":\"chinese\",\"possibleValue\":\"大于是 的\"}],\"end\":6,\"position\":0,\"begin\":2}";
+
+        print(str);
+
+        AmbiguitiesException ae = JSON.parseObject(str, AmbiguitiesException.class);
+
+        print(ae.toJSON());
+
+
+    }
+
     private static void t() throws IOException, FocusParserException, AmbiguitiesException {
 //        FocusParser parser = new FocusParser();
 //
@@ -76,7 +91,7 @@ public class Home {
 //        String str = json.getJSONArray("suggestions").toJSONString();
         AnnotationToken token = new AnnotationToken();
         token.value = "id";
-        String str = "{\"ars\":[{\"columnId\":2,\"sourceName\":\"badges\",\"type\":\"column\",\"columnName\":\"id\"},{\"columnId\":7,\"sourceName\":\"users\",\"type\":\"column\",\"columnName\":\"id\"}],\"isResolved\":true,\"value\":\"id\"}";
+        String str = "{\"ars\":[{\"columnId\":2,\"sourceName\":\"badges\",\"type\":\"column\",\"columnName\":\"id\"},{\"columnId\":7,\"sourceName\":\"users\",\"type\":\"column\",\"columnName\":\"id\"}],\"isResolved\":true,\"realValue\":\"id\"}";
         AmbiguitiesResolve tmp = JSONArray.parseObject(str, AmbiguitiesResolve.class);
         print("current ambiguities:" + tmp.toJSON());
         if (tmp.ars.size() > 1 && tmp.value.equalsIgnoreCase(token.value.toString())) {
@@ -112,7 +127,7 @@ public class Home {
 
         JSONObject json2 = new JSONObject();
 
-        String in = "{\"args\": [{\"type\": \"number\",\"value\": 1},{\"type\": \"number\",\"value\": 1}],\"name\": \"+\",\"type\": \"function\"}";
+        String in = "{\"args\": [{\"type\": \"number\",\"realValue\": 1},{\"type\": \"number\",\"realValue\": 1}],\"name\": \"+\",\"type\": \"function\"}";
         JSONObject instruction = JSONObject.parseObject(in);
 
         Formula formula = new Formula();
@@ -125,7 +140,7 @@ public class Home {
         json.put("formula", formula.toJSON());
         json.put("type", Constant.FNDType.FORMULA);
         json.put("detailType", Constant.FNDType.FORMULA);
-        json.put("value", "formulaName");
+        json.put("realValue", "formulaName");
         json.put("begin", 3);
         json.put("end", 23);
         JSONArray jsonArray = new JSONArray();
@@ -148,13 +163,13 @@ public class Home {
         print(in);
     }
 
-    private static void split(String search) throws IOException {
+    private static void split(String search) throws IOException, AmbiguitiesException {
         FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
         List<FocusToken> tokens = focusAnalyzer.test(search, "chinese");
         print(JSONArray.toJSONString(tokens));
     }
 
-    private static void split(int start, int length) throws IOException {
+    private static void split(int start, int length) throws IOException, AmbiguitiesException {
         ResourceLoader resolver = new DefaultResourceLoader();
         BufferedReader br = new BufferedReader(new FileReader(resolver.getResource("test/questions").getFile()));
         String search;
@@ -183,11 +198,11 @@ public class Home {
 
     // params:  start 需要执行的questions文件中的起始行号，为0时执行所有, length 执行的行数
     private static void search(int start, int length) throws IOException, InvalidRuleException, FocusInstructionException,
-            FocusParserException {
+            FocusParserException, AmbiguitiesException {
         search(start, length, Constant.Language.ENGLISH);
     }
 
-    private static void search(int start, int length, String language) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException {
+    private static void search(int start, int length, String language) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException {
         String file;
         if (Constant.Language.ENGLISH.equals(language)) {
             file = "test/questions";
@@ -224,7 +239,7 @@ public class Home {
         br.close();
     }
 
-    private static void formula(String search) throws IOException, FocusParserException, FocusInstructionException {
+    private static void formula(String search) throws IOException, FocusParserException, FocusInstructionException, AmbiguitiesException {
         FocusInst fi = search(search);
         if (fi != null && fi.size() == 1) {
             FocusPhrase fp = fi.lastFocusPhrase();
@@ -314,14 +329,25 @@ public class Home {
 
     private static void split(String search, String language) throws IOException {
         FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
-        focusAnalyzer.testInit(new FocusKWDict("于是", Constant.FNDType.KEYWORD));
-        List<FocusToken> tokens = focusAnalyzer.test(search, language);
+        List<FocusKWDict> fks = new ArrayList<>();
+        fks.add(new FocusKWDict("大于是的", Constant.FNDType.KEYWORD));
+        fks.add(new FocusKWDict("大于是", Constant.FNDType.KEYWORD));
+        fks.add(new FocusKWDict("的", Constant.FNDType.KEYWORD));
+        fks.add(new FocusKWDict("是的", Constant.FNDType.KEYWORD));
+//        fks.add(new FocusKWDict("的确", Constant.FNDType.KEYWORD));
+        focusAnalyzer.testInit(fks);
+        try {
+            List<FocusToken> tokens = focusAnalyzer.test(search, language);
+            print(JSON.toJSONString(tokens));
+        } catch (AmbiguitiesException e) {
+            print("*********");
+            print(e.toString());
+        }
 
-        print(JSON.toJSONString(tokens));
     }
 
     private static FocusPhrase make() {
-        String str = "{\"focusPhrases\":[{\"focusNodes\":[{\"isTerminal\":true,\"end\":6,\"type\":\"keyword\",\"value\":\"strlen\",\"begin\":0},{\"isTerminal\":true,\"end\":7,\"type\":\"keyword\",\"value\":\"(\",\"begin\":6},{\"isTerminal\":true,\"end\":8,\"type\":\"keyword\",\"value\":\"\\\"\",\"begin\":7},{\"isTerminal\":true,\"end\":13,\"type\":\"columnValue\",\"value\":\"focus\",\"begin\":8},{\"isTerminal\":true,\"end\":14,\"type\":\"keyword\",\"value\":\"\\\"\",\"begin\":13},{\"isTerminal\":true,\"end\":15,\"type\":\"keyword\",\"value\":\")\",\"begin\":14},{\"isTerminal\":true,\"end\":17,\"type\":\"symbol\",\"value\":\">\",\"begin\":16},{\"isTerminal\":true,\"end\":19,\"type\":\"integer\",\"value\":\"5\",\"begin\":18}],\"instName\":\"<filter>\",\"type\":\"instruction\"}],\"position\":-1}";
+        String str = "{\"focusPhrases\":[{\"focusNodes\":[{\"isTerminal\":true,\"end\":6,\"type\":\"keyword\",\"realValue\":\"strlen\",\"begin\":0},{\"isTerminal\":true,\"end\":7,\"type\":\"keyword\",\"realValue\":\"(\",\"begin\":6},{\"isTerminal\":true,\"end\":8,\"type\":\"keyword\",\"realValue\":\"\\\"\",\"begin\":7},{\"isTerminal\":true,\"end\":13,\"type\":\"columnValue\",\"realValue\":\"focus\",\"begin\":8},{\"isTerminal\":true,\"end\":14,\"type\":\"keyword\",\"realValue\":\"\\\"\",\"begin\":13},{\"isTerminal\":true,\"end\":15,\"type\":\"keyword\",\"realValue\":\")\",\"begin\":14},{\"isTerminal\":true,\"end\":17,\"type\":\"symbol\",\"realValue\":\">\",\"begin\":16},{\"isTerminal\":true,\"end\":19,\"type\":\"integer\",\"realValue\":\"5\",\"begin\":18}],\"instName\":\"<filter>\",\"type\":\"instruction\"}],\"position\":-1}";
         FocusInst focusInst = JSONObject.parseObject(str, FocusInst.class);
         return focusInst.getFocusPhrases().get(0);
     }
@@ -352,11 +378,11 @@ public class Home {
         return json;
     }
 
-    private static FocusInst search(String search) throws IOException, FocusParserException {
+    private static FocusInst search(String search) throws IOException, FocusParserException, AmbiguitiesException {
         return search(search, Constant.Language.ENGLISH);
     }
 
-    private static FocusInst search(String search, String language) throws IOException, FocusParserException {
+    private static FocusInst search(String search, String language) throws IOException, FocusParserException, AmbiguitiesException {
         String test = "bnf-file/test.bnf";
         FocusParser parser = new FocusParser(language);
 //        FocusParser parser = new FocusParser(test);
@@ -392,11 +418,11 @@ public class Home {
         return null;
     }
 
-    private static void test(String search) throws IOException, FocusInstructionException, FocusParserException {
+    private static void test(String search) throws IOException, FocusInstructionException, FocusParserException, AmbiguitiesException {
         test(search, Constant.Language.ENGLISH);
     }
 
-    private static void test(String search, String language) throws IOException, FocusInstructionException, FocusParserException {
+    private static void test(String search, String language) throws IOException, FocusInstructionException, FocusParserException, AmbiguitiesException {
 
         FocusInst focusInst = search(search, language);
 

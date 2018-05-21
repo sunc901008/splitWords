@@ -27,7 +27,7 @@ public class AnnotationFormulaToken {
         json.put("formula", this.formula);
         json.put("type", this.type);
         json.put("detailType", this.detailType);
-        json.put("value", this.value);
+        json.put("realValue", this.value);
         json.put("begin", this.begin);
         json.put("end", this.end);
         JSONArray jsonArray = new JSONArray();

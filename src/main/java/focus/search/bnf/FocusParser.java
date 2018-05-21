@@ -192,7 +192,7 @@ public class FocusParser implements Serializable {
         logger.info("Adaptation parse bnf size:" + focusPhrases.size());
 
         // 歧义检测
-        ambiguitiesCheck(focusToken.getWord(), focusPhrases, 0, amb);
+        ambiguitiesCheck(focusToken, focusPhrases, 0, amb);
 
         for (int i = 1; i < tokens.size(); i++) {
             FocusToken ft = tokens.get(i);
@@ -293,7 +293,7 @@ public class FocusParser implements Serializable {
 //                }
             }
             // 歧义检测
-            ambiguitiesCheck(ft.getWord(), focusPhrases, i, amb);
+            ambiguitiesCheck(ft, focusPhrases, i, amb);
 
             // 去除重复
             distinct(focusPhrases);
@@ -322,7 +322,7 @@ public class FocusParser implements Serializable {
      * date: 2018/3/1
      * description: 检测歧义
      */
-    private void ambiguitiesCheck(String token, List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
+    private void ambiguitiesCheck(FocusToken token, List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
         List<AmbiguitiesRecord> ars = new ArrayList<>();
 
         String value = focusPhrases.get(0).getNodeNew(index).getValue();
@@ -336,16 +336,17 @@ public class FocusParser implements Serializable {
             }
         }
 
-        logger.debug("check ambiguities. index:" + index + ". value:" + token + ". Ambiguities:" + amb + ". resolve:" + JSONObject.toJSONString(resolve));
+        logger.debug("check ambiguities. index:" + index + ". realValue:" + token.getWord() + ". Ambiguities:" + amb + ". resolve:" + JSONObject.toJSONString
+                (resolve));
         List<Integer> added = new ArrayList<>();
         List<FocusPhrase> remove = new ArrayList<>();
         for (FocusPhrase fp : focusPhrases) {
             FocusNode fn = fp.getNodeNew(index);
-            if (!token.equals(fn.getValue())) {
+            if (!token.getWord().equals(fn.getValue())) {
                 continue;
             }
             if (isResolved) {
-                if (!fn.getType().equals(resolve.type) || (Constant.FNDType.COLUMN.equals(fn.getType()) && fn.getColumn().getColumnId() != resolve.columnId)) {
+                if (!fn.getType().equals(resolve.type) || (Constant.AmbiguityType.COLUMN.equals(fn.getType()) && fn.getColumn().getColumnId() != resolve.columnId)) {
                     remove.add(fp);
                 }
             } else if (Constant.FNDType.COLUMN.equals(fn.getType())) {
@@ -353,17 +354,19 @@ public class FocusParser implements Serializable {
                 AmbiguitiesRecord ar = new AmbiguitiesRecord();
                 if (!added.contains(column.getColumnId())) {
                     added.add(column.getColumnId());
-                    ar.type = Constant.FNDType.COLUMN;
+                    ar.type = Constant.AmbiguityType.COLUMN;
                     ar.sourceName = column.getSourceName();
                     ar.columnId = column.getColumnId();
                     ar.columnName = column.getColumnDisplayName();
+                    ar.realValue = ar.columnName;
+                    ar.possibleValue = ar.columnName;
                     ars.add(ar);
                 }
             }
         }
         focusPhrases.removeAll(remove);
         if (!isResolved && ars.size() > 1) {
-            throw new AmbiguitiesException(ars, index);
+            throw new AmbiguitiesException(ars, token.getStart(), token.getEnd(), index);
         }
     }
 
@@ -588,7 +591,7 @@ public class FocusParser implements Serializable {
             } else {
                 BnfRule newBr = getRule(token);
                 // 过滤公式|列规则|列中值
-//                List<String> filter = Arrays.asList("<function-columns>", "<value>");
+//                List<String> filter = Arrays.asList("<function-columns>", "<realValue>");
                 if (newBr == null && !token.getName().endsWith("-column>")) {
                     throw new FocusParserException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {

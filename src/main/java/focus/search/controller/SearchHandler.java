@@ -317,11 +317,8 @@ class SearchHandler {
             for (Object obj : amb.values()) {
                 AmbiguitiesResolve tmp = (AmbiguitiesResolve) obj;
                 if (tmp.isResolved) {
-                    JSONObject disambiguation = new JSONObject();
                     AmbiguitiesRecord ar = tmp.ars.get(0);
-                    disambiguation.put("columnName", ar.columnName);
-                    disambiguation.put("columnId", ar.columnId);
-                    disambiguations.add(disambiguation);
+                    disambiguations.add(ar.toJSON());
                 }
             }
         context.put("disambiguations", disambiguations.isEmpty() ? null : disambiguations);
@@ -360,7 +357,13 @@ class SearchHandler {
             json.put("formulaObj", null);
             json.put("message", null);
             Formula formula = new Formula();
-            List<FocusToken> tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
+            List<FocusToken> tokens = null;
+            try {
+                // TODO: 2018/5/21 ambiguity
+                tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
+            } catch (AmbiguitiesException e) {
+                e.printStackTrace();
+            }
             try {
                 FocusInst focusInst = fp.parseFormula(tokens, amb);
                 FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
@@ -421,7 +424,13 @@ class SearchHandler {
                     json.put("formulaObj", null);
                     json.put("message", null);
 
-                    List<FocusToken> tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
+                    List<FocusToken> tokens = null;
+                    try {
+                        // TODO: 2018/5/21 ambiguity
+                        tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
+                    } catch (AmbiguitiesException e) {
+                        e.printStackTrace();
+                    }
                     try {
                         FocusInst focusInst = fp.parseFormula(tokens, amb);
                         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());

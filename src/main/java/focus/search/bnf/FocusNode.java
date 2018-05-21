@@ -104,7 +104,7 @@ public class FocusNode {
 
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
-        json.put("value", value);
+        json.put("realValue", value);
         json.put("isTerminal", isTerminal);
         json.put("type", type);
         if (column != null) {

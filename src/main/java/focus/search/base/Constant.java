@@ -200,4 +200,9 @@ public class Constant {
         public static final String COUNT_DISTINCT = "COUNT_DISTINCT";
     }
 
+    public static final class AmbiguityType{
+        public static final String COLUMN = "column";
+        public static final String CHINESE = "chinese";
+    }
+
 }

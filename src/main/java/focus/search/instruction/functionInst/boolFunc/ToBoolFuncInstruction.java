@@ -110,26 +110,26 @@ public class ToBoolFuncInstruction {
 //    "end": 11,
 //    "tokens": [{
 //    "type": "symbol",
-//    "value": "to_bool",
+//    "realValue": "to_bool",
 //    "begin": 0,
 //    "end": 7
 //    },
 //    {
 //    "type": "punctuationMark",
-//    "value": "(",
+//    "realValue": "(",
 //    "begin": 7,
 //    "end": 9
 //    },
 //    {
 //    "type": "integer",
-//    "value": 3,
+//    "realValue": 3,
 //    "begin": 9,
 //    "end": 10
 //    },
 //    {
 //    "isExpressionEnd": true,
 //    "type": "punctuationMark",
-//    "value": ")",
+//    "realValue": ")",
 //    "begin": 10,
 //    "end": 11
 //    }]

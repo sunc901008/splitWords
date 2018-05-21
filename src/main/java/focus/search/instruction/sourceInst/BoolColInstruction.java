@@ -40,7 +40,7 @@ public class BoolColInstruction {
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             Column column = (Column) json.get("column");
             expression.put("type", Constant.InstType.COLUMN);
-            expression.put("value", column.getColumnId());
+            expression.put("realValue", column.getColumnId());
             int begin = focusPhrase.getFirstNode().getBegin();
             int end = focusPhrase.getLastNode().getEnd();
             datas.addToken(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end, amb));

@@ -51,7 +51,7 @@ public class SortByInstruction {
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             arg.put("type", "column");
             Column column = (Column) json.get("column");
-            arg.put("value", column.getColumnId());
+            arg.put("realValue", column.getColumnId());
             int begin = param.getChildren().getFirstNode().getBegin();
             int end = param.getChildren().getLastNode().getEnd();
             datas.addToken(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end, amb));
@@ -97,7 +97,7 @@ public class SortByInstruction {
 //    "tokens": ["sort",
 //    "by"],
 //    "type": "sortByOrder",
-//    "value": "sort by",
+//    "realValue": "sort by",
 //    "begin": 0,
 //    "end": 7
 //    },
@@ -109,7 +109,7 @@ public class SortByInstruction {
 //    "type": "measure",
 //    "detailType": "floatMeasureColumn",
 //    "tokens": ["views"],
-//    "value": "views",
+//    "realValue": "views",
 //    "begin": 7,
 //    "end": 13
 //    }]

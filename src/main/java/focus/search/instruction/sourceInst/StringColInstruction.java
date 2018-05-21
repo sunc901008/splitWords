@@ -46,7 +46,7 @@ public class StringColInstruction {
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             expression.put("type", "column");
             Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
+            expression.put("realValue", column.getColumnId());
             aggregation = column.getAggregation();
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
@@ -80,7 +80,7 @@ public class StringColInstruction {
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             expression.put("type", "column");
             Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
+            expression.put("realValue", column.getColumnId());
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
         }

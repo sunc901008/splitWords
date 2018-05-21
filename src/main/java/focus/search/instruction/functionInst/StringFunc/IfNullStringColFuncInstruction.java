@@ -19,7 +19,7 @@ import java.util.List;
  * date: 2018/4/19
  * description:
  */
-//<ifnull-string-function> := ifnull ( <column-value> , <column-value> ) |
+//<ifnull-string-function> := ifnull ( <column-realValue> , <column-realValue> ) |
 //        ifnull ( <string-columns> , <string-columns> );
 public class IfNullStringColFuncInstruction {
 

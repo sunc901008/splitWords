@@ -30,7 +30,7 @@ public class ColumnValueInstruction {
         // todo 多个columnValue
         for (int i = 1; i < fp.size(); i = i + 4) {
             arg.put("type", Constant.InstType.STRING);
-            arg.put("value", fp.getNodeNew(i).getValue());
+            arg.put("realValue", fp.getNodeNew(i).getValue());
         }
         return arg;
     }

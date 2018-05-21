@@ -20,7 +20,7 @@ import java.util.List;
 //        <number> <bool-symbol> <number-columns> |
 //        <number-columns> <bool-symbol> <number-columns> |
 //        <number> <bool-symbol> <number> |
-//        <all-string-column> = <column-value> |
+//        <all-string-column> = <column-realValue> |
 //        <bool-function-column>;
 public class SimpleFilterInstruction {
     private static final Logger logger = Logger.getLogger(SimpleFilterInstruction.class);

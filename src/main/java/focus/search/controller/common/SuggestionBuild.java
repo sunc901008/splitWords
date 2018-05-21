@@ -226,7 +226,7 @@ public class SuggestionBuild {
             } else if (Constant.FNDType.KEYWORD.equalsIgnoreCase(node.getType())) {
                 suggestion.description = "this is a keyword";
             } else if (Constant.FNDType.COLUMNVALUE.equalsIgnoreCase(node.getType())) {
-                suggestion.description = "this is a column value";
+                suggestion.description = "this is a column realValue";
             }
             suggestions.add(suggestion);
             return suggestions;

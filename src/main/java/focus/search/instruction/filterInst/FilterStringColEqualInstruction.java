@@ -19,7 +19,7 @@ import java.util.List;
  * description:
  */
 
-//<all-string-column> = <column-value>
+//<all-string-column> = <column-realValue>
 public class FilterStringColEqualInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {

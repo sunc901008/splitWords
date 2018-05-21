@@ -1,10 +1,14 @@
 package focus.search.analyzer.focus;
 
+import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
+import focus.search.base.Common;
 import focus.search.meta.Formula;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
+import focus.search.response.exception.AmbiguitiesException;
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -18,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FocusAnalyzer implements Serializable {
+    private static final Logger logger = Logger.getLogger(FocusAnalyzer.class);
 
     private IKAnalyzer analyzer;
 
@@ -32,6 +37,11 @@ public class FocusAnalyzer implements Serializable {
     public void testInit(FocusKWDict fk) {
         init();
         Dictionary.addWord(fk);
+    }
+
+    public void testInit(List<FocusKWDict> fks) {
+        init();
+        Dictionary.addWords(fks);
     }
 
     // 添加表名列名到分词中
@@ -60,8 +70,8 @@ public class FocusAnalyzer implements Serializable {
         Dictionary.addWords(FocusKWDict.allKeywords());
     }
 
-    public List<FocusToken> test(String str, String language) throws IOException {
-
+    public List<FocusToken> test(String str, String language) throws IOException, AmbiguitiesException {
+        logger.info("start split question.question:" + str + " . language:" + language);
         if (analyzer == null) {
             init();
         }
@@ -79,9 +89,23 @@ public class FocusAnalyzer implements Serializable {
         ts.reset();
         // 迭代获取分词结果
         List<FocusToken> tokens = new LinkedList<>();
-        while (ts.incrementToken()) {
-            FocusToken token = new FocusToken(term.toString(), type.type(), offset.startOffset(), offset.endOffset());
-            tokens.add(token);
+        try {
+            while (ts.incrementToken()) {
+                FocusToken token = new FocusToken(term.toString(), type.type(), offset.startOffset(), offset.endOffset());
+                tokens.add(token);
+            }
+        } catch (IOException e) {
+            logger.info("split exception.");
+            logger.info(e.getMessage());
+            try {
+                AmbiguitiesException ae = JSONObject.parseObject(e.getMessage(), AmbiguitiesException.class);
+                assert ae != null;
+                throw ae;
+            } catch (Exception e1) {
+                logger.info(Common.printStacktrace(e1));
+                throw e1;
+            }
+
         }
         // 关闭TokenStream（关闭StringReader）
         ts.close();

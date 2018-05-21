@@ -20,8 +20,8 @@ import java.util.List;
  * date: 2018/4/20
  * description:
  */
-//<if-then-else-string-function> := if <bool-columns> then <column-value> else <column-value> |
-//        if <bool-function-column> then <column-value> else <column-value>|
+//<if-then-else-string-function> := if <bool-columns> then <column-realValue> else <column-realValue> |
+//        if <bool-function-column> then <column-realValue> else <column-realValue>|
 //        if <bool-columns> then <string-columns> else <string-columns> |
 //        if <bool-function-column> then <string-columns> else <string-columns>;
 public class IfThenElseStringColFuncInstruction {

@@ -66,7 +66,7 @@ public class ToStringFuncInstruction {
             JSONObject arg1 = new JSONObject();
             if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
                 arg1.put("type", "column");
-                arg1.put("value", ((Column) json.get("column")).getColumnId());
+                arg1.put("realValue", ((Column) json.get("column")).getColumnId());
             } else if (Constant.InstType.FUNCTION.equals(type)) {
                 arg1 = json.getJSONObject(Constant.InstType.FUNCTION);
             }

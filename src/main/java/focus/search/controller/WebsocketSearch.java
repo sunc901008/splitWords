@@ -139,7 +139,13 @@ public class WebsocketSearch extends TextWebSocketHandler {
             String language = user.getString("language");
 
             // 分词
-            List<FocusToken> tokens = fp.focusAnalyzer.test(question, language);
+            // TODO: 2018/5/21 qiyi
+            List<FocusToken> tokens = null;
+            try {
+                tokens = fp.focusAnalyzer.test(question, language);
+            } catch (AmbiguitiesException e) {
+                e.printStackTrace();
+            }
             JSONObject amb = user.getJSONObject("ambiguities");
 
             try {

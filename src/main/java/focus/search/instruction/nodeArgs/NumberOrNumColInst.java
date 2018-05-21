@@ -26,7 +26,7 @@ public class NumberOrNumColInst {
             String type = json.getString("type");
             if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
                 arg.put("type", Constant.InstType.COLUMN);
-                arg.put("value", ((Column) json.get("column")).getColumnId());
+                arg.put("realValue", ((Column) json.get("column")).getColumnId());
             } else if (Constant.InstType.FUNCTION.equals(type)) {
                 arg = json.getJSONObject(Constant.InstType.FUNCTION);
             }

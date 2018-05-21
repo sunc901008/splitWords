@@ -25,6 +25,7 @@ package focus.search.analyzer.lucene;
 
 import focus.search.analyzer.core.IKSegmenter;
 import focus.search.analyzer.core.Lexeme;
+import focus.search.response.exception.AmbiguitiesException;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -77,23 +78,27 @@ public final class IKTokenizer extends Tokenizer implements Serializable {
     public boolean incrementToken() throws IOException {
         // 清除所有的词元属性
         clearAttributes();
-        Lexeme nextLexeme = _IKImplement.next();
-        if (nextLexeme != null) {
-            // 将Lexeme转成Attributes
-            // 设置词元文本
-            termAtt.append(nextLexeme.getLexemeText());
-            // 设置词元长度
-            termAtt.setLength(nextLexeme.getLength());
-            // 设置词元位移
-            offsetAtt.setOffset(nextLexeme.getBeginPosition(), nextLexeme.getEndPosition());
-            // 记录分词的最后位置
-            endPosition = nextLexeme.getEndPosition();
-            // 记录词元分类
-            String type = nextLexeme.getType();
-            typeAtt.setType(type == null ? nextLexeme.getLexemeTypeString() : type);
+        try {
+            Lexeme nextLexeme = _IKImplement.next();
+            if (nextLexeme != null) {
+                // 将Lexeme转成Attributes
+                // 设置词元文本
+                termAtt.append(nextLexeme.getLexemeText());
+                // 设置词元长度
+                termAtt.setLength(nextLexeme.getLength());
+                // 设置词元位移
+                offsetAtt.setOffset(nextLexeme.getBeginPosition(), nextLexeme.getEndPosition());
+                // 记录分词的最后位置
+                endPosition = nextLexeme.getEndPosition();
+                // 记录词元分类
+                String type = nextLexeme.getType();
+                typeAtt.setType(type == null ? nextLexeme.getLexemeTypeString() : type);
 
-            // 返会true告知还有下个词元
-            return true;
+                // 返会true告知还有下个词元
+                return true;
+            }
+        } catch (AmbiguitiesException e) {
+            throw new IOException(e.toString());
         }
         // 返会false告知词元输出完毕
         return false;

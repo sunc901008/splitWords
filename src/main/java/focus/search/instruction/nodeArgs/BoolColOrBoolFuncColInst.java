@@ -27,7 +27,7 @@ public class BoolColOrBoolFuncColInst {
                 String type = json.getString("type");
                 if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
                     arg.put("type", "column");
-                    arg.put("value", ((Column) json.get("column")).getColumnId());
+                    arg.put("realValue", ((Column) json.get("column")).getColumnId());
                 }
                 return arg;
             case "<no-or-and-bool-function-column>":

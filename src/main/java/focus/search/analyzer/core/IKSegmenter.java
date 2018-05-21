@@ -1,5 +1,8 @@
 package focus.search.analyzer.core;
 
+import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.exception.FocusParserException;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -70,7 +73,7 @@ public final class IKSegmenter {
      *
      * @return Lexeme 词元对象
      */
-    public synchronized Lexeme next() throws IOException {
+    public synchronized Lexeme next() throws IOException, AmbiguitiesException {
         Lexeme l;
         while ((l = context.getNextLexeme()) == null) {
       /*

@@ -32,7 +32,7 @@ public class ColumnInstruction {
         JSONObject json = build(focusPhrase);
         JSONObject expression = new JSONObject();
         expression.put("type", "column");
-        expression.put("value", ((Column) json.get("column")).getColumnId());
+        expression.put("realValue", ((Column) json.get("column")).getColumnId());
         return expression;
     }
 

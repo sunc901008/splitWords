@@ -1,6 +1,5 @@
 package focus.search.meta;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -62,12 +61,21 @@ public class AmbiguitiesResolve {
         return ars2;
     }
 
+    public void addRecord(AmbiguitiesRecord record) {
+        for (AmbiguitiesRecord ar : ars) {
+            if (ar.equals(record)) {
+                return;
+            }
+        }
+        ars.add(record);
+    }
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("isResolved", isResolved);
-        json.put("value", value);
+        json.put("realValue", value);
         JSONArray j = new JSONArray();
-        ars.forEach(ar -> j.add(JSONObject.parseObject(JSON.toJSONString(ar))));
+        ars.forEach(ar -> j.add(ar.toJSON()));
         json.put("ars", j);
         return json;
     }
