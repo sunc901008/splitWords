@@ -3,7 +3,7 @@ package focus.search.bnf.tokens;
 import focus.search.base.Constant;
 
 public class ColumnValueTerminalToken extends TerminalToken {
-    public static final String COLUMNVALUE = "<realValue>";
+    public static final String COLUMNVALUE = "<value>";
 
     /**
      * Creates a new non terminal token

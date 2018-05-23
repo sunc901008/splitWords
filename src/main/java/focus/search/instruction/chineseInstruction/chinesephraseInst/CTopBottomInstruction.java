@@ -1,4 +1,4 @@
-package focus.search.instruction.phraseInst;
+package focus.search.instruction.chineseInstruction.chinesephraseInst;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -24,7 +24,7 @@ import java.util.List;
 //
 //<bottom-n> := bottom <integer> <number-columns> |
 //        bottom <number-columns>;
-public class TopBottomInstruction {
+public class CTopBottomInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();

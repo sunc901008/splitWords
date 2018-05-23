@@ -32,7 +32,7 @@ public class FilterNumOrNumColInstruction {
         logger.info("instruction build. focusPhrase:" + focusPhrase.toJSON());
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode param1 = focusNodes.get(0);
-        FocusNode symbol = focusNodes.get(1);
+        FocusNode symbol = focusNodes.get(1).getChildren().getFirstNode();
         FocusNode param2 = focusNodes.get(2);
 
         JSONArray instructions = new JSONArray();
@@ -48,17 +48,18 @@ public class FilterNumOrNumColInstruction {
         expression.put("type", Constant.InstType.FUNCTION);
         JSONArray args = new JSONArray();
 
-        expression.put("name", symbol.getChildren().getFirstNode().getValue());
+        String symbolValue = Constant.SymbolMapper.symbol.get(symbol.getValue());
+        expression.put("name", symbolValue != null ? symbolValue : symbol.getValue());
 
         args.add(NumberOrNumColInst.arg(param1, formulas));
 
         datas.addTokens(NumberOrNumColInst.tokens(param1, formulas, amb));
 
         AnnotationToken token2 = new AnnotationToken();
-        token2.value = symbol.getChildren().getFirstNode().getValue();
+        token2.value = symbol.getValue();
         token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
-        token2.begin = symbol.getChildren().getFirstNode().getBegin();
-        token2.end = symbol.getChildren().getFirstNode().getEnd();
+        token2.begin = symbol.getBegin();
+        token2.end = symbol.getEnd();
         datas.addToken(token2);
 
         args.add(NumberOrNumColInst.arg(param2, formulas));

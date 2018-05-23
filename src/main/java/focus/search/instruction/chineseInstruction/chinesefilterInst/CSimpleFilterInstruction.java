@@ -1,4 +1,4 @@
-package focus.search.instruction.filterInst;
+package focus.search.instruction.chineseInstruction.chinesefilterInst;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -22,8 +22,8 @@ import java.util.List;
 //        <number> <bool-symbol> <number> |
 //        <all-string-column> = <column-value> |
 //        <bool-function-column>;
-public class SimpleFilterInstruction {
-    private static final Logger logger = Logger.getLogger(SimpleFilterInstruction.class);
+public class CSimpleFilterInstruction {
+    private static final Logger logger = Logger.getLogger(CSimpleFilterInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         logger.info("SimpleFilter instruction build. focusPhrase:" + focusPhrase.toJSON());
@@ -31,11 +31,11 @@ public class SimpleFilterInstruction {
         switch (fn.getValue()) {
             case "<number-columns>":
             case "<number>":
-                return FilterNumOrNumColInstruction.build(focusPhrase, index, amb, formulas);
+                return CFilterNumOrNumColInstruction.build(focusPhrase, index, amb, formulas);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<all-string-column>":
-                return FilterStringColEqualInstruction.build(focusPhrase, index, amb, formulas);
+                return CFilterStringColEqualInstruction.build(focusPhrase, index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

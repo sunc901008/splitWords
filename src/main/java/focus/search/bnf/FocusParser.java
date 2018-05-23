@@ -336,7 +336,8 @@ public class FocusParser implements Serializable {
             }
         }
 
-        logger.debug("check ambiguities. index:" + index + ". realValue:" + token.getWord() + ". Ambiguities:" + amb + ". resolve:" + JSONObject.toJSONString
+        logger.debug("check ambiguities. index:" + index + ". value:" + token.getWord() + ". Ambiguities:" + amb + ". resolve:" + JSONObject
+                .toJSONString
                 (resolve));
         List<Integer> added = new ArrayList<>();
         List<FocusPhrase> remove = new ArrayList<>();
@@ -591,7 +592,7 @@ public class FocusParser implements Serializable {
             } else {
                 BnfRule newBr = getRule(token);
                 // 过滤公式|列规则|列中值
-//                List<String> filter = Arrays.asList("<function-columns>", "<realValue>");
+//                List<String> filter = Arrays.asList("<function-columns>", "<value>");
                 if (newBr == null && !token.getName().endsWith("-column>")) {
                     throw new FocusParserException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {

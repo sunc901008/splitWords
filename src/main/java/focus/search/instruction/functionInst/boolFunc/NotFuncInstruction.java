@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaCase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
@@ -34,9 +35,10 @@ public class NotFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", "add_logical_filter");
 
         json1.put("expression", arg(focusPhrase, formulas));
+        json1.put("name", Base.InstName(focusPhrase));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -55,12 +57,13 @@ public class NotFuncInstruction {
     // 其他指令的一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode param = focusPhrase.getFocusNodes().get(2);
-
-        JSONObject arg = new JSONObject();
-        arg.put("type", Constant.InstType.FUNCTION);
-        arg.put("name", focusPhrase.getNodeNew(0).getValue());
-        arg.put("args", BoolColOrBoolFuncColInst.arg(param, formulas));
-        return arg;
+        JSONObject expression = new JSONObject();
+        JSONArray args = new JSONArray();
+        expression.put("type", Constant.InstType.FUNCTION);
+        expression.put("name", focusPhrase.getNodeNew(0).getValue());
+        args.add(BoolColOrBoolFuncColInst.arg(param, formulas));
+        expression.put("args", args);
+        return expression;
     }
 
     // annotation token

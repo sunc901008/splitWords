@@ -50,7 +50,7 @@ public class NumberColInstruction {
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             expression.put("type", "column");
             Column column = (Column) json.get("column");
-            expression.put("realValue", column.getColumnId());
+            expression.put("value", column.getColumnId());
             json1.put("type", column.getColumnType());
             aggregation = column.getAggregation();
         } else if (Constant.InstType.FUNCTION.equals(type)) {

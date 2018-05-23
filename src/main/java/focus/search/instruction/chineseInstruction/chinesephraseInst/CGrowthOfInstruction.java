@@ -1,4 +1,4 @@
-package focus.search.instruction.phraseInst;
+package focus.search.instruction.chineseInstruction.chinesephraseInst;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -41,7 +41,7 @@ import java.util.List;
 //
 //<year-over-year> := year over year;
 
-public class GrowthOfInstruction {
+public class CGrowthOfInstruction {
 
 //    {
 //        "annotationId": [1],
@@ -65,6 +65,7 @@ public class GrowthOfInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
+        json1.put("instId", "add_column_measure_for_growth");
 
         AnnotationToken token1 = new AnnotationToken();
         token1.addToken("growth");
@@ -78,7 +79,6 @@ public class GrowthOfInstruction {
         FocusNode growthOfMeasure = focusNodes.get(2);// growth of
         FocusPhrase growthOf = growthOfMeasure.getChildren();
         if (growthOf.getFocusNodes().size() == 1) {
-            json1.put("instId", "add_column_for_growth");
             Column column = growthOf.getLastNode().getColumn();
             json1.put("column", column.getColumnId());
 
@@ -86,7 +86,6 @@ public class GrowthOfInstruction {
             int end = growthOf.getLastNode().getEnd();
             datas.addToken(AnnotationToken.singleCol(column, growthOf.size() == 2, begin, end, amb));
         } else {
-            json1.put("instId", "add_column_measure_for_growth");
             FocusPhrase growthOfMeasureOperation = growthOf.getFocusNodes().get(0).getChildren();
             AnnotationToken token2 = new AnnotationToken();
             StringBuilder operation = new StringBuilder();

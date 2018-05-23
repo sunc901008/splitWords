@@ -27,9 +27,7 @@ import org.springframework.core.io.ResourceLoader;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 /**
  * creator: sunc
@@ -39,8 +37,10 @@ import java.util.List;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException {
-        split("小于大于是的", Constant.Language.CHINESE);
+        test("contains(name, \"focus\")", Constant.Language.CHINESE);
 
+//        String symbolValue = Constant.SymbolMapper.symbol.get("大于");
+//        print(symbolValue);
 //        te();
 
 //        boolean expression = false;
@@ -140,7 +140,7 @@ public class Home {
         json.put("formula", formula.toJSON());
         json.put("type", Constant.FNDType.FORMULA);
         json.put("detailType", Constant.FNDType.FORMULA);
-        json.put("realValue", "formulaName");
+        json.put("value", "formulaName");
         json.put("begin", 3);
         json.put("end", 23);
         JSONArray jsonArray = new JSONArray();
@@ -330,10 +330,10 @@ public class Home {
     private static void split(String search, String language) throws IOException {
         FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
         List<FocusKWDict> fks = new ArrayList<>();
-        fks.add(new FocusKWDict("大于是的", Constant.FNDType.KEYWORD));
-        fks.add(new FocusKWDict("大于是", Constant.FNDType.KEYWORD));
-        fks.add(new FocusKWDict("的", Constant.FNDType.KEYWORD));
-        fks.add(new FocusKWDict("是的", Constant.FNDType.KEYWORD));
+//        fks.add(new FocusKWDict("大于是的", Constant.FNDType.KEYWORD));
+//        fks.add(new FocusKWDict("大于是", Constant.FNDType.KEYWORD));
+//        fks.add(new FocusKWDict("的", Constant.FNDType.KEYWORD));
+//        fks.add(new FocusKWDict("是的", Constant.FNDType.KEYWORD));
 //        fks.add(new FocusKWDict("的确", Constant.FNDType.KEYWORD));
         focusAnalyzer.testInit(fks);
         try {
@@ -347,7 +347,13 @@ public class Home {
     }
 
     private static FocusPhrase make() {
-        String str = "{\"focusPhrases\":[{\"focusNodes\":[{\"isTerminal\":true,\"end\":6,\"type\":\"keyword\",\"realValue\":\"strlen\",\"begin\":0},{\"isTerminal\":true,\"end\":7,\"type\":\"keyword\",\"realValue\":\"(\",\"begin\":6},{\"isTerminal\":true,\"end\":8,\"type\":\"keyword\",\"realValue\":\"\\\"\",\"begin\":7},{\"isTerminal\":true,\"end\":13,\"type\":\"columnValue\",\"realValue\":\"focus\",\"begin\":8},{\"isTerminal\":true,\"end\":14,\"type\":\"keyword\",\"realValue\":\"\\\"\",\"begin\":13},{\"isTerminal\":true,\"end\":15,\"type\":\"keyword\",\"realValue\":\")\",\"begin\":14},{\"isTerminal\":true,\"end\":17,\"type\":\"symbol\",\"realValue\":\">\",\"begin\":16},{\"isTerminal\":true,\"end\":19,\"type\":\"integer\",\"realValue\":\"5\",\"begin\":18}],\"instName\":\"<filter>\",\"type\":\"instruction\"}],\"position\":-1}";
+        String str = "{\"focusPhrases\":[{\"focusNodes\":[{\"isTerminal\":true,\"end\":6,\"type\":\"keyword\",\"value\":\"strlen\",\"begin\":0}," +
+                "{\"isTerminal\":true,\"end\":7,\"type\":\"keyword\",\"value\":\"(\",\"begin\":6},{\"isTerminal\":true,\"end\":8," +
+                "\"type\":\"keyword\",\"value\":\"\\\"\",\"begin\":7},{\"isTerminal\":true,\"end\":13,\"type\":\"columnValue\"," +
+                "\"value\":\"focus\",\"begin\":8},{\"isTerminal\":true,\"end\":14,\"type\":\"keyword\",\"value\":\"\\\"\",\"begin\":13}," +
+                "{\"isTerminal\":true,\"end\":15,\"type\":\"keyword\",\"value\":\")\",\"begin\":14},{\"isTerminal\":true,\"end\":17," +
+                "\"type\":\"symbol\",\"value\":\">\",\"begin\":16},{\"isTerminal\":true,\"end\":19,\"type\":\"integer\",\"value\":\"5\"," +
+                "\"begin\":18}],\"instName\":\"<filter>\",\"type\":\"instruction\"}],\"position\":-1}";
         FocusInst focusInst = JSONObject.parseObject(str, FocusInst.class);
         return focusInst.getFocusPhrases().get(0);
     }

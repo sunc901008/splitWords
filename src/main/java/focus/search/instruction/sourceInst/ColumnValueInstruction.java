@@ -6,6 +6,7 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
 import java.util.List;
@@ -18,9 +19,13 @@ import java.util.List;
 public class ColumnValueInstruction {
 
     // todo : curl index to search columnvalue for its column
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
-        FocusNode fn = focusPhrase.getFocusNodes().get(0);
+    public static JSONArray build(FocusPhrase prePhrase, FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
+        FocusNode fn = focusPhrase.getNodeNew(1);
+        String columnValue = fn.getValue();
+        Column column = prePhrase.getLastNode().getColumn();
+        if (column != null) {
 
+        }
         return null;
     }
 
@@ -30,7 +35,7 @@ public class ColumnValueInstruction {
         // todo 多个columnValue
         for (int i = 1; i < fp.size(); i = i + 4) {
             arg.put("type", Constant.InstType.STRING);
-            arg.put("realValue", fp.getNodeNew(i).getValue());
+            arg.put("value", fp.getNodeNew(i).getValue());
         }
         return arg;
     }

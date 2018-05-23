@@ -19,7 +19,7 @@ import java.util.List;
  * description:
  */
 
-//<all-string-column> = <column-realValue>
+//<all-string-column> = <column-value>
 public class FilterStringColEqualInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
@@ -41,14 +41,14 @@ public class FilterStringColEqualInstruction {
         expression.put("type", Constant.InstType.FUNCTION);
         JSONArray args = new JSONArray();
 
-        expression.put("name", symbol.getValue());
+        expression.put("name", "=");
 
         args.add(ColumnInstruction.arg(param1.getChildren()));
 
         datas.addToken(AnnotationToken.singleCol(param1.getChildren(), amb));
 
         AnnotationToken token2 = new AnnotationToken();
-        token2.value = symbol.getValue();
+        token2.value = "=";
         token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
         token2.begin = symbol.getBegin();
         token2.end = symbol.getEnd();

@@ -21,7 +21,7 @@ public class ParseNode {
     private String m_token = null;
 
     /**
-     * The realValue (if any) represented by this parse node
+     * The value (if any) represented by this parse node
      */
     private String m_value = null;
 
@@ -60,9 +60,9 @@ public class ParseNode {
     }
 
     /**
-     * Gets the realValue of this parse node
+     * Gets the value of this parse node
      *
-     * @return The realValue
+     * @return The value
      */
     public String getValue() {
         return m_value;
@@ -78,9 +78,9 @@ public class ParseNode {
     }
 
     /**
-     * Sets the realValue for this parse node
+     * Sets the value for this parse node
      *
-     * @param value The realValue
+     * @param value The value
      */
     public void setValue(final String value) {
         m_value = value;

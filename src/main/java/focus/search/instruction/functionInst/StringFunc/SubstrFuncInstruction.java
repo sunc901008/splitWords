@@ -23,7 +23,7 @@ import java.util.List;
  * description:
  */
 //<substr-function> := substr ( <string-columns> , <integer> , <integer> ) |
-//        substr ( <column-realValue> , <integer> , <integer> );
+//        substr ( <column-value> , <integer> , <integer> );
 public class SubstrFuncInstruction {
     // 完整指令 substr
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
@@ -79,7 +79,7 @@ public class SubstrFuncInstruction {
         token1.begin = focusPhrase.getFocusNodes().get(0).getBegin();
         token1.end = focusPhrase.getFocusNodes().get(0).getEnd();
         tokens.add(token1);
-//        substr ( <column-realValue> , <integer> , <integer> );
+//        substr ( <column-value> , <integer> , <integer> );
         AnnotationToken token2 = new AnnotationToken();
         token2.value = focusPhrase.getFocusNodes().get(1).getValue();
         token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;

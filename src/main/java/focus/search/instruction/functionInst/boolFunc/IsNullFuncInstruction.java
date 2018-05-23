@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaCase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
@@ -35,9 +36,10 @@ public class IsNullFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", "add_logical_filter");
 
         json1.put("expression", arg(focusPhrase, formulas));
+        json1.put("name", Base.InstName(focusPhrase));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -68,7 +70,7 @@ public class IsNullFuncInstruction {
             JSONObject arg1 = new JSONObject();
             if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
                 arg1.put("type", "column");
-                arg1.put("realValue", ((Column) json.get("column")).getColumnId());
+                arg1.put("value", ((Column) json.get("column")).getColumnId());
             } else if (Constant.InstType.FUNCTION.equals(type)) {
                 arg1 = json.getJSONObject(Constant.InstType.FUNCTION);
             }

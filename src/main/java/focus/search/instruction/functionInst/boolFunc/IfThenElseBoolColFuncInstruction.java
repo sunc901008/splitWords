@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
@@ -38,9 +39,10 @@ public class IfThenElseBoolColFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", "add_logical_filter");
 
         json1.put("expression", arg(focusPhrase, formulas));
+        json1.put("name", Base.InstName(focusPhrase));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();

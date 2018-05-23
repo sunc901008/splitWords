@@ -22,7 +22,7 @@ import java.util.List;
  * description:
  */
 //<strlen-function> := strlen ( <string-columns> ) |
-//        strlen ( <column-realValue> );
+//        strlen ( <column-value> );
 public class StrlenFuncInstruction {
     private static final String example = "strlen ( %s )";
 

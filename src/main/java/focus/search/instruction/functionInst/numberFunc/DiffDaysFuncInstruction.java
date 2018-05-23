@@ -21,10 +21,10 @@ import java.util.List;
  * date: 2018/4/20
  * description:
  */
-//<diff_days-function> := diff_days ( <column-realValue> , <date-columns> ) |
+//<diff_days-function> := diff_days ( <column-value> , <date-columns> ) |
 //        diff_days ( <date-columns> , <date-columns> ) |
-//        diff_days ( <date-columns> , <column-realValue> ) |
-//        diff_days ( <column-realValue> , <column-realValue> );
+//        diff_days ( <date-columns> , <column-value> ) |
+//        diff_days ( <column-value> , <column-value> );
 public class DiffDaysFuncInstruction {
 
     // 完整指令 diff_days

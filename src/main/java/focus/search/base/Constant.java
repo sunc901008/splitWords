@@ -5,6 +5,8 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -200,9 +202,28 @@ public class Constant {
         public static final String COUNT_DISTINCT = "COUNT_DISTINCT";
     }
 
-    public static final class AmbiguityType{
+    // ambiguity type
+    public static final class AmbiguityType {
+        // 列名出现歧义
         public static final String COLUMN = "column";
+        // 中文分词出现歧义
         public static final String CHINESE = "chinese";
     }
 
+    // symbol 中英文对应
+    public static final class SymbolMapper {
+        public static final Map<String, String> symbol = new HashMap<>();
+
+        static {
+            symbol.put("大于", ">");
+            symbol.put("小于", "<");
+            symbol.put("不小于", ">=");
+            symbol.put("大于等于", ">=");
+            symbol.put("不大于", "<=");
+            symbol.put("小于等于", "<=");
+            symbol.put("等于", "=");
+            symbol.put("不等于", "!=");
+        }
+
+    }
 }

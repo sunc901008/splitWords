@@ -22,10 +22,10 @@ import java.util.List;
  * description:
  */
 //<month_number-function> := month_number ( <date-columns> ) |
-//        month_number ( <column-realValue> );
+//        month_number ( <column-value> );
 
 //<year-function> := year ( <date-columns> ) |
-//        year ( <column-realValue> );
+//        year ( <column-value> );
 public class MonthNumberYearFuncInstruction {
 
     // 完整指令 month_number / year

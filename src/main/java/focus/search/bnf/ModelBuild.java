@@ -50,6 +50,7 @@ public class ModelBuild {
                 Column column = col.transfer();
                 column.setTableId(source.tableId);
                 column.setSourceName(source.sourceName);
+                column.setPhysicalName(source.physicalName);
 
                 alternative_to_add.add(new TerminalToken(col.columnDisplayName, Constant.FNDType.COLUMN, column));
                 br.addAlternative(alternative_to_add);

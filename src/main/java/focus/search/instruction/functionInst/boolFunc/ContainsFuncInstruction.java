@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaCase;
 import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
@@ -22,9 +23,9 @@ import java.util.List;
  * description:
  */
 //<contains-function> := contains ( <string-columns> , <string-columns> ) |
-//        contains ( <column-realValue> , <string-columns> ) |
-//        contains ( <string-columns> , <column-realValue> ) |
-//        contains ( <column-realValue> , <column-realValue> );
+//        contains ( <column-value> , <string-columns> ) |
+//        contains ( <string-columns> , <column-value> ) |
+//        contains ( <column-value> , <column-value> );
 public class ContainsFuncInstruction {
 
     // 完整指令 contains
@@ -35,9 +36,10 @@ public class ContainsFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", "add_logical_filter");
 
         json1.put("expression", arg(focusPhrase, formulas));
+        json1.put("name", Base.InstName(focusPhrase));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -125,13 +127,13 @@ public class ContainsFuncInstruction {
 //    "end": 34,
 //    "tokens": [{
 //    "type": "symbol",
-//    "realValue": "contains",
+//    "value": "contains",
 //    "begin": 0,
 //    "end": 8
 //    },
 //    {
 //    "type": "punctuationMark",
-//    "realValue": "(",
+//    "value": "(",
 //    "begin": 8,
 //    "end": 10
 //    },
@@ -143,26 +145,26 @@ public class ContainsFuncInstruction {
 //    "type": "attribute",
 //    "detailType": "stringAttributeColumn",
 //    "tokens": ["displayname"],
-//    "realValue": "displayname",
+//    "value": "displayname",
 //    "begin": 10,
 //    "end": 22
 //    },
 //    {
 //    "type": "punctuationMark",
-//    "realValue": ",",
+//    "value": ",",
 //    "begin": 22,
 //    "end": 25
 //    },
 //    {
 //    "type": "wholeString",
-//    "realValue": "a",
+//    "value": "a",
 //    "begin": 25,
 //    "end": 32
 //    },
 //    {
 //    "isExpressionEnd": true,
 //    "type": "punctuationMark",
-//    "realValue": ")",
+//    "value": ")",
 //    "begin": 32,
 //    "end": 34
 //    }]

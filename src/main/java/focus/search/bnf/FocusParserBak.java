@@ -618,7 +618,7 @@ public class FocusParserBak {
             } else {
                 BnfRule newBr = getRule(token);
                 // 过滤公式|列规则|列中值
-//                List<String> filter = Arrays.asList("<function-columns>", "<realValue>");
+//                List<String> filter = Arrays.asList("<function-columns>", "<value>");
                 if (newBr == null && !token.getName().endsWith("-column>")) {
                     throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {

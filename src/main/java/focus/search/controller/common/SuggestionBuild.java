@@ -131,6 +131,7 @@ public class SuggestionBuild {
                 if (Common.isEmpty(type) || col.dataType.equals(type)) {
                     Column column = col.transfer();
                     column.setSourceName(source.sourceName);
+                    column.setPhysicalName(source.physicalName);
                     column.setTableId(source.tableId);
                     columns.add(column);
                 }
@@ -152,6 +153,7 @@ public class SuggestionBuild {
                 if (types.contains(col.dataType)) {
                     Column column = col.transfer();
                     column.setSourceName(source.sourceName);
+                    column.setPhysicalName(source.physicalName);
                     column.setTableId(source.tableId);
                     columns.add(column);
                     count--;
@@ -226,7 +228,7 @@ public class SuggestionBuild {
             } else if (Constant.FNDType.KEYWORD.equalsIgnoreCase(node.getType())) {
                 suggestion.description = "this is a keyword";
             } else if (Constant.FNDType.COLUMNVALUE.equalsIgnoreCase(node.getType())) {
-                suggestion.description = "this is a column realValue";
+                suggestion.description = "this is a column value";
             }
             suggestions.add(suggestion);
             return suggestions;

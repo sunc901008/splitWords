@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -20,7 +21,7 @@ public class AmbiguitiesResolve {
     public static AmbiguitiesResolve getByValue(String value, JSONObject amb) {
         for (Object obj : amb.values()) {
             AmbiguitiesResolve tmp = (AmbiguitiesResolve) obj;
-            if (tmp.value.equalsIgnoreCase(value)) {
+            if (Objects.equals(tmp.value, value)) {
                 return tmp;
             }
         }
@@ -73,7 +74,7 @@ public class AmbiguitiesResolve {
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("isResolved", isResolved);
-        json.put("realValue", value);
+        json.put("value", value);
         JSONArray j = new JSONArray();
         ars.forEach(ar -> j.add(ar.toJSON()));
         json.put("ars", j);

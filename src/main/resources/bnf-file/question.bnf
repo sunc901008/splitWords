@@ -1,8 +1,7 @@
 <question> := <filter> |
               <phrase>;
 
-<filter> := <simple-filter> |
-            <column-value>;
+<filter> := <simple-filter>;
 
 <phrase> := <top-n> |
             <bottom-n> |

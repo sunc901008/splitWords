@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaCase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
@@ -33,10 +34,11 @@ public class ToBoolFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", "add_logical_filter");
 
         JSONObject expression = arg(focusPhrase, formulas);
         json1.put("expression", expression);
+        json1.put("name", Base.InstName(focusPhrase));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -110,26 +112,26 @@ public class ToBoolFuncInstruction {
 //    "end": 11,
 //    "tokens": [{
 //    "type": "symbol",
-//    "realValue": "to_bool",
+//    "value": "to_bool",
 //    "begin": 0,
 //    "end": 7
 //    },
 //    {
 //    "type": "punctuationMark",
-//    "realValue": "(",
+//    "value": "(",
 //    "begin": 7,
 //    "end": 9
 //    },
 //    {
 //    "type": "integer",
-//    "realValue": 3,
+//    "value": 3,
 //    "begin": 9,
 //    "end": 10
 //    },
 //    {
 //    "isExpressionEnd": true,
 //    "type": "punctuationMark",
-//    "realValue": ")",
+//    "value": ")",
 //    "begin": 10,
 //    "end": 11
 //    }]

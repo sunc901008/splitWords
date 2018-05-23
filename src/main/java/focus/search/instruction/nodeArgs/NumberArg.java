@@ -22,7 +22,7 @@ public class NumberArg {
             number = Float.parseFloat(numberNode.getValue());
         }
         arg.put("type", Constant.InstType.NUMBER);
-        arg.put("realValue", number);
+        arg.put("value", number);
         return arg;
     }
 

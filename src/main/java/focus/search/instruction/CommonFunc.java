@@ -22,6 +22,7 @@ public class CommonFunc {
                     Column col = column.transfer();
                     col.setTableId(sourceReceived.tableId);
                     col.setSourceName(sourceReceived.sourceName);
+                    col.setPhysicalName(sourceReceived.physicalName);
                     columns.add(col);
                 }
             }

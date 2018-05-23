@@ -22,9 +22,9 @@ import java.util.List;
  * description:
  */
 //<concat-function> := concat ( <string-columns> , <string-columns> ) |
-//        concat ( <column-realValue> , <string-columns> ) |
-//        concat ( <string-columns> , <column-realValue> ) |
-//        concat ( <column-realValue> , <column-realValue> );
+//        concat ( <column-value> , <string-columns> ) |
+//        concat ( <string-columns> , <column-value> ) |
+//        concat ( <column-value> , <column-value> );
 public class ConcatFuncInstruction {
 
     // 完整指令 concat

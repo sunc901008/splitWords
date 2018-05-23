@@ -15,6 +15,7 @@ public class Column {
     private ColumnModify columnModify;
 
     private String sourceName;
+    private String physicalName;
     private Integer tableId;
     private String aggregation;
 
@@ -90,6 +91,14 @@ public class Column {
 
     public void setSourceName(String sourceName) {
         this.sourceName = sourceName;
+    }
+
+    public String getPhysicalName() {
+        return physicalName;
+    }
+
+    public void setPhysicalName(String physicalName) {
+        this.physicalName = physicalName;
     }
 
     public Integer getTableId() {

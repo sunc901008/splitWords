@@ -47,7 +47,7 @@ public class DateColInstruction {
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             Column column = (Column) json.get("column");
             expression.put("type", "column");
-            expression.put("realValue", column.getColumnId());
+            expression.put("value", column.getColumnId());
             aggregation = column.getAggregation();
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
@@ -80,7 +80,7 @@ public class DateColInstruction {
         JSONObject arg = new JSONObject();
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
             arg.put("type", "column");
-            arg.put("realValue", ((Column) json.get("column")).getColumnId());
+            arg.put("value", ((Column) json.get("column")).getColumnId());
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             arg = json.getJSONObject(Constant.InstType.FUNCTION);
         }

@@ -49,7 +49,7 @@ public class AnnotationToken {
         json.put("columnId", this.columnId);
         json.put("type", this.type);
         json.put("detailType", this.detailType);
-        json.put("realValue", this.value);
+        json.put("value", this.value);
         json.put("begin", this.begin);
         json.put("columnId", this.columnId);
         json.put("end", this.end);
@@ -111,7 +111,7 @@ public class AnnotationToken {
         json.put("formula", formula.toJSON());
         json.put("type", Constant.FNDType.FORMULA);
         json.put("detailType", Constant.FNDType.FORMULA);
-        json.put("realValue", formula.getName());
+        json.put("value", formula.getName());
         json.put("begin", node.getBegin());
         json.put("end", node.getEnd());
         JSONArray jsonArray = new JSONArray();
