@@ -13,6 +13,7 @@ import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -32,14 +33,14 @@ public class NumberColInstruction {
     private static final Logger logger = Logger.getLogger(NumberFuncInstruction.class);
 
     // 完整指令 columns
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         logger.info("NumberColumns instruction build. focusPhrase:" + focusPhrase.toJSON());
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
         json1.put("category", Constant.AnnotationCategory.EXPRESSION);
 
         String aggregation = Constant.AggregationType.SUM;
@@ -67,7 +68,7 @@ public class NumberColInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE);
@@ -87,7 +88,7 @@ public class NumberColInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
         JSONObject res = new JSONObject();
         switch (node.getValue()) {

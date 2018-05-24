@@ -5,9 +5,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * user: sunc
@@ -208,9 +206,18 @@ public class Constant {
         public static final String COLUMN = "column";
         // 中文分词出现歧义
         public static final String CHINESE = "chinese";
+        // 记录歧义 before 、 after
+        public static final Integer BEFORE = -1;
+        public static final Integer AFTER = -2;
+        public static final List<String> types = Arrays.asList("after", "before");
+
+        public static String getWord(Integer type) {
+            return types.get(types.size() + type);
+        }
+
     }
 
-    // symbol 中英文对应
+    // symbol 中文|其他关键词 对应的符号
     public static final class SymbolMapper {
         public static final Map<String, String> symbol = new HashMap<>();
 
@@ -223,7 +230,24 @@ public class Constant {
             symbol.put("小于等于", "<=");
             symbol.put("等于", "=");
             symbol.put("不等于", "!=");
+            symbol.put("before", "<");
+            symbol.put("after", ">");
         }
 
     }
+
+    // instId type
+    public static final class InstIdType {
+        public static final String ADD_LOGICAL_FILTER = "add_logical_filter";
+        public static final String ADD_EXPRESSION = "add_expression";
+        public static final String GROWTH_COLUMN = "add_column_for_growth";
+        public static final String GROWTH_COLUMN_MEASURE = "add_column_measure_for_growth";
+        public static final String GROWTH_DIMENSION = "use_column_for_growth_dimension";
+        public static final String SORT_BY = "add_expression_for_sort";
+        public static final String TOP = "set_top_n";
+        public static final String BOTTOM = "set_bottom_n";
+
+        public static final String ANNOTATION = "annotation";
+    }
+
 }

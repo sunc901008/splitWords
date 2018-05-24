@@ -8,6 +8,7 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.List;
 //        <number> <bool-symbol> <number>;
 public class BaseBoolFuncInstruction {
 
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);
         FocusNode symbol = focusPhrase.getFocusNodes().get(1);

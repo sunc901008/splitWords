@@ -10,6 +10,7 @@ import focus.search.instruction.functionInst.DateFunc.IfThenElseDateColFuncInstr
 import focus.search.instruction.functionInst.DateFunc.ToDateFuncInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ import java.util.List;
 public class DateFuncInstruction {
 
     // 完整指令
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_date-function>":
@@ -40,7 +41,7 @@ public class DateFuncInstruction {
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_date-function>":

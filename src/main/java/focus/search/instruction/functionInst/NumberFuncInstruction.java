@@ -9,6 +9,7 @@ import focus.search.instruction.functionInst.numberFunc.*;
 import focus.search.instruction.nodeArgs.BaseNumberFuncInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ import java.util.List;
 public class NumberFuncInstruction {
 
     // 完整指令
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<average-function>":
@@ -70,13 +71,13 @@ public class NumberFuncInstruction {
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         return arg(fn, formulas);
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusNode fn, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusNode fn, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         switch (fn.getValue()) {
             case "<average-function>":
                 return AverageFuncInstruction.arg(fn.getChildren(), formulas);

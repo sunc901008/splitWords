@@ -78,7 +78,7 @@ public class GrowthOfInstruction {
         FocusNode growthOfMeasure = focusNodes.get(2);// growth of
         FocusPhrase growthOf = growthOfMeasure.getChildren();
         if (growthOf.getFocusNodes().size() == 1) {
-            json1.put("instId", "add_column_for_growth");
+            json1.put("instId", Constant.InstIdType.GROWTH_COLUMN);
             Column column = growthOf.getLastNode().getColumn();
             json1.put("column", column.getColumnId());
 
@@ -86,7 +86,7 @@ public class GrowthOfInstruction {
             int end = growthOf.getLastNode().getEnd();
             datas.addToken(AnnotationToken.singleCol(column, growthOf.size() == 2, begin, end, amb));
         } else {
-            json1.put("instId", "add_column_measure_for_growth");
+            json1.put("instId", Constant.InstIdType.GROWTH_COLUMN_MEASURE);
             FocusPhrase growthOfMeasureOperation = growthOf.getFocusNodes().get(0).getChildren();
             AnnotationToken token2 = new AnnotationToken();
             StringBuilder operation = new StringBuilder();
@@ -127,7 +127,7 @@ public class GrowthOfInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "use_column_for_growth_dimension");
+        json2.put("instId", Constant.InstIdType.GROWTH_DIMENSION);
 
         //<all-date-column>
         FocusPhrase datePhrase = focusNodes.get(4).getChildren();// by
@@ -185,7 +185,7 @@ public class GrowthOfInstruction {
 
         JSONObject json3 = new JSONObject();
         json3.put("annotationId", annotationId);
-        json3.put("instId", "annotation");
+        json3.put("instId", Constant.InstIdType.ANNOTATION);
         // annotation content
         json3.put("content", datas);
         instructions.add(json3);

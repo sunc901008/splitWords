@@ -14,10 +14,7 @@ import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
 import focus.search.response.api.GetInstsResponse;
 import focus.search.response.api.NameCheckResponse;
-import focus.search.response.exception.AmbiguitiesException;
-import focus.search.response.exception.FocusHttpException;
-import focus.search.response.exception.FocusInstructionException;
-import focus.search.response.exception.FocusParserException;
+import focus.search.response.exception.*;
 import focus.search.response.search.ChartsResponse;
 import focus.search.response.search.ErrorResponse;
 import org.apache.log4j.Logger;
@@ -107,7 +104,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
 
         try {
             SearchHandler.preHandle(session, JSONObject.parseObject(input));
-        } catch (IOException | FocusHttpException | FocusInstructionException | FocusParserException e) {
+        } catch (IOException | FocusHttpException | FocusInstructionException | FocusParserException | IllegalException e) {
             logger.error(Common.printStacktrace(e));
             FocusExceptionHandler.handle(session, e);
         }
@@ -159,7 +156,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
                         response.instructions = json.getString("instructions");
                     }
                 }
-            } catch (AmbiguitiesException | FocusParserException | FocusInstructionException e) {
+            } catch (AmbiguitiesException | FocusParserException | FocusInstructionException |IllegalException e) {
                 logger.error(Common.printStacktrace(e));
             }
             break;

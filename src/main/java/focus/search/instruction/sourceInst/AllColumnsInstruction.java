@@ -7,6 +7,7 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ import java.util.List;
 public class AllColumnsInstruction {
 
     // 完整指令 all-columns
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<bool-columns>":
@@ -39,7 +40,7 @@ public class AllColumnsInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<bool-columns>":

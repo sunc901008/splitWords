@@ -8,6 +8,7 @@ import focus.search.instruction.sourceInst.AllColumnsInstruction;
 import focus.search.instruction.sourceInst.FormulaColumnInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ import java.util.List;
 //        <formula-column>;
 public class PhraseInstruction {
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<top-n>":

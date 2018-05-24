@@ -1,7 +1,12 @@
 <question> := <filter> |
               <phrase>;
 
-<filter> := <simple-filter>;
+
+<filter> := <number-simple-filter> |
+            <date-simple-filter> |
+            <date-complex-filter> |
+            <string-simple-filter> |
+            <bool-function-column>;
 
 <phrase> := <top-n> |
             <bottom-n> |
@@ -10,12 +15,19 @@
             <all-columns> |
             <formula-column>;
 
-<simple-filter> := <number-columns> <bool-symbol> <number> |
-                   <number> <bool-symbol> <number-columns> |
-                   <number-columns> <bool-symbol> <number-columns> |
-                   <number> <bool-symbol> <number> |
-                   <all-string-column> = <column-value> |
-                   <bool-function-column>;
+<number-simple-filter> := <number-columns> <bool-symbol> <number> |
+                          <number> <bool-symbol> <number-columns> |
+                          <number-columns> <bool-symbol> <number-columns> |
+                          <number> <bool-symbol> <number>;
+
+<date-simple-filter> := <date-columns> <bool-symbol> <column-value> |
+                        <column-value> <bool-symbol> <number-columns> |
+                        <date-columns> <bool-symbol> <date-columns> |
+                        <column-value> <bool-symbol> <column-value>;
+
+<date-complex-filter> := <before-after-filter>;
+
+<string-simple-filter> := <all-string-column> = <column-value>;
 
 <top-n> := top <integer> <number-columns> |
            top <number-columns>;
@@ -50,6 +62,19 @@
                                 yearly;
 
 <year-over-year> := year over year;
+
+<before-after-filter> := <before-filter> |
+                         <after-filter>;
+
+<before-filter> := before <date-columns> |
+                   before <column-value> |
+                   <all-date-column> before <date-columns>|
+                   <all-date-column> before <column-value>;
+
+<after-filter> := after <date-columns> |
+                  after <column-value> |
+                  <all-date-column> after <date-columns> |
+                  <all-date-column> after <column-value>;
 
 <all-columns> := <number-columns> |
                  <string-columns> |

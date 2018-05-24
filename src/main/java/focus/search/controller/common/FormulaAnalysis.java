@@ -8,7 +8,9 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
+import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 import focus.search.response.search.FormulaSettings;
 
 import java.util.*;
@@ -150,7 +152,7 @@ public class FormulaAnalysis {
      * @param focusPhrase 解析后的表达式
      * @return 返回后缀表达式
      */
-    private static List<Arg> getNumberAfterList(FocusPhrase focusPhrase) throws FocusInstructionException {
+    private static List<Arg> getNumberAfterList(FocusPhrase focusPhrase) throws FocusInstructionException, IllegalException {
         List<Arg> args = new ArrayList<>();
 
         List<FocusNode> focusNodes = focusPhrase.allFormulaNode();
@@ -215,11 +217,11 @@ public class FormulaAnalysis {
         return args;
     }
 
-    public static FormulaObj analysis(FocusPhrase focusPhrase) throws FocusInstructionException {
+    public static FormulaObj analysis(FocusPhrase focusPhrase) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         JSONArray instructions = InstructionBuild.build(focusPhrase, 1, new JSONObject(), new ArrayList<>());
         for (int i = 0; i < instructions.size(); i++) {
             JSONObject instruction = instructions.getJSONObject(i);
-            if (instruction.getString("instId").equals("add_expression")) {
+            if (instruction.getString("instId").equals(Constant.InstIdType.ADD_EXPRESSION)) {
                 JSONObject content = instruction.getJSONObject("expression");
                 return JSONObject.parseObject(content.toJSONString(), FormulaObj.class);
             }
@@ -227,7 +229,7 @@ public class FormulaAnalysis {
         throw new FocusInstructionException(focusPhrase.toJSON());
     }
 
-    public static FormulaObj numberAnalysis(FocusPhrase focusPhrase) throws FocusInstructionException {
+    public static FormulaObj numberAnalysis(FocusPhrase focusPhrase) throws FocusInstructionException, IllegalException {
         List<Arg> args = getNumberAfterList(focusPhrase);
         Stack<JSONObject> stack = new Stack<>();
         for (Arg arg : args) {

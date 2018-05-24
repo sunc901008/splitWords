@@ -7,6 +7,7 @@ import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.instruction.sourceInst.StringColInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public class ColValueOrStringColInst {
 
-    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         if (focusNode.getValue().equals("<string-columns>")) {
             return StringColInstruction.arg(focusNode.getChildren(), formulas);
         }

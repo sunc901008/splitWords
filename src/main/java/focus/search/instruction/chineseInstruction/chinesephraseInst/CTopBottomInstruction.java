@@ -11,6 +11,7 @@ import focus.search.instruction.sourceInst.NumberColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ import java.util.List;
 //        bottom <number-columns>;
 public class CTopBottomInstruction {
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -81,7 +82,7 @@ public class CTopBottomInstruction {
         instructions.add(json1);
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
         // annotation content
         json2.put("content", datas);
         instructions.add(json2);

@@ -8,10 +8,14 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.chineseInstruction.CInstructionBuild;
 import focus.search.instruction.filterInst.FilterInstruction;
 import focus.search.instruction.phraseInst.PhraseInstruction;
+import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,11 +26,15 @@ import java.util.List;
 public class InstructionBuild {
     private static final Logger logger = Logger.getLogger(InstructionBuild.class);
 
-    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
-        return build(focusInst, question, amb, formulas, Constant.Language.ENGLISH);
+    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+        return build(focusInst, question, amb, formulas, Constant.Language.ENGLISH, new ArrayList<>());
     }
 
-    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas, String language) throws FocusInstructionException {
+    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+        return build(focusInst, question, amb, formulas, Constant.Language.ENGLISH, dateColumns);
+    }
+
+    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas, String language, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         JSONObject data = new JSONObject();
         data.put("question", question);
 
@@ -44,7 +52,7 @@ public class InstructionBuild {
             if (i > 0) {
                 prePhrase = focusPhrases.get(i - 1);
             }
-            instructions.addAll(build(prePhrase, focusPhrase, index, amb, formulas, language));
+            instructions.addAll(build(prePhrase, focusPhrase, index, amb, formulas, language, dateColumns));
         }
 
         String ins = instructions.toJSONString();
@@ -52,14 +60,14 @@ public class InstructionBuild {
         return data;
     }
 
-    public static JSONArray build(FocusPhrase prePhrase, FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, String language) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase prePhrase, FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, String language, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         if (Constant.Language.CHINESE.equals(language)) {
             return CInstructionBuild.build(focusPhrase, index, amb, formulas);
         }
         logger.info("Question: Start building instructions.  Language: English. focusPhrase:" + focusPhrase.toJSON() + " .Language:" + language);
         switch (focusPhrase.getInstName()) {
             case "<filter>":
-                return FilterInstruction.build(prePhrase, focusPhrase, index, amb, formulas);
+                return FilterInstruction.build(prePhrase, focusPhrase, index, amb, formulas, dateColumns);
             case "<phrase>":
                 return PhraseInstruction.build(focusPhrase, index, amb, formulas);
             default:
@@ -67,8 +75,8 @@ public class InstructionBuild {
         }
     }
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
-        return build(null, focusPhrase, index, amb, formulas, Constant.Language.ENGLISH);
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+        return build(null, focusPhrase, index, amb, formulas, Constant.Language.ENGLISH, new ArrayList<>());
     }
 
 }

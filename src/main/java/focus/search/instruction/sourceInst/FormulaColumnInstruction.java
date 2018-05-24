@@ -28,7 +28,7 @@ public class FormulaColumnInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
         json1.put("name", formulaNode.getValue());
         json1.put("category", Constant.AnnotationCategory.EXPRESSION_OR_LOGICAL);
         Formula formula = getFormula(formulas, formulaNode.getValue());
@@ -39,7 +39,7 @@ public class FormulaColumnInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.FORMULA_NAME);
 

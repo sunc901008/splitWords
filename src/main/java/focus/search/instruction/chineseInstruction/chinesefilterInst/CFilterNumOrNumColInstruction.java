@@ -6,6 +6,7 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.filterInst.FilterNumOrNumColInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
 public class CFilterNumOrNumColInstruction {
     private static final Logger logger = Logger.getLogger(CFilterNumOrNumColInstruction.class);
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         logger.info("instruction build. focusPhrase:" + focusPhrase.toJSON());
         return FilterNumOrNumColInstruction.build(focusPhrase, index, amb, formulas);
     }

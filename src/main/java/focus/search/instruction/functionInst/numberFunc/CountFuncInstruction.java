@@ -34,14 +34,14 @@ public class CountFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
 
         json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);

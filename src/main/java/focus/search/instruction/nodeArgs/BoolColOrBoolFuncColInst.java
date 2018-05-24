@@ -9,6 +9,7 @@ import focus.search.instruction.sourceInst.BoolColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class BoolColOrBoolFuncColInst {
 
-    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         switch (focusNode.getValue()) {
             case "<bool-columns>":
                 JSONObject arg = new JSONObject();

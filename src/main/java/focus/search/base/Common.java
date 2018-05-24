@@ -1,12 +1,18 @@
 package focus.search.base;
 
 import com.alibaba.fastjson.serializer.NameFilter;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * creator: sunc
@@ -14,6 +20,7 @@ import java.util.Calendar;
  * description:
  */
 public class Common {
+    private static final Logger logger = Logger.getLogger(Common.class);
 
     private static String UnderLineString2Camel(String name) {
         String[] str = name.split("_");
@@ -94,6 +101,35 @@ public class Common {
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
         return String.format(time, second, minute, hour);
+    }
+
+    // 日期字符串格式化
+    private static final SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat sdf3 = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private static final SimpleDateFormat sdf4 = new SimpleDateFormat("MM/dd/yyyy");
+    private static final SimpleDateFormat sdf5 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private static final SimpleDateFormat sdf6 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private static final List<SimpleDateFormat> sdfList = Arrays.asList(sdf1, sdf2, sdf3, sdf4, sdf5, sdf6);
+
+    public static String dateFormat(String date) {
+        for (SimpleDateFormat sdf : sdfList) {
+            Date d = dateParse(sdf, date);
+            if (d != null) {
+                return sdf0.format(d);
+            }
+        }
+        return null;
+    }
+
+    private static Date dateParse(SimpleDateFormat sdf, String date) {
+        try {
+            return sdf.parse(date);
+        } catch (ParseException e) {
+            logger.info("current sdf pattern:" + sdf.toPattern());
+        }
+        return null;
     }
 
 }

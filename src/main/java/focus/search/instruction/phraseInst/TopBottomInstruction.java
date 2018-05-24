@@ -11,6 +11,7 @@ import focus.search.instruction.sourceInst.NumberColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ import java.util.List;
 //        bottom <number-columns>;
 public class TopBottomInstruction {
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -35,7 +36,8 @@ public class TopBottomInstruction {
         int flag = 0;
         int n = 1;
         FocusNode keyword = focusPhrase.getFocusNodes().get(flag++);
-        json1.put("instId", String.format("set_%s_n", keyword.getValue()));
+        String instId = keyword.getValue().equalsIgnoreCase("top") ? Constant.InstIdType.TOP : Constant.InstIdType.BOTTOM;
+        json1.put("instId", instId);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, keyword.getValue());
 
         AnnotationToken token1 = new AnnotationToken();
@@ -81,7 +83,7 @@ public class TopBottomInstruction {
         instructions.add(json1);
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
         // annotation content
         json2.put("content", datas);
         instructions.add(json2);

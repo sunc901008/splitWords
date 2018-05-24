@@ -7,6 +7,7 @@ import focus.search.instruction.chineseInstruction.chinesefilterInst.CFilterInst
 import focus.search.instruction.chineseInstruction.chinesephraseInst.CPhraseInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 public class CInstructionBuild {
     private static final Logger logger = Logger.getLogger(CInstructionBuild.class);
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         logger.info("Question: Start building instructions. Language: Chinese. focusPhrase:" + focusPhrase.toJSON());
         switch (focusPhrase.getInstName()) {
             case "<filter>":

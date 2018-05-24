@@ -35,7 +35,7 @@ public class FilterStringColEqualInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         JSONObject expression = new JSONObject();
         expression.put("type", Constant.InstType.FUNCTION);
@@ -65,7 +65,7 @@ public class FilterStringColEqualInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
         json2.put("content", datas);

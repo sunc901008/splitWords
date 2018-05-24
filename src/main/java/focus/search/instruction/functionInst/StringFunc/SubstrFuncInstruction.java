@@ -13,6 +13,7 @@ import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
 import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,20 +27,20 @@ import java.util.List;
 //        substr ( <column-value> , <integer> , <integer> );
 public class SubstrFuncInstruction {
     // 完整指令 substr
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
 
         json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
@@ -52,7 +53,7 @@ public class SubstrFuncInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(2);
         FocusNode param2 = focusPhrase.getFocusNodes().get(4);
         FocusNode param3 = focusPhrase.getFocusNodes().get(6);

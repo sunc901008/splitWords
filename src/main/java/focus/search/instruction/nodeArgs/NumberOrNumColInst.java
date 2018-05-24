@@ -8,6 +8,7 @@ import focus.search.instruction.sourceInst.NumberColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class NumberOrNumColInst {
 
-    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONObject arg = new JSONObject();
         if ("<number-columns>".equals(focusNode.getValue())) {
             JSONObject json = NumberColInstruction.build(focusNode.getChildren(), formulas);

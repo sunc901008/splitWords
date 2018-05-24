@@ -11,6 +11,7 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.List;
 public class IfThenElseBoolColFuncInstruction {
 
     // 完整指令
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
@@ -39,7 +40,7 @@ public class IfThenElseBoolColFuncInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         json1.put("expression", arg(focusPhrase, formulas));
         json1.put("name", Base.InstName(focusPhrase));
@@ -47,7 +48,7 @@ public class IfThenElseBoolColFuncInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
         datas.addTokens(tokens(focusPhrase, formulas, amb));
@@ -59,7 +60,7 @@ public class IfThenElseBoolColFuncInstruction {
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(1).getChildren().getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(3).getChildren().getFocusNodes().get(0);
         FocusNode param3 = focusPhrase.getFocusNodes().get(5).getChildren().getFocusNodes().get(0);

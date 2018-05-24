@@ -126,7 +126,7 @@ public class CGrowthOfInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "use_column_for_growth_dimension");
+        json2.put("instId", Constant.InstIdType.GROWTH_DIMENSION);
 
         //<all-date-column>
         FocusPhrase datePhrase = focusNodes.get(4).getChildren();// by
@@ -184,7 +184,7 @@ public class CGrowthOfInstruction {
 
         JSONObject json3 = new JSONObject();
         json3.put("annotationId", annotationId);
-        json3.put("instId", "annotation");
+        json3.put("instId", Constant.InstIdType.ANNOTATION);
         // annotation content
         json3.put("content", datas);
         instructions.add(json3);

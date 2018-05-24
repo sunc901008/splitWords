@@ -7,6 +7,7 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
 import focus.search.instruction.nodeArgs.NumberOrNumColInst;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
@@ -20,14 +21,12 @@ import java.util.List;
  * date: 2018/4/17
  * description:
  */
-
-//<number-columns> <bool-symbol> <number>
-//<number-columns> <bool-symbol> <number-columns>
-//<number> <bool-symbol> <number-columns>
-//<number> <bool-symbol> <number>
-
-public class FilterNumOrNumColInstruction {
-    private static final Logger logger = Logger.getLogger(FilterNumOrNumColInstruction.class);
+//<date-simple-filter> := <date-columns> <bool-symbol> <column-value> |
+//        <column-value> <bool-symbol> <number-columns> |
+//        <date-columns> <bool-symbol> <date-columns> |
+//        <column-value> <bool-symbol> <column-value>;
+public class FilterDateInstruction {
+    private static final Logger logger = Logger.getLogger(FilterDateInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         logger.info("instruction build. focusPhrase:" + focusPhrase.toJSON());
@@ -52,9 +51,9 @@ public class FilterNumOrNumColInstruction {
         String symbolValue = Constant.SymbolMapper.symbol.get(symbol.getValue());
         expression.put("name", symbolValue != null ? symbolValue : symbol.getValue());
 
-        args.add(NumberOrNumColInst.arg(param1, formulas));
+        args.add(ColValueOrDateColInst.arg(param1, formulas));
 
-        datas.addTokens(NumberOrNumColInst.tokens(param1, formulas, amb));
+        datas.addTokens(ColValueOrDateColInst.tokens(param1, formulas, amb));
 
         AnnotationToken token2 = new AnnotationToken();
         token2.value = symbol.getValue();
@@ -63,9 +62,9 @@ public class FilterNumOrNumColInstruction {
         token2.end = symbol.getEnd();
         datas.addToken(token2);
 
-        args.add(NumberOrNumColInst.arg(param2, formulas));
+        args.add(ColValueOrDateColInst.arg(param2, formulas));
 
-        datas.addTokens(NumberOrNumColInst.tokens(param2, formulas, amb));
+        datas.addTokens(ColValueOrDateColInst.tokens(param2, formulas, amb));
 
         expression.put("args", args);
         json1.put("expression", expression);

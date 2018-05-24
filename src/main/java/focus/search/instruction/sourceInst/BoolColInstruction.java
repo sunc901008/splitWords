@@ -30,7 +30,7 @@ public class BoolColInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
         json1.put("category", Constant.AnnotationCategory.EXPRESSION);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.ATTRIBUTE_COLUMN);
 
@@ -53,7 +53,7 @@ public class BoolColInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
         json2.put("content", datas);

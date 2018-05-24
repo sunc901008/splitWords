@@ -18,10 +18,7 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.meta.*;
 import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.SourceReceived;
-import focus.search.response.exception.AmbiguitiesException;
-import focus.search.response.exception.FocusHttpException;
-import focus.search.response.exception.FocusInstructionException;
-import focus.search.response.exception.FocusParserException;
+import focus.search.response.exception.*;
 import focus.search.response.search.*;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
@@ -147,7 +144,7 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user) throws IOException, FocusHttpException, FocusParserException, FocusInstructionException {
+    public static void response(WebSocketSession session, String search, JSONObject user) throws IOException, FocusHttpException, FocusParserException, FocusInstructionException, IllegalException {
         response(session, search, user, null, null);
     }
 
@@ -160,7 +157,7 @@ public class Base {
      */
     //  search 输出返回结果
     public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities, String event) throws
-            IOException, FocusHttpException, FocusParserException, FocusInstructionException {
+            IOException, FocusHttpException, FocusParserException, FocusInstructionException, IllegalException {
         // 接收请求的时间戳
         long received = Long.parseLong(session.getAttributes().get(WebsocketSearch.RECEIVED_TIMESTAMP).toString());
 
@@ -315,8 +312,11 @@ public class Base {
                     }
 
                     StateResponse response = new StateResponse(search);
+
+                    // 获取日期列
+                    List<Column> dateColumns = SuggestionBuild.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
                     // 生成指令
-                    JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user));
+                    JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user), dateColumns);
 
                     json.put("source", "searchUser"); // 区分是search框还是pinboard
                     json.put("sourceToken", user.getString("sourceToken"));
@@ -401,16 +401,25 @@ public class Base {
 
         } catch (AmbiguitiesException e) {
             AmbiguityResponse response = new AmbiguityResponse(search);
-            FocusToken ft = tokens.get(e.position);
 
-            String id = AmbiguitiesResolve.mergeAmbiguities(e.ars, ft.getWord(), amb);
+            String title;
+            String ambiguityWord;
+            if (e.position < 0) {
+                ambiguityWord = Constant.AmbiguityType.getWord(e.position);
+                title = search.substring(e.begin, e.end);
+            } else {
+                ambiguityWord = tokens.get(e.position).getWord();
+                title = ambiguityWord;
+            }
+
+            String id = AmbiguitiesResolve.mergeAmbiguities(e.ars, ambiguityWord, amb);
             user.put("ambiguities", amb);
 
             AmbiguityDatas datas = new AmbiguityDatas();
             datas.begin = e.begin;
             datas.end = e.end;
             datas.id = id;
-            datas.title = "ambiguity word: " + ft.getWord();
+            datas.title = "ambiguity word: " + title;
             e.ars.forEach(a -> datas.possibleMenus.add(a.columnName + " in table " + a.sourceName));
             response.setDatas(datas);
             session.sendMessage(new TextMessage(response.response()));
@@ -418,6 +427,9 @@ public class Base {
 
             session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
 
+        } catch (IllegalException e) {
+            e.question = search;
+            throw e;
         }
     }
 
@@ -511,7 +523,7 @@ public class Base {
         List<AnnotationDatas> datas = new ArrayList<>();
         for (int i = 0; i < instructions.size(); i++) {
             JSONObject instruction = instructions.getJSONObject(i);
-            if (instruction.getString("instId").equals("annotation")) {
+            if (instruction.getString("instId").equals(Constant.InstIdType.ANNOTATION)) {
                 String content = instruction.getString("content");
                 datas.add(JSONObject.parseObject(content, AnnotationDatas.class));
             }

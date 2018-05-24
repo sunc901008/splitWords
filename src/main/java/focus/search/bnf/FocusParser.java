@@ -189,6 +189,13 @@ public class FocusParser implements Serializable {
         if (focusPhrases == null || focusPhrases.isEmpty()) {
             return null;
         }
+
+        if (tokens.size() > 1) {// 不是最后一个token
+            FocusSubInst fsi = check(focusPhrases, 0, focusToken.getWord(), true);
+            if (fsi != null)
+                return fsi;
+        }
+
         logger.info("Adaptation parse bnf size:" + focusPhrases.size());
 
         // 歧义检测
@@ -250,48 +257,50 @@ public class FocusParser implements Serializable {
             } else {
                 logger.info("replace focusPhrase loop: " + i);
                 replace(rules, focusPhrases, ft, i);
-                List<FocusPhrase> remove = new ArrayList<>();
-                List<FocusPhrase> startWith = new ArrayList<>();
-                List<FocusPhrase> copy = new ArrayList<>(focusPhrases);
-                for (FocusPhrase fp : focusPhrases) {
-                    if (fp.size() <= i) {
-                        remove.add(fp);
-                        continue;
-                    }
-                    if (!fp.getNodeNew(i).getValue().equalsIgnoreCase(ft.getWord())) {
-                        remove.add(fp);
-                    }
-                    if (fp.getNodeNew(i).getValue().toLowerCase().startsWith(ft.getWord().toLowerCase())) {
-                        startWith.add(fp);
-                    }
-                }
-                focusPhrases.removeAll(remove);
-                if (focusPhrases.isEmpty()) {
-                    for (FocusPhrase f : copy) {
-                        if (!f.isSuggestion()) {
-                            focusPhrases.add(f);
-                        }
-                    }
-                    FocusSubInst fsi = new FocusSubInst();
-                    fsi.setIndex(i);
-                    if (!focusPhrases.isEmpty()) {
-                        fsi.setFps(focusPhrases);
-                        return fsi;
-                    }
-                    if (startWith.isEmpty()) {
-                        fsi.setError();
-                        fsi.setFps(remove);
-                        return fsi;
-                    } else {
-                        if (i < tokens.size() - 1) {//不是最后一个token,说明中间出错
-                            fsi.setError();
-                        }
-                        fsi.setFps(startWith);
-                        return fsi;
-                    }
-                }
+//                List<FocusPhrase> remove = new ArrayList<>();
+//                List<FocusPhrase> startWith = new ArrayList<>();
+//                List<FocusPhrase> copy = new ArrayList<>(focusPhrases);
+//                for (FocusPhrase fp : focusPhrases) {
+//                    if (fp.size() <= i) {
+//                        remove.add(fp);
+//                        continue;
+//                    }
+//                    if (!fp.getNodeNew(i).getValue().equalsIgnoreCase(ft.getWord())) {
+//                        remove.add(fp);
+//                    }
+//                    if (fp.getNodeNew(i).getValue().toLowerCase().startsWith(ft.getWord().toLowerCase())) {
+//                        startWith.add(fp);
+//                    }
+//                }
+//                focusPhrases.removeAll(remove);
+//                if (focusPhrases.isEmpty()) {
+//                    for (FocusPhrase f : copy) {
+//                        if (!f.isSuggestion()) {
+//                            focusPhrases.add(f);
+//                        }
+//                    }
+//                    FocusSubInst fsi = new FocusSubInst();
+//                    fsi.setIndex(i);
+//                    if (!focusPhrases.isEmpty()) {
+//                        fsi.setFps(focusPhrases);
+//                        return fsi;
+//                    }
+//                    if (startWith.isEmpty()) {
+//                        fsi.setError();
+//                        fsi.setFps(remove);
+//                        return fsi;
+//                    } else {
+//                        if (i < tokens.size() - 1) {//不是最后一个token,说明中间出错
+//                            fsi.setError();
+//                        }
+//                        fsi.setFps(startWith);
+//                        return fsi;
+//                    }
 //                }
             }
+            FocusSubInst fsi = check(focusPhrases, i, ft.getWord(), tokens.size() - 1 > i);
+            if (fsi != null)
+                return fsi;
             // 歧义检测
             ambiguitiesCheck(ft, focusPhrases, i, amb);
 
@@ -317,6 +326,50 @@ public class FocusParser implements Serializable {
         return fsi;
     }
 
+    private FocusSubInst check(List<FocusPhrase> focusPhrases, int i, String token, boolean notLast) {
+        List<FocusPhrase> remove = new ArrayList<>();
+        List<FocusPhrase> startWith = new ArrayList<>();
+        List<FocusPhrase> copy = new ArrayList<>(focusPhrases);
+        for (FocusPhrase fp : focusPhrases) {
+            if (fp.size() <= i) {
+                remove.add(fp);
+                continue;
+            }
+            if (!fp.getNodeNew(i).getValue().equalsIgnoreCase(token)) {
+                remove.add(fp);
+            }
+            if (fp.getNodeNew(i).getValue().toLowerCase().startsWith(token.toLowerCase())) {
+                startWith.add(fp);
+            }
+        }
+        focusPhrases.removeAll(remove);
+        if (focusPhrases.isEmpty()) {
+            for (FocusPhrase f : copy) {
+                if (!f.isSuggestion()) {
+                    focusPhrases.add(f);
+                }
+            }
+            FocusSubInst fsi = new FocusSubInst();
+            fsi.setIndex(i);
+            if (!focusPhrases.isEmpty()) {
+                fsi.setFps(focusPhrases);
+                return fsi;
+            }
+            if (startWith.isEmpty()) {
+                fsi.setError();
+                fsi.setFps(remove);
+                return fsi;
+            } else {
+                if (notLast) {//不是最后一个token,说明中间出错
+                    fsi.setError();
+                }
+                fsi.setFps(startWith);
+                return fsi;
+            }
+        }
+        return null;
+    }
+
     /**
      * creator: sunc
      * date: 2018/3/1
@@ -326,6 +379,9 @@ public class FocusParser implements Serializable {
         List<AmbiguitiesRecord> ars = new ArrayList<>();
 
         String value = focusPhrases.get(0).getNodeNew(index).getValue();
+        if (Constant.AmbiguityType.types.contains(value)) {
+            return;
+        }
         AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(value, amb);
         boolean isResolved = false;
         AmbiguitiesRecord resolve = null;
@@ -336,9 +392,7 @@ public class FocusParser implements Serializable {
             }
         }
 
-        logger.debug("check ambiguities. index:" + index + ". value:" + token.getWord() + ". Ambiguities:" + amb + ". resolve:" + JSONObject
-                .toJSONString
-                (resolve));
+        logger.debug("check ambiguities. index:" + index + ". value:" + token.getWord() + ". Ambiguities:" + amb + ". resolve:" + JSONObject.toJSONString(resolve));
         List<Integer> added = new ArrayList<>();
         List<FocusPhrase> remove = new ArrayList<>();
         for (FocusPhrase fp : focusPhrases) {

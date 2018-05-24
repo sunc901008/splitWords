@@ -14,6 +14,7 @@ import focus.search.instruction.sourceInst.AllColumnsInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +30,14 @@ public class IsNullFuncInstruction {
     private static final String example = "isnull ( %s )";
 
     // 完整指令 isnull
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_logical_filter");
+        json1.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         json1.put("expression", arg(focusPhrase, formulas));
         json1.put("name", Base.InstName(focusPhrase));
@@ -44,7 +45,7 @@ public class IsNullFuncInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
         datas.addTokens(tokens(focusPhrase, formulas, amb));
@@ -56,7 +57,7 @@ public class IsNullFuncInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode param = focusPhrase.getFocusNodes().get(2);
 
         JSONObject arg = new JSONObject();

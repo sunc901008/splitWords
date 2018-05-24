@@ -86,19 +86,7 @@ public class AnnotationToken {
             token.addToken(column.getSourceName());
         } else {
             logger.info("current all ambiguities:" + amb);
-            for (String id : amb.keySet()) {
-                AmbiguitiesResolve tmp = (AmbiguitiesResolve) amb.get(id);
-                logger.info("current ambiguities:" + tmp.toJSON());
-                if (tmp.ars.size() > 1 && tmp.value.equalsIgnoreCase(token.value.toString())) {
-                    token.ambiguity = new AmbiguityDatas();
-                    token.ambiguity.begin = token.begin;
-                    token.ambiguity.end = token.end;
-                    token.ambiguity.title = "ambiguity word: " + token.value;
-                    token.ambiguity.id = id;
-                    tmp.ars.forEach(a -> token.ambiguity.possibleMenus.add(a.columnName + " in table " + a.sourceName));
-                    break;
-                }
-            }
+            token.ambiguity = getAmbiguityDatas(amb, token.value.toString(), token.begin, token.end);
         }
         token.addToken(column.getColumnDisplayName());
         logger.info("TEST: token:" + token.toJSON());
@@ -119,6 +107,26 @@ public class AnnotationToken {
         json.put("tokens", jsonArray);
         return json;
 
+    }
+
+    public static AmbiguityDatas getAmbiguityDatas(JSONObject amb, String value, int begin, int end) {
+        return getAmbiguityDatas(amb, value, value, begin, end);
+    }
+
+    public static AmbiguityDatas getAmbiguityDatas(JSONObject amb, String value, String title, int begin, int end) {
+        for (String id : amb.keySet()) {
+            AmbiguitiesResolve tmp = (AmbiguitiesResolve) amb.get(id);
+            if (tmp.ars.size() > 1 && tmp.value.equalsIgnoreCase(value)) {
+                AmbiguityDatas ambiguity = new AmbiguityDatas();
+                ambiguity.begin = begin;
+                ambiguity.end = end;
+                ambiguity.title = "ambiguity word: " + title;
+                ambiguity.id = id;
+                tmp.ars.forEach(a -> ambiguity.possibleMenus.add(a.columnName + " in table " + a.sourceName));
+                return ambiguity;
+            }
+        }
+        return null;
     }
 
 }

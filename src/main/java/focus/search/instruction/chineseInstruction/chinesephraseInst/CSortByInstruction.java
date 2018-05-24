@@ -11,6 +11,7 @@ import focus.search.instruction.sourceInst.AllColumnsInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ import java.util.List;
 //        sort by <all-columns> asc;
 public class CSortByInstruction {
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -32,7 +33,7 @@ public class CSortByInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression_for_sort");
+        json1.put("instId", Constant.InstIdType.SORT_BY);
 
         AnnotationToken token1 = new AnnotationToken();
         token1.addToken("sort");
@@ -76,7 +77,7 @@ public class CSortByInstruction {
         instructions.add(json1);
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
         // annotation content
         json2.put("content", datas);
         instructions.add(json2);

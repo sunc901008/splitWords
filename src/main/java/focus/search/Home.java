@@ -11,6 +11,7 @@ import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
+import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
@@ -20,14 +21,19 @@ import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.FocusParserException;
+import focus.search.response.exception.IllegalException;
 import focus.search.response.search.AmbiguityDatas;
+import focus.search.response.search.SuggestionDatas;
+import focus.search.response.search.SuggestionResponse;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * creator: sunc
@@ -36,8 +42,10 @@ import java.util.*;
  */
 public class Home {
 
-    public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException {
-        test("contains(name, \"focus\")", Constant.Language.CHINESE);
+    public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException, IllegalException {
+        test("be \"01/01/2011\" ", Constant.Language.ENGLISH);
+
+//        print(Common.dateFormat("01/01/2011"));
 
 //        String symbolValue = Constant.SymbolMapper.symbol.get("大于");
 //        print(symbolValue);
@@ -153,7 +161,7 @@ public class Home {
         instructions.add(json2);
 
         JSONObject json1 = new JSONObject();
-        json1.put("instId", "add_expression");
+        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
         json1.put("category", Constant.AnnotationCategory.EXPRESSION_OR_LOGICAL);
         String ss = formula.getInstruction().toJSONString();
         json1.put("expression", JSONObject.parse(ss));
@@ -198,11 +206,11 @@ public class Home {
 
     // params:  start 需要执行的questions文件中的起始行号，为0时执行所有, length 执行的行数
     private static void search(int start, int length) throws IOException, InvalidRuleException, FocusInstructionException,
-            FocusParserException, AmbiguitiesException {
+            FocusParserException, AmbiguitiesException, IllegalException {
         search(start, length, Constant.Language.ENGLISH);
     }
 
-    private static void search(int start, int length, String language) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException {
+    private static void search(int start, int length, String language) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException, IllegalException {
         String file;
         if (Constant.Language.ENGLISH.equals(language)) {
             file = "test/questions";
@@ -239,7 +247,7 @@ public class Home {
         br.close();
     }
 
-    private static void formula(String search) throws IOException, FocusParserException, FocusInstructionException, AmbiguitiesException {
+    private static void formula(String search) throws IOException, FocusParserException, FocusInstructionException, AmbiguitiesException, IllegalException {
         FocusInst fi = search(search);
         if (fi != null && fi.size() == 1) {
             FocusPhrase fp = fi.lastFocusPhrase();
@@ -358,7 +366,7 @@ public class Home {
         return focusInst.getFocusPhrases().get(0);
     }
 
-    private static void formulaTest(FocusPhrase fp) throws FocusInstructionException {
+    private static void formulaTest(FocusPhrase fp) throws FocusInstructionException, IllegalException, AmbiguitiesException {
 
         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(fp);
 
@@ -424,30 +432,55 @@ public class Home {
         return null;
     }
 
-    private static void test(String search) throws IOException, FocusInstructionException, FocusParserException, AmbiguitiesException {
+    private static void test(String search) throws IOException, FocusInstructionException, FocusParserException, AmbiguitiesException, IllegalException {
         test(search, Constant.Language.ENGLISH);
     }
 
-    private static void test(String search, String language) throws IOException, FocusInstructionException, FocusParserException, AmbiguitiesException {
+    private static void test(String search, String language) throws IOException, FocusInstructionException, FocusParserException, AmbiguitiesException, IllegalException {
 
-        FocusInst focusInst = search(search, language);
+//        FocusInst focusInst = search(search, language);
+
+        FocusParser parser = new FocusParser(language);
+//        FocusParser parser = new FocusParser(test);
+        ModelBuild.buildTable(parser, ModelBuild.test(1));
+
+//        ModelBuild.buildFormulas(parser, Collections.singletonList(search));
+
+        List<FocusToken> tokens = parser.focusAnalyzer.test(search, language);
+
+        System.out.println(JSON.toJSONString(tokens));
+        FocusInst focusInst = parser.parseQuestion(tokens, new JSONObject());
 
         if (focusInst == null) {
             return;
         }
 
         if (focusInst.position < 0) {
+            FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
+            if (focusPhrase.isSuggestion()) {// 出入不完整
+                SuggestionResponse response = new SuggestionResponse(search);
+                SuggestionDatas datas = new SuggestionDatas();
+                JSONObject json = SuggestionBuild.sug(tokens, focusInst);
+                print("Get Suggestions:" + json);
+                datas.beginPos = json.getInteger("position");
+                datas.phraseBeginPos = datas.beginPos;
+                List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
+                focusNodes.forEach(node -> datas.suggestions.addAll(SuggestionBuild.buildSug(parser, null, node)));
+                response.setDatas(datas);
 
-            JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
+                print("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
+            } else {
+                JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
 
-            print("指令:\n\t" + json + "\n");
+                print("指令:\n\t" + json + "\n");
 
-            // Annotations
-            JSONArray instructions = json.getJSONArray("instructions");
-            print(instructions);
-
+                // Annotations
+                JSONArray instructions = json.getJSONArray("instructions");
+                print(instructions);
+            }
         } else {
             print("error!");
+            print(focusInst.position);
         }
 
     }

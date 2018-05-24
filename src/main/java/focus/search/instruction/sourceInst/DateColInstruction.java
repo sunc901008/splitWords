@@ -13,6 +13,7 @@ import focus.search.instruction.functionInst.DateFuncInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +30,13 @@ import java.util.List;
 public class DateColInstruction {
 
     // 完整指令 columns
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_expression");
+        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
         json1.put("category", Constant.AnnotationCategory.EXPRESSION);
         json1.put("type", Constant.ColumnType.ATTRIBUTE);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE);
@@ -63,7 +64,7 @@ public class DateColInstruction {
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
-        json2.put("instId", "annotation");
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
         json2.put("content", datas);
@@ -74,7 +75,7 @@ public class DateColInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONObject json = build(focusPhrase, formulas);
         String type = json.getString("type");
         JSONObject arg = new JSONObject();
@@ -87,7 +88,7 @@ public class DateColInstruction {
         return arg;
     }
 
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
         JSONObject res = new JSONObject();
         switch (node.getValue()) {

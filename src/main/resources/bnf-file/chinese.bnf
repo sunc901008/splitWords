@@ -1,7 +1,10 @@
 <question> := <filter> |
               <phrase>;
 
-<filter> := <simple-filter>;
+<filter> := <number-simple-filter> |
+            <date-simple-filter> |
+            <string-simple-filter> |
+            <bool-function-column>;
 
 <phrase> := <top-n> |
             <bottom-n> |
@@ -9,12 +12,17 @@
             <all-columns> |
             <formula-column>;
 
-<simple-filter> := <number-columns> <bool-symbol> <number> |
-                   <number> <bool-symbol> <number-columns> |
-                   <number-columns> <bool-symbol> <number-columns> |
-                   <number> <bool-symbol> <number> |
-                   <all-string-column> = <column-value> |
-                   <bool-function-column>;
+<number-simple-filter> := <number-columns> <bool-symbol> <number> |
+                          <number> <bool-symbol> <number-columns> |
+                          <number-columns> <bool-symbol> <number-columns> |
+                          <number> <bool-symbol> <number>;
+
+<date-simple-filter> := <date-columns> <bool-symbol> <column-value> |
+                        <column-value> <bool-symbol> <number-columns> |
+                        <date-columns> <bool-symbol> <date-columns> |
+                        <column-value> <bool-symbol> <column-value>;
+
+<string-simple-filter> := <all-string-column> = <column-value>;
 
 <top-n> := 前 <integer> <number-columns>;
 
