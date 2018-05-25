@@ -27,7 +27,7 @@ class FocusExceptionHandler {
         } else if (e instanceof FocusInstructionException) {
             handle(session, FatalResponse.response(e.getMessage(), session.getAttributes().get("sourceToken").toString()));
         } else if (e instanceof FocusParserException) {
-            handle(session, FatalResponse.response(e.getMessage(), session.getAttributes().get("sourceToken").toString()));
+            handle(session, ErrorResponse.response(e.getMessage()).toJSONString());
         } else if (e instanceof IllegalException) {
             IllegalException exp = (IllegalException) e;
             IllegalResponse response = new IllegalResponse(exp.question, exp.datas);
