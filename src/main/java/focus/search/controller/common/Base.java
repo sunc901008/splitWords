@@ -167,7 +167,7 @@ public class Base {
 
         boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(category);
 
-        if (Common.isEmpty(search)) {
+        if (Common.isEmpty(search.trim())) {
             // TODO: 2018/5/16 modify suggestions
             SuggestionResponse response = new SuggestionResponse(search);
             SuggestionDatas datas = new SuggestionDatas();
