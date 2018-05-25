@@ -1,2 +1,6 @@
 按name降序
 age大于10
+creationdate在"01/01/2000"之后
+"01/01/2000"之后
+过去3天
+creationdate前5个月

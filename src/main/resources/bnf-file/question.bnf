@@ -1,7 +1,6 @@
 <question> := <filter> |
               <phrase>;
 
-
 <filter> := <number-simple-filter> |
             <date-simple-filter> |
             <date-complex-filter> |
@@ -25,7 +24,8 @@
                         <date-columns> <bool-symbol> <date-columns> |
                         <column-value> <bool-symbol> <column-value>;
 
-<date-complex-filter> := <before-after-filter>;
+<date-complex-filter> := <before-after-filter> |
+                         <last-filter>;
 
 <string-simple-filter> := <all-string-column> = <column-value>;
 
@@ -75,6 +75,37 @@
                   after <column-value> |
                   <all-date-column> after <date-columns> |
                   <all-date-column> after <column-value>;
+
+<last-filter> := <last-days-filter> |
+                 <last-weeks-filter> |
+                 <last-months-filter> |
+                 <last-quarters-filter> |
+                 <last-years-filter>;
+
+<last-days-filter> := last day |
+                      <all-date-column> last day |
+                      last <integer> days |
+                      <all-date-column> last <integer> days;
+
+<last-weeks-filter> := last week |
+                       <all-date-column> last week |
+                       last <integer> weeks |
+                       <all-date-column> last <integer> weeks;
+
+<last-months-filter> := last month |
+                        <all-date-column> last month |
+                        last <integer> months |
+                        <all-date-column> last <integer> months;
+
+<last-quarters-filter> := last quarter |
+                          <all-date-column> last quarter |
+                          last <integer> quarters |
+                          <all-date-column> last <integer> quarters;
+
+<last-years-filter> := last year |
+                       <all-date-column> last year |
+                       last <integer> years |
+                       <all-date-column> last <integer> years;
 
 <all-columns> := <number-columns> |
                  <string-columns> |

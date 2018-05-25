@@ -14,7 +14,7 @@ public class NumberArg {
 
     public static JSONObject arg(FocusNode focusNode) {
         JSONObject arg = new JSONObject();
-        FocusNode numberNode = focusNode.getChildren().getNodeNew(0);
+        FocusNode numberNode = focusNode.isHasChild() ? focusNode.getChildren().getFirstNode() : focusNode;
         Object number;
         if (Constant.FNDType.INTEGER.equals(numberNode.getType())) {
             number = Integer.parseInt(numberNode.getValue());
@@ -28,7 +28,7 @@ public class NumberArg {
 
     public static AnnotationToken token(FocusNode focusNode) {
         AnnotationToken token = new AnnotationToken();
-        FocusNode numberNode = focusNode.getChildren().getNodeNew(0);
+        FocusNode numberNode = focusNode.isHasChild() ? focusNode.getChildren().getFirstNode() : focusNode;
         Object number;
         if (Constant.FNDType.INTEGER.equals(numberNode.getType())) {
             number = Integer.parseInt(numberNode.getValue());

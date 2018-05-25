@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusKWDict;
 import focus.search.analyzer.focus.FocusToken;
+import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
 import focus.search.bnf.exception.InvalidRuleException;
@@ -22,11 +23,10 @@ import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.FocusParserException;
 import focus.search.response.exception.IllegalException;
-import focus.search.response.search.AmbiguityDatas;
-import focus.search.response.search.SuggestionDatas;
-import focus.search.response.search.SuggestionResponse;
+import focus.search.response.search.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.web.socket.TextMessage;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -43,8 +43,17 @@ import java.util.List;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException, IllegalException {
-        test("be \"01/01/2011\" ", Constant.Language.ENGLISH);
+        test("creationdate \"01/01/2000\" 之后", Constant.Language.CHINESE);
+//        test("creationdate last 2 weeks", Constant.Language.ENGLISH);
+//        test("creationdate last 2 months", Constant.Language.ENGLISH);
+//        test("creationdate last 2 quarters", Constant.Language.ENGLISH);
+//        test("creationdate last 2 years", Constant.Language.ENGLISH);
 
+//        Calendar today = Calendar.getInstance();
+//        print(today.get(Calendar.DAY_OF_WEEK_IN_MONTH));
+//        print(today.get(Calendar.WEEK_OF_MONTH));
+//        print(today.get(Calendar.WEEK_OF_YEAR));
+//        print(today.get(Calendar.DAY_OF_WEEK));
 //        print(Common.dateFormat("01/01/2011"));
 
 //        String symbolValue = Constant.SymbolMapper.symbol.get("大于");
@@ -436,7 +445,7 @@ public class Home {
         test(search, Constant.Language.ENGLISH);
     }
 
-    private static void test(String search, String language) throws IOException, FocusInstructionException, FocusParserException, AmbiguitiesException, IllegalException {
+    private static void test(String search, String language) throws IOException, FocusInstructionException, FocusParserException, IllegalException, AmbiguitiesException {
 
 //        FocusInst focusInst = search(search, language);
 
@@ -448,12 +457,14 @@ public class Home {
 
         List<FocusToken> tokens = parser.focusAnalyzer.test(search, language);
 
-        System.out.println(JSON.toJSONString(tokens));
+        print(JSON.toJSONString(tokens));
         FocusInst focusInst = parser.parseQuestion(tokens, new JSONObject());
+
 
         if (focusInst == null) {
             return;
         }
+        print(focusInst.toJSON());
 
         if (focusInst.position < 0) {
             FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
@@ -470,7 +481,29 @@ public class Home {
 
                 print("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
             } else {
-                JSONObject json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
+                JSONObject json = null;
+                try {
+                    json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
+                } catch (AmbiguitiesException e) {
+                        AmbiguityResponse response = new AmbiguityResponse(search);
+
+                        String title;
+                        if (e.position < 0) {
+                            title = search.substring(e.begin, e.end);
+                        } else {
+                            title = tokens.get(e.position).getWord();
+                        }
+
+                        AmbiguityDatas datas = new AmbiguityDatas();
+                        datas.begin = e.begin;
+                        datas.end = e.end;
+                        datas.id = "id";
+                        datas.title = "ambiguity word: " + title;
+                        e.ars.forEach(a -> datas.possibleMenus.add(a.columnName + " in table " + a.sourceName));
+                        response.setDatas(datas);
+                        print(response.response());
+
+                }
 
                 print("指令:\n\t" + json + "\n");
 

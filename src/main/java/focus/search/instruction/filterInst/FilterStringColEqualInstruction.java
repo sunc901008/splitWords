@@ -48,7 +48,7 @@ public class FilterStringColEqualInstruction {
         datas.addToken(AnnotationToken.singleCol(param1.getChildren(), amb));
 
         AnnotationToken token2 = new AnnotationToken();
-        token2.value = "=";
+        token2.value = symbol.getValue();
         token2.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
         token2.begin = symbol.getBegin();
         token2.end = symbol.getEnd();

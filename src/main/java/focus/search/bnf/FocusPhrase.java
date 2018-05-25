@@ -54,7 +54,6 @@ public class FocusPhrase {
 
     public FocusNode getLastNode() {
         List<FocusNode> all = allNode();
-        logger.info("all nodes:" + JSONArray.toJSONString(all));
         return all.get(all.size() - 1);
     }
 

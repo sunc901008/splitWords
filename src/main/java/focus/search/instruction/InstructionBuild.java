@@ -46,7 +46,7 @@ public class InstructionBuild {
         int loop = 1;
         for (int i = 0; i < focusPhrases.size(); i++) {
             FocusPhrase focusPhrase = focusPhrases.get(i);
-            logger.info("Build instruction. Loop:" + loop++ + " focusPhrase:" + focusPhrase.toJSON() + " ambiguities:" + amb);
+            logger.info("Build instruction. Loop:" + loop++ + " focusPhrase:" + focusPhrase.toJSON() + " ambiguities:" + amb + " language:" + language);
             index = instructions.size() / 2 + 1;
             FocusPhrase prePhrase = null;
             if (i > 0) {
@@ -62,7 +62,7 @@ public class InstructionBuild {
 
     public static JSONArray build(FocusPhrase prePhrase, FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, String language, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         if (Constant.Language.CHINESE.equals(language)) {
-            return CInstructionBuild.build(focusPhrase, index, amb, formulas);
+            return CInstructionBuild.build(focusPhrase, index, amb, formulas, dateColumns);
         }
         logger.info("Question: Start building instructions.  Language: English. focusPhrase:" + focusPhrase.toJSON() + " .Language:" + language);
         switch (focusPhrase.getInstName()) {

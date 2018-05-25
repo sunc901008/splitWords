@@ -3,6 +3,7 @@
 
 <filter> := <number-simple-filter> |
             <date-simple-filter> |
+            <date-complex-filter> |
             <string-simple-filter> |
             <bool-function-column>;
 
@@ -22,7 +23,11 @@
                         <date-columns> <bool-symbol> <date-columns> |
                         <column-value> <bool-symbol> <column-value>;
 
-<string-simple-filter> := <all-string-column> = <column-value>;
+<date-complex-filter> := <before-after-filter> |
+                         <last-filter>;
+
+<string-simple-filter> := <all-string-column> 等于 <column-value> |
+                          <all-string-column> = <column-value>;
 
 <top-n> := 前 <integer> <number-columns>;
 
@@ -31,6 +36,81 @@
 <sort-by> := 按 <all-columns> 升序 |
              按 <all-columns> 降序 |
              按 <all-columns> 排序;
+
+<before-after-filter> := <before-filter> |
+                         <after-filter>;
+
+<before-chinese> := 之前 |
+                    之前的 |
+                    以前 |
+                    以前的;
+
+<before-filter> := 在 <date-columns> <before-chinese> |
+                   <date-columns> <before-chinese> |
+                   在 <column-value> <before-chinese> |
+                   <column-value> <before-chinese> |
+                   <all-date-column> 在 <date-columns> <before-chinese> |
+                   <all-date-column> 在 <column-value> <before-chinese>;
+
+<after-chinese> := 之后 |
+                   之后的 |
+                   以后 |
+                   以后的;
+
+<after-filter> := 在 <date-columns> <after-chinese> |
+                  <date-columns> <after-chinese> |
+                  在 <column-value> <after-chinese> |
+                  <column-value> <after-chinese> |
+                  <all-date-column> 在 <date-columns> <after-chinese> |
+                  <all-date-column> 在 <column-value> <after-chinese>;
+
+<last-filter> := <last-days-filter> |
+                 <last-weeks-filter> |
+                 <last-months-filter> |
+                 <last-quarters-filter> |
+                 <last-years-filter>;
+
+<last-chinese> := 过去 |
+                  前 |
+                  最近 |
+                  近;
+
+<last-days-chinese> := 天 |
+                       天的;
+<last-days-filter> := <last-chinese> <integer> <last-days-chinese> |
+                      <all-date-column> <last-chinese> <integer> <last-days-chinese>;
+
+<last-weeks-chinese> := 周 |
+                        周的 |
+                        星期 |
+                        星期的 |
+                        个星期 |
+                        个星期的;
+<last-weeks-filter> := <last-chinese> <integer> <last-weeks-chinese> |
+                       <all-date-column> <last-chinese> <integer> <last-weeks-chinese>;
+
+<last-months-chinese> := 月 |
+                         月的 |
+                         个月 |
+                         个月的;
+<last-months-filter> := <last-chinese> <integer> <last-months-chinese> |
+                        <all-date-column> <last-chinese> <integer> <last-months-chinese>;
+
+<last-quarters-chinese> := 季度 |
+                           季度的 |
+                           季 |
+                           季的 |
+                           个季 |
+                           个季的 |
+                           个季度的 |
+                           个季度的;
+<last-quarters-filter> := <last-chinese> <integer> <last-quarters-chinese> |
+                          <all-date-column> <last-chinese> <integer> <last-quarters-chinese>;
+
+<last-years-chinese> := 年 |
+                        年的;
+<last-years-filter> := <last-chinese> <integer> <last-years-chinese> |
+                       <all-date-column> <last-chinese> <integer> <last-years-chinese>;
 
 <all-columns> := <number-columns> |
                  <string-columns> |
@@ -69,7 +149,7 @@
 <number-source-column> := <all-int-column> |
                           <all-double-column>;
 
-<bool-symbol> := 大于 | 小于 | 不小于 | 大于等于 | 不大于 | 小于等于 | 等于 | 不等于;
+<bool-symbol> := 大于 | 小于 | 不小于 | 大于等于 | 不大于 | 小于等于 | 等于 | 不等于 | > | < | >= | <= | = | !=;
 <math-symbol> := + | - | * | / | ^;
 <number> := <integer> |
             <double>;

@@ -76,7 +76,6 @@ public class BeforeAfterInstruction {
             token2.end = focusNodes.get(1).getEnd();
             datas.addToken(token2);
         } else {
-            // TODO: 2018/5/24 当前数据源中查找日期列
             if (dateColumns.size() == 0) {
                 // 没有日期列
                 String reason = "no date columns in current sources";
@@ -86,7 +85,7 @@ public class BeforeAfterInstruction {
                 // 多个日期列
                 // 检测歧义是否解决
                 AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(key, amb);
-                int type = "before".equals(key) ? Constant.AmbiguityType.BEFORE : Constant.AmbiguityType.AFTER;
+                int type = Constant.AmbiguityType.types.indexOf(key) - Constant.AmbiguityType.types.size();
                 if (ambiguitiesResolve != null && ambiguitiesResolve.isResolved) {// 歧义已经解决过，应用下发
                     AmbiguitiesRecord resolve = ambiguitiesResolve.ars.get(0);
                     dateCol = new Column();

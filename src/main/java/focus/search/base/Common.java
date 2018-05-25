@@ -113,11 +113,19 @@ public class Common {
     private static final SimpleDateFormat sdf6 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private static final List<SimpleDateFormat> sdfList = Arrays.asList(sdf1, sdf2, sdf3, sdf4, sdf5, sdf6);
 
+    public static String biTimeFormat(Date date){
+        return sdf0.format(date);
+    }
+
+    public static String biTimeFormat(Calendar date){
+        return biTimeFormat(date.getTime());
+    }
+
     public static String dateFormat(String date) {
         for (SimpleDateFormat sdf : sdfList) {
             Date d = dateParse(sdf, date);
             if (d != null) {
-                return sdf0.format(d);
+                return biTimeFormat(d);
             }
         }
         return null;
@@ -130,6 +138,78 @@ public class Common {
             logger.info("current sdf pattern:" + sdf.toPattern());
         }
         return null;
+    }
+
+    // 获取当前天 起始时间
+    public static Calendar getStartDay() {
+        Calendar today = Calendar.getInstance();
+        clearTime(today);
+        return today;
+    }
+
+    // 获取当前周 起始时间
+    public static Calendar getStartWeek() {
+        Calendar today = Calendar.getInstance();
+        int day = today.get(Calendar.WEEK_OF_YEAR);
+        today.set(Calendar.DAY_OF_MONTH, day);
+        clearTime(today);
+        return today;
+    }
+
+    // 获取当前月 起始时间
+    public static Calendar getStartMonth() {
+        Calendar today = Calendar.getInstance();
+        clearDay(today);
+        clearTime(today);
+        return today;
+    }
+
+    // 获取当前季度 起始时间
+    public static Calendar getStartQuarter() {
+        Calendar today = Calendar.getInstance();
+        int currentMonth = today.get(Calendar.MONTH) + 1;
+        try {
+            if (currentMonth >= 1 && currentMonth <= 3)
+                today.set(Calendar.MONTH, 0);
+            else if (currentMonth >= 4 && currentMonth <= 6)
+                today.set(Calendar.MONTH, 3);
+            else if (currentMonth >= 7 && currentMonth <= 9)
+                today.set(Calendar.MONTH, 4);
+            else if (currentMonth >= 10 && currentMonth <= 12)
+                today.set(Calendar.MONTH, 9);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        clearDay(today);
+        clearTime(today);
+        return today;
+    }
+
+    // 获取当前月 起始时间
+    public static Calendar getStartYear() {
+        Calendar today = Calendar.getInstance();
+        clearMonth(today);
+        clearDay(today);
+        clearTime(today);
+        return today;
+    }
+
+    // 将日期的天设置为1号
+    private static void clearDay(Calendar today) {
+        today.set(Calendar.DAY_OF_MONTH, 1);
+    }
+
+    // 将日期的月设置为1月
+    private static void clearMonth(Calendar today) {
+        today.set(Calendar.MONTH, 0);
+    }
+
+    // 将日期的时分秒设置为0
+    private static void clearTime(Calendar today) {
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
     }
 
 }

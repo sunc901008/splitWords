@@ -209,7 +209,10 @@ public class Constant {
         // 记录歧义 before 、 after
         public static final Integer BEFORE = -1;
         public static final Integer AFTER = -2;
-        public static final List<String> types = Arrays.asList("after", "before");
+        // 记录歧义 last day/week/month/quarter/year
+        public static final Integer LAST = -3;
+
+        public static final List<String> types = Arrays.asList("last", "after", "before");
 
         public static String getWord(Integer type) {
             return types.get(types.size() + type);

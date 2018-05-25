@@ -316,7 +316,7 @@ public class Base {
                     // 获取日期列
                     List<Column> dateColumns = SuggestionBuild.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
                     // 生成指令
-                    JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user), dateColumns);
+                    JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user), language, dateColumns);
 
                     json.put("source", "searchUser"); // 区分是search框还是pinboard
                     json.put("sourceToken", user.getString("sourceToken"));

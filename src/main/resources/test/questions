@@ -20,6 +20,11 @@ col
 // if 3>2 then creationdate else to_date(3)
 // if 3>2 then "aa" else "bb"
 // if 3>2 then if 3>2 then "aa" else "bb" else if 3>2 then "aa" else "bb"
+creationdate after "01/01/2000"
+after "01/01/2000"
+last 5 days
+last year
+creationdate last 2 months
 
 // function
 average(2)
