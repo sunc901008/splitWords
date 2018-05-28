@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
@@ -17,12 +18,18 @@ import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/4/20
+ * date: 2018/5/28
  * description:
  */
-//<sort-by> := sort by <all-columns> |
-//        sort by <all-columns> desc |
-//        sort by <all-columns> asc;
+//<sort-by> := 按 <all-columns> <sort-by-ascending> |
+//        按 <all-columns> <sort-by-descending> |
+//        按 <all-columns> <sort-by-chinese>;
+//<sort-by-chinese> := 排序 |
+//        排序的;
+//<sort-by-ascending> := 升序 |
+//        升序的;
+//<sort-by-descending> := 降序 |
+//        降序的;
 public class CSortByInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
@@ -35,16 +42,17 @@ public class CSortByInstruction {
         json1.put("annotationId", annotationId);
         json1.put("instId", Constant.InstIdType.SORT_BY);
 
+        FocusNode first = focusNodes.get(0);
         AnnotationToken token1 = new AnnotationToken();
-        token1.addToken("sort");
-        token1.addToken("by");
-        token1.value = "sort by";
+        token1.addToken(first.getValue());
+        token1.value = first.getValue();
         token1.type = Constant.AnnotationCategory.SORT_BY_ORDER;
-        token1.begin = focusNodes.get(0).getBegin();
-        token1.end = focusNodes.get(1).getEnd();
+        token1.begin = first.getBegin();
+        token1.end = first.getEnd();
         datas.addToken(token1);
 
-        FocusNode param = focusPhrase.getFocusNodes().get(2);
+        FocusNode param = focusNodes.get(1);
+        json1.put("name", Base.InstName(param.getChildren()));
 
         JSONObject json = AllColumnsInstruction.build(param.getChildren(), formulas);
         String type = json.getString("type");
@@ -61,18 +69,20 @@ public class CSortByInstruction {
         }
 
         json1.put("expression", arg);
-        String sortOrder = null;
-        if (focusNodes.size() == 4) {
-            sortOrder = focusNodes.get(3).getValue();
-            AnnotationToken token3 = new AnnotationToken();
-            token3.value = sortOrder;
-            token3.type = "sortOrder";
-            token3.begin = focusNodes.get(3).getBegin();
-            token3.end = focusNodes.get(3).getEnd();
-            token3.addToken(sortOrder);
-            datas.addToken(token3);
+        FocusNode sortOrder = focusNodes.get(2);
+        FocusNode order = sortOrder.getChildren().getFirstNode();
+        AnnotationToken token3 = new AnnotationToken();
+        token3.addToken(order.getValue());
+        token3.value = order.getValue();
+        token3.type = Constant.AnnotationCategory.SORT_BY_ORDER;
+        token3.begin = focusNodes.get(3).getBegin();
+        token3.end = focusNodes.get(3).getEnd();
+        datas.addToken(token3);
+        if ("<sort-by-ascending>".equals(sortOrder.getValue())) {
+            json1.put("sortOrder", "ascending");
+        } else if ("<sort-by-descending>".equals(sortOrder.getValue())) {
+            json1.put("sortOrder", "descending");
         }
-        json1.put("sortOrder", sortOrder);
 
         instructions.add(json1);
         JSONObject json2 = new JSONObject();

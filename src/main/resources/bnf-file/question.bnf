@@ -5,6 +5,7 @@
             <date-simple-filter> |
             <date-complex-filter> |
             <string-simple-filter> |
+            <string-complex-filter> |
             <bool-function-column>;
 
 <phrase> := <top-n> |
@@ -12,12 +13,15 @@
             <sort-by> |
             <growth-of> |
             <all-columns> |
+            <number-complex-phrase> |
             <formula-column>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
                           <number> <bool-symbol> <number-columns> |
                           <number-columns> <bool-symbol> <number-columns> |
                           <number> <bool-symbol> <number>;
+
+<number-complex-phrase> := <average-phrase>;
 
 <date-simple-filter> := <date-columns> <bool-symbol> <column-value> |
                         <column-value> <bool-symbol> <number-columns> |
@@ -28,6 +32,11 @@
                          <last-filter>;
 
 <string-simple-filter> := <all-string-column> = <column-value>;
+
+<string-complex-filter> := <begins-with-filter> |
+                           <not-begins-with-filter> |
+                           <contains-filter> |
+                           <not-contains-filter>;
 
 <top-n> := top <integer> <number-columns> |
            top <number-columns>;
@@ -62,6 +71,8 @@
                                 yearly;
 
 <year-over-year> := year over year;
+
+<average-phrase> := average <number-source-column>;
 
 <before-after-filter> := <before-filter> |
                          <after-filter>;
@@ -106,6 +117,14 @@
                        <all-date-column> last year |
                        last <integer> years |
                        <all-date-column> last <integer> years;
+
+<begins-with-filter> := <all-string-column> begins with <column-value>;
+
+<not-begins-with-filter> := <all-string-column> not begins with <column-value>;
+
+<contains-filter> := <all-string-column> contains <column-value>;
+
+<not-contains-filter> := <all-string-column> not contains <column-value>;
 
 <all-columns> := <number-columns> |
                  <string-columns> |

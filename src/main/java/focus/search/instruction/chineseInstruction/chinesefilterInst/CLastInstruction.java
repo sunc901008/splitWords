@@ -105,7 +105,7 @@ public class CLastInstruction {
         AnnotationToken token4 = new AnnotationToken();
         token4.addToken(keywordNode.getValue());
         token4.value = keywordNode.getValue();
-        token4.type = Constant.AnnotationCategory.FILTER;
+        token4.type = Constant.AnnotationTokenType.FILTER;
         token4.begin = keywordNode.getBegin();
         token4.end = keywordNode.getEnd();
         datas.addToken(token4);
@@ -235,7 +235,7 @@ public class CLastInstruction {
         AnnotationToken token3 = new AnnotationToken();
         token3.addToken(keywordNode.getValue());
         token3.value = keywordNode.getValue();
-        token3.type = Constant.AnnotationCategory.FILTER;
+        token3.type = Constant.AnnotationTokenType.FILTER;
         token3.begin = keywordNode.getBegin();
         token3.end = keywordNode.getEnd();
         datas.addToken(token3);

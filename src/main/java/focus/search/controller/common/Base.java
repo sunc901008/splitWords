@@ -545,7 +545,7 @@ public class Base {
         return instName.toString();
     }
 
-    private static String space(int count) {
+    public static String space(int count) {
         StringBuilder space = new StringBuilder("");
         int i = 0;
         while (i++ < count) {

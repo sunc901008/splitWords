@@ -72,12 +72,11 @@ public class TopBottomInstruction {
             expression.put("type", "column");
             Column column = (Column) json.get("column");
             expression.put("value", column.getColumnId());
-            int begin = param.getChildren().getFirstNode().getBegin();
-            int end = param.getChildren().getLastNode().getEnd();
-            datas.addToken(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end, amb));
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
         }
+
+        datas.addTokens(NumberColInstruction.tokens(param.getChildren(), formulas, amb));
 
         json1.put("expression", expression);
         instructions.add(json1);

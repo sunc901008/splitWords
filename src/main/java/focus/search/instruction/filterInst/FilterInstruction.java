@@ -22,9 +22,11 @@ import java.util.List;
  */
 
 //<filter> := <number-simple-filter> |
+//         <number-complex-filter> |
 //        <date-simple-filter> |
 //        <date-complex-filter> |
 //        <string-simple-filter> |
+//        <string-complex-filter> |
 //        <bool-function-column>;
 public class FilterInstruction {
     private static final Logger logger = Logger.getLogger(FilterInstruction.class);
@@ -35,12 +37,16 @@ public class FilterInstruction {
         switch (fn.getValue()) {
             case "<number-simple-filter>":
                 return FilterNumOrNumColInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<number-complex-filter>":
+                return FilterNumberComplexInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<date-simple-filter>":
                 return FilterDateInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<date-complex-filter>":
                 return FilterDateComplexInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<string-simple-filter>":
                 return FilterStringColEqualInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<string-complex-filter>":
+                return FilterStringComplexInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.build(fn.getChildren(), index, amb, formulas);
             // 已移除

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
@@ -45,6 +46,7 @@ public class SortByInstruction {
         datas.addToken(token1);
 
         FocusNode param = focusPhrase.getFocusNodes().get(2);
+        json1.put("name", Base.InstName(param.getChildren()));
 
         JSONObject json = AllColumnsInstruction.build(param.getChildren(), formulas);
         String type = json.getString("type");

@@ -5,18 +5,22 @@
             <date-simple-filter> |
             <date-complex-filter> |
             <string-simple-filter> |
+            <string-complex-filter> |
             <bool-function-column>;
 
 <phrase> := <top-n> |
             <bottom-n> |
             <sort-by> |
             <all-columns> |
+            <number-complex-phrase> |
             <formula-column>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
                           <number> <bool-symbol> <number-columns> |
                           <number-columns> <bool-symbol> <number-columns> |
                           <number> <bool-symbol> <number>;
+
+<number-complex-phrase> := <average-phrase>;
 
 <date-simple-filter> := <date-columns> <bool-symbol> <column-value> |
                         <column-value> <bool-symbol> <number-columns> |
@@ -29,13 +33,61 @@
 <string-simple-filter> := <all-string-column> 等于 <column-value> |
                           <all-string-column> = <column-value>;
 
-<top-n> := 前 <integer> <number-columns>;
+<string-complex-filter> := <begins-with-filter> |
+                           <not-begins-with-filter> |
+                           <contains-filter> |
+                           <not-contains-filter>;
 
-<bottom-n> := 倒数 <integer> <number-columns>;
+<top-n-chinese> := 前 |
+                   排前 |
+                   排名前;
 
-<sort-by> := 按 <all-columns> 升序 |
-             按 <all-columns> 降序 |
-             按 <all-columns> 排序;
+<top-bottom-n-measure-word-chinese> := 的 |
+                                       名的;
+
+<top-n> := <top-n-chinese> <integer> <top-bottom-n-measure-word-chinese> <number-columns> |
+           <number-columns> <top-n-chinese> <integer> <top-bottom-n-measure-word-chinese> |
+           <top-1>;
+
+<top-1-chinese> := 排名最前的 |
+                   排最前的 |
+                   最前的;
+
+<top-1> := <top-1-chinese> <number-columns> |
+           <number-columns> <top-1-chinese>;
+
+<bottom-n-chinese> := 后 |
+                      排后 |
+                      排名后 |
+                      倒数 |
+                      倒数第;
+
+<bottom-n> := <bottom-n-chinese> <integer> <top-bottom-n-measure-word-chinese> <number-columns> |
+              <number-columns> <bottom-n-chinese> <integer> <top-bottom-n-measure-word-chinese> |
+              <bottom-1>;
+
+<bottom-1-chinese> := 排名最后的 |
+                      排最后的 |
+                      最后的;
+
+<bottom-1> := <bottom-1-chinese> <number-columns> |
+              <number-columns> <bottom-1-chinese>;
+
+<sort-by> := 按 <all-columns> <sort-by-ascending> |
+             按 <all-columns> <sort-by-descending> |
+             按 <all-columns> <sort-by-chinese>;
+
+<sort-by-chinese> := 排序 |
+                     排序的;
+
+<sort-by-ascending> := 升序 |
+                       升序的;
+
+<sort-by-descending> := 降序 |
+                        降序的;
+
+<average-phrase> := <number-source-column> 的平均值 |
+                    平均 <number-source-column>;
 
 <before-after-filter> := <before-filter> |
                          <after-filter>;
@@ -111,6 +163,18 @@
                         年的;
 <last-years-filter> := <last-chinese> <integer> <last-years-chinese> |
                        <all-date-column> <last-chinese> <integer> <last-years-chinese>;
+
+<begins-with-filter> := <all-string-column> 开头是 <column-value> |
+                        开头是 <column-value> 的 <all-string-column>;
+
+<not-begins-with-filter> := <all-string-column> 开头不是 <column-value> |
+                            开头不是 <column-value> 的 <all-string-column>;
+
+<contains-filter> := <all-string-column> 包含 <column-value> |
+                     包含 <column-value> 的 <all-string-column>;
+
+<not-contains-filter> := <all-string-column> 不包含 <column-value> |
+                         不包含 <column-value> 的 <all-string-column>;
 
 <all-columns> := <number-columns> |
                  <string-columns> |

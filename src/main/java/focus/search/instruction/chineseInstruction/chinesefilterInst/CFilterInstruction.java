@@ -24,6 +24,7 @@ import java.util.List;
 //        <date-simple-filter> |
 //        <date-complex-filter> |
 //        <string-simple-filter> |
+//        <string-complex-filter> |
 //        <bool-function-column>;
 public class CFilterInstruction {
     private static final Logger logger = Logger.getLogger(CFilterInstruction.class);
@@ -40,6 +41,7 @@ public class CFilterInstruction {
                 return CFilterDateComplexInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<string-simple-filter>":
                 return CFilterStringColEqualInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<string-complex-filter>":
             case "<bool-function-column>":
                 return BoolFuncColInstruction.build(fn.getChildren(), index, amb, formulas);
             default:

@@ -117,7 +117,7 @@ public class CBeforeAfterInstruction {
         AnnotationToken token4 = new AnnotationToken();
         token4.addToken(last.getValue());
         token4.value = last.getValue();
-        token4.type = Constant.AnnotationCategory.FILTER;
+        token4.type = Constant.AnnotationTokenType.FILTER;
         token4.begin = last.getBegin();
         token4.end = last.getEnd();
         datas.addToken(token4);
@@ -153,7 +153,7 @@ public class CBeforeAfterInstruction {
             AnnotationToken token1 = new AnnotationToken();
             token1.addToken(first.getValue());
             token1.value = first.getValue();
-            token1.type = Constant.AnnotationCategory.FILTER;
+            token1.type = Constant.AnnotationTokenType.FILTER;
             token1.begin = first.getBegin();
             token1.end = first.getEnd();
             datas.addToken(token1);
@@ -228,7 +228,7 @@ public class CBeforeAfterInstruction {
         token3.columnId = dateCol.getColumnId();
         token3.addToken(last.getValue());
         token3.value = last.getValue();
-        token3.type = Constant.AnnotationCategory.FILTER;
+        token3.type = Constant.AnnotationTokenType.FILTER;
         token3.begin = last.getBegin();
         token3.end = last.getEnd();
         token3.ambiguity = ambiguity;

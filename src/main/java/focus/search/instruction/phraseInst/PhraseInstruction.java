@@ -22,6 +22,7 @@ import java.util.List;
 //        <sort-by> |
 //        <growth-of> |
 //        <all-columns> |
+//        <number-complex-phrase> |
 //        <formula-column>;
 public class PhraseInstruction {
 
@@ -37,6 +38,8 @@ public class PhraseInstruction {
                 return GrowthOfInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<all-columns>":
                 return AllColumnsInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<number-complex-phrase>":
+                return PhraseNumberComplexInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<formula-column>":
                 return FormulaColumnInstruction.build(fn.getChildren(), index, formulas);
             default:
