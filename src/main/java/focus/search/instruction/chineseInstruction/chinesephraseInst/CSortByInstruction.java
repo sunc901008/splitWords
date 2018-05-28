@@ -74,8 +74,8 @@ public class CSortByInstruction {
         token3.addToken(order.getValue());
         token3.value = order.getValue();
         token3.type = Constant.AnnotationCategory.SORT_BY_ORDER;
-        token3.begin = focusNodes.get(3).getBegin();
-        token3.end = focusNodes.get(3).getEnd();
+        token3.begin = sortOrder.getBegin();
+        token3.end = sortOrder.getEnd();
         datas.addToken(token3);
         if ("<sort-by-ascending>".equals(sortOrder.getValue())) {
             json1.put("sortOrder", "ascending");
