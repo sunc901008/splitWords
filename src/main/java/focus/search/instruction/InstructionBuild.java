@@ -69,7 +69,7 @@ public class InstructionBuild {
             case "<filter>":
                 return FilterInstruction.build(prePhrase, focusPhrase, index, amb, formulas, dateColumns);
             case "<phrase>":
-                return PhraseInstruction.build(focusPhrase, index, amb, formulas);
+                return PhraseInstruction.build(focusPhrase, index, amb, formulas, dateColumns);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

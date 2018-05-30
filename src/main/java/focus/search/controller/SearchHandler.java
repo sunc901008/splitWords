@@ -215,7 +215,7 @@ class SearchHandler {
         user.put("category", Constant.CategoryType.QUESTION);
 //        session.getAttributes().put("user", user);
 
-        Base.response(session, search, user, ambiguities, event);
+        Base.response(session, search, user, ambiguities, event, position);
     }
 
     private static void selectSuggest(WebSocketSession session, JSONObject params) {
@@ -277,9 +277,8 @@ class SearchHandler {
         Boolean debug = params.getBoolean("debug");
 
         user.put("category", Constant.CategoryType.EXPRESSION);
-//        session.getAttributes().put("user", user);
 
-        Base.response(session, search, user);
+        Base.response(session, search, user, position);
 
     }
 

@@ -28,7 +28,7 @@ public class CInstructionBuild {
             case "<filter>":
                 return CFilterInstruction.build(focusPhrase, index, amb, formulas, dateColumns);
             case "<phrase>":
-                return CPhraseInstruction.build(focusPhrase, index, amb, formulas);
+                return CPhraseInstruction.build(focusPhrase, index, amb, formulas, dateColumns);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

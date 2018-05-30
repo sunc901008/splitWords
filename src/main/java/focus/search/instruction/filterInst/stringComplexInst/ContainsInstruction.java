@@ -7,10 +7,10 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.instruction.sourceInst.StringColInstruction;
 import focus.search.meta.Formula;
-import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
 
@@ -54,7 +54,7 @@ public class ContainsInstruction {
         expression.put("name", "contains");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
-        args.add(StringColInstruction.arg(stringPhrase, formulas));
+        args.add(ColumnInstruction.arg(stringPhrase));
         args.add(ColumnValueInstruction.arg(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);

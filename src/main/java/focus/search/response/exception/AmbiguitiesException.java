@@ -1,6 +1,5 @@
 package focus.search.response.exception;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.meta.AmbiguitiesRecord;
 

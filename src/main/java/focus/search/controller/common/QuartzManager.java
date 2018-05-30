@@ -51,7 +51,8 @@ public class QuartzManager {
             // add job to scheduler with trigger
             Date ft = sched.scheduleJob(job, trigger);
             sched.start();
-            logger.info(key.getName() + " start at : " + sdf.format(ft) + ", time scheduler cron: " + trigger.getCronExpression());
+            Calendar calendar = Calendar.getInstance();
+            logger.info(key.getName() + " execute at : " + sdf.format(ft) + ", time scheduler cron: " + trigger.getCronExpression());
         } catch (ParseException | SchedulerException e) {
             logger.error(Common.printStacktrace(e));
         }

@@ -156,7 +156,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
                         response.instructions = json.getString("instructions");
                     }
                 }
-            } catch (AmbiguitiesException | FocusParserException | FocusInstructionException |IllegalException e) {
+            } catch (AmbiguitiesException | FocusParserException | FocusInstructionException | IllegalException e) {
                 logger.error(Common.printStacktrace(e));
             }
             break;
@@ -166,17 +166,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
     }
 
     public static JSONObject modelNameCheck(String name, String language, String type) {
-        FocusParser fp = null;
-        for (WebSocketSession session : users) {
-            JSONObject user = (JSONObject) session.getAttributes().get("user");
-            if (user.getString("language").equals(language)) {
-                fp = (FocusParser) user.get("parser");
-                break;
-            }
-        }
-        if (fp == null) {
-            fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
-        }
+        FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
 
         NameCheckResponse response = new NameCheckResponse(Constant.Status.ERROR);
         List<TerminalToken> tokens = SuggestionBuild.terminalTokens(fp, "<symbol>");

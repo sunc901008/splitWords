@@ -7,8 +7,8 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
-import focus.search.instruction.sourceInst.StringColInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -64,7 +64,7 @@ public class CContainsInstruction {
         expression.put("name", "contains");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
-        args.add(StringColInstruction.arg(stringPhrase, formulas));
+        args.add(ColumnInstruction.arg(stringPhrase));
         args.add(ColumnValueInstruction.arg(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);
@@ -92,9 +92,9 @@ public class CContainsInstruction {
         json1.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         FocusNode key1 = focusNodes.get(0);
-        FocusPhrase stringPhrase = focusNodes.get(1).getChildren();
+        FocusNode valueNode = focusNodes.get(1);
         FocusNode key2 = focusNodes.get(2);
-        FocusNode valueNode = focusNodes.get(3);
+        FocusPhrase stringPhrase = focusNodes.get(3).getChildren();
 
         AnnotationToken token1 = new AnnotationToken();
         token1.addToken(key1.getValue());
@@ -104,7 +104,7 @@ public class CContainsInstruction {
         token1.end = key1.getEnd();
         datas.addToken(token1);
 
-        datas.addToken(AnnotationToken.singleCol(stringPhrase, amb));
+        datas.addToken(ColumnValueInstruction.token(valueNode));
 
         AnnotationToken token3 = new AnnotationToken();
         token3.addToken(key2.getValue());
@@ -114,13 +114,13 @@ public class CContainsInstruction {
         token3.end = key2.getEnd();
         datas.addToken(token3);
 
-        datas.addToken(ColumnValueInstruction.token(valueNode));
+        datas.addToken(AnnotationToken.singleCol(stringPhrase, amb));
 
         JSONObject expression = new JSONObject();
         expression.put("name", "contains");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
-        args.add(StringColInstruction.arg(stringPhrase, formulas));
+        args.add(ColumnInstruction.arg(stringPhrase));
         args.add(ColumnValueInstruction.arg(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);

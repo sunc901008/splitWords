@@ -169,7 +169,6 @@ public class CLastInstruction {
         jsonStart.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         FocusNode last = focusNodes.get(0).getChildren().getFirstNode();
-        ;
 
         Column dateCol;
         AmbiguityDatas ambiguity = null;

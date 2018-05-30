@@ -18,11 +18,16 @@ public class HistoryQuestion {
         this.taskId = taskId;
     }
 
+    /**
+     * @param history 上一次出正确结果的搜索
+     * @param current 当前的搜索
+     * @return 当前搜索和上一次搜索相同，则返回空，否则返回上一次的taskId
+     */
     public static String equals(HistoryQuestion history, HistoryQuestion current) {
         if (history.question.equals(current.question) && history.instruction.equals(current.instruction)) {
-            return history.taskId;
+            return null;
         }
-        return null;
+        return history.taskId;
     }
 
 }

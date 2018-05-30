@@ -40,7 +40,7 @@ public class StringColInstruction {
         json1.put("category", Constant.AnnotationCategory.EXPRESSION);
         json1.put("type", Constant.ColumnType.ATTRIBUTE);
 
-        String aggregation = Constant.AggregationType.NONE;
+//        String aggregation = Constant.AggregationType.NONE;
         JSONObject json = build(focusPhrase, formulas);
         String type = json.getString("type");
         JSONObject expression = new JSONObject();
@@ -48,13 +48,13 @@ public class StringColInstruction {
             expression.put("type", "column");
             Column column = (Column) json.get("column");
             expression.put("value", column.getColumnId());
-            aggregation = column.getAggregation();
+//            aggregation = column.getAggregation();
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
         }
 
         json1.put("name", Base.InstName(focusPhrase));
-        json1.put("aggregation", aggregation);
+//        json1.put("aggregation", aggregation);
 
         json1.put("expression", expression);
         instructions.add(json1);

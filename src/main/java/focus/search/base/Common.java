@@ -96,6 +96,7 @@ public class Common {
     public static String getCron() {
         String time = "%s %s %s * * ?";
         Calendar calendar = Calendar.getInstance();
+        logger.info("Current time : " + sdf1.format(calendar.getTime()));
         calendar.add(Calendar.SECOND, Constant.BiTimeout);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);

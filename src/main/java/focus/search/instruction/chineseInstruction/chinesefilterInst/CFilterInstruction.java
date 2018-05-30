@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.instruction.filterInst.FilterDateComplexInstruction;
 import focus.search.instruction.functionInst.BoolFuncColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
@@ -42,6 +41,7 @@ public class CFilterInstruction {
             case "<string-simple-filter>":
                 return CFilterStringColEqualInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<string-complex-filter>":
+                return CFilterStringComplexInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.build(fn.getChildren(), index, amb, formulas);
             default:

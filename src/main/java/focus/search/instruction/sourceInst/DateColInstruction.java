@@ -41,7 +41,7 @@ public class DateColInstruction {
         json1.put("type", Constant.ColumnType.ATTRIBUTE);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE);
 
-        String aggregation = Constant.AggregationType.NONE;
+//        String aggregation = Constant.AggregationType.NONE;
         JSONObject expression = new JSONObject();
         JSONObject json = build(focusPhrase, formulas);
         String type = json.getString("type");
@@ -49,13 +49,13 @@ public class DateColInstruction {
             Column column = (Column) json.get("column");
             expression.put("type", "column");
             expression.put("value", column.getColumnId());
-            aggregation = column.getAggregation();
+//            aggregation = column.getAggregation();
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
         }
 
         json1.put("name", Base.InstName(focusPhrase));
-        json1.put("aggregation", aggregation);
+//        json1.put("aggregation", aggregation);
 
         datas.addTokens(tokens(focusPhrase, formulas, amb));
 

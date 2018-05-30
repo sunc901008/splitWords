@@ -144,8 +144,9 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user) throws IOException, FocusHttpException, FocusParserException, FocusInstructionException, IllegalException {
-        response(session, search, user, null, null);
+    public static void response(WebSocketSession session, String search, JSONObject user, int position) throws IOException, FocusHttpException,
+            FocusParserException, FocusInstructionException, IllegalException {
+        response(session, search, user, null, null, position);
     }
 
     /**
@@ -156,7 +157,7 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities, String event) throws
+    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities, String event, int position) throws
             IOException, FocusHttpException, FocusParserException, FocusInstructionException, IllegalException {
         // 接收请求的时间戳
         long received = Long.parseLong(session.getAttributes().get(WebsocketSearch.RECEIVED_TIMESTAMP).toString());
@@ -177,7 +178,7 @@ public class Base {
             JSONArray historyQuestions = user.getJSONArray("historyQuestions");
             for (Object history : historyQuestions) {
                 SuggestionSuggestion suggestions = new SuggestionSuggestion();
-                suggestions.suggestion = history.toString();
+                suggestions.suggestion = ((HistoryQuestion) history).question;
                 suggestions.suggestionType = "history";
                 suggestions.description = "history";
                 datas.suggestions.add(suggestions);
@@ -344,6 +345,7 @@ public class Base {
                     session.sendMessage(new TextMessage(response.response()));
 
                     if (checkQuery(session, json, search)) {
+                        logger.debug("precheck fail.");
                         return;
                     }
 
@@ -362,7 +364,7 @@ public class Base {
                     QuartzManager.addJob(taskId, session);
 
                     // 添加到历史记录中,并且放弃上一次搜索
-                    addQuestion(new HistoryQuestion(search, json, taskId), user);
+                    addQuestion(new HistoryQuestion(search.trim(), json, taskId), user);
 
                 }
             } else {//  出错
@@ -461,11 +463,25 @@ public class Base {
             HistoryQuestion last = (HistoryQuestion) questions.get(0);
             String taskId = HistoryQuestion.equals(last, current);
             if (taskId != null) {
-                questions.add(0, current);
-                user.put("historyQuestions", questions);
+                addQuestion(current, questions);
                 Clients.Bi.abortQuery(taskId);
             }
+        } else {
+            addQuestion(current, questions);
         }
+        user.put("historyQuestions", questions);
+    }
+
+    private static void addQuestion(HistoryQuestion current, JSONArray questions) throws FocusHttpException {
+        for (Object object : questions) {
+            HistoryQuestion hq = (HistoryQuestion) object;
+            if (hq.question.equals(current.question)) {
+                questions.remove(object);
+                questions.add(0, current);
+                return;
+            }
+        }
+        questions.add(0, current);
     }
 
     /**
@@ -505,7 +521,7 @@ public class Base {
         try {
             checkQuery = Clients.Bi.checkQuery(json.toJSONString());
             if (!checkQuery.getBooleanValue("success")) {
-                IllegalDatas datas = new IllegalDatas(0, question.length() - 1, "Bi not support.");
+                IllegalDatas datas = new IllegalDatas(0, question.length() - 1, checkQuery.getString("exception"));
                 IllegalResponse illegal = new IllegalResponse(question, datas);
                 session.sendMessage(new TextMessage(illegal.response()));
                 return true;

@@ -40,7 +40,7 @@ public class FocusParserBak {
     }
 
     private void init() {
-        init("bnf-file/question.bnf");
+        init("bnf-file/english.bnf");
         init("bnf-file/function.bnf");
     }
 

@@ -5,10 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberArg;
-import focus.search.instruction.sourceInst.AllColumnsInstruction;
 import focus.search.instruction.sourceInst.NumberColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
@@ -40,7 +40,7 @@ public class CTopBottomInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         String key = "<top-n>".equals(focusPhrase.getInstName()) ? "top" : "bottom";
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
-        if (focusPhrase.size() == 1) {
+        if ("<top-1>".equals(fn.getValue())) {
             return build1(fn.getChildren(), index, amb, formulas, key);
         }
         if ("<number-columns>".equals(fn.getValue())) {
@@ -60,13 +60,15 @@ public class CTopBottomInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", String.format("set_%s_n", key));
+        json1.put("instId", Constant.InstIdType.TOP_BOTTOM);
+        json1.put("type", key);
 
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, key);
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode first = focusNodes.get(0);
         JSONObject expression = new JSONObject();
         if ("<number-columns>".equals(first.getValue())) {//<number-columns> <top-1-chinese>
+            json1.put("name", Base.InstName(first.getChildren()));
             JSONObject json = NumberColInstruction.build(first.getChildren(), formulas);
             String type = json.getString("type");
             if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
@@ -77,18 +79,19 @@ public class CTopBottomInstruction {
                 expression = json.getJSONObject(Constant.InstType.FUNCTION);
             }
 
-            datas.addTokens(AllColumnsInstruction.tokens(first.getChildren(), formulas, amb));
+            datas.addTokens(NumberColInstruction.tokens(first.getChildren(), formulas, amb));
 
             FocusNode keyword = focusNodes.get(1).getChildren().getFirstNode();
             AnnotationToken token1 = new AnnotationToken();
             token1.addToken(keyword.getValue());
             token1.value = keyword.getValue();
-            token1.type = key + "N";
+            token1.type = key;
             token1.begin = keyword.getBegin();
             token1.end = keyword.getEnd();
             datas.addToken(token1);
         } else {//<top-1-chinese> <number-columns>
             FocusNode param = focusNodes.get(1);
+            json1.put("name", Base.InstName(param.getChildren()));
             JSONObject json = NumberColInstruction.build(param.getChildren(), formulas);
             String type = json.getString("type");
             if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
@@ -99,15 +102,16 @@ public class CTopBottomInstruction {
                 expression = json.getJSONObject(Constant.InstType.FUNCTION);
             }
 
-            datas.addTokens(AllColumnsInstruction.tokens(first.getChildren(), formulas, amb));
-
+            first = first.getChildren().getFirstNode();
             AnnotationToken token1 = new AnnotationToken();
             token1.addToken(first.getValue());
             token1.value = first.getValue();
-            token1.type = key + "N";
+            token1.type = key;
             token1.begin = first.getBegin();
             token1.end = first.getEnd();
             datas.addToken(token1);
+
+            datas.addTokens(NumberColInstruction.tokens(param.getChildren(), formulas, amb));
         }
         json1.put("n", 1);
 
@@ -131,12 +135,14 @@ public class CTopBottomInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", String.format("set_%s_n", key));
+        json1.put("instId", Constant.InstIdType.TOP_BOTTOM);
+        json1.put("type", key);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, key);
 
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONObject expression = new JSONObject();
         FocusPhrase numberCol = focusNodes.get(0).getChildren();
+        json1.put("name", Base.InstName(numberCol));
         JSONObject json = NumberColInstruction.build(numberCol, formulas);
         String type = json.getString("type");
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
@@ -153,7 +159,7 @@ public class CTopBottomInstruction {
         AnnotationToken token2 = new AnnotationToken();
         token2.addToken(keyword.getValue());
         token2.value = keyword.getValue();
-        token2.type = key + "N";
+        token2.type = key;
         token2.begin = keyword.getBegin();
         token2.end = keyword.getEnd();
         datas.addToken(token2);
@@ -166,7 +172,7 @@ public class CTopBottomInstruction {
         AnnotationToken token4 = new AnnotationToken();
         token4.addToken(measureWord.getValue());
         token4.value = measureWord.getValue();
-        token4.type = key + "N";
+        token4.type = key;
         token4.begin = measureWord.getBegin();
         token4.end = measureWord.getEnd();
         datas.addToken(token4);
@@ -190,7 +196,8 @@ public class CTopBottomInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", String.format("set_%s_n", key));
+        json1.put("instId", Constant.InstIdType.TOP_BOTTOM);
+        json1.put("type", key);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, key);
 
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
@@ -199,7 +206,7 @@ public class CTopBottomInstruction {
         AnnotationToken token1 = new AnnotationToken();
         token1.addToken(keyword.getValue());
         token1.value = keyword.getValue();
-        token1.type = key + "N";
+        token1.type = key;
         token1.begin = keyword.getBegin();
         token1.end = keyword.getEnd();
         datas.addToken(token1);
@@ -212,13 +219,14 @@ public class CTopBottomInstruction {
         AnnotationToken token3 = new AnnotationToken();
         token3.addToken(measureWord.getValue());
         token3.value = measureWord.getValue();
-        token3.type = key + "N";
+        token3.type = key;
         token3.begin = measureWord.getBegin();
         token3.end = measureWord.getEnd();
         datas.addToken(token3);
 
         JSONObject expression = new JSONObject();
         FocusPhrase numberCol = focusNodes.get(3).getChildren();
+        json1.put("name", Base.InstName(numberCol));
         JSONObject json = NumberColInstruction.build(numberCol, formulas);
         String type = json.getString("type");
         if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {

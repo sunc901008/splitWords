@@ -211,8 +211,10 @@ public class Constant {
         public static final Integer AFTER = -2;
         // 记录歧义 last day/week/month/quarter/year
         public static final Integer LAST = -3;
+        // 记录歧义 yearly/quarterly/monthly/weekly/daily
+        public static final Integer DATE_INTERVAL = -4;
 
-        public static final List<String> types = Arrays.asList("last", "after", "before");
+        public static final List<String> types = Arrays.asList("date_interval","last", "after", "before");
 
         public static String getWord(Integer type) {
             return types.get(types.size() + type);
@@ -247,8 +249,8 @@ public class Constant {
         public static final String GROWTH_COLUMN_MEASURE = "add_column_measure_for_growth";
         public static final String GROWTH_DIMENSION = "use_column_for_growth_dimension";
         public static final String SORT_BY = "add_expression_for_sort";
-        public static final String TOP = "set_top_n";
-        public static final String BOTTOM = "set_bottom_n";
+        public static final String TOP_BOTTOM = "set_top_bottom_n";
+        public static final String DATETIME_INTERVAL = "set_datetime_interval";
 
         public static final String ANNOTATION = "annotation";
     }

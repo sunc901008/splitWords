@@ -8,6 +8,7 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.instruction.sourceInst.StringColInstruction;
 import focus.search.meta.Formula;
@@ -56,7 +57,7 @@ public class BeginsWithInstruction {
         expression.put("name", "begins with");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
-        args.add(StringColInstruction.arg(stringPhrase, formulas));
+        args.add(ColumnInstruction.arg(stringPhrase));
         args.add(ColumnValueInstruction.arg(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);

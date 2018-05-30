@@ -46,7 +46,7 @@ public class BoolColInstruction {
             datas.addToken(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end, amb));
             json1.put("type", column.getColumnType());
             json1.put("name", Base.InstName(focusPhrase));
-            json1.put("aggregation", column.getAggregation());
+//            json1.put("aggregation", column.getAggregation());
         }
         json1.put("expression", expression);
         instructions.add(json1);

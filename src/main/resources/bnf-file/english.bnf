@@ -14,6 +14,7 @@
             <growth-of> |
             <all-columns> |
             <number-complex-phrase> |
+            <date-interval> |
             <formula-column>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
@@ -71,6 +72,12 @@
                                 yearly;
 
 <year-over-year> := year over year;
+
+<date-interval> := daily |
+                   weekly |
+                   monthly |
+                   quarterly |
+                   yearly;
 
 <average-phrase> := average <number-source-column>;
 
@@ -179,8 +186,12 @@
 <column-value> := <double-quote-column-value> |
                   <single-quote-column-value> |
                   <double-quote-column-value> , <column-value> |
-                  <single-quote-column-value> , <column-value>;
+                  <double-quote-column-value> ， <column-value> |
+                  <single-quote-column-value> , <column-value> |
+                  <single-quote-column-value> ， <column-value>;
 
-<double-quote-column-value> := " <value> ";
-<single-quote-column-value> := ' <value> ';
+<double-quote-column-value> := " <value> " |
+                               “ <value> ”;
+<single-quote-column-value> := ' <value> ' |
+                               ‘ <value> ’;
 <value> := 1;

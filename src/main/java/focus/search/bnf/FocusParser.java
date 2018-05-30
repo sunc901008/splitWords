@@ -55,7 +55,7 @@ public class FocusParser implements Serializable {
 
     private void init(String language) {
         if (Constant.Language.ENGLISH.equals(language)) {
-            initBnf("bnf-file/question.bnf");
+            initBnf("bnf-file/english.bnf");
             initBnf("bnf-file/function.bnf");
         } else {
             initBnf("bnf-file/chinese.bnf");
@@ -740,6 +740,17 @@ public class FocusParser implements Serializable {
             e.printStackTrace();
         }
         return outer;
+    }
+
+    // 是否为系统默认关键词
+    public boolean isKeyword(String value) {
+        List<TerminalToken> tokens = getTerminalTokens();
+        for (TerminalToken token : tokens) {
+            if (value.equals(token.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

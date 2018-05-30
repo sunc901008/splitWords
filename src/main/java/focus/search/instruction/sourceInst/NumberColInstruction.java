@@ -43,7 +43,6 @@ public class NumberColInstruction {
         json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
         json1.put("category", Constant.AnnotationCategory.EXPRESSION);
 
-        String aggregation = Constant.AggregationType.SUM;
         JSONObject expression = new JSONObject();
         JSONObject json = build(focusPhrase, formulas);
         logger.debug(json);
@@ -53,14 +52,12 @@ public class NumberColInstruction {
             Column column = (Column) json.get("column");
             expression.put("value", column.getColumnId());
             json1.put("type", column.getColumnType());
-            aggregation = column.getAggregation();
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
             json1.put("type", Constant.ColumnType.MEASURE);
         }
 
         json1.put("name", Base.InstName(focusPhrase));
-        json1.put("aggregation", aggregation);
 
         json1.put("expression", expression);
         instructions.add(json1);

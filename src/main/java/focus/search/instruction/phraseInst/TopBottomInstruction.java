@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.NumberColInstruction;
@@ -36,14 +37,14 @@ public class TopBottomInstruction {
         int flag = 0;
         int n = 1;
         FocusNode keyword = focusPhrase.getFocusNodes().get(flag++);
-        String instId = keyword.getValue().equalsIgnoreCase("top") ? Constant.InstIdType.TOP : Constant.InstIdType.BOTTOM;
-        json1.put("instId", instId);
+        json1.put("instId", Constant.InstIdType.TOP_BOTTOM);
+        json1.put("type", keyword.getValue());
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, keyword.getValue());
 
         AnnotationToken token1 = new AnnotationToken();
         token1.addToken(keyword.getValue());
         token1.value = keyword.getValue();
-        token1.type = keyword.getValue() + "N";
+        token1.type = keyword.getValue();
         token1.begin = keyword.getBegin();
         token1.end = keyword.getEnd();
         datas.addToken(token1);
@@ -64,6 +65,7 @@ public class TopBottomInstruction {
             param = integer;
         }
         json1.put("n", n);
+        json1.put("name", Base.InstName(param.getChildren()));
 
         JSONObject expression = new JSONObject();
         JSONObject json = NumberColInstruction.build(param.getChildren(), formulas);

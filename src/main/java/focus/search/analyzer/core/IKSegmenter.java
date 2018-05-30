@@ -1,7 +1,6 @@
 package focus.search.analyzer.core;
 
 import focus.search.response.exception.AmbiguitiesException;
-import focus.search.response.exception.FocusParserException;
 
 import java.io.IOException;
 import java.io.Reader;

@@ -74,8 +74,8 @@ public class CSortByInstruction {
         token3.addToken(order.getValue());
         token3.value = order.getValue();
         token3.type = Constant.AnnotationCategory.SORT_BY_ORDER;
-        token3.begin = sortOrder.getBegin();
-        token3.end = sortOrder.getEnd();
+        token3.begin = order.getBegin();
+        token3.end = order.getEnd();
         datas.addToken(token3);
         if ("<sort-by-ascending>".equals(sortOrder.getValue())) {
             json1.put("sortOrder", "ascending");
@@ -97,30 +97,3 @@ public class CSortByInstruction {
 
 }
 
-//{
-//    "type": "phrase",
-//    "id": 1,
-//    "category": "sortByOrder",
-//    "begin": 0,
-//    "end": 13,
-//    "tokens": [{
-//    "tokens": ["sort",
-//    "by"],
-//    "type": "sortByOrder",
-//    "value": "sort by",
-//    "begin": 0,
-//    "end": 7
-//    },
-//    {
-//    "description": "column <b>views<\\\/b> in <b>users<\\\/b>",
-//    "tableName": "users",
-//    "columnName": "views",
-//    "columnId": 7,
-//    "type": "measure",
-//    "detailType": "floatMeasureColumn",
-//    "tokens": ["views"],
-//    "value": "views",
-//    "begin": 7,
-//    "end": 13
-//    }]
-//}

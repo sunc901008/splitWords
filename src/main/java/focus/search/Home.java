@@ -43,7 +43,7 @@ import java.util.List;
 public class Home {
 
     public static void main(String[] args) throws IOException, InvalidRuleException, FocusInstructionException, FocusParserException, AmbiguitiesException, IllegalException {
-        test("creationdate \"01/01/2000\" 之后", Constant.Language.CHINESE);
+        test("daily", Constant.Language.ENGLISH);
 //        test("creationdate last 2 weeks", Constant.Language.ENGLISH);
 //        test("creationdate last 2 months", Constant.Language.ENGLISH);
 //        test("creationdate last 2 quarters", Constant.Language.ENGLISH);
@@ -347,7 +347,7 @@ public class Home {
     private static void split(String search, String language) throws IOException {
         FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
         List<FocusKWDict> fks = new ArrayList<>();
-//        fks.add(new FocusKWDict("大于是的", Constant.FNDType.KEYWORD));
+        fks.add(new FocusKWDict("浏览量", Constant.FNDType.KEYWORD));
 //        fks.add(new FocusKWDict("大于是", Constant.FNDType.KEYWORD));
 //        fks.add(new FocusKWDict("的", Constant.FNDType.KEYWORD));
 //        fks.add(new FocusKWDict("是的", Constant.FNDType.KEYWORD));
@@ -483,7 +483,7 @@ public class Home {
             } else {
                 JSONObject json = null;
                 try {
-                    json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>());
+                    json = InstructionBuild.build(focusInst, search, new JSONObject(), new ArrayList<>(), language, new ArrayList<>());
                 } catch (AmbiguitiesException e) {
                         AmbiguityResponse response = new AmbiguityResponse(search);
 

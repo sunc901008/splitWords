@@ -1,6 +1,7 @@
 package focus.search.analyzer.core;
 
 import focus.search.base.Constant;
+import focus.search.controller.common.Base;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.response.exception.AmbiguitiesException;
 
@@ -101,7 +102,7 @@ class IKArbitrator {
                 queue.add(lexemePath);
             }
         }
-        if (queue.size() > 1) {// 有歧义
+        if (!checkAmbiguity(queue, context)) {// 有歧义
             String realValue = String.valueOf(context.getSegmentBuff(), begin, end - begin);
             List<AmbiguitiesRecord> ars = new ArrayList<>();
             while (!queue.isEmpty()) {
@@ -118,6 +119,29 @@ class IKArbitrator {
             throw new AmbiguitiesException(ars, begin, end);
         }
         return queue.poll();
+    }
+
+    /**
+     * 都为关键词的话，按照最长匹配，返回第一个
+     *
+     * @param queue LexemePath 队列
+     * @return 分词是否都为关键词
+     */
+    private boolean checkAmbiguity(Queue<LexemePath> queue, AnalyzeContext context) {
+        if (queue.size() > 1) {
+            Queue<LexemePath> tmp = new LinkedList<>(queue);
+            while (!tmp.isEmpty()) {
+                LexemePath lexemePath = tmp.poll();
+                if (lexemePath.size() > 0) {
+                    Lexeme lexeme = lexemePath.peekFirst();
+                    String str = String.valueOf(context.getSegmentBuff(), lexeme.getBegin(), lexeme.getLength());
+                    if (!Base.chineseParser.isKeyword(str)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**

@@ -13,6 +13,7 @@
             <sort-by> |
             <all-columns> |
             <number-complex-phrase> |
+            <date-interval> |
             <formula-column>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
@@ -43,7 +44,8 @@
                    排名前;
 
 <top-bottom-n-measure-word-chinese> := 的 |
-                                       名的;
+                                       名的 |
+                                       个的;
 
 <top-n> := <top-n-chinese> <integer> <top-bottom-n-measure-word-chinese> <number-columns> |
            <number-columns> <top-n-chinese> <integer> <top-bottom-n-measure-word-chinese> |
@@ -85,6 +87,32 @@
 
 <sort-by-descending> := 降序 |
                         降序的;
+
+<date-interval> := <daily-interval> |
+                   <weekly-interval> |
+                   <monthly-interval> |
+                   <quarterly-interval> |
+                   <yearly-interval>;
+
+<daily-interval> := 每天 |
+                    每日 |
+                    日报;
+
+<weekly-interval> := 每周 |
+                     每星期 |
+                     周报;
+
+<monthly-interval> := 每月 |
+                      月报;
+
+<quarterly-interval> := 每季度 |
+                        季度 |
+                        每季 |
+                        季报;
+
+<yearly-interval> := 每年 |
+                     年度 |
+                     年报;
 
 <average-phrase> := <number-source-column> 的平均值 |
                     平均 <number-source-column>;
@@ -223,8 +251,12 @@
 <column-value> := <double-quote-column-value> |
                   <single-quote-column-value> |
                   <double-quote-column-value> , <column-value> |
-                  <single-quote-column-value> , <column-value>;
+                  <double-quote-column-value> ， <column-value> |
+                  <single-quote-column-value> , <column-value> |
+                  <single-quote-column-value> ， <column-value>;
 
-<double-quote-column-value> := " <value> ";
-<single-quote-column-value> := ' <value> ';
+<double-quote-column-value> := " <value> " |
+                               “ <value> ”;
+<single-quote-column-value> := ' <value> ' |
+                               ‘ <value> ’;
 <value> := 1;
