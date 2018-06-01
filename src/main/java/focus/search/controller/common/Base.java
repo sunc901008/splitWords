@@ -168,6 +168,7 @@ public class Base {
 
         boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(category);
 
+        JSONArray historyQuestions = user.getJSONArray("historyQuestions");
         if (Common.isEmpty(search.trim())) {
             // TODO: 2018/5/16 modify suggestions
             SuggestionResponse response = new SuggestionResponse(search);
@@ -175,7 +176,6 @@ public class Base {
             datas.beginPos = 0;
             datas.phraseBeginPos = datas.beginPos;
 
-            JSONArray historyQuestions = user.getJSONArray("historyQuestions");
             for (Object history : historyQuestions) {
                 SuggestionSuggestion suggestions = new SuggestionSuggestion();
                 suggestions.suggestion = ((HistoryQuestion) history).question;
@@ -333,7 +333,7 @@ public class Base {
                     // search finish
                     session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
 
-                    if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event)) {
+                    if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event) && search.trim().equals(getLastQuestion(historyQuestions))) {
                         return;
                     }
                     // prepareQuery
@@ -482,6 +482,14 @@ public class Base {
             }
         }
         questions.add(0, current);
+    }
+
+    private static String getLastQuestion(JSONArray questions) {
+        if (questions.size() > 0) {
+            HistoryQuestion last = (HistoryQuestion) questions.get(0);
+            return last.question;
+        }
+        return "";
     }
 
     /**

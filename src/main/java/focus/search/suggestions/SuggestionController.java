@@ -10,8 +10,11 @@ import focus.search.bnf.tokens.TerminalToken;
 import focus.search.bnf.tokens.Token;
 import focus.search.bnf.tokens.TokenString;
 import focus.search.meta.Column;
+import focus.search.meta.HistoryQuestion;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
+import focus.search.response.search.SuggestionDatas;
+import focus.search.response.search.SuggestionResponse;
 import focus.search.response.search.SuggestionSuggestion;
 import org.apache.log4j.Logger;
 
@@ -23,10 +26,70 @@ import java.util.*;
  * date: 2018/3/23
  * description:
  */
-public class SuggestionBuild {
-    private static final Logger logger = Logger.getLogger(SuggestionBuild.class);
+public class SuggestionController {
+    private static final Logger logger = Logger.getLogger(SuggestionController.class);
     private static final List<String> randomString = Arrays.asList("hello", "world", "focus", "example");
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    // 预设提示规则，规则内互斥，规则外互不影响
+    private static final List<String> DEFAULT_DATE_BNF_1 = Arrays.asList("<growth-of>");
+    private static final List<String> DEFAULT_DATE_BNF_2 = Arrays.asList("<last-filter>", "<before-after-filter>");
+
+    private static final List<List<String>> DEFAULT_BNF = Arrays.asList(DEFAULT_DATE_BNF_1, DEFAULT_DATE_BNF_2);
+
+    /**
+     * ① 输入的question能够匹配上一个完整的bnf规则，即能够正常下发指令。
+     * <p>
+     * 方案： 映射到输入框为空时的情况给出 suggestion
+     *
+     * @param fp        解析类
+     * @param search    需要解析的question
+     * @param focusInst 解析结果
+     * @param user      websocket用户信息
+     * @param tokens    分词结果
+     * @return SuggestionResponse
+     */
+    public static SuggestionResponse suggestions(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) {
+        if (tokens.get(tokens.size() - 1).getEnd() > position) {//光标在search中间
+            // TODO: 2018/5/31 当光标在search中间的时候，给出suggestion
+            return null;
+        }
+        boolean addSpace = tokens.get(tokens.size() - 1).getEnd() == position;//根据光标位置判断是否需要在suggestion前面添加一个空格
+        SuggestionResponse response = new SuggestionResponse(search);
+        SuggestionDatas datas = new SuggestionDatas();
+
+        datas.beginPos = focusInst.lastFocusPhrase().getLastNode().getEnd();
+        datas.phraseBeginPos = datas.beginPos;
+
+        JSONArray historyQuestions = user.getJSONArray("historyQuestions");
+
+        List<List<String>> bnfList = checkDefault(focusInst);
+
+        for (Object history : historyQuestions) {
+            String suggestion = ((HistoryQuestion) history).question;
+            if (suggestion.startsWith(search.trim())) {
+                SuggestionSuggestion ss = new SuggestionSuggestion();
+                ss.suggestion = suggestion;
+                ss.suggestionType = "history";
+                ss.description = "history";
+                datas.suggestions.add(ss);
+            }
+        }
+
+        for (List<String> bnfName : bnfList) {
+            for (String ruleName : bnfName) {
+                String suggestion = terminalToken(fp, ruleName);
+                suggestion = addSpace ? " " + suggestion : suggestion;
+                SuggestionSuggestion ss = new SuggestionSuggestion();
+                ss.suggestion = suggestion;
+                ss.suggestionType = "suggestion system";
+                ss.description = "suggestion system";
+                datas.suggestions.add(ss);
+            }
+        }
+        response.setDatas(datas);
+        return response;
+    }
 
     // suggestions| 出错
     public static List<FocusNode> sug(int position, FocusInst focusInst) {
@@ -77,6 +140,24 @@ public class SuggestionBuild {
         json.put("position", position);
         json.put("suggestions", focusNodes);
         return json;
+    }
+
+    // 根据bnf规则名字给出一条完整的提示
+    private static String terminalToken(FocusParser parser, String ruleName) {
+        String sug = "";
+        BnfRule br = parser.getRule(ruleName);
+        if (br != null) {
+            for (Token token : br.getAlternatives().get(0)) {
+                if (token instanceof TerminalToken) {
+                    if (!((TerminalToken) token).getType().equals(Constant.FNDType.TABLE)) {
+                        sug = sug + token.getName() + " ";
+                    }
+                } else {
+                    return sug + terminalToken(parser, token.getName());
+                }
+            }
+        }
+        return sug;
     }
 
     // 根据bnf规则名字获取最底层的单元token
@@ -340,6 +421,40 @@ public class SuggestionBuild {
         suggestion.suggestionType = Constant.FNDType.KEYWORD;
         suggestion.description = "this is a keyword";
         return suggestion;
+    }
+
+    /**
+     * 检测当前解析结果中是否含有预设的规则，返回预设的规则列表
+     *
+     * @return 可以提示的规则列表
+     */
+    public static List<List<String>> checkDefault(FocusInst focusInst) {
+        List<List<String>> bnfList = new ArrayList<>();
+        bnfList.addAll(DEFAULT_BNF);
+        for (FocusPhrase fp : focusInst.getFocusPhrases()) {
+            List<String> defaultBnf = checkDefault(fp, 5);
+            if (defaultBnf != null) {
+                bnfList.remove(defaultBnf);
+            }
+        }
+        return bnfList;
+    }
+
+    private static List<String> checkDefault(FocusPhrase fp, int deep) {
+        for (List<String> defaultBnf : DEFAULT_BNF) {
+            if (defaultBnf.contains(fp.getInstName())) {
+                return defaultBnf;
+            }
+        }
+        if (deep > 0) {
+            for (FocusNode fn : fp.getFocusNodes()) {
+                List<String> tmp = checkDefault(fn.getChildren(), deep--);
+                if (tmp != null) {
+                    return tmp;
+                }
+            }
+        }
+        return null;
     }
 
 }
