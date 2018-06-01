@@ -364,7 +364,7 @@ public class Base {
                     QuartzManager.addJob(taskId, session);
 
                     // 添加到历史记录中,并且放弃上一次搜索
-                    addQuestion(new HistoryQuestion(search.trim(), json, taskId), user);
+                    addQuestion(new HistoryQuestion(search.trim(), tokens, taskId), user);
 
                 }
             } else {//  出错
@@ -475,7 +475,7 @@ public class Base {
     private static void addQuestion(HistoryQuestion current, JSONArray questions) throws FocusHttpException {
         for (Object object : questions) {
             HistoryQuestion hq = (HistoryQuestion) object;
-            if (hq.question.equals(current.question)) {
+            if (HistoryQuestion.equals(hq, current) == null) {
                 questions.remove(object);
                 questions.add(0, current);
                 return;

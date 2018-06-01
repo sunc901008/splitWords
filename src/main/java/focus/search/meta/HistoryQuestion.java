@@ -1,6 +1,9 @@
 package focus.search.meta;
 
-import com.alibaba.fastjson.JSONObject;
+import focus.search.analyzer.focus.FocusToken;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * creator: sunc
@@ -9,12 +12,12 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class HistoryQuestion {
     public String question;
-    public JSONObject instruction;
+    public List<FocusToken> tokens;
     public String taskId;
 
-    public HistoryQuestion(String question, JSONObject instruction, String taskId) {
+    public HistoryQuestion(String question, List<FocusToken> tokens, String taskId) {
         this.question = question;
-        this.instruction = instruction;
+        this.tokens = tokens;
         this.taskId = taskId;
     }
 
@@ -24,10 +27,25 @@ public class HistoryQuestion {
      * @return 当前搜索和上一次搜索相同，则返回空，否则返回上一次的taskId
      */
     public static String equals(HistoryQuestion history, HistoryQuestion current) {
-        if (history.question.equals(current.question) && history.instruction.equals(current.instruction)) {
+        if (equals(history.tokens, current.tokens)) {
+            if (history.question.length() > current.question.length()) {
+                history.question = current.question;
+            }
             return null;
         }
         return history.taskId;
+    }
+
+    private static boolean equals(List<FocusToken> tokens1, List<FocusToken> tokens2) {
+        if (tokens1.size() != tokens2.size()) {
+            return false;
+        }
+        for (int i = 0; i < tokens1.size(); i++) {
+            if (!Objects.equals(tokens1.get(i).getWord().toLowerCase(), tokens2.get(i).getWord().toLowerCase())) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
