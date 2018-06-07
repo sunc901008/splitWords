@@ -57,9 +57,15 @@ public class BnfRule implements Serializable {
             out.addAlternative(alternative_to_add);
             return out;
         }
-        if (lhs.equals(ColumnValueTerminalToken.COLUMNVALUE)) {
+        if (lhs.equals(ColumnValueTerminalToken.COLUMN_VALUE)) {
             TokenString alternative_to_add = new TokenString();
             alternative_to_add.add(new ColumnValueTerminalToken(lhs));
+            out.addAlternative(alternative_to_add);
+            return out;
+        }
+        if (lhs.equals(DateValueTerminalToken.DATE_VALUE)) {
+            TokenString alternative_to_add = new TokenString();
+            alternative_to_add.add(new DateValueTerminalToken(lhs));
             out.addAlternative(alternative_to_add);
             return out;
         }

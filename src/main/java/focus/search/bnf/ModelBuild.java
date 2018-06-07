@@ -51,6 +51,7 @@ public class ModelBuild {
                 column.setTableId(source.tableId);
                 column.setSourceName(source.sourceName);
                 column.setPhysicalName(source.physicalName);
+                column.setDbName(source.parentDB);
 
                 alternative_to_add.add(new TerminalToken(col.columnDisplayName, Constant.FNDType.COLUMN, column));
                 br.addAlternative(alternative_to_add);

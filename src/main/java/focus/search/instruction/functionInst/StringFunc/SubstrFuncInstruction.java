@@ -6,7 +6,6 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.controller.common.FormulaCase;
-import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
@@ -14,6 +13,7 @@ import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
+import focus.search.suggestions.SourcesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,9 +122,9 @@ public class SubstrFuncInstruction {
         String example = "substr ( %s )";
 
         JSONArray cases = new JSONArray();
-        String value = SuggestionBuild.stringSug();
-        int start = SuggestionBuild.decimalSug(value.length());
-        int length = value.length() - SuggestionBuild.decimalSug(value.length());
+        String value = SourcesUtils.stringSug();
+        int start = SourcesUtils.decimalSug(value.length());
+        int length = value.length() - SourcesUtils.decimalSug(value.length());
         if (length == 1) {
             start--;
         }

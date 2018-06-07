@@ -50,4 +50,14 @@ dependencies {
     //quartz 定时器
     compile "org.quartz-scheduler:quartz:2.2.3"
 
+    compile "org.mybatis:mybatis:3.2.7"
+    compile "org.mybatis:mybatis-spring:1.2.2"
+
+    compile "org.flywaydb:flyway-core:3.2.1"
+    compile "org.aspectj:aspectjrt:1.8.1"
+    compile "org.aspectj:aspectjweaver:1.8.1"
+
+    compile "mysql:mysql-connector-java:5.1.38"
+    compile "com.alibaba:druid:1.0.7"
+
 }

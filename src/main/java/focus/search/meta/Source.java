@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class Source {
 
+    private String dbName;
     private String sourceName;
     private Integer tableId;
     private String type;
@@ -45,6 +46,14 @@ public class Source {
 
     public void setColumns(List<Column> columns) {
         this.columns = columns;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
     }
 
     public void addColumn(Column column) {

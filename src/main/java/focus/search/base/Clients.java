@@ -1,6 +1,9 @@
 package focus.search.base;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.meta.Column;
 import focus.search.response.exception.FocusHttpException;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
@@ -93,6 +96,50 @@ public class Clients {
             } else {
                 throw new FocusHttpException(url, null, headers);
             }
+        }
+
+    }
+
+    public static class Index {
+        private static JSONObject params = new JSONObject();
+
+        static {
+            params.put("type", "columnValue");
+            params.put("partialToken", "");
+            params.put("size", 5);
+            params.put("ignoreCase", false);
+            params.put("datas", null);
+        }
+
+        private static JSONObject tokensParam(Column column, String word, int count) {
+            JSONObject source = new JSONObject();
+            JSONArray sources = new JSONArray();
+
+            JSONObject sourceInfo = new JSONObject();
+            sourceInfo.put("source", column.getPhysicalName());
+            sourceInfo.put("database", column.getDbName());
+            sourceInfo.put("columns", Collections.singleton(column.getColumnName()));
+
+            sources.add(sourceInfo);
+
+            source.put("source", sources);
+            JSONObject param = JSON.parseObject(params.toJSONString());
+            param.put("partialToken", word);
+            if (count > 0)
+                param.put("size", count);
+            param.put("datas", source);
+            return param;
+        }
+
+        private static String baseUrl = String.format("http://%s:%d%s/", Constant.indexHost, Constant.indexPort, Constant.indexBaseUrl);
+        private static final String TOKENS = "tokens";
+
+        public static JSONObject tokens(Column column, String word) throws FocusHttpException {
+            return tokens(column, word, 0);
+        }
+
+        public static JSONObject tokens(Column column, String word, int count) throws FocusHttpException {
+            return post(baseUrl + TOKENS, tokensParam(column, word, count).toJSONString(), Collections.singletonList(baseHeader));
         }
 
     }

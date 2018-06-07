@@ -2,6 +2,7 @@ package focus.search.response.search;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,28 @@ public class SuggestionDatas {
     public Integer phraseBeginPos;
     public String guidance;
     public List<SuggestionSuggestion> suggestions = new ArrayList<>();
+
+    public SuggestionDatas() {
+        this.beginPos = -1;
+    }
+
+    /**
+     * 添加suggestion,同时更新提示的起始位置
+     *
+     * @param ss SuggestionSuggestion
+     */
+    public void addSug(SuggestionSuggestion ss) {
+        this.suggestions.add(ss);
+        if (this.beginPos < 0) {
+            this.beginPos = ss.beginPos;
+        } else if (!Constant.SuggestionType.HISTORY.equals(ss.suggestionType) && this.beginPos > ss.beginPos) {
+            this.beginPos = ss.beginPos;
+        }
+    }
+
+    public void addAllSug(List<SuggestionSuggestion> sss) {
+        sss.forEach(this::addSug);
+    }
 
     JSONObject toJSON() {
         JSONObject json = new JSONObject();

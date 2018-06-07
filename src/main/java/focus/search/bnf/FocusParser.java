@@ -139,6 +139,7 @@ public class FocusParser implements Serializable {
                         break;
                     }
                 } else {// 解析结束
+                    fi.isInstruction = !fsi.isSuggestion();
                     fi.addPfs(fsi.getFps());
                 }
             }
@@ -177,6 +178,7 @@ public class FocusParser implements Serializable {
             fi.position = position;
             fi.addPfs(fsi.getFps());
         } else {// 未出错 或者 解析结束
+            fi.isInstruction = !fsi.isSuggestion();
             fi.addPfs(fsi.getFps());
         }
         return fi;
@@ -205,7 +207,7 @@ public class FocusParser implements Serializable {
             FocusToken ft = tokens.get(i);
             List<FocusPhrase> tmp = new ArrayList<>(focusPhrases);
 
-            if (Constant.FNDType.COLUMNVALUE.equals(ft.getType())) {
+            if (Constant.FNDType.COLUMN_VALUE.equals(ft.getType())) {
                 int loop = focusPhrases.size();
                 while (loop > 0) {
                     FocusPhrase fp = focusPhrases.remove(0);
@@ -214,14 +216,25 @@ public class FocusParser implements Serializable {
                         continue;
                     }
                     FocusNode tmpNode = fp.getNodeNew(i);
-                    if (ColumnValueTerminalToken.COLUMNVALUE.equals(tmpNode.getValue())) {
+                    if (ColumnValueTerminalToken.COLUMN_VALUE.equals(tmpNode.getValue())) {
                         tmpNode.setValue(ft.getWord());
                         tmpNode.setBegin(ft.getStart());
                         tmpNode.setEnd(ft.getEnd());
-                        tmpNode.setType(Constant.FNDType.COLUMNVALUE);
+                        tmpNode.setType(Constant.FNDType.COLUMN_VALUE);
                         tmpNode.setTerminal();
-//                        fp.removeNode(i);
-//                        fp.addPn(i, tmpNode);
+                        fp.replaceNode(i, tmpNode);
+                        focusPhrases.add(fp);
+                    } else if (DateValueTerminalToken.DATE_VALUE.equals(tmpNode.getValue())) {
+                        String dateValue = ft.getWord();
+                        dateValue = Common.dateFormat(dateValue);
+                        if (Common.isEmpty(dateValue)) {
+                            continue;
+                        }
+                        tmpNode.setValue(dateValue);
+                        tmpNode.setBegin(ft.getStart());
+                        tmpNode.setEnd(ft.getEnd());
+                        tmpNode.setType(Constant.FNDType.DATE_VALUE);
+                        tmpNode.setTerminal();
                         fp.replaceNode(i, tmpNode);
                         focusPhrases.add(fp);
                     }
@@ -257,55 +270,19 @@ public class FocusParser implements Serializable {
             } else {
                 logger.info("replace focusPhrase loop: " + i);
                 replace(rules, focusPhrases, ft, i);
-//                List<FocusPhrase> remove = new ArrayList<>();
-//                List<FocusPhrase> startWith = new ArrayList<>();
-//                List<FocusPhrase> copy = new ArrayList<>(focusPhrases);
-//                for (FocusPhrase fp : focusPhrases) {
-//                    if (fp.size() <= i) {
-//                        remove.add(fp);
-//                        continue;
-//                    }
-//                    if (!fp.getNodeNew(i).getValue().equalsIgnoreCase(ft.getWord())) {
-//                        remove.add(fp);
-//                    }
-//                    if (fp.getNodeNew(i).getValue().toLowerCase().startsWith(ft.getWord().toLowerCase())) {
-//                        startWith.add(fp);
-//                    }
-//                }
-//                focusPhrases.removeAll(remove);
-//                if (focusPhrases.isEmpty()) {
-//                    for (FocusPhrase f : copy) {
-//                        if (!f.isSuggestion()) {
-//                            focusPhrases.add(f);
-//                        }
-//                    }
-//                    FocusSubInst fsi = new FocusSubInst();
-//                    fsi.setIndex(i);
-//                    if (!focusPhrases.isEmpty()) {
-//                        fsi.setFps(focusPhrases);
-//                        return fsi;
-//                    }
-//                    if (startWith.isEmpty()) {
-//                        fsi.setError();
-//                        fsi.setFps(remove);
-//                        return fsi;
-//                    } else {
-//                        if (i < tokens.size() - 1) {//不是最后一个token,说明中间出错
-//                            fsi.setError();
-//                        }
-//                        fsi.setFps(startWith);
-//                        return fsi;
-//                    }
-//                }
             }
+
+            if (i == 4) {
+                System.out.println(i);
+            }
+            // 去除重复
+            distinct(focusPhrases);
+
             FocusSubInst fsi = check(focusPhrases, i, ft.getWord(), tokens.size() - 1 > i);
             if (fsi != null)
                 return fsi;
             // 歧义检测
             ambiguitiesCheck(ft, focusPhrases, i, amb);
-
-            // 去除重复
-            distinct(focusPhrases);
         }
 
         FocusSubInst fsi = new FocusSubInst();
@@ -337,12 +314,15 @@ public class FocusParser implements Serializable {
             }
             if (!fp.getNodeNew(i).getValue().equalsIgnoreCase(token)) {
                 remove.add(fp);
-            }
-            if (fp.getNodeNew(i).getValue().toLowerCase().startsWith(token.toLowerCase())) {
-                startWith.add(fp);
+                if (fp.getNodeNew(i).getValue().toLowerCase().startsWith(token.toLowerCase())) {
+                    startWith.add(fp);
+                }
             }
         }
         focusPhrases.removeAll(remove);
+        if (!notLast) {//是最后一个token, 添加上开头和最后一个token相等的phrase,作提示用(如：最后一个token为">", 则phrase里包含">=")
+            focusPhrases.addAll(startWith);
+        }
         if (focusPhrases.isEmpty()) {
             for (FocusPhrase f : copy) {
                 if (!f.isSuggestion()) {
@@ -454,6 +434,7 @@ public class FocusParser implements Serializable {
                 }
                 focusPhrases.add(fp0);
             }
+            remove.clear();
         }
 
     }
@@ -475,18 +456,23 @@ public class FocusParser implements Serializable {
                     FocusNode fn = focusPhrase.getNodeNew(position);
                     TerminalToken tt = terminal(fn.getValue());
                     if (tt != null) {
-                        if (fn.getValue().equalsIgnoreCase(focusToken.getWord())) {
-                            fn.setTerminal();
-                            fn.setType(tt.getType());
-//                            fn.setColumn(tt.getColumn());
-                            fn.setBegin(focusToken.getStart());
-                            fn.setEnd(focusToken.getEnd());
-                            focusPhrase.replaceNode(position, fn);
-                            if (focusPhrase.size() == position + 1) {
-                                focusPhrase.setType(Constant.INSTRUCTION);
+                        if (fn.getValue().toLowerCase().startsWith(focusToken.getWord().toLowerCase())) {
+                            if (fn.getValue().equalsIgnoreCase(focusToken.getWord())) {
+                                fn.setTerminal();
+                                fn.setType(tt.getType());
+                                fn.setColumn(tt.getColumn());
+                                fn.setBegin(focusToken.getStart());
+                                fn.setEnd(focusToken.getEnd());
+                                if (focusPhrase.size() == position + 1) {
+                                    focusPhrase.setType(Constant.INSTRUCTION);
+                                }
                             }
                             focusPhrases.add(focusPhrase);
                         }
+//                        if (focusPhrase.size() == position + 1 && fn.getValue().equalsIgnoreCase(focusToken.getWord())) {
+//                            focusPhrase.setType(Constant.INSTRUCTION);
+//                        }
+//                        focusPhrases.add(focusPhrase);
                     } else if (fn.isTerminal()) {
                         focusPhrases.add(focusPhrase);
                         loop--;
@@ -514,7 +500,7 @@ public class FocusParser implements Serializable {
                                     if (i == 0) {
                                         if (newFn.getType().equals(Constant.FNDType.INTEGER)
                                                 || newFn.getType().equals(Constant.FNDType.DOUBLE)
-                                                || newFn.getType().equals(Constant.FNDType.COLUMNVALUE)) {
+                                                || newFn.getType().equals(Constant.FNDType.COLUMN_VALUE)) {
                                             newFn.setValue(focusToken.getWord());
                                         }
                                     }
@@ -674,7 +660,10 @@ public class FocusParser implements Serializable {
 
     // 判断当前匹配是否为最小单元词
     private boolean isTerminal(String word) {
-        return word.equals(IntegerTerminalToken.INTEGER) || word.equals(NumberTerminalToken.DOUBLE) || word.equals(ColumnValueTerminalToken.COLUMNVALUE);
+        return word.equals(IntegerTerminalToken.INTEGER)
+                || word.equals(NumberTerminalToken.DOUBLE)
+                || word.equals(ColumnValueTerminalToken.COLUMN_VALUE)
+                || word.equals(DateValueTerminalToken.DATE_VALUE);
     }
 
     // 判断是否为规则中的单元词

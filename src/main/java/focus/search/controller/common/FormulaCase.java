@@ -14,6 +14,7 @@ import focus.search.instruction.functionInst.boolFunc.NotFuncInstruction;
 import focus.search.instruction.functionInst.boolFunc.ToBoolFuncInstruction;
 import focus.search.instruction.functionInst.numberFunc.*;
 import focus.search.meta.Column;
+import focus.search.suggestions.SourcesUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +61,7 @@ public class FormulaCase {
             cases = jsonArray;
         } else {
             while (cases.size() < count) {
-                String value = jsonArray.get(SuggestionBuild.decimalSug(jsonArray.size())).toString();
+                String value = jsonArray.get(SourcesUtils.decimalSug(jsonArray.size())).toString();
                 if (!cases.contains(value)) {
                     cases.add(value);
                 }
@@ -79,12 +80,12 @@ public class FormulaCase {
      */
     private static JSONArray buildCaseSimple(JSONObject user, String keyword) {
         JSONArray cases = new JSONArray();
-        cases.add(SuggestionBuild.decimalSug() + keyword + SuggestionBuild.decimalSug());
-        cases.add(SuggestionBuild.decimalSug(false) + keyword + SuggestionBuild.decimalSug(false));
-        List<Column> numberColumns = SuggestionBuild.colRandomSuggestions(user, Arrays.asList(Constant.DataType.INT, Constant.DataType.DOUBLE));
-        String value1 = numberColumns.get(SuggestionBuild.decimalSug(numberColumns.size())).getColumnDisplayName();
-        String value2 = numberColumns.get(SuggestionBuild.decimalSug(numberColumns.size())).getColumnDisplayName();
-        cases.add(value1 + keyword + SuggestionBuild.decimalSug());
+        cases.add(SourcesUtils.decimalSug() + keyword + SourcesUtils.decimalSug());
+        cases.add(SourcesUtils.decimalSug(false) + keyword + SourcesUtils.decimalSug(false));
+        List<Column> numberColumns = SourcesUtils.colRandomSuggestions(user, Arrays.asList(Constant.DataType.INT, Constant.DataType.DOUBLE));
+        String value1 = numberColumns.get(SourcesUtils.decimalSug(numberColumns.size())).getColumnDisplayName();
+        String value2 = numberColumns.get(SourcesUtils.decimalSug(numberColumns.size())).getColumnDisplayName();
+        cases.add(value1 + keyword + SourcesUtils.decimalSug());
         cases.add(value1 + keyword + value2);
         return cases;
     }
@@ -150,8 +151,8 @@ public class FormulaCase {
     // formula case:number
     public static JSONArray buildCaseNumber(String example) {
         JSONArray cases = new JSONArray();
-        cases.add(String.format(example, SuggestionBuild.decimalSug()));
-        cases.add(String.format(example, SuggestionBuild.decimalSug(false)));
+        cases.add(String.format(example, SourcesUtils.decimalSug()));
+        cases.add(String.format(example, SourcesUtils.decimalSug(false)));
         return cases;
     }
 
@@ -181,9 +182,9 @@ public class FormulaCase {
     // formula case:all column
     private static JSONArray buildCaseAllCol(String example, JSONObject user, String type) {
         JSONArray cases = new JSONArray();
-        List<Column> columns = SuggestionBuild.colRandomSuggestions(user, type);
+        List<Column> columns = SourcesUtils.colRandomSuggestions(user, type);
         if (columns.size() > 0) {
-            cases.add(String.format(example, columns.get(SuggestionBuild.decimalSug(columns.size())).getColumnDisplayName()));
+            cases.add(String.format(example, columns.get(SourcesUtils.decimalSug(columns.size())).getColumnDisplayName()));
         }
         return cases;
     }
@@ -197,15 +198,15 @@ public class FormulaCase {
     private static JSONArray buildCaseAndOr(JSONObject user, String keyword) {
         String example = "%s %s %s";
         JSONArray cases = new JSONArray();
-        List<Column> columns = SuggestionBuild.colRandomSuggestions(user, Constant.DataType.INT);
+        List<Column> columns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.INT);
         if (columns.size() > 0) {
-            String name = columns.get(SuggestionBuild.decimalSug(columns.size())).getColumnDisplayName();
-            String value1 = String.format(boolFunc.get(SuggestionBuild.decimalSug(boolFunc.size())), name);
-            String value2 = String.format(boolFunc.get(SuggestionBuild.decimalSug(boolFunc.size())), name);
+            String name = columns.get(SourcesUtils.decimalSug(columns.size())).getColumnDisplayName();
+            String value1 = String.format(boolFunc.get(SourcesUtils.decimalSug(boolFunc.size())), name);
+            String value2 = String.format(boolFunc.get(SourcesUtils.decimalSug(boolFunc.size())), name);
             cases.add(String.format(example, value1, keyword, value2));
         }
-        String value1 = SuggestionBuild.decimalSug() + BOOL_TYPE.get(SuggestionBuild.decimalSug(BOOL_TYPE.size())) + SuggestionBuild.decimalSug();
-        String value2 = SuggestionBuild.decimalSug() + BOOL_TYPE.get(SuggestionBuild.decimalSug(BOOL_TYPE.size())) + SuggestionBuild.decimalSug();
+        String value1 = SourcesUtils.decimalSug() + BOOL_TYPE.get(SourcesUtils.decimalSug(BOOL_TYPE.size())) + SourcesUtils.decimalSug();
+        String value2 = SourcesUtils.decimalSug() + BOOL_TYPE.get(SourcesUtils.decimalSug(BOOL_TYPE.size())) + SourcesUtils.decimalSug();
         cases.add(String.format(example, value1, keyword, value2));
         return cases;
     }
@@ -214,23 +215,23 @@ public class FormulaCase {
     private static JSONArray buildCaseIf(JSONObject user) {
         String example = "if %s then %s else %s";
         JSONArray cases = new JSONArray();
-        List<Column> intColumns = SuggestionBuild.colRandomSuggestions(user, Constant.DataType.INT);
+        List<Column> intColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.INT);
         if (intColumns.size() > 1) {
-            String name = intColumns.get(SuggestionBuild.decimalSug(intColumns.size())).getColumnDisplayName();
-            String value1 = String.format(boolFunc.get(SuggestionBuild.decimalSug(boolFunc.size())), name);
+            String name = intColumns.get(SourcesUtils.decimalSug(intColumns.size())).getColumnDisplayName();
+            String value1 = String.format(boolFunc.get(SourcesUtils.decimalSug(boolFunc.size())), name);
             String value2 = intColumns.get(0).getColumnDisplayName();
             String value3 = intColumns.get(1).getColumnDisplayName();
             cases.add(String.format(example, value1, value2, value3));
         }
         if (intColumns.size() > 0) {
-            String name = intColumns.get(SuggestionBuild.decimalSug(intColumns.size())).getColumnDisplayName();
-            String value1 = String.format(boolFunc.get(SuggestionBuild.decimalSug(boolFunc.size())), name);
-            String value2 = SuggestionBuild.decimalSug();
-            String value3 = SuggestionBuild.decimalSug();
+            String name = intColumns.get(SourcesUtils.decimalSug(intColumns.size())).getColumnDisplayName();
+            String value1 = String.format(boolFunc.get(SourcesUtils.decimalSug(boolFunc.size())), name);
+            String value2 = SourcesUtils.decimalSug();
+            String value3 = SourcesUtils.decimalSug();
             cases.add(String.format(example, value1, value2, value3));
         }
-        String value1 = SuggestionBuild.decimalSug() + BOOL_TYPE.get(SuggestionBuild.decimalSug(BOOL_TYPE.size())) + SuggestionBuild.decimalSug();
-        List<Column> stringColumns = SuggestionBuild.colRandomSuggestions(user, Constant.DataType.STRING);
+        String value1 = SourcesUtils.decimalSug() + BOOL_TYPE.get(SourcesUtils.decimalSug(BOOL_TYPE.size())) + SourcesUtils.decimalSug();
+        List<Column> stringColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.STRING);
         if (stringColumns.size() == 1) {
             String value2 = stringColumns.get(0).getColumnDisplayName();
             cases.add(String.format(example, value1, value2, value2));
@@ -246,18 +247,18 @@ public class FormulaCase {
     private static JSONArray buildCaseIfNull(JSONObject user) {
         String example = "ifnull(%s , %s)";
         JSONArray cases = new JSONArray();
-        List<Column> intColumns = SuggestionBuild.colRandomSuggestions(user, Constant.DataType.INT);
+        List<Column> intColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.INT);
         if (intColumns.size() > 1) {
             String value1 = intColumns.get(0).getColumnDisplayName();
             String value2 = intColumns.get(1).getColumnDisplayName();
             cases.add(String.format(example, value1, value2));
         }
         if (intColumns.size() > 0) {
-            String value1 = SuggestionBuild.decimalSug();
-            String value2 = SuggestionBuild.decimalSug();
+            String value1 = SourcesUtils.decimalSug();
+            String value2 = SourcesUtils.decimalSug();
             cases.add(String.format(example, value1, value2));
         }
-        List<Column> stringColumns = SuggestionBuild.colRandomSuggestions(user, Constant.DataType.STRING);
+        List<Column> stringColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.STRING);
         if (stringColumns.size() == 1) {
             String value1 = stringColumns.get(0).getColumnDisplayName();
             cases.add(String.format(example, value1, value1));

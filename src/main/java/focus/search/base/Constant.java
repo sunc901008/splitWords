@@ -31,6 +31,11 @@ public class Constant {
     public static Integer ucPort = 8004;
     public static String ucBaseUrl = "/api/uc";
 
+
+    public static String indexHost = "localhost";
+    public static Integer indexPort = 8999;
+    public static String indexBaseUrl = "/index";
+
     public static boolean passUc = false;
 
     private static final Properties properties = new Properties();
@@ -56,6 +61,10 @@ public class Constant {
             ucHost = properties.getProperty("ucHost", "localhost");
             ucPort = Integer.parseInt(properties.getProperty("ucPort", "8004"));
             ucBaseUrl = properties.getProperty("ucBaseUrl", "/api/uc");
+
+            indexHost = properties.getProperty("indexHost", "localhost");
+            indexPort = Integer.parseInt(properties.getProperty("indexPort", "8999"));
+            indexBaseUrl = properties.getProperty("indexBaseUrl", "/index");
 
             passUc = Boolean.parseBoolean(properties.getProperty("passUc", "false"));
 
@@ -101,8 +110,8 @@ public class Constant {
         public static final String SYMBOL = "symbol";
         public static final String KEYWORD = "keyword";
         public static final String FORMULA = "formulaName";
-        public static final String COLUMNVALUE = "columnValue";
-
+        public static final String COLUMN_VALUE = "columnValue";
+        public static final String DATE_VALUE = "dateValue";
     }
 
     // category type
@@ -214,7 +223,7 @@ public class Constant {
         // 记录歧义 yearly/quarterly/monthly/weekly/daily
         public static final Integer DATE_INTERVAL = -4;
 
-        public static final List<String> types = Arrays.asList("date_interval","last", "after", "before");
+        public static final List<String> types = Arrays.asList("date_interval", "last", "after", "before");
 
         public static String getWord(Integer type) {
             return types.get(types.size() + type);
@@ -253,6 +262,17 @@ public class Constant {
         public static final String DATETIME_INTERVAL = "set_datetime_interval";
 
         public static final String ANNOTATION = "annotation";
+    }
+
+    // suggestion type
+    public static final class SuggestionType {
+        public static final String HISTORY = "history";
+        public static final String PHRASE = "phrase";
+        public static final String COLUMN = "column";
+        public static final String NUMBER = "number";
+        public static final String COLUMN_VALUE = "columnValue";
+        public static final String DATE_VALUE = "dateValue";
+
     }
 
 }

@@ -32,4 +32,12 @@ public class SuggestionResponse {
         return json.toJSONString();
     }
 
+    /**
+     * 过滤suggestion,各类型的suggestion数量限制,以及去重
+     */
+    // TODO: 2018/6/6
+    public void filterDatas() {
+
+    }
+
 }

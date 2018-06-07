@@ -2,6 +2,8 @@ package focus.search.base;
 
 import com.alibaba.fastjson.serializer.NameFilter;
 import org.apache.log4j.Logger;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,6 +23,18 @@ import java.util.List;
  */
 public class Common {
     private static final Logger logger = Logger.getLogger(Common.class);
+
+    public static void send(WebSocketSession session, String message) throws IOException {
+        send(session, new TextMessage(message));
+    }
+
+    public static void send(WebSocketSession session, TextMessage message) throws IOException {
+        if (session.isOpen()) {
+            session.sendMessage(message);
+        } else {
+            logger.warn("this session has closed.");
+        }
+    }
 
     private static String UnderLineString2Camel(String name) {
         String[] str = name.split("_");
@@ -114,11 +128,11 @@ public class Common {
     private static final SimpleDateFormat sdf6 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private static final List<SimpleDateFormat> sdfList = Arrays.asList(sdf1, sdf2, sdf3, sdf4, sdf5, sdf6);
 
-    public static String biTimeFormat(Date date){
+    public static String biTimeFormat(Date date) {
         return sdf0.format(date);
     }
 
-    public static String biTimeFormat(Calendar date){
+    public static String biTimeFormat(Calendar date) {
         return biTimeFormat(date.getTime());
     }
 

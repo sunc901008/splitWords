@@ -25,7 +25,7 @@ public class TimeoutTask implements Job {
         WebSocketSession session = (WebSocketSession) params.get("session");
         try {
             logger.warn("I WORKED!!!!!!!!!!!!!!!!!");
-            session.sendMessage(new TextMessage(ErrorResponse.response(Constant.ErrorType.BI_TIMEOUT).toJSONString()));
+            Common.send(session, ErrorResponse.response(Constant.ErrorType.BI_TIMEOUT).toJSONString());
             // 删除任务
             QuartzManager.deleteJob(jobDetail.getKey());
         } catch (IOException |SchedulerException e) {

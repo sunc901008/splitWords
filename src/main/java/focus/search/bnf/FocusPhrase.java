@@ -200,7 +200,15 @@ public class FocusPhrase {
     }
 
     public boolean equals(FocusPhrase fp) {
-        return this.toJSON().equals(fp.toJSON());
+        if (this.size() != fp.size()) {
+            return false;
+        }
+        for (int i = 0; i < this.size(); i++) {
+            if (!this.getNodeNew(i).getValue().equals(fp.getNodeNew(i).getValue())) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

@@ -17,6 +17,7 @@ public class Column {
     private String sourceName;
     private String physicalName;
     private Integer tableId;
+    private String dbName;
     private String aggregation;
 
     public Column() {
@@ -115,5 +116,13 @@ public class Column {
 
     public void setAggregation(String aggregation) {
         this.aggregation = aggregation;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
     }
 }

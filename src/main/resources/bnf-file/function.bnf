@@ -62,18 +62,18 @@
 <to_integer-function> := to_integer ( <all-columns> );
 
 # number
-<diff_days-function> := diff_days ( <column-value> , <date-columns> ) |
+<diff_days-function> := diff_days ( <date-string-value> , <date-columns> ) |
                         diff_days ( <date-columns> , <date-columns> ) |
-                        diff_days ( <date-columns> , <column-value> ) |
-                        diff_days ( <column-value> , <column-value> );
+                        diff_days ( <date-columns> , <date-string-value> ) |
+                        diff_days ( <date-string-value> , <date-string-value> );
 
 # number
 <month_number-function> := month_number ( <date-columns> ) |
-                           month_number ( <column-value> );
+                           month_number ( <date-string-value> );
 
 # number
 <year-function> := year ( <date-columns> ) |
-                   year ( <column-value> );
+                   year ( <date-string-value> );
 
 # number
 <strlen-function> := strlen ( <string-columns> ) |
@@ -157,7 +157,7 @@
 
 # string
 <month-function> := month ( <date-columns> ) |
-                    month ( <column-value> );
+                    month ( <date-string-value> );
 
 # string
 <concat-function> := concat ( <string-columns> , <string-columns> ) |

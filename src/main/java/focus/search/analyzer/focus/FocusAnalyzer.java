@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
 import focus.search.base.Common;
+import focus.search.base.Constant;
 import focus.search.meta.Formula;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
@@ -110,8 +111,7 @@ public class FocusAnalyzer implements Serializable {
         // 关闭TokenStream（关闭StringReader）
         ts.close();
 
-        return MergeToken.mergeUserInput(tokens, str);
-//        return tokens;
+        return mergeUserInput(tokens, str);
     }
 
     private List<FocusKWDict> makeTableDict(List<SourceReceived> sources) {
@@ -131,6 +131,38 @@ public class FocusAnalyzer implements Serializable {
             list.add(new FocusKWDict(formula.getName(), "formulaName"));
         }
         return list;
+    }
+
+    private static List<FocusToken> mergeUserInput(List<FocusToken> tokens, String search) {
+        List<FocusToken> merge = new ArrayList<>();
+        int start = 0;
+        int end = 0;
+        boolean hasBegin = false;
+        boolean hasEnd = false;
+        while (!tokens.isEmpty()) {
+            FocusToken tmp = tokens.remove(0);
+            if (hasBegin) {
+                if ("TYPE_QUOTE".equals(tmp.getType())) {
+                    hasEnd = true;
+                    hasBegin = false;
+                    end = tmp.getStart();
+                    merge.add(new FocusToken(search.substring(start, end), Constant.FNDType.COLUMN_VALUE, start, end));
+                    merge.add(tmp);
+                }
+            } else {
+                merge.add(tmp);
+                if ("TYPE_QUOTE".equals(tmp.getType())) {
+                    hasBegin = true;
+                    hasEnd = false;
+                    start = tmp.getEnd();
+                }
+            }
+        }
+        if (!hasEnd) {
+            end = search.length();
+            merge.add(new FocusToken(search.substring(start), Constant.FNDType.COLUMN_VALUE, start, end));
+        }
+        return merge;
     }
 
 }

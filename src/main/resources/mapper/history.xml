@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="focus.search.dao.HistoryDAO">
+
+    <resultMap type="History" id="HistoryMap">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="question" column="question" jdbcType="VARCHAR"/>
+        <result property="sourceList" column="sourceList" jdbcType="VARCHAR"/>
+        <result property="language" column="language" jdbcType="VARCHAR"/>
+        <result property="userId" column="userId" jdbcType="INTEGER"/>
+        <result property="score" column="score" jdbcType="INTEGER"/>
+        <result property="creationDate" column="creationDate" jdbcType="VARCHAR"/>
+        <result property="updationDate" column="updationDate" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="selectSQL">
+        <![CDATA[
+        SELECT
+            id,
+            question,
+            sourceList,
+            `language`,
+            userId,
+            score,
+            date_format(creationDate, '%Y-%m-%d %T') AS creationDate,
+            date_format(updationDate, '%Y-%m-%d %T') AS updationDate
+        FROM history
+        ]]>
+    </sql>
+
+    <insert id="insert" parameterType="History" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+        INSERT INTO history (
+            id,
+            question,
+            sourceList,
+            `language`,
+            userId,
+            score,
+            creationDate,
+            updationDate
+        ) VALUES (
+            #{id,jdbcType=INTEGER},
+            #{question,jdbcType=VARCHAR},
+            #{sourceList,jdbcType=VARCHAR},
+            #{language,jdbcType=VARCHAR},
+            #{userId,jdbcType=INTEGER},
+            #{score,jdbcType=INTEGER},
+            now(),
+            now()
+        )
+        ]]>
+    </insert>
+
+    <delete id="delete" parameterType="int">
+        <![CDATA[
+        DELETE FROM history
+        WHERE id = #{id,jdbcType=INTEGER}
+        ]]>
+    </delete>
+
+    <delete id="deletes" parameterType="list">
+        <![CDATA[
+        DELETE FROM history
+        WHERE id IN
+        ]]>
+        <foreach item="idList" index="index" collection="list" open="(" separator="," close=")">
+            #{idList}
+        </foreach>
+    </delete>
+
+    <update id="update" parameterType="History">
+        <![CDATA[
+        UPDATE history
+        SET score = #{score,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+        ]]>
+    </update>
+
+    <select id="selectByUserId" resultMap="HistoryMap">
+        <include refid="selectSQL"/>
+        <![CDATA[
+        WHERE userId = #{userId,jdbcType=INTEGER} AND `language` = #{language, jdbcType=VARCHAR} ORDER BY score DESC LIMIT 1000
+        ]]>
+    </select>
+
+    <select id="exist" resultMap="HistoryMap">
+        <include refid="selectSQL"/>
+        <![CDATA[
+        WHERE userId = #{userId,jdbcType=INTEGER} AND `language` = #{language, jdbcType=VARCHAR} AND question = #{question, jdbcType=VARCHAR}
+        ]]>
+    </select>
+
+</mapper>

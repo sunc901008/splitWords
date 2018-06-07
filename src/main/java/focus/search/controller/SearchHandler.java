@@ -21,8 +21,9 @@ import focus.search.meta.Formula;
 import focus.search.metaReceived.*;
 import focus.search.response.exception.*;
 import focus.search.response.search.*;
+import focus.search.suggestions.HistoryUtils;
+import focus.search.suggestions.SourcesUtils;
 import org.apache.log4j.Logger;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -60,7 +61,7 @@ class SearchHandler {
 
         if (!noImmediateResponse.contains(type))
             // response immediately
-            session.sendMessage(new TextMessage(Response.response(type)));
+            Common.send(session, Response.response(type));
 
         switch (type) {
             case "init":
@@ -72,14 +73,14 @@ class SearchHandler {
             case "selectSuggest":// todo 使用场景未知
                 selectSuggest(session, datas);
                 break;
-            case "disambiguate":
-                disambiguate(session, datas, user);
+            case "disambiguite":
+                disambiguite(session, datas, user);
                 break;
-            case "reDisambiguate":
-                reDisambiguate(session, datas, user);
+            case "reDisambiguite":
+                reDisambiguite(session, datas, user);
                 break;
-            case "clearDisambiguate":
-                clearDisambiguate(session, datas, user);
+            case "clearDisambiguite":
+                clearDisambiguite(session, datas, user);
                 break;
             case "axis":// todo 使用场景未知
                 axis(session, datas);
@@ -134,7 +135,7 @@ class SearchHandler {
         String sourceToken = datas.getString("sourceToken");
 
         if (Common.isEmpty(sourceToken)) {
-            session.sendMessage(new TextMessage(ErrorResponse.response(Constant.ErrorType.NULL_SOURCETOKEN).toJSONString()));
+            Common.send(session, ErrorResponse.response(Constant.ErrorType.NULL_SOURCETOKEN).toJSONString());
             return;
         }
 
@@ -143,7 +144,6 @@ class SearchHandler {
         user.put("sourceToken", sourceToken);
         session.getAttributes().put("sourceToken", sourceToken);
         user.put("curSearchToken", curSearchToken);
-        user.put("historyQuestions", new JSONArray());
         JSONObject getSource;
         getSource = Clients.WebServer.getSource(sourceToken);
         logger.info(getSource.toJSONString());
@@ -162,6 +162,12 @@ class SearchHandler {
                     new Common.JSONFilter()), RelationReceived.class);
 
             user.put("sources", srs);
+            JSONArray sourceList = new JSONArray();
+            srs.forEach(sr -> sourceList.add(sr.tableId));
+            user.put("sourceList", sourceList.toJSONString());
+
+            // 初始化历史问题
+            user.put("historyQuestions", HistoryUtils.initHistory(user));
 
             // 歧义记录
             JSONObject ambiguities = new JSONObject();
@@ -198,7 +204,7 @@ class SearchHandler {
         }
         response.setDatas(init.toJson());
         logger.info(response.response());
-        session.sendMessage(new TextMessage(response.response()));
+        Common.send(session, response.response());
 
     }
 
@@ -221,7 +227,7 @@ class SearchHandler {
     private static void selectSuggest(WebSocketSession session, JSONObject params) {
     }
 
-    private static void disambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
+    private static void disambiguite(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
         logger.info("params:" + params);
         String id = params.getString("id");
         int index = params.getInteger("index");
@@ -245,22 +251,22 @@ class SearchHandler {
 //        session.getAttributes().put("user", user);
         JSONObject response = new JSONObject();
         response.put("type", "state");
-        response.put("message", "disambiguateDone");
-        session.sendMessage(new TextMessage(response.toJSONString()));
+        response.put("message", "disambiguiteDone");
+        Common.send(session, response.toJSONString());
 
     }
 
-    private static void reDisambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
-        disambiguate(session, params, user);
+    private static void reDisambiguite(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
+        disambiguite(session, params, user);
     }
 
-    private static void clearDisambiguate(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
+    private static void clearDisambiguite(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
         user.put("ambiguities", new JSONObject());
 //        session.getAttributes().put("user", user);
         JSONObject response = new JSONObject();
         response.put("type", "state");
-        response.put("message", "clearDisambiguateDone");
-        session.sendMessage(new TextMessage(response.toJSONString()));
+        response.put("message", "clearDisambiguiteDone");
+        Common.send(session, response.toJSONString());
     }
 
     private static void axis(WebSocketSession session, JSONObject params) {
@@ -291,7 +297,7 @@ class SearchHandler {
         String message = fnamecheck(name, id, user);
         datas.put("message", message == null ? "success" : message);
         response.put("datas", datas);
-        session.sendMessage(new TextMessage(response.toJSONString()));
+        Common.send(session, response.toJSONString());
     }
 
     private static void lang(WebSocketSession session, JSONObject params, JSONObject user) {
@@ -300,28 +306,27 @@ class SearchHandler {
 
     private static void category(WebSocketSession session, String category, JSONObject user) {
         user.put("category", category);
-//        session.getAttributes().put("user", user);
     }
 
     private static void exportContext(WebSocketSession session, JSONObject user) throws IOException {
         // 歧义
         JSONObject context = new JSONObject();
         JSONObject amb = user.getJSONObject("ambiguities");
-        JSONArray disambiguations = new JSONArray();
+        JSONArray disambiguitions = new JSONArray();
         if (amb != null)
             for (Object obj : amb.values()) {
                 AmbiguitiesResolve tmp = (AmbiguitiesResolve) obj;
                 if (tmp.isResolved) {
                     AmbiguitiesRecord ar = tmp.ars.get(0);
-                    disambiguations.add(ar.toJSON());
+                    disambiguitions.add(ar.toJSON());
                 }
             }
-        context.put("disambiguations", disambiguations.isEmpty() ? null : disambiguations);
+        context.put("disambiguitions", disambiguitions.isEmpty() ? null : disambiguitions);
         context.put("indexs", null);
         context.put("language", user.getString("language"));
         List<Formula> formulas = Base.getFormula(user);
         context.put("formulas", formulas.isEmpty() ? null : formulas);
-        session.sendMessage(new TextMessage(ExportContextResponse.response(context)));
+        Common.send(session, ExportContextResponse.response(context));
 
     }
 
@@ -382,14 +387,14 @@ class SearchHandler {
 
                 json.put("status", "illegal");
 
-            } catch (IllegalException e){
+            } catch (IllegalException e) {
                 e.question = formulaReceived.formula;
                 throw e;
             }
 
             response.datas.add(json);
         }
-        session.sendMessage(new TextMessage(response.response("putFormula")));
+        Common.send(session, response.response("putFormula"));
         user.put("formulas", formulas);
 
         // 公式名添加到分词和规则中
@@ -458,7 +463,7 @@ class SearchHandler {
                 }
             }
         }
-        session.sendMessage(new TextMessage(response.response("modifyFormula")));
+        Common.send(session, response.response("modifyFormula"));
     }
 
     private static void deleteFormula(WebSocketSession session, JSONArray params, JSONObject user) throws IOException {
@@ -479,7 +484,7 @@ class SearchHandler {
             }
         }
         user.put("formulas", formulas);
-        session.sendMessage(new TextMessage(response.response("deleteFormula")));
+        Common.send(session, response.response("deleteFormula"));
         FocusParser fp = (FocusParser) user.get("parser");
         ModelBuild.deleteFormulas(fp, formulaNames);
     }
@@ -496,7 +501,7 @@ class SearchHandler {
             cases = jsonArray;
         } else {
             while (cases.size() < 2) {
-                String value = jsonArray.get(SuggestionBuild.decimalSug(jsonArray.size())).toString();
+                String value = jsonArray.get(SourcesUtils.decimalSug(jsonArray.size())).toString();
                 if (!cases.contains(value)) {
                     cases.add(value);
                 }
@@ -504,13 +509,13 @@ class SearchHandler {
         }
         datas.put("cases", cases);
         response.setDatas(datas);
-        session.sendMessage(new TextMessage(response.response()));
+        Common.send(session, response.response());
     }
 
     private static void echo(WebSocketSession session) throws IOException {
         JSONObject response = new JSONObject();
         response.put("type", "echo");
-        session.sendMessage(new TextMessage(response.toJSONString()));
+        Common.send(session, response.toJSONString());
     }
 
     // textChange
@@ -520,7 +525,6 @@ class SearchHandler {
 
     // focusIn
     private static void focusIn(WebSocketSession session, String question, int position, FocusParser fp) throws IOException {
-        session.sendMessage(new TextMessage(JSON.toJSONString(fp.getTerminalTokens())));
     }
 
     // move

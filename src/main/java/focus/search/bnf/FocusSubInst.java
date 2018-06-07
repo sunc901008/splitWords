@@ -33,6 +33,10 @@ public class FocusSubInst {
         return fps;
     }
 
+    public boolean isSuggestion() {
+        return fps.get(0).isSuggestion();
+    }
+
     public void setFps(List<FocusPhrase> fps) {
         this.fps = fps;
     }

@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import javax.servlet.ServletRequest;
@@ -54,7 +53,7 @@ public class WebserviceController {
         if (jobDetail != null) {
             JobDataMap params = jobDetail.getJobDataMap();
             WebSocketSession session = (WebSocketSession) params.get("session");
-            session.sendMessage(new TextMessage(chartsResponse.response()));
+            Common.send(session, chartsResponse.response());
         } else {
             if (Constant.SearchOrPinboard.SEARCH_USER.equals(source)) {
                 WebsocketSearch.queryResult(chartsResponse, taskId);

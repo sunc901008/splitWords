@@ -6,13 +6,13 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.controller.common.FormulaCase;
-import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
+import focus.search.suggestions.SourcesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +101,7 @@ public class StrlenFuncInstruction {
     // formula case
     public static JSONArray buildCase(JSONObject user) {
         JSONArray cases = new JSONArray();
-        cases.add(String.format(example, SuggestionBuild.stringSug()));
+        cases.add(String.format(example, SourcesUtils.stringSug()));
         cases.addAll(FormulaCase.buildCaseStringCol(example, user));
         return cases;
     }

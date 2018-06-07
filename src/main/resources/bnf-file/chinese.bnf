@@ -23,10 +23,10 @@
 
 <number-complex-phrase> := <average-phrase>;
 
-<date-simple-filter> := <date-columns> <bool-symbol> <column-value> |
-                        <column-value> <bool-symbol> <number-columns> |
+<date-simple-filter> := <date-columns> <bool-symbol> <date-string-value> |
+                        <date-string-value> <bool-symbol> <date-columns> |
                         <date-columns> <bool-symbol> <date-columns> |
-                        <column-value> <bool-symbol> <column-value>;
+                        <date-string-value> <bool-symbol> <date-string-value>;
 
 <date-complex-filter> := <before-after-filter> |
                          <last-filter>;
@@ -127,10 +127,10 @@
 
 <before-filter> := 在 <date-columns> <before-chinese> |
                    <date-columns> <before-chinese> |
-                   在 <column-value> <before-chinese> |
-                   <column-value> <before-chinese> |
+                   在 <date-string-value> <before-chinese> |
+                   <date-string-value> <before-chinese> |
                    <all-date-column> 在 <date-columns> <before-chinese> |
-                   <all-date-column> 在 <column-value> <before-chinese>;
+                   <all-date-column> 在 <date-string-value> <before-chinese>;
 
 <after-chinese> := 之后 |
                    之后的 |
@@ -139,10 +139,10 @@
 
 <after-filter> := 在 <date-columns> <after-chinese> |
                   <date-columns> <after-chinese> |
-                  在 <column-value> <after-chinese> |
-                  <column-value> <after-chinese> |
+                  在 <date-string-value> <after-chinese> |
+                  <date-string-value> <after-chinese> |
                   <all-date-column> 在 <date-columns> <after-chinese> |
-                  <all-date-column> 在 <column-value> <after-chinese>;
+                  <all-date-column> 在 <date-string-value> <after-chinese>;
 
 <last-filter> := <last-days-filter> |
                  <last-weeks-filter> |
@@ -260,3 +260,16 @@
 <single-quote-column-value> := ' <value> ' |
                                ‘ <value> ’;
 <value> := 1;
+
+<date-string-value> := <double-quote-date-string-value> |
+                       <single-quote-date-string-value> |
+                       <double-quote-date-string-value> , <date-string-value> |
+                       <double-quote-date-string-value> ， <date-string-value> |
+                       <single-quote-date-string-value> , <date-string-value> |
+                       <single-quote-date-string-value> ， <date-string-value>;
+
+<double-quote-date-string-value> := " <date-value> " |
+                                    “ <date-value> ”;
+<single-quote-date-string-value> := ' <date-value> ' |
+                                    ‘ <date-value> ’;
+<date-value> := 1;

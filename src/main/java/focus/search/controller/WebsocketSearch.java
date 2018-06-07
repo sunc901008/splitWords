@@ -2,7 +2,6 @@ package focus.search.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
-import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusInst;
@@ -17,6 +16,7 @@ import focus.search.response.api.NameCheckResponse;
 import focus.search.response.exception.*;
 import focus.search.response.search.ChartsResponse;
 import focus.search.response.search.ErrorResponse;
+import focus.search.suggestions.HistoryUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -26,7 +26,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 public class WebsocketSearch extends TextWebSocketHandler {
@@ -34,51 +33,16 @@ public class WebsocketSearch extends TextWebSocketHandler {
 
     public static final String RECEIVED_TIMESTAMP = "RECEIVED_TIMESTAMP";
 
-    private static final ArrayList<WebSocketSession> users = new ArrayList<>();
-
-    private JSONObject userInfo(String accessToken) throws FocusHttpException {
-        if (Constant.passUc) {
-            JSONObject user = new JSONObject();
-            user.put("id", 1);
-            user.put("accessToken", accessToken);
-            user.put("name", "admin");
-            user.put("username", "admin");
-            user.put("privileges", Collections.singletonList("[\"ADMIN\"]"));
-            return user;
-        }
-        return Clients.Uc.getUserInfo(accessToken);
-    }
+    private static final List<WebSocketSession> users = new ArrayList<>();
 
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
-        if (users.size() >= Base.WebsocketLimit) {
-            String warn = "Websocket connected too much.";
-            logger.warn(warn);
-            session.sendMessage(new TextMessage(warn));
-            if (session.isOpen())
-                session.close();
-            return;
-        }
-        String accessToken = session.getAttributes().get("accessToken").toString();
-        logger.info("current accessToken:" + accessToken);
-        JSONObject user;
-        try {
-            // 获取用户信息
-            user = userInfo(accessToken);
-            user.put("accessToken", accessToken);
-        } catch (FocusHttpException e) {
-            logger.error(Common.printStacktrace(e));
-            String warn = ErrorResponse.response(Constant.ErrorType.ERROR, "Get Userinfo fail.").toJSONString();
-            session.sendMessage(new TextMessage(warn));
-            session.close();
-            return;
-        }
-        session.getAttributes().put("user", user);
-        logger.info(user.getString("name") + " connected to server.");
-        users.add(session);
+        Base.afterConnectionEstablished(users, session);
     }
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
         JSONObject user = (JSONObject) session.getAttributes().getOrDefault("user", new JSONObject());
+        // 断连接的时候持久化历史记录
+        HistoryUtils.persistentHistory(user);
         users.remove(session);
         logger.info(user.getString("name") + " disconnected to server.");
     }
@@ -113,13 +77,17 @@ public class WebsocketSearch extends TextWebSocketHandler {
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         logger.info("get an error:" + exception.getMessage());
-        session.sendMessage(new TextMessage(exception.getMessage()));
+        JSONObject user = (JSONObject) session.getAttributes().getOrDefault("user", new JSONObject());
+        // 断连接的时候持久化历史记录
+        HistoryUtils.persistentHistory(user);
+        if (session.isOpen())
+            Common.send(session, exception.getMessage());
     }
 
     public static void queryResult(ChartsResponse chartsResponse, String taskId) throws IOException {
         for (WebSocketSession session : users) {
             if (session.getAttributes().get("taskId").toString().equalsIgnoreCase(taskId)) {
-                session.sendMessage(new TextMessage(chartsResponse.response()));
+                Common.send(session, chartsResponse.response());
                 break;
             }
         }

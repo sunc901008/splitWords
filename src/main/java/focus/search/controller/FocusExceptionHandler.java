@@ -38,6 +38,6 @@ class FocusExceptionHandler {
     }
 
     static void handle(WebSocketSession session, String textMessage) throws IOException {
-        session.sendMessage(new TextMessage(textMessage));
+        Common.send(session, textMessage);
     }
 }

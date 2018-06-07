@@ -25,6 +25,7 @@ public class CommonFunc {
                     col.setTableId(sourceReceived.tableId);
                     col.setSourceName(sourceReceived.sourceName);
                     col.setPhysicalName(sourceReceived.physicalName);
+                    col.setDbName(sourceReceived.parentDB);
                     columns.add(col);
                 }
             }

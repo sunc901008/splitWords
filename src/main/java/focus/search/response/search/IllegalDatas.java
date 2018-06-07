@@ -1,6 +1,10 @@
 package focus.search.response.search;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * creator: sunc
@@ -11,6 +15,7 @@ public class IllegalDatas {
     public Integer beginPos;
     public Integer endPos;
     public String reason;
+    public List<SuggestionSuggestion> suggestions = new ArrayList<>();
 
     public IllegalDatas() {
     }
@@ -26,6 +31,9 @@ public class IllegalDatas {
         json.put("beginPos", beginPos);
         json.put("endPos", endPos);
         json.put("reason", reason);
+        JSONArray jsonArray = new JSONArray();
+        this.suggestions.forEach(suggestion -> jsonArray.add(suggestion.toJSON()));
+        json.put("suggestions", jsonArray);
         return json;
     }
 }

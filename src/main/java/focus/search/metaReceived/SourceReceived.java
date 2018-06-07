@@ -24,6 +24,7 @@ public class SourceReceived {
         source.setSourceName(this.sourceName);
         source.setType(this.type);
         source.setTableId(this.tableId);
+        source.setDbName(this.parentDB);
         for (ColumnReceived col : this.columns) {
             source.addColumn(col.transfer());
         }

@@ -28,7 +28,7 @@ public class WebsocketCheck extends HttpSessionHandshakeInterceptor {
             response.getHeaders().set("Sec-WebSocket-Protocol", protocols.get(0));
         }
 
-        String accessToken = null;
+        String accessToken = "";
         if (tokens != null && tokens.size() > 0) {
             List<String> cookies = Arrays.asList(tokens.get(0).split(";"));
             for (String cookie : cookies) {

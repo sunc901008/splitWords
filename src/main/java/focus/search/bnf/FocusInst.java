@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class FocusInst {
 
+    public boolean isInstruction = false;
     private List<FocusPhrase> focusPhrases = new ArrayList<>();
 
     // 记录出错位置

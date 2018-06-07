@@ -215,7 +215,7 @@ public class FocusParserBak {
                 continue;
             }*/
 
-            if (Constant.FNDType.COLUMNVALUE.equals(ft.getType())) {
+            if (Constant.FNDType.COLUMN_VALUE.equals(ft.getType())) {
                 int loop = focusPhrases.size();
                 while (loop > 0) {
                     FocusPhrase fp = focusPhrases.remove(0);
@@ -224,11 +224,11 @@ public class FocusParserBak {
                         continue;
                     }
                     FocusNode tmpNode = fp.getNodeNew(i);
-                    if (ColumnValueTerminalToken.COLUMNVALUE.equals(tmpNode.getValue())) {
+                    if (ColumnValueTerminalToken.COLUMN_VALUE.equals(tmpNode.getValue())) {
                         tmpNode.setValue(ft.getWord());
                         tmpNode.setBegin(ft.getStart());
                         tmpNode.setEnd(ft.getEnd());
-                        tmpNode.setType(Constant.FNDType.COLUMNVALUE);
+                        tmpNode.setType(Constant.FNDType.COLUMN_VALUE);
                         tmpNode.setTerminal();
 //                        fp.removeNode(i);
 //                        fp.addPn(i, tmpNode);
@@ -488,7 +488,7 @@ public class FocusParserBak {
                                     if (i == 0) {
                                         if (newFn.getType().equals(Constant.FNDType.INTEGER)
                                                 || newFn.getType().equals(Constant.FNDType.DOUBLE)
-                                                || newFn.getType().equals(Constant.FNDType.COLUMNVALUE)) {
+                                                || newFn.getType().equals(Constant.FNDType.COLUMN_VALUE)) {
                                             newFn.setValue(focusToken.getWord());
                                         }
                                     }
@@ -646,7 +646,7 @@ public class FocusParserBak {
 
     // 判断当前匹配是否为最小单元词
     private boolean isTerminal(String word) {
-        return word.equals(IntegerTerminalToken.INTEGER) || word.equals(NumberTerminalToken.DOUBLE) || word.equals(ColumnValueTerminalToken.COLUMNVALUE);
+        return word.equals(IntegerTerminalToken.INTEGER) || word.equals(NumberTerminalToken.DOUBLE) || word.equals(ColumnValueTerminalToken.COLUMN_VALUE);
     }
 
     // 判断是否为规则中的单元词

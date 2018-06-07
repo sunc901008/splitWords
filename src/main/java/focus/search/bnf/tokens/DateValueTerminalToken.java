@@ -2,17 +2,17 @@ package focus.search.bnf.tokens;
 
 import focus.search.base.Constant;
 
-public class ColumnValueTerminalToken extends TerminalToken {
-    public static final String COLUMN_VALUE = "<value>";
-    public static final String COLUMN_VALUE_BNF = "<column-value>";
+public class DateValueTerminalToken extends TerminalToken {
+    public static final String DATE_VALUE = "<date-value>";
+    public static final String DATE_VALUE_BNF = "<date-string-value>";
 
     /**
      * Creates a new non terminal token
      *
      * @param label The token's label
      */
-    public ColumnValueTerminalToken(String label) {
-        super(label, Constant.FNDType.COLUMN_VALUE);
+    public DateValueTerminalToken(String label) {
+        super(label, Constant.FNDType.DATE_VALUE);
     }
 
     @Override

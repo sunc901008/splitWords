@@ -133,6 +133,7 @@ public class SuggestionBuild {
                     column.setSourceName(source.sourceName);
                     column.setPhysicalName(source.physicalName);
                     column.setTableId(source.tableId);
+                    column.setDbName(source.parentDB);
                     columns.add(column);
                 }
             }
@@ -155,6 +156,7 @@ public class SuggestionBuild {
                     column.setSourceName(source.sourceName);
                     column.setPhysicalName(source.physicalName);
                     column.setTableId(source.tableId);
+                    column.setDbName(source.parentDB);
                     columns.add(column);
                     count--;
                 }
@@ -227,7 +229,7 @@ public class SuggestionBuild {
                 suggestion.description = "this is a symbol";
             } else if (Constant.FNDType.KEYWORD.equalsIgnoreCase(node.getType())) {
                 suggestion.description = "this is a keyword";
-            } else if (Constant.FNDType.COLUMNVALUE.equalsIgnoreCase(node.getType())) {
+            } else if (Constant.FNDType.COLUMN_VALUE.equalsIgnoreCase(node.getType())) {
                 suggestion.description = "this is a column value";
             }
             suggestions.add(suggestion);

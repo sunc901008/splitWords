@@ -6,13 +6,13 @@ import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.controller.common.FormulaCase;
-import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
+import focus.search.suggestions.SourcesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,10 +114,10 @@ public class DiffDaysFuncInstruction {
     // formula case
     public static JSONArray buildCase(JSONObject user) {
         String example = "diff_days ( %s )";
-        example = String.format(example, "%s , " + SuggestionBuild.dateSug());
+        example = String.format(example, "%s , " + SourcesUtils.dateSug());
         JSONArray cases = new JSONArray();
         cases.addAll(FormulaCase.buildCaseDateCol(example, user));
-        cases.add(String.format(example, SuggestionBuild.dateSug() + " , " + SuggestionBuild.dateSug()));
+        cases.add(String.format(example, SourcesUtils.dateSug() + " , " + SourcesUtils.dateSug()));
         return cases;
     }
 

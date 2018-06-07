@@ -3,7 +3,7 @@ package focus.search.meta;
 import focus.search.analyzer.focus.FocusToken;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 
 /**
  * creator: sunc
@@ -12,13 +12,26 @@ import java.util.Objects;
  */
 public class HistoryQuestion {
     public String question;
-    public List<FocusToken> tokens;
+    public String sourceList;
     public String taskId;
+    public int score;
 
-    public HistoryQuestion(String question, List<FocusToken> tokens, String taskId) {
-        this.question = question;
-        this.tokens = tokens;
+    public HistoryQuestion() {
+    }
+
+    // tokens 作用: 过滤多余空格，记录标准的question(原因：两个tokens之间多个空格其实是无效的)
+    public HistoryQuestion(List<FocusToken> tokens, String sourceList, String taskId) {
+        this.question = FocusToken.tokensToString(tokens);
+        this.sourceList = sourceList;
         this.taskId = taskId;
+        this.score = 0;
+    }
+
+    public HistoryQuestion(String question, String sourceList) {
+        this.question = question;
+        this.sourceList = sourceList;
+        this.taskId = UUID.randomUUID().toString();
+        this.score = 0;
     }
 
     /**
@@ -27,25 +40,7 @@ public class HistoryQuestion {
      * @return 当前搜索和上一次搜索相同，则返回空，否则返回上一次的taskId
      */
     public static String equals(HistoryQuestion history, HistoryQuestion current) {
-        if (equals(history.tokens, current.tokens)) {
-            if (history.question.length() > current.question.length()) {
-                history.question = current.question;
-            }
-            return null;
-        }
-        return history.taskId;
-    }
-
-    private static boolean equals(List<FocusToken> tokens1, List<FocusToken> tokens2) {
-        if (tokens1.size() != tokens2.size()) {
-            return false;
-        }
-        for (int i = 0; i < tokens1.size(); i++) {
-            if (!Objects.equals(tokens1.get(i).getWord().toLowerCase(), tokens2.get(i).getWord().toLowerCase())) {
-                return false;
-            }
-        }
-        return true;
+        return history.question.equals(current.question) ? null : history.taskId;
     }
 
 }

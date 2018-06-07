@@ -46,6 +46,9 @@ public class InstructionBuild {
         int loop = 1;
         for (int i = 0; i < focusPhrases.size(); i++) {
             FocusPhrase focusPhrase = focusPhrases.get(i);
+            if (focusPhrase.isSuggestion()) {
+                continue;
+            }
             logger.info("Build instruction. Loop:" + loop++ + " focusPhrase:" + focusPhrase.toJSON() + " ambiguities:" + amb + " language:" + language);
             index = instructions.size() / 2 + 1;
             FocusPhrase prePhrase = null;

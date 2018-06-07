@@ -1,0 +1,1 @@
+CREATE database IF NOT EXISTS focus_search DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;

@@ -35,22 +35,10 @@ import java.util.List;
 public class WebsocketPinboard extends TextWebSocketHandler {
     private static final Logger logger = Logger.getLogger(WebsocketPinboard.class);
 
-    private static final ArrayList<WebSocketSession> users = new ArrayList<>();
+    private static final List<WebSocketSession> users = new ArrayList<>();
 
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        if (users.size() >= Base.WebsocketLimit) {
-            String warn = "Websocket connected too much.";
-            logger.warn(warn);
-            session.sendMessage(new TextMessage(warn));
-            if (session.isOpen())
-                session.close();
-            return;
-        }
-
-        JSONObject user = (JSONObject) session.getAttributes().get("user");
-        logger.info(user.getString("name") + " connected to server.");
-        users.add(session);
-
+        Base.afterConnectionEstablished(users, session);
     }
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
@@ -62,15 +50,18 @@ public class WebsocketPinboard extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         JSONObject params = JSONObject.parseObject(message.getPayload());
+        logger.info("user input:" + params);
         String type = params.getString("type");
         switch (type) {
             case "init":
                 init(session, params.getJSONArray("answers"));
+                break;
             case "query":
-                session.sendMessage(new TextMessage(Response.response(type)));
+                Common.send(session, Response.response(type));
                 JSONArray parsers = (JSONArray) session.getAttributes().get("parsers");
                 if (parsers != null)
                     query(session, params.getJSONObject("answers"), parsers);
+                break;
             case "echo":
             default:
                 echo(session);
@@ -88,7 +79,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             try {
                 getSource = Clients.WebServer.getSource(sourceToken);
             } catch (Exception e) {
-                session.sendMessage(new TextMessage(ErrorResponse.response(Constant.ErrorType.ERROR, e.getMessage()).toJSONString()));
+                Common.send(session, ErrorResponse.response(Constant.ErrorType.ERROR, e.getMessage()).toJSONString());
                 continue;
             }
             List<SourceReceived> srs;
@@ -118,10 +109,10 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             pinboard.put("parser", fp);
             parsers.add(pinboard);
             InitStateResponse response = new InitStateResponse(sourceToken);
-            session.sendMessage(new TextMessage(response.response()));
+            Common.send(session, response.response());
         }
         session.getAttributes().put("parsers", parsers);
-        session.sendMessage(new TextMessage(Response.response("init")));
+        Common.send(session, Response.response("init"));
     }
 
     private static void query(WebSocketSession session, JSONObject answer, JSONArray parsers) throws Exception {
@@ -164,10 +155,10 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         // 生成指令
         response.setDatas("prepareQuery");
         // prepareQuery response
-        session.sendMessage(new TextMessage(response.response()));
+        Common.send(session, response.response());
         JSONObject json = InstructionBuild.build(focusInst, search, amb, formulas);
 
-        json.put("source", "pinboardUser");
+        json.put("source", Constant.SearchOrPinboard.PINBOARD_USER);
         json.put("sourceToken", sourceToken);
 
         logger.info("指令:\n\t" + json + "\n");
@@ -176,15 +167,15 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         AnnotationResponse annotationResponse = new AnnotationResponse(search);
         annotationResponse.datas.addAll(Base.getAnnotationDatas(json.getJSONArray("instructions")));
         // Annotations response
-        session.sendMessage(new TextMessage(annotationResponse.response()));
+        Common.send(session, annotationResponse.response());
 
         // search finish response
-        session.sendMessage(new TextMessage(SearchFinishedResponse.response(search)));
+        Common.send(session, SearchFinishedResponse.response(search));
 
         // 指令检测
         response.setDatas("precheck");
         // precheck response
-        session.sendMessage(new TextMessage(response.response()));
+        Common.send(session, response.response());
 
         if (Base.checkQuery(session, json, search)) {
             return;
@@ -193,12 +184,12 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         // 指令检测完毕
         response.setDatas("precheckDone");
         // precheckDone response
-        session.sendMessage(new TextMessage(response.response()));
+        Common.send(session, response.response());
 
         // 准备执行指令
         response.setDatas("executeQuery");
         // executeQuery response
-        session.sendMessage(new TextMessage(response.response()));
+        Common.send(session, response.response());
 
         JSONObject res = Clients.Bi.query(json.toJSONString());
         String taskId = res.getString("taskId");
@@ -210,13 +201,13 @@ public class WebsocketPinboard extends TextWebSocketHandler {
     private static void echo(WebSocketSession session) throws IOException {
         JSONObject response = new JSONObject();
         response.put("type", "echo");
-        session.sendMessage(new TextMessage(response.toJSONString()));
+        Common.send(session, response.toJSONString());
     }
 
     public static void queryResult(ChartsResponse chartsResponse, String taskId) throws IOException {
         for (WebSocketSession session : users) {
             if (session.getAttributes().get("taskId").toString().equalsIgnoreCase(taskId)) {
-                session.sendMessage(new TextMessage(chartsResponse.response()));
+                Common.send(session, chartsResponse.response());
                 break;
             }
         }

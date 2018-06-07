@@ -7,13 +7,13 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaCase;
-import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.ColValueOrStringColInst;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
+import focus.search.suggestions.SourcesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,9 +113,9 @@ public class ContainsFuncInstruction {
     // formula case
     public static JSONArray buildCase(JSONObject user) {
         String example = "contains ( %s )";
-        example = String.format(example, "%s , " + SuggestionBuild.stringSug());
+        example = String.format(example, "%s , " + SourcesUtils.stringSug());
         JSONArray cases = new JSONArray();
-        cases.add(String.format(example, SuggestionBuild.stringSug() + " , " + SuggestionBuild.stringSug()));
+        cases.add(String.format(example, SourcesUtils.stringSug() + " , " + SourcesUtils.stringSug()));
         cases.addAll(FormulaCase.buildCaseStringCol(example, user));
         return cases;
     }

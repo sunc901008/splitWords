@@ -24,10 +24,10 @@
 
 <number-complex-phrase> := <average-phrase>;
 
-<date-simple-filter> := <date-columns> <bool-symbol> <column-value> |
-                        <column-value> <bool-symbol> <number-columns> |
+<date-simple-filter> := <date-columns> <bool-symbol> <date-string-value> |
+                        <date-string-value> <bool-symbol> <date-columns> |
                         <date-columns> <bool-symbol> <date-columns> |
-                        <column-value> <bool-symbol> <column-value>;
+                        <date-string-value> <bool-symbol> <date-string-value>;
 
 <date-complex-filter> := <before-after-filter> |
                          <last-filter>;
@@ -85,14 +85,14 @@
                          <after-filter>;
 
 <before-filter> := before <date-columns> |
-                   before <column-value> |
+                   before <date-string-value> |
                    <all-date-column> before <date-columns>|
-                   <all-date-column> before <column-value>;
+                   <all-date-column> before <date-string-value>;
 
 <after-filter> := after <date-columns> |
-                  after <column-value> |
+                  after <date-string-value> |
                   <all-date-column> after <date-columns> |
-                  <all-date-column> after <column-value>;
+                  <all-date-column> after <date-string-value>;
 
 <last-filter> := <last-days-filter> |
                  <last-weeks-filter> |
@@ -195,3 +195,16 @@
 <single-quote-column-value> := ' <value> ' |
                                ‘ <value> ’;
 <value> := 1;
+
+<date-string-value> := <double-quote-date-string-value> |
+                       <single-quote-date-string-value> |
+                       <double-quote-date-string-value> , <date-string-value> |
+                       <double-quote-date-string-value> ， <date-string-value> |
+                       <single-quote-date-string-value> , <date-string-value> |
+                       <single-quote-date-string-value> ， <date-string-value>;
+
+<double-quote-date-string-value> := " <date-value> " |
+                                    “ <date-value> ”;
+<single-quote-date-string-value> := ' <date-value> ' |
+                                    ‘ <date-value> ’;
+<date-value> := 1;

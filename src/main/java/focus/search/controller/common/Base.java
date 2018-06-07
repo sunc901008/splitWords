@@ -20,12 +20,14 @@ import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.*;
 import focus.search.response.search.*;
+import focus.search.suggestions.HistoryUtils;
+import focus.search.suggestions.SuggestionUtils;
 import org.apache.log4j.Logger;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,13 +58,13 @@ public class Base {
      */
     public static JSONObject context(JSONObject contextJson, List<SourceReceived> srs) {
         JSONObject ambiguities = new JSONObject();
-        String contextStr = contextJson.getString("disambiguations");// 检测 lisp 返回的空值 nil
+        String contextStr = contextJson.getString("disambiguitions");// 检测 lisp 返回的空值 nil
         if (!Common.isEmpty(contextStr) && !contextStr.equalsIgnoreCase("NIL")) {
 
             // 恢复歧义
-            JSONArray disambiguations = JSONArray.parseArray(contextStr);
+            JSONArray disambiguitions = JSONArray.parseArray(contextStr);
 
-            for (Object obj : disambiguations) {
+            for (Object obj : disambiguitions) {
                 AmbiguitiesRecord record = JSON.parseObject(obj.toString(), AmbiguitiesRecord.class);
                 AmbiguitiesResolve ar = new AmbiguitiesResolve();
                 ar.value = record.realValue;
@@ -170,30 +172,8 @@ public class Base {
 
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
         if (Common.isEmpty(search.trim())) {
-            // TODO: 2018/5/16 modify suggestions
-            SuggestionResponse response = new SuggestionResponse(search);
-            SuggestionDatas datas = new SuggestionDatas();
-            datas.beginPos = 0;
-            datas.phraseBeginPos = datas.beginPos;
-
-            for (Object history : historyQuestions) {
-                SuggestionSuggestion suggestions = new SuggestionSuggestion();
-                suggestions.suggestion = ((HistoryQuestion) history).question;
-                suggestions.suggestionType = "history";
-                suggestions.description = "history";
-                datas.suggestions.add(suggestions);
-            }
-
-            List<Column> columns = SuggestionBuild.colRandomSuggestions(user);
-            for (Column column : columns) {
-                SuggestionSuggestion suggestions = new SuggestionSuggestion();
-                suggestions.suggestion = column.getColumnDisplayName();
-                suggestions.suggestionType = Constant.FNDType.COLUMN;
-                suggestions.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
-                datas.suggestions.add(suggestions);
-            }
-            response.setDatas(datas);
-            session.sendMessage(new TextMessage(response.response()));
+            SuggestionResponse response = SuggestionUtils.suggestionsNull(fp, user, 0);
+            Common.send(session, response.response());
             logger.info("提示:\n\t" + response.response() + "\n");
             return;
         }
@@ -216,10 +196,10 @@ public class Base {
             datas.title = "ambiguity word: " + ambiguityWord;
             e.ars.forEach(a -> datas.possibleMenus.add(a.possibleValue));
             response.setDatas(datas);
-            session.sendMessage(new TextMessage(response.response()));
+            Common.send(session, response.response());
             logger.info(response.response());
 
-            session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
+            Common.send(session, SearchFinishedResponse.response(search, received));
             return;
         }
         logger.info("split words:" + JSON.toJSONString(tokens));
@@ -243,7 +223,6 @@ public class Base {
 
             logger.info(focusInst.toJSON().toJSONString());
 
-            String msg;
             if (focusInst.position < 0) {// 未出错
                 int n = tokens.size();
                 for (FocusPhrase f : focusInst.getFocusPhrases()) {
@@ -280,26 +259,16 @@ public class Base {
                 }
                 user.put("ambiguities", amb);
 
-                FocusPhrase focusPhrase = focusInst.lastFocusPhrase();
-                if (focusPhrase.isSuggestion()) {// 出入不完整
-                    SuggestionResponse response = new SuggestionResponse(search);
-                    SuggestionDatas datas = new SuggestionDatas();
-                    JSONObject json = SuggestionBuild.sug(tokens, focusInst);
-                    logger.debug("Get Suggestions:" + json);
-                    datas.beginPos = json.getInteger("position");
-                    datas.phraseBeginPos = datas.beginPos;
-                    List<FocusNode> focusNodes = JSONArray.parseArray(json.getJSONArray("suggestions").toJSONString(), FocusNode.class);
-                    focusNodes.forEach(node -> datas.suggestions.addAll(SuggestionBuild.buildSug(fp, user, node)));
-                    response.setDatas(datas);
+                if (!focusInst.isInstruction) {// 出入不完整
+                    SuggestionResponse response = SuggestionUtils.suggestionsNotCompleted(fp, search, focusInst, user, tokens, search.length());
 
                     // search suggestions
-                    session.sendMessage(new TextMessage(response.response()));
+                    if (response != null)
+                        Common.send(session, response.response());
 
                     // search finish
-                    session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
-                    logger.info("提示:\n\t" + JSON.toJSONString(focusNodes) + "\n");
+                    Common.send(session, SearchFinishedResponse.response(search, received));
                 } else {//  输入完整
-
                     if (!isQuestion) {// formula
                         FormulaResponse response = new FormulaResponse(search);
                         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
@@ -307,8 +276,8 @@ public class Base {
                         datas.settings = FormulaAnalysis.getSettings(formulaObj);
                         datas.formulaObj = formulaObj.toString();
                         response.setDatas(datas);
-                        session.sendMessage(new TextMessage(response.response()));
-                        session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
+                        Common.send(session, response.response());
+                        Common.send(session, SearchFinishedResponse.response(search, received));
                         return;
                     }
 
@@ -319,30 +288,33 @@ public class Base {
                     // 生成指令
                     JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user), language, dateColumns);
 
-                    json.put("source", "searchUser"); // 区分是search框还是pinboard
+                    json.put("source", Constant.SearchOrPinboard.SEARCH_USER); // 区分是search框还是pinboard
                     json.put("sourceToken", user.getString("sourceToken"));
 
                     logger.info("指令:\n\t" + json + "\n");
                     // Annotations
                     AnnotationResponse annotationResponse = new AnnotationResponse(search);
                     annotationResponse.datas.addAll(getAnnotationDatas(json.getJSONArray("instructions")));
-                    session.sendMessage(new TextMessage(annotationResponse.response()));
+                    Common.send(session, annotationResponse.response());
 
-                    // TODO: 2018/5/11  add suggestion here
+                    // 生成suggestion
+                    SuggestionResponse sug = SuggestionUtils.suggestionsCompleted(fp, search, focusInst, user, tokens, position);
+                    if (sug != null)
+                        Common.send(session, sug.response());
 
                     // search finish
-                    session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
+                    Common.send(session, SearchFinishedResponse.response(search, received));
 
                     if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event) && search.trim().equals(getLastQuestion(historyQuestions))) {
                         return;
                     }
                     // prepareQuery
                     response.setDatas("prepareQuery");
-                    session.sendMessage(new TextMessage(response.response()));
+                    Common.send(session, response.response());
 
                     // 指令检测
                     response.setDatas("precheck");
-                    session.sendMessage(new TextMessage(response.response()));
+                    Common.send(session, response.response());
 
                     if (checkQuery(session, json, search)) {
                         logger.debug("precheck fail.");
@@ -351,11 +323,11 @@ public class Base {
 
                     // 指令检测完毕
                     response.setDatas("precheckDone");
-                    session.sendMessage(new TextMessage(response.response()));
+                    Common.send(session, response.response());
 
                     // 准备执行指令
                     response.setDatas("executeQuery");
-                    session.sendMessage(new TextMessage(response.response()));
+                    Common.send(session, response.response());
 
                     JSONObject res = Clients.Bi.query(json.toJSONString());
                     logger.debug("executeQuery result:" + res);
@@ -364,41 +336,21 @@ public class Base {
                     QuartzManager.addJob(taskId, session);
 
                     // 添加到历史记录中,并且放弃上一次搜索
-                    addQuestion(new HistoryQuestion(search.trim(), tokens, taskId), user);
-
+                    HistoryUtils.addQuestion(new HistoryQuestion(tokens, user.getString("sourceList"), taskId), user);
                 }
             } else {//  出错
                 IllegalResponse response = new IllegalResponse(search);
                 int strPosition = tokens.get(focusInst.position).getStart();
                 IllegalDatas datas = new IllegalDatas();
                 datas.beginPos = strPosition;
-                StringBuilder reason = new StringBuilder();
                 if (focusInst.position == 0) {
-                    List<Column> cols = SuggestionBuild.colRandomSuggestions(user);
-                    cols.forEach(col -> {
-                        reason.append(col.getColumnDisplayName()).append(",").append(Constant.FNDType.COLUMN);
-                        reason.append(",").append(col.getColumnId()).append("\r\n");
-                    });
+                    SuggestionUtils.suggestionsStartError(fp, search, user, datas);
                 } else {
-                    List<FocusNode> focusNodes = SuggestionBuild.sug(focusInst.position, focusInst);
-                    focusNodes.forEach(node -> {
-                        reason.append(node.getValue());
-                        if (node.getType() != null) {
-                            reason.append(",").append(node.getType());
-                        }
-                        if (node.getColumn() != null) {
-                            reason.append(",").append(node.getColumn().getColumnId());
-                        }
-                        reason.append("\r\n");
-                    });
+                    SuggestionUtils.suggestionsMiddleError(fp, search, focusInst, user, tokens, position, datas);
                 }
-                datas.reason = reason.toString();
                 response.setDatas(datas);
-                session.sendMessage(new TextMessage(response.response()));
-                msg = "错误:\n\t" + "位置: " + strPosition + "\t错误: " + search.substring(strPosition) + "\n";
-                logger.info(msg);
-                msg = "提示:\n\t" + reason + "\n";
-                logger.info(msg);
+                Common.send(session, response.response());
+                logger.info(response.response());
             }
 
         } catch (AmbiguitiesException e) {
@@ -424,10 +376,10 @@ public class Base {
             datas.title = "ambiguity word: " + title;
             e.ars.forEach(a -> datas.possibleMenus.add(a.columnName + " in table " + a.sourceName));
             response.setDatas(datas);
-            session.sendMessage(new TextMessage(response.response()));
+            Common.send(session, response.response());
             logger.info(response.response());
 
-            session.sendMessage(new TextMessage(SearchFinishedResponse.response(search, received)));
+            Common.send(session, SearchFinishedResponse.response(search, received));
 
         } catch (IllegalException e) {
             e.question = search;
@@ -449,39 +401,6 @@ public class Base {
             formulas = (List<Formula>) obj;
         }
         return formulas;
-    }
-
-    /**
-     * 记录到历史记录中,并且放弃上一次还未执行完的搜索
-     *
-     * @param current question, instruction, taskId
-     * @param user    websocket 用户信息
-     */
-    private static void addQuestion(HistoryQuestion current, JSONObject user) throws FocusHttpException {
-        JSONArray questions = user.getJSONArray("historyQuestions");
-        if (questions.size() > 0) {
-            HistoryQuestion last = (HistoryQuestion) questions.get(0);
-            String taskId = HistoryQuestion.equals(last, current);
-            if (taskId != null) {
-                addQuestion(current, questions);
-                Clients.Bi.abortQuery(taskId);
-            }
-        } else {
-            addQuestion(current, questions);
-        }
-        user.put("historyQuestions", questions);
-    }
-
-    private static void addQuestion(HistoryQuestion current, JSONArray questions) throws FocusHttpException {
-        for (Object object : questions) {
-            HistoryQuestion hq = (HistoryQuestion) object;
-            if (HistoryQuestion.equals(hq, current) == null) {
-                questions.remove(object);
-                questions.add(0, current);
-                return;
-            }
-        }
-        questions.add(0, current);
     }
 
     private static String getLastQuestion(JSONArray questions) {
@@ -531,13 +450,13 @@ public class Base {
             if (!checkQuery.getBooleanValue("success")) {
                 IllegalDatas datas = new IllegalDatas(0, question.length() - 1, checkQuery.getString("exception"));
                 IllegalResponse illegal = new IllegalResponse(question, datas);
-                session.sendMessage(new TextMessage(illegal.response()));
+                Common.send(session, illegal.response());
                 return true;
             }
         } catch (FocusHttpException e) {
             IllegalDatas datas = new IllegalDatas(0, question.length() - 1, checkQuery.getString("exception"));
             IllegalResponse illegal = new IllegalResponse(question, datas);
-            session.sendMessage(new TextMessage(illegal.response()));
+            Common.send(session, illegal.response());
             return true;
         }
         return false;
@@ -578,5 +497,45 @@ public class Base {
         return space.toString();
     }
 
+    public static JSONObject userInfo(String accessToken) throws FocusHttpException {
+        if (Constant.passUc) {
+            JSONObject user = new JSONObject();
+            user.put("id", 1);
+            user.put("accessToken", accessToken);
+            user.put("name", "admin");
+            user.put("username", "admin");
+            user.put("privileges", Collections.singletonList("[\"ADMIN\"]"));
+            return user;
+        }
+        return Clients.Uc.getUserInfo(accessToken);
+    }
+
+    public static void afterConnectionEstablished(List<WebSocketSession> users, WebSocketSession session) throws IOException {
+        if (users.size() >= Base.WebsocketLimit) {
+            String warn = "Websocket connected too much.";
+            logger.warn(warn);
+            Common.send(session, warn);
+            if (session.isOpen())
+                session.close();
+            return;
+        }
+        String accessToken = session.getAttributes().get("accessToken").toString();
+        logger.info("current accessToken:" + accessToken);
+        JSONObject user;
+        try {
+            // 获取用户信息
+            user = Base.userInfo(accessToken);
+            user.put("accessToken", accessToken);
+        } catch (FocusHttpException e) {
+            logger.error(Common.printStacktrace(e));
+            String warn = ErrorResponse.response(Constant.ErrorType.ERROR, "Get Userinfo fail.").toJSONString();
+            Common.send(session, warn);
+            session.close();
+            return;
+        }
+        session.getAttributes().put("user", user);
+        logger.info(user.getString("name") + " connected to server.");
+        users.add(session);
+    }
 
 }

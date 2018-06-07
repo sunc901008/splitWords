@@ -2,6 +2,8 @@ package focus.search.analyzer.focus;
 
 import com.alibaba.fastjson.JSON;
 
+import java.util.List;
+
 /**
  * creator: sunc
  * date: 2018/1/19
@@ -55,5 +57,23 @@ public class FocusToken {
 
     public void setEnd(int end) {
         this.end = end;
+    }
+
+    public static String tokensToString(List<FocusToken> tokens) {
+        StringBuilder sb = new StringBuilder();
+        FocusToken first = tokens.get(0);
+        sb.append(first.getWord());
+        int spaceStart = first.getEnd();
+        int spaceCount;
+        for (int i = 1; i < tokens.size(); i++) {
+            FocusToken tmp = tokens.get(i);
+            spaceCount = tmp.getStart() - spaceStart;
+            spaceStart = tmp.getEnd();
+            if (spaceCount > 0) {
+                sb.append(" ");
+            }
+            sb.append(tmp.getWord());
+        }
+        return sb.toString();
     }
 }
