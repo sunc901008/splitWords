@@ -230,7 +230,7 @@ public class FocusParser implements Serializable {
                         if (Common.isEmpty(dateValue)) {
                             continue;
                         }
-                        tmpNode.setValue(dateValue);
+                        tmpNode.setValue(ft.getWord());
                         tmpNode.setBegin(ft.getStart());
                         tmpNode.setEnd(ft.getEnd());
                         tmpNode.setType(Constant.FNDType.DATE_VALUE);

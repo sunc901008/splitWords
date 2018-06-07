@@ -148,9 +148,10 @@ public class Common {
 
     private static Date dateParse(SimpleDateFormat sdf, String date) {
         try {
+            logger.info(String.format("current sdf pattern: %s . input date: %s", sdf.toPattern(), date));
             return sdf.parse(date);
         } catch (ParseException e) {
-            logger.info("current sdf pattern:" + sdf.toPattern());
+            logger.info("pattern fail.");
         }
         return null;
     }
