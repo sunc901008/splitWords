@@ -102,6 +102,11 @@ class IKArbitrator {
                 queue.add(lexemePath);
             }
         }
+        //为英文数字混合，按照最长匹配，返回第一个
+        Lexeme first = queue.peek().peekFirst();
+        if (first != null && Objects.equals(Lexeme.TYPE_LETTER, first.getLexemeType())) {
+            return queue.poll();
+        }
         if (!checkAmbiguity(queue, context)) {// 有歧义
             String realValue = String.valueOf(context.getSegmentBuff(), begin, end - begin);
             List<AmbiguitiesRecord> ars = new ArrayList<>();

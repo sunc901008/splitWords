@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * creator: sunc
@@ -137,6 +138,13 @@ public class Common {
     }
 
     public static String dateFormat(String date) {
+        date = date.trim();
+        String checkStr = date.substring(date.length() - 1);
+        Pattern numberPattern = Pattern.compile("^[0-9]+$");
+        if (!numberPattern.matcher(checkStr).find()) {
+            logger.info(String.format("invalid input date: %s", date));
+            return null;
+        }
         for (SimpleDateFormat sdf : sdfList) {
             Date d = dateParse(sdf, date);
             if (d != null) {

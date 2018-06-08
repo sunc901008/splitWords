@@ -80,13 +80,23 @@
              按 <all-columns> <sort-by-chinese>;
 
 <sort-by-chinese> := 排序 |
-                     排序的;
+                     排序的 |
+                     排列 |
+                     排列的;
 
 <sort-by-ascending> := 升序 |
-                       升序的;
+                       升序的 |
+                       升序排列 |
+                       升序排列的 |
+                       升序排序 |
+                       升序排序的;
 
 <sort-by-descending> := 降序 |
-                        降序的;
+                        降序的 |
+                        降序排列 |
+                        降序排列的 |
+                        降序排序 |
+                        降序排序的;
 
 <date-interval> := <daily-interval> |
                    <weekly-interval> |
@@ -262,11 +272,7 @@
 <value> := 1;
 
 <date-string-value> := <double-quote-date-string-value> |
-                       <single-quote-date-string-value> |
-                       <double-quote-date-string-value> , <date-string-value> |
-                       <double-quote-date-string-value> ， <date-string-value> |
-                       <single-quote-date-string-value> , <date-string-value> |
-                       <single-quote-date-string-value> ， <date-string-value>;
+                       <single-quote-date-string-value>;
 
 <double-quote-date-string-value> := " <date-value> " |
                                     “ <date-value> ”;

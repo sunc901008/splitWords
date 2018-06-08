@@ -1,11 +1,10 @@
 package focus.search.bnf;
 
+import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.exception.InvalidGrammarException;
 import focus.search.bnf.exception.InvalidRuleException;
-import focus.search.bnf.tokens.NonTerminalToken;
-import focus.search.bnf.tokens.TerminalToken;
-import focus.search.bnf.tokens.Token;
-import focus.search.bnf.tokens.TokenString;
+import focus.search.bnf.tokens.*;
+import focus.search.response.exception.FocusParserException;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -158,6 +157,52 @@ public class BnfParser implements Serializable {
             }
         }
         return out;
+    }
+
+    public BnfRule parse(BnfRule rule, String word) throws FocusParserException {
+        BnfRule br = new BnfRule();
+        br.setLeftHandSide(rule.getLeftHandSide());
+        for (TokenString alt : rule.getAlternatives()) {
+            Token token = alt.getFirst();
+//            if (token instanceof ColumnValueTerminalToken) {
+//                //debug
+//                System.out.println(token.toString());
+//            }
+            if (token instanceof TerminalToken) {
+                if (token.match(word)) {
+                    if (isTerminal(token.getName())) {
+                        TokenString alternative_to_add = new TokenString();
+                        alternative_to_add.add(token);
+                        br.addAlternative(alternative_to_add);
+                    } else {
+                        br.addAlternative(alt);
+                    }
+                }
+            } else {
+                BnfRule newBr = getRule(token);
+                // 过滤公式|列规则|列中值
+//                List<String> filter = Arrays.asList("<function-columns>", "<value>");
+                if (newBr == null && !token.getName().endsWith("-column>")) {
+                    throw new FocusParserException("Cannot find rule for token " + JSONObject.toJSONString(token));
+                } else if (newBr != null) {
+                    if (newBr.equals(rule) || parse(newBr, word) != null) {
+                        br.addAlternative(alt);
+                    }
+                }
+            }
+        }
+        if (br.getAlternatives().size() == 0) {
+            return null;
+        }
+        return br;
+    }
+
+    // 判断当前匹配是否为最小单元词
+    public boolean isTerminal(String word) {
+        return word.equals(IntegerTerminalToken.INTEGER)
+                || word.equals(NumberTerminalToken.DOUBLE)
+                || word.equals(ColumnValueTerminalToken.COLUMN_VALUE)
+                || word.equals(DateValueTerminalToken.DATE_VALUE);
     }
 
 }

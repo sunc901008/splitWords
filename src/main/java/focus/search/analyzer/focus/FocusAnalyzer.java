@@ -96,10 +96,10 @@ public class FocusAnalyzer implements Serializable {
                 tokens.add(token);
             }
         } catch (IOException e) {
-            logger.info("split exception.");
-            logger.info(e.getMessage());
+            String amb = e.getMessage();
+            logger.info("split exception:" + amb);
             try {
-                AmbiguitiesException ae = JSONObject.parseObject(e.getMessage(), AmbiguitiesException.class);
+                AmbiguitiesException ae = JSONObject.parseObject(amb, AmbiguitiesException.class);
                 assert ae != null;
                 throw ae;
             } catch (Exception e1) {
@@ -137,32 +137,50 @@ public class FocusAnalyzer implements Serializable {
         List<FocusToken> merge = new ArrayList<>();
         int start = 0;
         int end = 0;
-        boolean hasBegin = false;
-        boolean hasEnd = false;
+        quoteNode qn = new quoteNode();
         while (!tokens.isEmpty()) {
             FocusToken tmp = tokens.remove(0);
-            if (hasBegin) {
-                if ("TYPE_QUOTE".equals(tmp.getType())) {
-                    hasEnd = true;
-                    hasBegin = false;
+            if (qn.hasBegin) {
+                String word = tmp.getWord();
+                if (couple(qn, word)) {
+                    qn.hasEnd = true;
+                    qn.hasBegin = false;
                     end = tmp.getStart();
                     merge.add(new FocusToken(search.substring(start, end), Constant.FNDType.COLUMN_VALUE, start, end));
                     merge.add(tmp);
                 }
             } else {
                 merge.add(tmp);
-                if ("TYPE_QUOTE".equals(tmp.getType())) {
-                    hasBegin = true;
-                    hasEnd = false;
+                if (Constant.START_QUOTES.contains(tmp.getWord())) {
+                    qn.hasBegin = true;
+                    qn.hasEnd = false;
+                    qn.value = tmp.getWord();
                     start = tmp.getEnd();
                 }
             }
         }
-        if (!hasEnd) {
+        if (qn.hasBegin && !qn.hasEnd) {
             end = search.length();
-            merge.add(new FocusToken(search.substring(start), Constant.FNDType.COLUMN_VALUE, start, end));
+            if (start < end)
+                merge.add(new FocusToken(search.substring(start), Constant.FNDType.COLUMN_VALUE, start, end));
         }
         return merge;
+    }
+
+    /**
+     * @param qn   引号节点，用来成对匹配
+     * @param word 当前节点值
+     * @return 判断当前节点是否可以和之前的引号形成一组(中文引号匹配问题)
+     */
+    private static boolean couple(quoteNode qn, String word) {
+        return Constant.END_QUOTES.contains(word)
+                && (word.equals(qn.value) || ("“".equals(qn.value)) && "”".equals(word));
+    }
+
+    private static class quoteNode {
+        boolean hasBegin = false;
+        boolean hasEnd = false;
+        String value;
     }
 
 }

@@ -204,8 +204,14 @@ public class FocusPhrase {
             return false;
         }
         for (int i = 0; i < this.size(); i++) {
-            if (!this.getNodeNew(i).getValue().equals(fp.getNodeNew(i).getValue())) {
+            FocusNode thisNode = this.getNodeNew(i);
+            FocusNode fpNode = fp.getNodeNew(i);
+            if (!thisNode.getValue().equals(fpNode.getValue())) {
                 return false;
+            } else if (Constant.FNDType.COLUMN.equals(thisNode.getType())) {
+                if (thisNode.getColumn().getColumnId() != fpNode.getColumn().getColumnId()) {
+                    return false;
+                }
             }
         }
         return true;

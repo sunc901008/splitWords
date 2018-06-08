@@ -17,6 +17,9 @@ public class Constant {
     public static final String SUGGESTION = "suggestion";
     public static final String INSTRUCTION = "instruction";
 
+    public static final List<String> START_QUOTES = Arrays.asList("\"", "“", "'", "‘");
+    public static final List<String> END_QUOTES = Arrays.asList("\"", "”", "'", "’");
+
     public static Integer BiTimeout = 120;
 
     public static String biHost = "localhost";

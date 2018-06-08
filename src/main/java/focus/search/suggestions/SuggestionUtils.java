@@ -3,12 +3,14 @@ package focus.search.suggestions;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
+import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
 import focus.search.bnf.tokens.*;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.meta.Column;
 import focus.search.meta.HistoryQuestion;
+import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.IllegalDatas;
 import focus.search.response.search.SuggestionDatas;
 import focus.search.response.search.SuggestionResponse;
@@ -24,8 +26,6 @@ import java.util.*;
  */
 public class SuggestionUtils {
     private static final Logger logger = Logger.getLogger(SuggestionUtils.class);
-
-    private static final List<String> quotes = Arrays.asList("\"", "“", "'", "‘");
 
     // 预设提示规则，规则内互斥，规则外互不影响
     private static final List<String> DEFAULT_DATE_BNF_1 = Arrays.asList("<growth-of>");
@@ -77,7 +77,7 @@ public class SuggestionUtils {
             }
         }
 
-        notCompleted(fp, datas, focusInst, tokens, position, addSpace);
+        completed(fp, datas, focusInst, tokens, position, addSpace);
 
         for (List<String> bnfName : bnfList) {
             for (String ruleName : bnfName) {
@@ -97,6 +97,10 @@ public class SuggestionUtils {
         }
         response.setDatas(datas);
         return response;
+    }
+
+    private static void completed(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace) {
+        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, true);
     }
 
     /**
@@ -146,14 +150,23 @@ public class SuggestionUtils {
     }
 
     private static void notCompleted(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace) {
+        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, false);
+    }
+
+    private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed) {
         int index = tokens.size() - 1;
         int last = tokens.size() - 1;
         Set<String> suggestions = new HashSet<>();
         List<SuggestionSuggestion> sss = new ArrayList<>(); // 非补全的提示，优先级低于补全的提示(如:输入"age>",suggestion里面 ">=" 优先级高于 "10")
+        List<String> ruleNames = new ArrayList<>(); // 记录已经提示过的规则名，规则的多种写法只提示一种
         for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
             if (focusPhrase.isSuggestion()) {
                 FocusNode fn = focusPhrase.getNodeNew(index);
                 if (fn.getValue().equalsIgnoreCase(tokens.get(last).getWord())) {
+                    if (Constant.FNDType.DATE_VALUE.equals(fn.getType()) && Common.isEmpty(Common.dateFormat(fn.getValue()))) {// 日期字符串并且非法
+                        datas.guidance = String.format("You can select a suggestion below or input a date with quote.Example: %s.", SourcesUtils.dateSug());
+                        break;
+                    }
                     FocusNode focusNode = focusPhrase.getNodeNew(index + 1);
                     String inputValue = focusNode.getValue();
                     if (ColumnValueTerminalToken.COLUMN_VALUE.equals(inputValue) || ColumnValueTerminalToken.COLUMN_VALUE_BNF.equals(inputValue)) {
@@ -167,49 +180,59 @@ public class SuggestionUtils {
                     if (!focusNode.isTerminal()) {
                         BnfRule br = fp.getRule(focusNode.getValue());
                         List<TerminalToken> terminalTokens = terminalToken(fp, br);
-                        boolean hasNumber = false;
-                        for (TerminalToken token : terminalTokens) {
+                        if (terminalTokens.size() > 0) {
+                            TerminalToken token = terminalTokens.remove(0);
                             if (suggestions.contains(token.getName())) {
                                 continue;
                             }
                             suggestions.add(token.getName());
                             String value = token.getName();
                             String type = token.getType();
-                            String description = type;
-                            if (Constant.FNDType.INTEGER.equals(token.getType()) || Constant.FNDType.DOUBLE.equals(token.getType())) {
-                                if (hasNumber) {
-                                    continue;
-                                } else {
-                                    hasNumber = true;
-                                }
+                            if (Constant.FNDType.INTEGER.equals(type) || Constant.FNDType.DOUBLE.equals(type)) {
                                 value = SourcesUtils.decimalSug(true);
-                                description = "this is a number.";
-                            }
-//                            if (quotes.contains(token.getName())) {
-//                                FocusNode next = focusPhrase.getNodeNew(index + 2);
-//                                if (ColumnValueTerminalToken.COLUMN_VALUE.equals(next.getValue())) {
-//                                    value = SourcesUtils.stringSug(token.getName());
-//                                    type = Constant.SuggestionType.COLUMN_VALUE;
-//                                    description = "this is a column value.";
-//                                } else if (DateValueTerminalToken.DATE_VALUE.equals(next.getValue())) {
-//                                    value = SourcesUtils.dateSug(token.getName());
-//                                    type = Constant.SuggestionType.DATE_VALUE;
-//                                    description = "this is a date value.";
-//                                }
-//                            }
-                            if (Constant.FNDType.COLUMN.equals(type)) {
+                                String suggestion = addSpace ? " " + value : value;
+                                SuggestionSuggestion ss = new SuggestionSuggestion();
+                                ss.beginPos = position;
+                                ss.endPos = position;
+                                ss.suggestion = suggestion;
+                                ss.suggestionType = type;
+                                ss.description = "this is a number.";
+                                sss.add(ss);
+                            } else if (Constant.FNDType.COLUMN.equals(type)) {
                                 Column column = token.getColumn();
-                                description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                                String suggestion = addSpace ? " " + value : value;
+                                SuggestionSuggestion ss = new SuggestionSuggestion();
+                                ss.beginPos = position;
+                                ss.endPos = position;
+                                ss.suggestion = suggestion;
+                                ss.suggestionType = type;
+                                ss.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                                sss.add(ss);
+                                while (!terminalTokens.isEmpty()) {
+                                    TerminalToken tmp = terminalTokens.remove(0);
+                                    if (suggestions.contains(tmp.getName())) {
+                                        continue;
+                                    }
+                                    suggestions.add(tmp.getName());
+                                    Column columnTmp = tmp.getColumn();
+                                    SuggestionSuggestion ssTmp = new SuggestionSuggestion();
+                                    ssTmp.beginPos = position;
+                                    ssTmp.endPos = position;
+                                    ssTmp.suggestion = addSpace ? " " + tmp.getName() : tmp.getName();
+                                    ssTmp.suggestionType = type;
+                                    ssTmp.description = columnTmp.getColumnDisplayName() + " in table " + columnTmp.getSourceName();
+                                    sss.add(ssTmp);
+                                }
+                            } else {
+                                String suggestion = addSpace ? " " + value : value;
+                                SuggestionSuggestion ss = new SuggestionSuggestion();
+                                ss.beginPos = position;
+                                ss.endPos = position;
+                                ss.suggestion = suggestion;
+                                ss.suggestionType = type;
+                                ss.description = type;
+                                sss.add(ss);
                             }
-
-                            String suggestion = addSpace ? " " + value : value;
-                            SuggestionSuggestion ss = new SuggestionSuggestion();
-                            ss.beginPos = position;
-                            ss.endPos = position;
-                            ss.suggestion = suggestion;
-                            ss.suggestionType = type;
-                            ss.description = description;
-                            sss.add(ss);
                         }
                     } else {
                         if (!suggestions.contains(focusNode.getValue())) {
@@ -230,6 +253,11 @@ public class SuggestionUtils {
                         }
                     }
                 } else {
+                    String ruleName = terminalRule(fp, fn.getValue());
+                    if (ruleNames.contains(ruleName)) {
+                        continue;
+                    }
+                    ruleNames.add(ruleName);
                     if (suggestions.contains(fn.getValue())) {
                         continue;
                     }
@@ -251,11 +279,27 @@ public class SuggestionUtils {
                 index = index - focusPhrase.size();
                 if (index < 0) {
                     index = index + focusPhrase.size();
+                    if (completed) {
+                        ruleNames.clear();
+                        String val = focusPhrase.getNodeNew(index).getValue();
+                        ruleNames.add(terminalRule(fp, val));
+                    }
                 }
             }
         }
         datas.addAllSug(sss);
+    }
 
+    private static String terminalRule(final FocusParser fp, String value) {
+        try {
+            String ruleName = fp.parse(value).getLeftHandSide().getName();
+            if (!ruleName.endsWith("-symbol>")) {
+                return ruleName;
+            }
+        } catch (FocusParserException e) {
+            logger.info(Common.printStacktrace(e));
+        }
+        return null;
     }
 
     /**
@@ -269,8 +313,8 @@ public class SuggestionUtils {
      * @param user      websocket用户信息
      * @param tokens    分词结果
      */
-    public static void suggestionsMiddleError(final FocusParser fp, String search, FocusInst focusInst, JSONObject user,
-                                              List<FocusToken> tokens, int position, IllegalDatas datas) {
+
+    public static void suggestionsMiddleError(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position, IllegalDatas datas) {
         int errorTokenIndex = focusInst.position;
         int beginPos = tokens.get(errorTokenIndex).getStart();
         int endPos = search.length();
@@ -300,6 +344,9 @@ public class SuggestionUtils {
 
         Set<String> suggestions = new HashSet<>();
         for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
+            if (errorTokenIndex <= 0) {
+                break;
+            }
             if (focusPhrase.isSuggestion()) {
                 FocusNode focusNode = focusPhrase.getNodeNew(errorTokenIndex);
                 if (!focusNode.isTerminal()) {

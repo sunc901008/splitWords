@@ -124,7 +124,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
                         response.instructions = json.getString("instructions");
                     }
                 }
-            } catch (AmbiguitiesException | FocusParserException | FocusInstructionException | IllegalException e) {
+            } catch (AmbiguitiesException | FocusInstructionException | IllegalException e) {
                 logger.error(Common.printStacktrace(e));
             }
             break;

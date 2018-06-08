@@ -451,7 +451,7 @@ class SearchHandler {
                         json.put("formulaObj", formula.toJSON());
                         json.put("message", "done");
                         json.put("status", "success");
-                    } catch (FocusParserException | FocusInstructionException | AmbiguitiesException e) {
+                    } catch (FocusInstructionException | AmbiguitiesException e) {
                         logger.error(e.getMessage());
                         json.put("status", "illegal");
                     } catch (IllegalException e) {
