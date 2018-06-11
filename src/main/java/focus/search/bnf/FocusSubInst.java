@@ -45,6 +45,10 @@ public class FocusSubInst {
         this.fps.add(fp);
     }
 
+    public void addAllFps(List<FocusPhrase> fps) {
+        this.fps.addAll(fps);
+    }
+
     public boolean isError() {
         return error;
     }

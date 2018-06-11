@@ -50,5 +50,4 @@ public class ColumnValueInstruction {
         return token;
     }
 
-
 }

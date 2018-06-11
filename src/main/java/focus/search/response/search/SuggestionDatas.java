@@ -29,12 +29,17 @@ public class SuggestionDatas {
      * @param ss SuggestionSuggestion
      */
     public void addSug(SuggestionSuggestion ss) {
-        this.suggestions.add(ss);
         if (this.beginPos < 0) {
             this.beginPos = ss.beginPos;
         } else if (!Constant.SuggestionType.HISTORY.equals(ss.suggestionType) && this.beginPos > ss.beginPos) {
             this.beginPos = ss.beginPos;
         }
+        for (SuggestionSuggestion suggestion : this.suggestions) {
+            if (suggestion.suggestion.equals(ss.suggestion)) {
+                return;
+            }
+        }
+        this.suggestions.add(ss);
     }
 
     public void addAllSug(List<SuggestionSuggestion> sss) {

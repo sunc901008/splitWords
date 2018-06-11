@@ -31,8 +31,9 @@
 <date-complex-filter> := <before-after-filter> |
                          <last-filter>;
 
-<string-simple-filter> := <all-string-column> 等于 <column-value> |
-                          <all-string-column> = <column-value>;
+<equal-symbol> := 等于 |
+                  =;
+<string-simple-filter> := <all-string-column> <equal-symbol> <column-value>;
 
 <string-complex-filter> := <begins-with-filter> |
                            <not-begins-with-filter> |
@@ -258,12 +259,12 @@
 <integer> := 1;
 <double> := 1;
 
+<comma-symbol> := , |
+                  ，;
 <column-value> := <double-quote-column-value> |
                   <single-quote-column-value> |
-                  <double-quote-column-value> , <column-value> |
-                  <double-quote-column-value> ， <column-value> |
-                  <single-quote-column-value> , <column-value> |
-                  <single-quote-column-value> ， <column-value>;
+                  <double-quote-column-value> <comma-symbol> <column-value> |
+                  <single-quote-column-value> <comma-symbol> <column-value>;
 
 <double-quote-column-value> := " <value> " |
                                “ <value> ”;

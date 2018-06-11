@@ -196,12 +196,9 @@ public class FocusParser implements Serializable {
         if (focusPhrases == null || focusPhrases.isEmpty()) {
             return null;
         }
-
-        if (tokens.size() > 1) {// 不是最后一个token
-            FocusSubInst fsi = check(focusPhrases, 0, focusToken.getWord(), true);
-            if (fsi != null)
-                return fsi;
-        }
+        FocusSubInst fsiCheck = check(focusPhrases, 0, focusToken.getWord(), tokens.size() > 1);// 是不是最后一个token
+        if (fsiCheck != null)
+            return fsiCheck;
 
         logger.info("Adaptation parse bnf size:" + focusPhrases.size());
 
@@ -299,11 +296,15 @@ public class FocusParser implements Serializable {
         }
 
         FocusSubInst fsi = new FocusSubInst();
+        List<FocusPhrase> sug = new ArrayList<>();
         for (FocusPhrase fp : focusPhrases) {
             if (fp.size() == tokens.size()) {
-                fsi.addFps(fp);
+                fsi.addFps(fp);// 指令
+            } else if (fp.size() > tokens.size()) {
+                sug.add(fp);// 提示
             }
         }
+        fsi.addAllFps(sug);
         if (fsi.isEmpty()) {
             for (FocusPhrase fp : focusPhrases) {
                 if (fp.size() > tokens.size()) {
@@ -645,10 +646,14 @@ public class FocusParser implements Serializable {
     }
 
     public BnfRule parse(String word) throws FocusParserException {
-        for (BnfRule rule : parser.getM_rules()) {
-            BnfRule br = parser.parse(rule, word);
-            if (br != null)
-                return br;
+//        for (BnfRule rule : parser.getM_rules()) {
+//            BnfRule br = parser.parse(rule, word);
+//            if (br != null)
+//                return br;
+//        }
+        List<BnfRule> rules = parseRules(word);
+        if (rules.size() > 0) {
+            return rules.get(rules.size() - 1);
         }
         throw new FocusParserException("Cannot find rule for word " + word);
     }
