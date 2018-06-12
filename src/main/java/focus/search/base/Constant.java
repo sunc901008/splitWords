@@ -263,6 +263,7 @@ public class Constant {
         public static final String SORT_BY = "add_expression_for_sort";
         public static final String TOP_BOTTOM = "set_top_bottom_n";
         public static final String DATETIME_INTERVAL = "set_datetime_interval";
+        public static final String SET_BI_CONFIG = "set_bi_config";
 
         public static final String ANNOTATION = "annotation";
     }

@@ -221,7 +221,9 @@
                  <date-columns>;
 
 <number-columns> := <all-int-column> |
-                    <all-double-column>;
+                    <all-double-column> |
+                    <number-function-column> |
+                    ( <number-function-column> );;
 
 <string-columns> := <all-string-column>;
 

@@ -59,8 +59,12 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             case "query":
                 Common.send(session, Response.response(type));
                 JSONArray parsers = (JSONArray) session.getAttributes().get("parsers");
-                if (parsers != null)
+                if (parsers != null) {
                     query(session, params.getJSONObject("answers"), parsers);
+                } else {
+                    logger.error("parsers is null.");
+                    ErrorResponse.response(Constant.ErrorType.ERROR, "parser is null");
+                }
                 break;
             case "echo":
             default:
@@ -127,13 +131,13 @@ public class WebsocketPinboard extends TextWebSocketHandler {
                 @SuppressWarnings("unchecked")
                 List<SourceReceived> srs = (List<SourceReceived>) pinboard.get("sources");
                 Base.ambiguities(ambiguities, srs, amb);
-                query(session, pinboard, search, amb, sourceToken);
+                query(session, pinboard, search, amb, sourceToken, biConfig);
                 break;
             }
         }
     }
 
-    private static void query(WebSocketSession session, JSONObject pinboard, String search, JSONObject amb, String sourceToken) throws Exception {
+    private static void query(WebSocketSession session, JSONObject pinboard, String search, JSONObject amb, String sourceToken, JSONObject biConfig) throws Exception {
         FocusParser fp = (FocusParser) pinboard.get("parser");
         String language = pinboard.getString("language");
         @SuppressWarnings("unchecked")
@@ -145,7 +149,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             return;
         }
         FocusInst focusInst = fp.parseQuestion(tokens, amb);
-        if (focusInst.position >= 0 || focusInst.lastFocusPhrase().isSuggestion()) {
+        if (!focusInst.isInstruction) {
             // TODO: 2018/5/8 return error
 
             return;
@@ -156,7 +160,13 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         response.setDatas("prepareQuery");
         // prepareQuery response
         Common.send(session, response.response());
-        JSONObject json = InstructionBuild.build(focusInst, search, amb, formulas);
+        JSONObject json = InstructionBuild.build(focusInst, search, amb, formulas, language);
+        JSONArray instructions = json.getJSONArray("instructions");
+        JSONObject config = new JSONObject();
+        config.put("instId", Constant.InstIdType.SET_BI_CONFIG);
+        config.put("value", biConfig);
+        instructions.add(config);
+        json.put("instructions", instructions.toJSONString());
 
         json.put("source", Constant.SearchOrPinboard.PINBOARD_USER);
         json.put("sourceToken", sourceToken);
@@ -165,7 +175,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
 
         // Annotations
         AnnotationResponse annotationResponse = new AnnotationResponse(search);
-        annotationResponse.datas.addAll(Base.getAnnotationDatas(json.getJSONArray("instructions")));
+        annotationResponse.datas.addAll(Base.getAnnotationDatas(instructions));
         // Annotations response
         Common.send(session, annotationResponse.response());
 

@@ -43,7 +43,7 @@ public class CPhraseInstruction {
             case "<all-columns>":
                 return AllColumnsInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<number-complex-phrase>":
-                CPhraseNumberComplexInstruction.build(fn.getChildren(), index, amb, formulas);
+                return CPhraseNumberComplexInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<date-interval>":
                 return CDateIntervalInstruction.build(fn.getChildren(), index, amb, dateColumns);
             case "<formula-column>":

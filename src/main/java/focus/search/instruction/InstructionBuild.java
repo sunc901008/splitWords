@@ -26,6 +26,10 @@ import java.util.List;
 public class InstructionBuild {
     private static final Logger logger = Logger.getLogger(InstructionBuild.class);
 
+    public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas, String language) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+        return build(focusInst, question, amb, formulas, language, new ArrayList<>());
+    }
+
     public static JSONObject build(FocusInst focusInst, String question, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         return build(focusInst, question, amb, formulas, Constant.Language.ENGLISH, new ArrayList<>());
     }
