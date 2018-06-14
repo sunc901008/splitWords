@@ -4,13 +4,13 @@ public class NonTerminalToken extends Token {
     private static final long serialVersionUID = -6214246017840941018L;
 
     /**
-     * The left-hand side symbol used to mark a non-terminal token
+     * The left-hand side symbol used to mark a non-terminal tokens
      * in a grammar rule
      */
     public static final transient String s_leftSymbol = "<";
 
     /**
-     * The right-hand side symbol used to mark a non-terminal token
+     * The right-hand side symbol used to mark a non-terminal tokens
      * in a grammar rule
      */
     public static final transient String s_rightSymbol = ">";

@@ -78,7 +78,7 @@ public class BoolFuncColInstruction {
         }
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {

@@ -27,14 +27,14 @@ public class ColValueOrStringColInst {
         return ColumnValueInstruction.arg(focusNode);
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         if (focusNode.getValue().equals("<string-columns>")) {
             return StringColInstruction.tokens(focusNode.getChildren(), formulas, amb);
         }
         // 列中值
         List<AnnotationToken> tokens = new ArrayList<>();
-        tokens.add(ColumnValueInstruction.token(focusNode));
+        tokens.addAll(ColumnValueInstruction.tokens(focusNode));
         return tokens;
     }
 

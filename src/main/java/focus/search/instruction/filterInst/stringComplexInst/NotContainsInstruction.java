@@ -50,7 +50,7 @@ public class NotContainsInstruction {
         token2.end = contains.getEnd();
         datas.addToken(token2);
 
-        datas.addToken(ColumnValueInstruction.token(valueNode));
+        datas.addTokens(ColumnValueInstruction.tokens(valueNode));
 
         JSONObject expression = new JSONObject();
         expression.put("name", "not contains");

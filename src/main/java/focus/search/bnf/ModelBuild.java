@@ -50,7 +50,7 @@ public class ModelBuild {
                 Column column = col.transfer();
                 column.setTableId(source.tableId);
                 column.setSourceName(source.sourceName);
-                column.setPhysicalName(source.physicalName);
+                column.setTbPhysicalName(source.physicalName);
                 column.setDbName(source.parentDB);
 
                 alternative_to_add.add(new TerminalToken(col.columnDisplayName, Constant.FNDType.COLUMN, column));

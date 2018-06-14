@@ -131,7 +131,7 @@ public class SuggestionBuild {
                 if (Common.isEmpty(type) || col.dataType.equals(type)) {
                     Column column = col.transfer();
                     column.setSourceName(source.sourceName);
-                    column.setPhysicalName(source.physicalName);
+                    column.setTbPhysicalName(source.physicalName);
                     column.setTableId(source.tableId);
                     column.setDbName(source.parentDB);
                     columns.add(column);
@@ -154,7 +154,7 @@ public class SuggestionBuild {
                 if (types.contains(col.dataType)) {
                     Column column = col.transfer();
                     column.setSourceName(source.sourceName);
-                    column.setPhysicalName(source.physicalName);
+                    column.setTbPhysicalName(source.physicalName);
                     column.setTableId(source.tableId);
                     column.setDbName(source.parentDB);
                     columns.add(column);

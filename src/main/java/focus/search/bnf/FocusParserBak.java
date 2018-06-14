@@ -578,7 +578,7 @@ public class FocusParserBak {
                 return rule;
             }
         }
-        throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
+        throw new InvalidRuleException("Cannot find rule for tokens " + JSONObject.toJSONString(token));
     }
 
     public List<BnfRule> parseRules(String word) throws InvalidRuleException {
@@ -601,9 +601,9 @@ public class FocusParserBak {
         br.setLeftHandSide(rule.getLeftHandSide());
         for (TokenString alt : rule.getAlternatives()) {
             Token token = alt.getFirst();
-//            if (token instanceof ColumnValueTerminalToken) {
+//            if (tokens instanceof ColumnValueTerminalToken) {
 //                //debug
-//                System.out.println(token.toString());
+//                System.out.println(tokens.toString());
 //            }
             if (token instanceof TerminalToken) {
                 if (token.match(word)) {
@@ -620,7 +620,7 @@ public class FocusParserBak {
                 // 过滤公式|列规则|列中值
 //                List<String> filter = Arrays.asList("<function-columns>", "<value>");
                 if (newBr == null && !token.getName().endsWith("-column>")) {
-                    throw new InvalidRuleException("Cannot find rule for token " + JSONObject.toJSONString(token));
+                    throw new InvalidRuleException("Cannot find rule for tokens " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
                     if (parse(newBr, word) != null) {
                         br.addAlternative(alt);

@@ -10,7 +10,6 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
-import focus.search.instruction.sourceInst.StringColInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -55,7 +54,7 @@ public class NotBeginsWithInstruction {
         token2.end = with.getEnd();
         datas.addToken(token2);
 
-        datas.addToken(ColumnValueInstruction.token(valueNode));
+        datas.addTokens(ColumnValueInstruction.tokens(valueNode));
 
         JSONObject expression = new JSONObject();
         expression.put("name", "not begins with");

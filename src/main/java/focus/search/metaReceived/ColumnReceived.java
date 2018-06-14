@@ -34,6 +34,7 @@ public class ColumnReceived {
         column.setColumnDisplayName(this.columnDisplayName);
         column.setColumnId(this.columnId);
         column.setColumnName(this.columnName);
+        column.setColumnPhysicalName(this.physicalName);
         column.setDataType(this.dataType);
         column.setDescription(this.description);
         column.setColumnType(this.columnType);

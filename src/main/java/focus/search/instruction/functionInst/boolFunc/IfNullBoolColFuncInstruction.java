@@ -69,7 +69,7 @@ public class IfNullBoolColFuncInstruction {
         return expression;
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(2);
         FocusNode param2 = focusPhrase.getFocusNodes().get(4);

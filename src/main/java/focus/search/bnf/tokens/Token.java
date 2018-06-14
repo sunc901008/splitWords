@@ -6,12 +6,12 @@ public abstract class Token implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * The token's name
+     * The tokens's name
      */
     private String m_name;
 
     /**
-     * Creates a token with a name
+     * Creates a tokens with a name
      */
     Token(String name) {
         if (name != null) {
@@ -20,7 +20,7 @@ public abstract class Token implements Serializable {
     }
 
     /**
-     * Gets the name of this token
+     * Gets the name of this tokens
      *
      * @return The name
      */

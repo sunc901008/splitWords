@@ -110,7 +110,7 @@ public class DateColInstruction {
         }
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
         List<AnnotationToken> tokens = new ArrayList<>();

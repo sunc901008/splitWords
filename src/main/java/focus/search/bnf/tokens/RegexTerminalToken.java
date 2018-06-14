@@ -22,9 +22,9 @@ public class RegexTerminalToken extends TerminalToken {
     private transient Pattern m_pattern;
 
     /**
-     * Creates a new terminal token
+     * Creates a new terminal tokens
      *
-     * @param label The regular expression that matches this token
+     * @param label The regular expression that matches this tokens
      */
     public RegexTerminalToken(final String label) {
         super(label, "");

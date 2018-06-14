@@ -89,7 +89,7 @@ public class AnnotationToken {
             token.ambiguity = getAmbiguityDatas(amb, token.value.toString(), token.begin, token.end);
         }
         token.addToken(column.getColumnDisplayName());
-        logger.info("TEST: token:" + token.toJSON());
+        logger.info("TEST: tokens:" + token.toJSON());
         return token;
     }
 

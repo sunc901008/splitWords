@@ -64,7 +64,7 @@ public class AndOrFuncInstruction {
         }
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         switch (first.getValue()) {
@@ -215,7 +215,7 @@ public class AndOrFuncInstruction {
         return expression;
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> noOrAndBoolFuncColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);

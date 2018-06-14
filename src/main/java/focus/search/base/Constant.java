@@ -40,6 +40,7 @@ public class Constant {
     public static String indexBaseUrl = "/index";
 
     public static boolean passUc = false;
+    public static boolean passIndex = false;
 
     private static final Properties properties = new Properties();
 
@@ -70,6 +71,7 @@ public class Constant {
             indexBaseUrl = properties.getProperty("indexBaseUrl", "/index");
 
             passUc = Boolean.parseBoolean(properties.getProperty("passUc", "false"));
+            passIndex = Boolean.parseBoolean(properties.getProperty("passIndex", "false"));
 
             BiTimeout = Integer.parseInt(properties.getProperty("biTimeout", "120"));
 
@@ -145,6 +147,7 @@ public class Constant {
         public static final String TABLE_COLUMN = "tblColumn";
         public static final String COLUMN = "column";
         public static final String STRING = "string";
+        public static final String LIST = "list";
         public static final String FUNCTION = "function";
         public static final String NUMBER_FUNCTION = "numberFunction";
         public static final String DATE = "date";
@@ -173,7 +176,7 @@ public class Constant {
         public static final String FORMULA_NAME = "formulaName";
     }
 
-    // annotation token type
+    // annotation tokens type
     public static final class AnnotationTokenType {
         public static final String FILTER = "filter";
         public static final String PUNCTUATION_MARK = "punctuationMark";

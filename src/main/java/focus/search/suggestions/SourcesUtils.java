@@ -42,7 +42,7 @@ public class SourcesUtils {
                 if (types.isEmpty() || types.contains(col.dataType)) {
                     Column column = col.transfer();
                     column.setSourceName(source.sourceName);
-                    column.setPhysicalName(source.physicalName);
+                    column.setTbPhysicalName(source.physicalName);
                     column.setTableId(source.tableId);
                     column.setDbName(source.parentDB);
                     columns.add(column);

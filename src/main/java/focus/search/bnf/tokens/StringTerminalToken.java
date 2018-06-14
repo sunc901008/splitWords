@@ -6,16 +6,16 @@ public class StringTerminalToken extends TerminalToken {
     public static transient final String STRING_SYMBOL = "'";
 
     /**
-     * Creates a new empty string terminal token
+     * Creates a new empty string terminal tokens
      */
     protected StringTerminalToken() {
         super("", "");
     }
 
     /**
-     * Creates a new string terminal token
+     * Creates a new string terminal tokens
      *
-     * @param label The string this token should match
+     * @param label The string this tokens should match
      */
     public StringTerminalToken(String label) {
         super(label, "");

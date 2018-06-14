@@ -71,7 +71,7 @@ public class ConcatFuncInstruction {
         return arg;
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         List<AnnotationToken> tokens = new ArrayList<>();
         AnnotationToken token1 = new AnnotationToken();

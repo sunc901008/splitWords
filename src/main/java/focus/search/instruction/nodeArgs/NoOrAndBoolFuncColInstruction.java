@@ -53,7 +53,7 @@ public class NoOrAndBoolFuncColInstruction {
         }
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
         switch (node.getValue()) {

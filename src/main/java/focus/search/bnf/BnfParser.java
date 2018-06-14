@@ -164,9 +164,9 @@ public class BnfParser implements Serializable {
         br.setLeftHandSide(rule.getLeftHandSide());
         for (TokenString alt : rule.getAlternatives()) {
             Token token = alt.getFirst();
-//            if (token instanceof ColumnValueTerminalToken) {
+//            if (tokens instanceof ColumnValueTerminalToken) {
 //                //debug
-//                System.out.println(token.toString());
+//                System.out.println(tokens.toString());
 //            }
             if (token instanceof TerminalToken) {
                 if (token.match(word)) {
@@ -183,7 +183,7 @@ public class BnfParser implements Serializable {
                 // 过滤公式|列规则|列中值
 //                List<String> filter = Arrays.asList("<function-columns>", "<value>");
                 if (newBr == null && !token.getName().endsWith("-column>")) {
-                    throw new FocusParserException("Cannot find rule for token " + JSONObject.toJSONString(token));
+                    throw new FocusParserException("Cannot find rule for tokens " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
                     if (newBr.equals(rule) || parse(newBr, word) != null) {
                         br.addAlternative(alt);

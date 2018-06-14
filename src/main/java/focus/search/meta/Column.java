@@ -8,6 +8,7 @@ package focus.search.meta;
 public class Column {
     private int columnId;
     private String columnName;
+    private String columnPhysicalName;
     private String columnDisplayName;
     private String dataType;
     private String columnType;
@@ -15,7 +16,7 @@ public class Column {
     private ColumnModify columnModify;
 
     private String sourceName;
-    private String physicalName;
+    private String tbPhysicalName;
     private Integer tableId;
     private String dbName;
     private String aggregation;
@@ -44,6 +45,14 @@ public class Column {
 
     public void setColumnName(String columnName) {
         this.columnName = columnName;
+    }
+
+    public String getColumnPhysicalName() {
+        return columnPhysicalName;
+    }
+
+    public void setColumnPhysicalName(String columnPhysicalName) {
+        this.columnPhysicalName = columnPhysicalName;
     }
 
     public String getColumnDisplayName() {
@@ -94,12 +103,12 @@ public class Column {
         this.sourceName = sourceName;
     }
 
-    public String getPhysicalName() {
-        return physicalName;
+    public String getTbPhysicalName() {
+        return tbPhysicalName;
     }
 
-    public void setPhysicalName(String physicalName) {
-        this.physicalName = physicalName;
+    public void setTbPhysicalName(String tbPhysicalName) {
+        this.tbPhysicalName = tbPhysicalName;
     }
 
     public Integer getTableId() {

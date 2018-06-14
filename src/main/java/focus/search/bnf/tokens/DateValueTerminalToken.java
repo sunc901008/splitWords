@@ -7,9 +7,9 @@ public class DateValueTerminalToken extends TerminalToken {
     public static final String DATE_VALUE_BNF = "<date-string-value>";
 
     /**
-     * Creates a new non terminal token
+     * Creates a new non terminal tokens
      *
-     * @param label The token's label
+     * @param label The tokens's label
      */
     public DateValueTerminalToken(String label) {
         super(label, Constant.FNDType.DATE_VALUE);

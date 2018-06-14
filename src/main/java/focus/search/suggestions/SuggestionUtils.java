@@ -3,6 +3,7 @@ package focus.search.suggestions;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
+import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.bnf.*;
@@ -10,6 +11,7 @@ import focus.search.bnf.tokens.*;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.meta.Column;
 import focus.search.meta.HistoryQuestion;
+import focus.search.response.exception.FocusHttpException;
 import focus.search.response.exception.FocusParserException;
 import focus.search.response.search.IllegalDatas;
 import focus.search.response.search.SuggestionDatas;
@@ -34,6 +36,8 @@ public class SuggestionUtils {
     private static final List<List<String>> DEFAULT_BNF = Arrays.asList(DEFAULT_DATE_BNF_1, DEFAULT_DATE_BNF_2);
 
     private static final Integer DEFAULT_BNF_DEEP = 5;
+
+    private static final String STRING_GUIDANCE = "You can select a suggestion below or input a string with quote.Multi value split with comma.";
 
     /**
      * ① 输入的question能够匹配上一个完整的bnf规则，即能够正常下发指令。
@@ -156,7 +160,8 @@ public class SuggestionUtils {
     private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed) {
         int index = tokens.size() - 1;
         int last = tokens.size() - 1;
-        Set<String> suggestions = new HashSet<>();
+        Set<String> suggestions = new HashSet<>();//已经添加的suggestion
+        List<Integer> hasAddColumnIds = new ArrayList<>();//已经添加的列ID
         List<SuggestionSuggestion> sss = new ArrayList<>(); // 非补全的提示，优先级低于补全的提示(如:输入"age>",suggestion里面 ">=" 优先级高于 "10")
         List<String> ruleNames = new ArrayList<>(); // 记录已经提示过的规则名，规则的多种写法只提示一种
         for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
@@ -164,13 +169,49 @@ public class SuggestionUtils {
                 FocusNode fn = focusPhrase.getNodeNew(index);
                 if (fn.getValue().equalsIgnoreCase(tokens.get(last).getWord())) {
                     if (Constant.FNDType.DATE_VALUE.equals(fn.getType()) && Common.isEmpty(Common.dateFormat(fn.getValue()))) {// 日期字符串并且非法
-                        datas.guidance = String.format("You can select a suggestion below or input a date with quote.Example: %s.", SourcesUtils.dateSug());
+                        datas.guidance = String.format("%sExample: \"focus\",'data'.", STRING_GUIDANCE);
                         break;
                     }
+                    if (Constant.FNDType.COLUMN_VALUE.equals(fn.getType())) {// 列中值
+                        if ("<string-simple-filter>".equals(focusPhrase.getNode(0).getChildren().getInstName())) {
+                            FocusNode colNode = focusPhrase.getFirstNode();
+                            if (Constant.FNDType.TABLE.equals(colNode.getType())) {
+                                colNode = focusPhrase.getNodeNew(1);
+                            }
+                            Column column = colNode.getColumn();
+                            String word = fn.getValue();
+
+                            JSONObject result;
+                            try {
+                                result = Clients.Index.tokens(column, word, 10);
+                            } catch (FocusHttpException e) {
+                                logger.warn("Get tokens from index fail!!!");
+                                logger.error(Common.printStacktrace(e));
+                                break;
+                            }
+                            JSONArray jsonArray = result.getJSONArray("tokens");
+                            if (!jsonArray.isEmpty()) {// 有列中值，只提示列中值
+                                for (int i = 0; i < jsonArray.size(); i++) {
+                                    JSONObject token = jsonArray.getJSONObject(i);
+                                    SuggestionSuggestion ss = new SuggestionSuggestion();
+                                    ss.beginPos = focusPhrase.getNodeNew(index - 1).getBegin();
+                                    ss.endPos = position;
+                                    ss.suggestion = String.format("\"%s\"", token.getString("content"));
+                                    ss.suggestionType = Constant.SuggestionType.COLUMN_VALUE;
+                                    ss.description = "column value in " + column.getColumnDisplayName();
+                                    sss.add(ss);
+                                }
+                                break;
+                            } else {// 没有列中值，提示其他
+                                // TODO: 2018/6/14 是否给出告警，提示不存在列中值
+                            }
+                        }
+                    }
+
                     FocusNode focusNode = focusPhrase.getNodeNew(index + 1);
                     String inputValue = focusNode.getValue();
                     if (ColumnValueTerminalToken.COLUMN_VALUE.equals(inputValue) || ColumnValueTerminalToken.COLUMN_VALUE_BNF.equals(inputValue)) {
-                        datas.guidance = "You can select a suggestion below or input a string with quote.Example: \"focus\",'data'.";
+                        datas.guidance = String.format("%sExample: \"focus\",'data'.", STRING_GUIDANCE);
                         break;
                     }
                     if (DateValueTerminalToken.DATE_VALUE.equals(inputValue) || DateValueTerminalToken.DATE_VALUE_BNF.equals(inputValue)) {
@@ -195,7 +236,7 @@ public class SuggestionUtils {
                                 ss.beginPos = position;
                                 ss.endPos = position;
                                 ss.suggestion = suggestion;
-                                ss.suggestionType = type;
+                                ss.suggestionType = Constant.SuggestionType.NUMBER;
                                 ss.description = "this is a number.";
                                 sss.add(ss);
                             } else if (Constant.FNDType.COLUMN.equals(type)) {
@@ -205,7 +246,7 @@ public class SuggestionUtils {
                                 ss.beginPos = position;
                                 ss.endPos = position;
                                 ss.suggestion = suggestion;
-                                ss.suggestionType = type;
+                                ss.suggestionType = Constant.SuggestionType.COLUMN;
                                 ss.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
                                 sss.add(ss);
                                 while (!terminalTokens.isEmpty()) {
@@ -219,7 +260,7 @@ public class SuggestionUtils {
                                     ssTmp.beginPos = position;
                                     ssTmp.endPos = position;
                                     ssTmp.suggestion = addSpace ? " " + tmp.getName() : tmp.getName();
-                                    ssTmp.suggestionType = type;
+                                    ssTmp.suggestionType = Constant.SuggestionType.COLUMN;
                                     ssTmp.description = columnTmp.getColumnDisplayName() + " in table " + columnTmp.getSourceName();
                                     sss.add(ssTmp);
                                 }
@@ -254,26 +295,36 @@ public class SuggestionUtils {
                     }
                 } else {
                     String ruleName = terminalRule(fp, fn.getValue());
-                    if (ruleNames.contains(ruleName)) {
+                    if (ruleName == null) {
                         continue;
                     }
-                    ruleNames.add(ruleName);
-                    if (suggestions.contains(fn.getValue())) {
+                    if (!ruleName.startsWith("<table-") && !ruleName.endsWith("-column>") && !ruleName.endsWith("-function>")) {//表名，列名，方法名
+                        if (ruleNames.contains(ruleName)) {
+                            continue;
+                        }
+                        ruleNames.add(ruleName);
+                    }
+                    if (suggestions.contains(fn.getValue()) && !Constant.SuggestionType.COLUMN.equals(fn.getType())) {
                         continue;
                     }
-                    suggestions.add(fn.getValue());
                     SuggestionSuggestion ss = new SuggestionSuggestion();
                     ss.beginPos = tokens.get(last).getStart();
                     ss.endPos = position;
                     ss.suggestion = fn.getValue();//不相等的时候不需要额外做添加空格的处理
                     ss.suggestionType = fn.getType();
-                    String description = ss.suggestionType;
-                    if (Constant.FNDType.COLUMN.equals(ss.suggestionType)) {
+                    ss.description = ss.suggestionType;
+                    if (Constant.SuggestionType.COLUMN.equals(fn.getType())) {
                         Column column = fn.getColumn();
-                        description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                        if (hasAddColumnIds.contains(column.getColumnId())) {//该列已经添加
+                            continue;
+                        }
+                        hasAddColumnIds.add(column.getColumnId());
+                        ss.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                        datas.addSug(ss, suggestions.contains(fn.getValue()));
+                    } else {
+                        datas.addSug(ss);
                     }
-                    ss.description = description;
-                    datas.addSug(ss);
+                    suggestions.add(fn.getValue());
                 }
             } else {
                 index = index - focusPhrase.size();
@@ -432,7 +483,7 @@ public class SuggestionUtils {
      * @param user   websocket用户信息
      */
     public static void suggestionsStartError(final FocusParser fp, String search, JSONObject user, IllegalDatas datas) {
-        SuggestionResponse suggestionResponse = suggestionsNull(fp, user, search.length());
+        SuggestionResponse suggestionResponse = suggestionsNull(fp, user, search, search.length());
         datas.suggestions = suggestionResponse.getDatas().suggestions;
         datas.reason = "can not understand";
     }
@@ -444,8 +495,8 @@ public class SuggestionUtils {
      * @param user websocket用户信息
      * @return SuggestionResponse
      */
-    public static SuggestionResponse suggestionsNull(final FocusParser fp, JSONObject user, int position) {
-        SuggestionResponse response = new SuggestionResponse("");
+    public static SuggestionResponse suggestionsNull(final FocusParser fp, JSONObject user, String search, int endPos) {
+        SuggestionResponse response = new SuggestionResponse(search);
         SuggestionDatas datas = new SuggestionDatas();
 
         datas.beginPos = 0;
@@ -459,7 +510,7 @@ public class SuggestionUtils {
             String suggestion = ((HistoryQuestion) history).question;
             SuggestionSuggestion ss = new SuggestionSuggestion();
             ss.beginPos = 0;
-            ss.endPos = position;
+            ss.endPos = endPos;
             ss.suggestion = suggestion;
             ss.suggestionType = Constant.SuggestionType.HISTORY;
             ss.description = "history";
@@ -474,7 +525,7 @@ public class SuggestionUtils {
                     continue;
                 SuggestionSuggestion ss = new SuggestionSuggestion();
                 ss.beginPos = 0;
-                ss.endPos = position;
+                ss.endPos = endPos;
                 ss.suggestion = suggestion;
                 ss.suggestionType = Constant.SuggestionType.PHRASE;
                 ss.description = "suggestion system";
@@ -486,12 +537,26 @@ public class SuggestionUtils {
         for (Column column : columns) {
             SuggestionSuggestion ss = new SuggestionSuggestion();
             ss.beginPos = 0;
-            ss.endPos = position;
+            ss.endPos = endPos;
             ss.suggestion = column.getColumnDisplayName();
             ss.suggestionType = Constant.SuggestionType.COLUMN;
             ss.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
             datas.addSug(ss);
         }
+
+        response.setDatas(datas);
+        return response;
+    }
+
+    /**
+     * 当光标在search中间的时候，给出suggestion
+     *
+     * @return SuggestionResponse
+     */
+    public static SuggestionResponse middlePosition(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) {
+        SuggestionResponse response = new SuggestionResponse(search);
+        SuggestionDatas datas = new SuggestionDatas();
+
 
         response.setDatas(datas);
         return response;
@@ -561,12 +626,6 @@ public class SuggestionUtils {
         return sug;
     }
 
-    /**
-     * 检测当前解析结果中是否含有预设的规则，返回预设的规则列表
-     *
-     * @return 可以提示的规则列表
-     */
-
     private static List<List<String>> checkDefault() {
         return checkDefault(null);
     }
@@ -585,6 +644,13 @@ public class SuggestionUtils {
         return bnfList;
     }
 
+    /**
+     * 检测当前解析结果中是否含有预设的规则，返回预设的规则列表
+     *
+     * @param fp   解析类
+     * @param deep 往下查找的 bnf 层级
+     * @return 可以提示的规则列表
+     */
     private static List<String> checkDefault(FocusPhrase fp, int deep) {
         for (List<String> defaultBnf : DEFAULT_BNF) {
             if (defaultBnf.contains(fp.getInstName())) {

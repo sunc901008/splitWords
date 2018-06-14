@@ -58,7 +58,7 @@ public class CBeginsWithInstruction {
         token2.end = key.getEnd();
         datas.addToken(token2);
 
-        datas.addToken(ColumnValueInstruction.token(valueNode));
+        datas.addTokens(ColumnValueInstruction.tokens(valueNode));
 
         JSONObject expression = new JSONObject();
         expression.put("name", "begins with");
@@ -104,7 +104,7 @@ public class CBeginsWithInstruction {
         token1.end = key1.getEnd();
         datas.addToken(token1);
 
-        datas.addToken(ColumnValueInstruction.token(valueNode));
+        datas.addTokens(ColumnValueInstruction.tokens(valueNode));
 
         AnnotationToken token3 = new AnnotationToken();
         token3.addToken(key2.getValue());

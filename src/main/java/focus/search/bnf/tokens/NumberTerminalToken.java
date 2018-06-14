@@ -7,9 +7,9 @@ public class NumberTerminalToken extends TerminalToken {
     public static final String DOUBLE = "<double>";
 
     /**
-     * Creates a new non terminal token
+     * Creates a new non terminal tokens
      *
-     * @param label The token's label
+     * @param label The tokens's label
      */
     public NumberTerminalToken(String label) {
         super(label, Constant.FNDType.DOUBLE);

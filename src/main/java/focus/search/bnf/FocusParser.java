@@ -281,10 +281,6 @@ public class FocusParser implements Serializable {
                 logger.info("replace focusPhrase loop: " + i);
                 replace(rules, focusPhrases, ft, i);
             }
-
-            if (i == 4) {
-                System.out.println(i);
-            }
             // 去除重复
             distinct(focusPhrases);
 
@@ -372,8 +368,12 @@ public class FocusParser implements Serializable {
     private void ambiguitiesCheck(FocusToken token, List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
         List<AmbiguitiesRecord> ars = new ArrayList<>();
 
-        String value = focusPhrases.get(0).getNodeNew(index).getValue();
-        if (Constant.AmbiguityType.types.contains(value)) {
+        FocusNode node = focusPhrases.get(0).getNodeNew(index);
+        String value = node.getValue();
+        if (Constant.AmbiguityType.types.contains(value) || Constant.FNDType.TABLE.equals(node.getType())) {
+            return;
+        }
+        if (index > 0 && Constant.FNDType.TABLE.equals(focusPhrases.get(0).getNodeNew(index - 1).getType())) {
             return;
         }
         AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(value, amb);
@@ -386,7 +386,12 @@ public class FocusParser implements Serializable {
             }
         }
 
-        logger.debug("check ambiguities. index:" + index + ". value:" + token.getWord() + ". Ambiguities:" + amb + ". resolve:" + JSONObject.toJSONString(resolve));
+        logger.debug("check ambiguities.");
+        logger.debug("focusPhrases size:" + focusPhrases.size());
+        logger.debug("index:" + index);
+        logger.debug("value:" + token.getWord());
+        logger.debug("Ambiguities:" + amb);
+        logger.debug(" resolve:" + JSONObject.toJSONString(resolve));
         List<Integer> added = new ArrayList<>();
         List<FocusPhrase> remove = new ArrayList<>();
         for (FocusPhrase fp : focusPhrases) {
@@ -602,7 +607,7 @@ public class FocusParser implements Serializable {
                 return rule;
             }
         }
-        throw new FocusParserException("Cannot find rule for token " + JSONObject.toJSONString(token));
+        throw new FocusParserException("Cannot find rule for tokens " + JSONObject.toJSONString(token));
     }
 
     public List<BnfRule> parseRules(String word) throws FocusParserException {

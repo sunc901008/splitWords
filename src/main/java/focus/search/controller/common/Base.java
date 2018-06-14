@@ -39,7 +39,7 @@ import java.util.UUID;
 public class Base {
     private static final Logger logger = Logger.getLogger(Base.class);
 
-    public static final Integer WebsocketLimit = 100;
+    private static final Integer WebsocketLimit = 100;
 
     public static final FocusParser englishParser;
     public static final FocusParser chineseParser;
@@ -172,12 +172,14 @@ public class Base {
 
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
         if (Common.isEmpty(search.trim())) {
-            SuggestionResponse response = SuggestionUtils.suggestionsNull(fp, user, 0);
+            SuggestionResponse response = SuggestionUtils.suggestionsNull(fp, user, search, search.length());
             Common.send(session, response.response());
             logger.info("提示:\n\t" + response.response() + "\n");
             return;
         }
         JSONObject amb = user.getJSONObject("ambiguities");
+
+        logger.info("current ambiguities:" + amb);
 
         // 分词  中文分词会出现歧义
         List<FocusToken> tokens;
@@ -204,6 +206,7 @@ public class Base {
         }
         logger.info("split words:" + JSON.toJSONString(tokens));
 
+        logger.info("params ambiguities:" + ambiguities);
         if (ambiguities != null) {
             @SuppressWarnings("unchecked")
             List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
@@ -224,40 +227,40 @@ public class Base {
             logger.info(focusInst.toJSON().toJSONString());
 
             if (focusInst.position < 0) {// 未出错
-                int n = tokens.size();
-                for (FocusPhrase f : focusInst.getFocusPhrases()) {
-                    for (int i = 0; i < f.size(); i++) {
-                        if (n <= 0) {
-                            break;
-                        }
-                        FocusNode node = f.getNodeNew(i);
-                        if (Constant.FNDType.COLUMN.equals(node.getType())) {
-                            Column col = node.getColumn();
-                            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(col.getColumnDisplayName(), amb);
-                            if (ambiguitiesResolve == null) {
-                                ambiguitiesResolve = new AmbiguitiesResolve();
-
-                                AmbiguitiesRecord ar = new AmbiguitiesRecord();
-                                ar.type = Constant.AmbiguityType.COLUMN;
-                                ar.sourceName = col.getSourceName();
-                                ar.columnId = col.getColumnId();
-                                ar.columnName = col.getColumnDisplayName();
-                                ar.realValue = ar.columnName;
-                                ar.possibleValue = ar.columnName;
-
-                                ambiguitiesResolve.ars.add(0, ar);
-                                ambiguitiesResolve.isResolved = true;
-                                ambiguitiesResolve.value = col.getColumnName();
-                                amb.put(UUID.randomUUID().toString(), ambiguitiesResolve);
-                            }
-                        }
-                        n--;
-                    }
-                    if (n <= 0) {
-                        break;
-                    }
-                }
-                user.put("ambiguities", amb);
+//                int n = tokens.size();
+//                for (FocusPhrase f : focusInst.getFocusPhrases()) {
+//                    for (int i = 0; i < f.size(); i++) {
+//                        if (n <= 0) {
+//                            break;
+//                        }
+//                        FocusNode node = f.getNodeNew(i);
+//                        if (Constant.FNDType.COLUMN.equals(node.getType())) {
+//                            Column col = node.getColumn();
+//                            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(col.getColumnDisplayName(), amb);
+//                            if (ambiguitiesResolve == null) {
+//                                ambiguitiesResolve = new AmbiguitiesResolve();
+//
+//                                AmbiguitiesRecord ar = new AmbiguitiesRecord();
+//                                ar.type = Constant.AmbiguityType.COLUMN;
+//                                ar.sourceName = col.getSourceName();
+//                                ar.columnId = col.getColumnId();
+//                                ar.columnName = col.getColumnDisplayName();
+//                                ar.realValue = ar.columnName;
+//                                ar.possibleValue = ar.columnName;
+//
+//                                ambiguitiesResolve.ars.add(0, ar);
+//                                ambiguitiesResolve.isResolved = true;
+//                                ambiguitiesResolve.value = col.getColumnName();
+//                                amb.put(UUID.randomUUID().toString(), ambiguitiesResolve);
+//                            }
+//                        }
+//                        n--;
+//                    }
+//                    if (n <= 0) {
+//                        break;
+//                    }
+//                }
+//                user.put("ambiguities", amb);
 
                 if (!focusInst.isInstruction) {// 出入不完整
                     SuggestionResponse response = SuggestionUtils.suggestionsNotCompleted(fp, search, focusInst, user, tokens, search.length());
@@ -497,7 +500,7 @@ public class Base {
         return space.toString();
     }
 
-    public static JSONObject userInfo(String accessToken) throws FocusHttpException {
+    private static JSONObject userInfo(String accessToken) throws FocusHttpException {
         if (Constant.passUc) {
             JSONObject user = new JSONObject();
             user.put("id", 1);

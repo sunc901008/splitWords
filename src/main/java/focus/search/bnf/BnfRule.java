@@ -21,7 +21,7 @@ public class BnfRule implements Serializable {
     private static final long serialVersionUID = 579372107761975753L;
 
     /**
-     * A list of token strings that for all the possible cases of that rule
+     * A list of tokens strings that for all the possible cases of that rule
      */
     private List<TokenString> m_alternatives = new ArrayList<>();
 
@@ -108,7 +108,7 @@ public class BnfRule implements Serializable {
         for (String word : words) {
             String trimmed_word = word.trim();
             if (trimmed_word.isEmpty()) {
-                throw new InvalidRuleException("Trying to create an empty terminal token");
+                throw new InvalidRuleException("Trying to create an empty terminal tokens");
             }
             if (trimmed_word.equals(NonTerminalToken.s_leftSymbol) || trimmed_word.equals("<=")) {
                 alternative_to_add.add(new TerminalToken(trimmed_word, Constant.FNDType.SYMBOL));
@@ -123,7 +123,7 @@ public class BnfRule implements Serializable {
                 alternative_to_add.add(to_add);
 
             } else {
-                // This is a literal token
+                // This is a literal tokens
                 trimmed_word = unescapeString(trimmed_word);
                 String type = Constant.FNDType.KEYWORD;
                 String left = out.getLeftHandSide().getName();
@@ -140,7 +140,7 @@ public class BnfRule implements Serializable {
     /**
      * Sets the left-hand side of the rule
      *
-     * @param t The non-terminal token that will be used for the left-hand side of the rule
+     * @param t The non-terminal tokens that will be used for the left-hand side of the rule
      */
     public void setLeftHandSide(final NonTerminalToken t) {
         m_leftHandSide = t;

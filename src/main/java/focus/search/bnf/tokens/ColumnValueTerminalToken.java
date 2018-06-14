@@ -7,9 +7,9 @@ public class ColumnValueTerminalToken extends TerminalToken {
     public static final String COLUMN_VALUE_BNF = "<column-value>";
 
     /**
-     * Creates a new non terminal token
+     * Creates a new non terminal tokens
      *
-     * @param label The token's label
+     * @param label The tokens's label
      */
     public ColumnValueTerminalToken(String label) {
         super(label, Constant.FNDType.COLUMN_VALUE);

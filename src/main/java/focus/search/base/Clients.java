@@ -107,7 +107,7 @@ public class Clients {
             params.put("type", "columnValue");
             params.put("partialToken", "");
             params.put("size", 5);
-            params.put("ignoreCase", false);
+            params.put("ignoreCase", true);
             params.put("datas", null);
         }
 
@@ -116,9 +116,12 @@ public class Clients {
             JSONArray sources = new JSONArray();
 
             JSONObject sourceInfo = new JSONObject();
-            sourceInfo.put("source", column.getPhysicalName());
+            sourceInfo.put("source", column.getTbPhysicalName());
             sourceInfo.put("database", column.getDbName());
-            sourceInfo.put("columns", Collections.singleton(column.getColumnName()));
+
+            JSONArray columns = new JSONArray();
+            columns.add(column.getColumnPhysicalName());
+            sourceInfo.put("columns", columns);
 
             sources.add(sourceInfo);
 
@@ -135,10 +138,19 @@ public class Clients {
         private static final String TOKENS = "tokens";
 
         public static JSONObject tokens(Column column, String word) throws FocusHttpException {
-            return tokens(column, word, 0);
+            return tokens(column, word, 5);
         }
 
         public static JSONObject tokens(Column column, String word, int count) throws FocusHttpException {
+            JSONObject result = new JSONObject();
+            JSONArray tokens = new JSONArray();
+            JSONObject token = new JSONObject();
+            token.put("content", word);
+            tokens.add(token);
+            result.put("tokens", tokens);
+            if (Constant.passIndex) {
+                return result;
+            }
             return post(baseUrl + TOKENS, tokensParam(column, word, count).toJSONString(), Collections.singletonList(baseHeader));
         }
 

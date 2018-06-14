@@ -40,7 +40,7 @@ public class BoolColOrBoolFuncColInst {
         }
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         switch (focusNode.getValue()) {
             case "<bool-columns>":

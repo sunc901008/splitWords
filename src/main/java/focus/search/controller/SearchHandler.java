@@ -1,6 +1,5 @@
 package focus.search.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
@@ -192,8 +191,6 @@ class SearchHandler {
             }
             user.put("ambiguities", ambiguities);
 
-            logger.info(JSON.toJSONString(srs));
-
             for (SourceReceived sr : srs) {
                 init.addSource(sr.transfer());
             }
@@ -204,6 +201,7 @@ class SearchHandler {
         }
         response.setDatas(init.toJson());
         logger.info(response.response());
+        logger.info("after init user: " + user);
         Common.send(session, response.response());
 
     }

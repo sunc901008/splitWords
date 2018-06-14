@@ -16,7 +16,7 @@ public class ParseNode {
     private ArrayList<ParseNode> m_children = null;
 
     /**
-     * The grammar token represented by this parse node
+     * The grammar tokens represented by this parse node
      */
     private String m_token = null;
 
@@ -34,9 +34,9 @@ public class ParseNode {
     }
 
     /**
-     * Creates a parse node for a grammar token
+     * Creates a parse node for a grammar tokens
      *
-     * @param token The token
+     * @param token The tokens
      */
     public ParseNode(String token) {
         this();
@@ -69,9 +69,9 @@ public class ParseNode {
     }
 
     /**
-     * Gets the token name associated to this parse node
+     * Gets the tokens name associated to this parse node
      *
-     * @return The token name
+     * @return The tokens name
      */
     public String getToken() {
         return m_token;
@@ -87,9 +87,9 @@ public class ParseNode {
     }
 
     /**
-     * Sets the token name for this parse node
+     * Sets the tokens name for this parse node
      *
-     * @param token The token name
+     * @param token The tokens name
      */
     public void setToken(final String token) {
         m_token = token;

@@ -9,6 +9,7 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,25 +30,53 @@ public class ColumnValueInstruction {
         return null;
     }
 
+    // 多个列中值
+    public static JSONArray args(FocusNode focusNode) {
+        JSONArray args = new JSONArray();
+        FocusPhrase fp = focusNode.getChildren();
+        for (int i = 1; i < fp.size(); i = i + 4) {
+            JSONObject arg = new JSONObject();
+            arg.put("type", Constant.InstType.STRING);
+            arg.put("value", fp.getNodeNew(i).getValue());
+            args.add(arg);
+        }
+        return args;
+    }
+
+    // 单个列中值
     public static JSONObject arg(FocusNode focusNode) {
         JSONObject arg = new JSONObject();
         FocusPhrase fp = focusNode.getChildren();
-        // todo 多个columnValue
-        for (int i = 1; i < fp.size(); i = i + 4) {
-            arg.put("type", Constant.InstType.STRING);
-            arg.put("value", fp.getNodeNew(i).getValue());
-        }
+        arg.put("type", Constant.InstType.STRING);
+        arg.put("value", fp.getNodeNew(1).getValue());
         return arg;
     }
 
-    public static AnnotationToken token(FocusNode focusNode) {
+    public static List<AnnotationToken> tokens(FocusNode focusNode) {
         FocusPhrase fp = focusNode.getChildren();
-        AnnotationToken token = new AnnotationToken();
-        token.value = fp.getNodeNew(1).getValue();
-        token.type = Constant.AnnotationTokenType.STRING;
-        token.begin = fp.getFirstNode().getBegin();
-        token.end = fp.getLastNode().getEnd();
-        return token;
+        List<AnnotationToken> tokens = new ArrayList<>();
+        AnnotationToken first = new AnnotationToken();
+        first.value = fp.getNodeNew(1).getValue();
+        first.type = Constant.AnnotationTokenType.STRING;
+        first.begin = fp.getNodeNew(0).getBegin();
+        first.end = fp.getNodeNew(2).getEnd();
+        tokens.add(first);
+        for (int i = 5; i < fp.size(); i = i + 4) {
+            FocusNode markNode = fp.getNodeNew(i - 2);
+            AnnotationToken mark = new AnnotationToken();
+            mark.value = markNode.getValue();
+            mark.type = Constant.AnnotationTokenType.PUNCTUATION_MARK;
+            mark.begin = markNode.getBegin();
+            mark.end = markNode.getEnd();
+            tokens.add(mark);
+            AnnotationToken token = new AnnotationToken();
+            token.value = fp.getNodeNew(i).getValue();
+            token.type = Constant.AnnotationTokenType.STRING;
+            token.begin = fp.getNodeNew(i - 1).getBegin();
+            token.end = fp.getNodeNew(i + 1).getEnd();
+            tokens.add(token);
+        }
+        return tokens;
     }
 
 }

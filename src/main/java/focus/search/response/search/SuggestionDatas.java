@@ -6,6 +6,8 @@ import focus.search.base.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * creator: sunc
@@ -29,17 +31,39 @@ public class SuggestionDatas {
      * @param ss SuggestionSuggestion
      */
     public void addSug(SuggestionSuggestion ss) {
+        addSug(ss, false);
+    }
+
+    /**
+     * @param ss      SuggestionSuggestion
+     * @param hasSame 是否已经添加了相同的suggestion,如两个name列,描述改为2/n个匹配项
+     */
+    public void addSug(SuggestionSuggestion ss, boolean hasSame) {
         if (this.beginPos < 0) {
             this.beginPos = ss.beginPos;
         } else if (!Constant.SuggestionType.HISTORY.equals(ss.suggestionType) && this.beginPos > ss.beginPos) {
             this.beginPos = ss.beginPos;
         }
-        for (SuggestionSuggestion suggestion : this.suggestions) {
-            if (suggestion.suggestion.equals(ss.suggestion)) {
-                return;
+        if (hasSame) {
+            for (SuggestionSuggestion suggestion : this.suggestions) {
+                if (suggestion.suggestion.equals(ss.suggestion)) {
+                    suggestionAddItem(suggestion);
+                    return;
+                }
             }
+        } else {
+            this.suggestions.add(ss);
         }
-        this.suggestions.add(ss);
+    }
+
+    private void suggestionAddItem(SuggestionSuggestion suggestion) {
+        Pattern pattern = Pattern.compile("^(\\d+)(.*)");
+        Matcher matcher = pattern.matcher(suggestion.description);
+        if (matcher.matches()) {
+            suggestion.description = Integer.parseInt(matcher.group(1)) + 1 + matcher.group(2);
+        } else {
+            suggestion.description = "2 matching items";
+        }
     }
 
     public void addAllSug(List<SuggestionSuggestion> sss) {

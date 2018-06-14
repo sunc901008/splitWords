@@ -38,7 +38,7 @@ public class NumberOrNumColInst {
         throw new FocusInstructionException(focusNode.toJSON());
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         if ("<number-columns>".equals(focusNode.getValue())) {
             return NumberColInstruction.tokens(focusNode.getChildren(), formulas, amb);

@@ -75,7 +75,7 @@ public class CountFuncInstruction {
         return expression;
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusNode param = focusPhrase.getFocusNodes().get(2);

@@ -8,7 +8,7 @@ public class TerminalToken extends Token {
     private Column column;
 
     /**
-     * Creates a new terminal token with a label
+     * Creates a new terminal tokens with a label
      */
     public TerminalToken(final String label, String type) {
         super(label);

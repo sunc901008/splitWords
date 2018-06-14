@@ -42,14 +42,14 @@ public class ColValueOrDateColInst {
         return json;
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         if (focusNode.getValue().equals("<date-columns>")) {
             return DateColInstruction.tokens(focusNode.getChildren(), formulas, amb);
         }
         // 列中值
         List<AnnotationToken> tokens = new ArrayList<>();
-        AnnotationToken token = ColumnValueInstruction.token(focusNode);
+        AnnotationToken token = ColumnValueInstruction.tokens(focusNode).get(0);
         token.type = Constant.InstType.DATE;
         tokens.add(token);
         return tokens;

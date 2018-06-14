@@ -80,7 +80,7 @@ public class BoolColInstruction {
         throw new FocusInstructionException(focusPhrase.toJSON());
     }
 
-    // annotation token
+    // annotation tokens
     public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusPhrase fp = focusNode.getChildren();

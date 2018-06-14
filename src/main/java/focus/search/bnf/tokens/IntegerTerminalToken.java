@@ -8,9 +8,9 @@ public class IntegerTerminalToken extends TerminalToken {
     public static final String INTEGER = "<integer>";
 
     /**
-     * Creates a new non terminal token
+     * Creates a new non terminal tokens
      *
-     * @param label The token's label
+     * @param label The tokens's label
      */
     public IntegerTerminalToken(String label) {
         super(label, Constant.FNDType.INTEGER);

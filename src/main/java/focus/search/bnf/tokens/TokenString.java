@@ -9,7 +9,7 @@ import java.util.Set;
 public class TokenString extends LinkedList<Token> {
 
     /**
-     * Creates a new empty token string
+     * Creates a new empty tokens string
      */
     public TokenString() {
         super();
