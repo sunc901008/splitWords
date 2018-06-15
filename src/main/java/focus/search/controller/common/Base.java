@@ -308,7 +308,7 @@ public class Base {
                     // search finish
                     Common.send(session, SearchFinishedResponse.response(search, received));
 
-                    if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event) && search.trim().equals(getLastQuestion(historyQuestions))) {
+                    if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event) && FocusToken.tokensToString(tokens).equals(getLastQuestion(historyQuestions))) {
                         return;
                     }
                     // prepareQuery
@@ -348,12 +348,22 @@ public class Base {
                 datas.beginPos = strPosition;
                 if (focusInst.position == 0) {
                     SuggestionUtils.suggestionsStartError(fp, search, user, datas);
+                    response.setDatas(datas);
+                    Common.send(session, response.response());
+                    logger.info(response.response());
                 } else {
-                    SuggestionUtils.suggestionsMiddleError(fp, search, focusInst, user, tokens, position, datas);
+                    int errorTokenIndex = focusInst.position;
+                    int beginPos = tokens.get(errorTokenIndex).getStart();
+                    if (beginPos > position) {//光标在未出错部分的search中间的时候，给出提示
+                        SuggestionResponse suggestionResponse = SuggestionUtils.suggestionsMiddleError(fp, search, user, tokens, position);
+                        Common.send(session, suggestionResponse.response());
+                    } else {
+                        SuggestionUtils.suggestionsMiddleError(fp, search, focusInst, user, tokens, datas);
+                        response.setDatas(datas);
+                        Common.send(session, response.response());
+                        logger.info(response.response());
+                    }
                 }
-                response.setDatas(datas);
-                Common.send(session, response.response());
-                logger.info(response.response());
             }
 
         } catch (AmbiguitiesException e) {

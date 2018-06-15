@@ -230,11 +230,15 @@ public class FocusParser implements Serializable {
                         fp.replaceNode(i, tmpNode);
                         focusPhrases.add(fp);
                     } else if (DateValueTerminalToken.DATE_VALUE.equals(tmpNode.getValue())) {
-//                        String dateValue = ft.getWord();
-//                        dateValue = Common.dateFormat(dateValue);
-//                        if (Common.isEmpty(dateValue)) {
-//                            continue;
-//                        }
+                        String dateValue = ft.getWord();
+                        dateValue = Common.dateFormat(dateValue);
+                        if (Common.isEmpty(dateValue)) {//非法日期格式
+                            FocusSubInst fsi = new FocusSubInst();
+                            fsi.setIndex(i);
+                            fsi.setFps(tmp);
+                            fsi.setError();
+                            return fsi;
+                        }
                         tmpNode.setValue(ft.getWord());
                         tmpNode.setBegin(ft.getStart());
                         tmpNode.setEnd(ft.getEnd());

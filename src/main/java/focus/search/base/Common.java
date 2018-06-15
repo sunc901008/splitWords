@@ -139,6 +139,10 @@ public class Common {
 
     public static String dateFormat(String date) {
         date = date.trim();
+        if (Common.isEmpty(date)) {
+            logger.info(String.format("invalid input date: %s", date));
+            return null;
+        }
         String checkStr = date.substring(date.length() - 1);
         Pattern numberPattern = Pattern.compile("^[0-9]+$");
         if (!numberPattern.matcher(checkStr).find()) {

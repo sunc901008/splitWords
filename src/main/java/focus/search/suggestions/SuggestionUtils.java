@@ -11,14 +11,17 @@ import focus.search.bnf.tokens.*;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.meta.Column;
 import focus.search.meta.HistoryQuestion;
+import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusHttpException;
 import focus.search.response.exception.FocusParserException;
+import focus.search.response.exception.IllegalException;
 import focus.search.response.search.IllegalDatas;
 import focus.search.response.search.SuggestionDatas;
 import focus.search.response.search.SuggestionResponse;
 import focus.search.response.search.SuggestionSuggestion;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -38,6 +41,7 @@ public class SuggestionUtils {
     private static final Integer DEFAULT_BNF_DEEP = 5;
 
     private static final String STRING_GUIDANCE = "You can select a suggestion below or input a string with quote.Multi value split with comma.";
+    private static final String DATE_GUIDANCE = "You can select a suggestion below or input a date with quote.";
 
     /**
      * ① 输入的question能够匹配上一个完整的bnf规则，即能够正常下发指令。
@@ -51,10 +55,9 @@ public class SuggestionUtils {
      * @param tokens    分词结果
      * @return SuggestionResponse
      */
-    public static SuggestionResponse suggestionsCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) {
+    public static SuggestionResponse suggestionsCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) throws IllegalException, IOException, AmbiguitiesException {
         if (tokens.get(tokens.size() - 1).getEnd() > position) {//光标在search中间
-            // TODO: 2018/5/31 当光标在search中间的时候，给出suggestion
-            return null;
+            return middlePosition(fp, search, user, tokens, position);
         }
         boolean addSpace = tokens.get(tokens.size() - 1).getEnd() == position;//根据光标位置判断是否需要在suggestion前面添加一个空格
         SuggestionResponse response = new SuggestionResponse(search);
@@ -103,7 +106,7 @@ public class SuggestionUtils {
         return response;
     }
 
-    private static void completed(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace) {
+    private static void completed(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace) throws IllegalException {
         completedOrNot(fp, datas, focusInst, tokens, position, addSpace, true);
     }
 
@@ -119,10 +122,9 @@ public class SuggestionUtils {
      * @param tokens    分词结果
      * @return SuggestionResponse
      */
-    public static SuggestionResponse suggestionsNotCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) {
+    public static SuggestionResponse suggestionsNotCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) throws IllegalException, IOException, AmbiguitiesException {
         if (tokens.get(tokens.size() - 1).getEnd() > position) {//光标在search中间
-            // TODO: 2018/5/31 当光标在search中间的时候，给出suggestion
-            return null;
+            return middlePosition(fp, search, user, tokens, position);
         }
         boolean addSpace = tokens.get(tokens.size() - 1).getEnd() == position;//根据光标位置判断是否需要在suggestion前面添加一个空格
         SuggestionResponse response = new SuggestionResponse(search);
@@ -153,11 +155,11 @@ public class SuggestionUtils {
         return response;
     }
 
-    private static void notCompleted(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace) {
+    private static void notCompleted(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace) throws IllegalException {
         completedOrNot(fp, datas, focusInst, tokens, position, addSpace, false);
     }
 
-    private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed) {
+    private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed) throws IllegalException {
         int index = tokens.size() - 1;
         int last = tokens.size() - 1;
         Set<String> suggestions = new HashSet<>();//已经添加的suggestion
@@ -169,8 +171,11 @@ public class SuggestionUtils {
                 FocusNode fn = focusPhrase.getNodeNew(index);
                 if (fn.getValue().equalsIgnoreCase(tokens.get(last).getWord())) {
                     if (Constant.FNDType.DATE_VALUE.equals(fn.getType()) && Common.isEmpty(Common.dateFormat(fn.getValue()))) {// 日期字符串并且非法
-                        datas.guidance = String.format("%sExample: \"focus\",'data'.", STRING_GUIDANCE);
-                        break;
+//                        datas.guidance = String.format("%SExample: %s.", DATE_GUIDANCE, SourcesUtils.dateSug());
+//                        break;
+                        String reason = "invalid date format";
+                        IllegalDatas illegalDatas = new IllegalDatas(fn.getBegin(), fn.getEnd(), reason);
+                        throw new IllegalException(reason, illegalDatas);
                     }
                     if (Constant.FNDType.COLUMN_VALUE.equals(fn.getType())) {// 列中值
                         if ("<string-simple-filter>".equals(focusPhrase.getNode(0).getChildren().getInstName())) {
@@ -215,7 +220,7 @@ public class SuggestionUtils {
                         break;
                     }
                     if (DateValueTerminalToken.DATE_VALUE.equals(inputValue) || DateValueTerminalToken.DATE_VALUE_BNF.equals(inputValue)) {
-                        datas.guidance = String.format("You can select a suggestion below or input a date with quote.Example: %s.", SourcesUtils.dateSug());
+                        datas.guidance = String.format("%sExample: %s.", DATE_GUIDANCE, SourcesUtils.dateSug());
                         break;
                     }
                     if (!focusNode.isTerminal()) {
@@ -355,6 +360,7 @@ public class SuggestionUtils {
 
     /**
      * ③ 出错位置在 question 中间位置
+     * 1. 光标在未出错部分的search之后的时候,提示出错的部分
      * <p>
      * 方案： 基于能够适配当前输入的question出错位置之前的输入的bnf给出 suggestion
      *
@@ -364,15 +370,10 @@ public class SuggestionUtils {
      * @param user      websocket用户信息
      * @param tokens    分词结果
      */
-
-    public static void suggestionsMiddleError(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position, IllegalDatas datas) {
+    public static void suggestionsMiddleError(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, IllegalDatas datas) throws IllegalException, IOException, AmbiguitiesException {
         int errorTokenIndex = focusInst.position;
         int beginPos = tokens.get(errorTokenIndex).getStart();
         int endPos = search.length();
-        if (beginPos > position) {//光标在未出错部分的search中间的时候
-            // TODO: 2018/5/31 当光标在未出错部分的search中间的时候，给出suggestion
-            return;
-        }
         datas.reason = "can not understand";
         tokens = tokens.subList(0, errorTokenIndex);
         List<SuggestionSuggestion> sss = new ArrayList<>();
@@ -474,6 +475,20 @@ public class SuggestionUtils {
     }
 
     /**
+     * ③ 出错位置在 question 中间位置
+     * 2. 光标在未出错部分的search中间的时候,给出提示
+     * <p>
+     * 方案： 基于能够适配当前输入的question出错位置之前的输入的bnf给出 suggestion
+     *
+     * @param fp     解析类
+     * @param search 需要解析的question
+     * @param user   websocket用户信息
+     */
+    public static SuggestionResponse suggestionsMiddleError(final FocusParser fp, String search, JSONObject user, List<FocusToken> tokens, int position) throws IllegalException, IOException, AmbiguitiesException {
+        return middlePosition(fp, search, user, tokens, position);
+    }
+
+    /**
      * ④ 出错位置在 question 开始位置
      * <p>
      * 方案： 完全等同输入框为空时的情况给出 suggestion
@@ -551,15 +566,38 @@ public class SuggestionUtils {
     /**
      * 当光标在search中间的时候，给出suggestion
      *
+     * @param originTokens 原始问题的分词结果
      * @return SuggestionResponse
      */
-    public static SuggestionResponse middlePosition(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) {
-        SuggestionResponse response = new SuggestionResponse(search);
-        SuggestionDatas datas = new SuggestionDatas();
-
-
-        response.setDatas(datas);
-        return response;
+    private static SuggestionResponse middlePosition(final FocusParser fp, String search, JSONObject user, List<FocusToken> originTokens, int position) throws IllegalException, IOException, AmbiguitiesException {
+        String subSearch = search.substring(0, position);
+        String category = user.getString("category");
+        String language = user.getString("language");
+        JSONObject amb = user.getJSONObject("ambiguities");
+        boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(category);
+        List<FocusToken> tokens = fp.focusAnalyzer.test(subSearch, language);
+        FocusInst focusInst;
+        if (isQuestion) {
+            focusInst = fp.parseQuestion(tokens, amb);
+        } else {
+            focusInst = fp.parseFormula(tokens, amb);
+        }
+        if (!focusInst.isInstruction) {
+            SuggestionResponse response = suggestionsNotCompleted(fp, search, focusInst, user, tokens, position);
+            int endPos = position;
+            for (FocusToken token : originTokens) {
+                if (token.getStart() <= position && token.getEnd() >= position) {
+                    endPos = token.getEnd();
+                    break;
+                }
+            }
+            for (SuggestionSuggestion suggestion : response.getDatas().suggestions) {
+                suggestion.endPos = endPos;
+            }
+            return response;
+        } else {
+            return suggestionsCompleted(fp, search, focusInst, user, tokens, position);
+        }
     }
 
     // 根据bnf规则名字获取所有 TokenString 的第一个terminalToken (function 除外)

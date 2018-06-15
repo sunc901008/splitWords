@@ -19,6 +19,9 @@ public class AmbiguitiesResolve {
     public String value;
 
     public static AmbiguitiesResolve getByValue(String value, JSONObject amb) {
+        if (amb == null) {
+            return null;
+        }
         for (Object obj : amb.values()) {
             AmbiguitiesResolve tmp = (AmbiguitiesResolve) obj;
             if (Objects.equals(tmp.value, value)) {
