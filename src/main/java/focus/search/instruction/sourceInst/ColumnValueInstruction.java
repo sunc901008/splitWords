@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class ColumnValueInstruction {
 
-    // todo : curl index to search columnvalue for its column
     public static JSONArray build(FocusPhrase prePhrase, FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
         FocusNode fn = focusPhrase.getNodeNew(1);
         String columnValue = fn.getValue();

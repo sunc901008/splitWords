@@ -104,7 +104,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
             String language = user.getString("language");
 
             // 分词
-            // TODO: 2018/5/21 qiyi
+            // TODO: 2018/5/21 歧义
             List<FocusToken> tokens = null;
             try {
                 tokens = fp.focusAnalyzer.test(question, language);
