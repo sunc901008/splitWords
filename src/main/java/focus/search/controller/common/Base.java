@@ -291,7 +291,7 @@ public class Base {
                     JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user), language, dateColumns);
 
                     JSONArray instructions = json.getJSONArray("instructions");
-                    if (biConfig != null) {
+                    if (biConfig != null && !biConfig.isEmpty()) {
                         JSONObject config = new JSONObject();
                         config.put("instId", Constant.InstIdType.SET_BI_CONFIG);
                         config.put("value", biConfig);

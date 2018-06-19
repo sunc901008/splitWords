@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.filterInst.dateComplexInst.BeforeAfterInstruction;
+import focus.search.instruction.filterInst.dateComplexInst.BetweenAndInstruction;
 import focus.search.instruction.filterInst.dateComplexInst.LastInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
@@ -21,7 +22,8 @@ import java.util.List;
  * description:
  */
 //<date-complex-filter> := <before-after-filter>|
-//                         <last-filter>;
+//                         <last-filter> |
+//                         <between-and-filter>;
 public class FilterDateComplexInstruction {
     private static final Logger logger = Logger.getLogger(FilterDateComplexInstruction.class);
 
@@ -34,7 +36,8 @@ public class FilterDateComplexInstruction {
                 return BeforeAfterInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<last-filter>":
                 return LastInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
-            case "":
+            case "<between-and-filter>":
+                return BetweenAndInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

@@ -93,7 +93,7 @@ public class LastInstruction {
         AnnotationToken token2 = new AnnotationToken();
         token2.addToken(last.getValue());
         token2.value = last.getValue();
-        token2.type = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
+        token2.type = Constant.AnnotationCategory.FILTER;
         token2.begin = last.getBegin();
         token2.end = last.getEnd();
         datas.addToken(token2);
@@ -119,7 +119,7 @@ public class LastInstruction {
 
         JSONObject expressionStart = new JSONObject();
         expressionStart.put("name", ">=");
-        expressionStart.put("type", "function");
+        expressionStart.put("type", Constant.InstType.FUNCTION);
         JSONArray argStarts = new JSONArray();
         JSONObject argStart1 = new JSONObject();
         argStart1.put("type", Constant.InstType.COLUMN);
@@ -133,7 +133,7 @@ public class LastInstruction {
 
         JSONObject expressionEnd = new JSONObject();
         expressionEnd.put("name", "<");
-        expressionEnd.put("type", "function");
+        expressionEnd.put("type", Constant.InstType.FUNCTION);
         JSONArray argEnds = new JSONArray();
         JSONObject argEnd1 = new JSONObject();
         argEnd1.put("type", Constant.InstType.COLUMN);

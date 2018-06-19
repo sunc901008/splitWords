@@ -5,10 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.instruction.CommonFunc;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
-import focus.search.instruction.nodeArgs.NumberArg;
+import focus.search.instruction.filterInst.dateComplexInst.BetweenAndInstruction;
+import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
@@ -26,52 +26,27 @@ import java.util.Objects;
 
 /**
  * creator: sunc
- * date: 2018/5/23
+ * date: 2018/6/19
  * description:
  */
-//<last-filter> := <last-days-filter> |
-//        <last-weeks-filter> |
-//        <last-months-filter> |
-//        <last-quarters-filter> |
-//        <last-years-filter>;
-public class CLastInstruction {
-    private static final Logger logger = Logger.getLogger(CLastInstruction.class);
+//<between-and-filter> := <all-date-column> 在 <date-string-value> 和 <date-string-value> 之间的 |
+//        在 <date-string-value> 和 <date-string-value> 之间的 |
+//        <date-string-value> 和 <date-string-value> 之间的;
+public class CBetweenAndInstruction {
+    private static final Logger logger = Logger.getLogger(CBetweenAndInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("LastInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
-        FocusNode fn = focusPhrase.getFocusNodes().get(0);
-        switch (fn.getValue()) {
-            case "<last-days-filter>":
-                return CLastDaysInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
-            case "<last-weeks-filter>":
-                return CLastWeeksInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
-            case "<last-months-filter>":
-                return CLastMonthsInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
-            case "<last-quarters-filter>":
-                return CLastQuartersInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
-            case "<last-years-filter>":
-                return CLastYearsInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
-            default:
-                throw new FocusInstructionException(focusPhrase.toJSON());
-        }
-    }
-
-    //<last-days-chinese> := 天 |
-    //        天的;
-    //<last-days-filter> := <last-chinese> <integer> <last-days-chinese> |
-    //        <all-date-column> <last-chinese> <integer> <last-days-chinese>;
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+        logger.info("CBetweenAndInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         if (Objects.equals("<all-date-column>", first.getValue())) {
-            return buildStartsWithCol(focusPhrase, index, amb, formulas, dateColumns, key);
+            return build1(focusPhrase, index, amb, formulas);
         } else {
-            return buildNoCol(focusPhrase, index, amb, formulas, dateColumns, key);
+            return build2(focusPhrase, index, amb, formulas, dateColumns);
         }
-
     }
 
-    //<all-date-column> <last-chinese> <integer> <last-days-chinese>;
-    private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+    //    <all-date-column> 在 <date-string-value> 和 <date-string-value> 之间的
+    private static JSONArray build1(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -82,38 +57,49 @@ public class CLastInstruction {
         jsonStart.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         FocusPhrase datePhrase = focusNodes.get(0).getChildren();
-        FocusNode last = focusNodes.get(1).getChildren().getFirstNode();
         Column dateCol = datePhrase.getLastNode().getColumn();
-
         datas.addToken(AnnotationToken.singleCol(datePhrase, amb));
 
+        FocusNode keyword1 = focusNodes.get(1);
         AnnotationToken token2 = new AnnotationToken();
-        token2.addToken(last.getValue());
-        token2.value = last.getValue();
-        token2.type = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
-        token2.begin = last.getBegin();
-        token2.end = last.getEnd();
+        token2.addToken(keyword1.getValue());
+        token2.value = keyword1.getValue();
+        token2.type = Constant.AnnotationCategory.FILTER;
+        token2.begin = keyword1.getBegin();
+        token2.end = keyword1.getEnd();
         datas.addToken(token2);
 
-        FocusNode param = focusNodes.get(2);
-        param = param.isHasChild() ? param.getChildren().getFirstNode() : param;
-        int integer = Integer.parseInt(param.getValue());
-        datas.addToken(NumberArg.token(param));
+        FocusNode param1 = focusNodes.get(2);
+        JSONObject arg1 = ColValueOrDateColInst.arg(param1, formulas);
+        datas.addTokens(ColValueOrDateColInst.tokens(param1, formulas, amb));
 
-        FocusNode keywordNode = focusPhrase.getLastNode();
+        FocusNode keyword2 = focusNodes.get(3);
         AnnotationToken token4 = new AnnotationToken();
-        token4.addToken(keywordNode.getValue());
-        token4.value = keywordNode.getValue();
-        token4.type = Constant.AnnotationTokenType.FILTER;
-        token4.begin = keywordNode.getBegin();
-        token4.end = keywordNode.getEnd();
+        token4.addToken(keyword2.getValue());
+        token4.value = keyword2.getValue();
+        token4.type = Constant.AnnotationCategory.FILTER;
+        token4.begin = keyword2.getBegin();
+        token4.end = keyword2.getEnd();
         datas.addToken(token4);
 
-        List<String> params = CommonFunc.params(key, integer);
+        FocusNode param2 = focusNodes.get(4);
+        JSONObject arg2 = ColValueOrDateColInst.arg(param2, formulas);
+        datas.addTokens(ColValueOrDateColInst.tokens(param2, formulas, amb));
+
+        FocusNode keyword3 = focusNodes.get(5);
+        AnnotationToken token6 = new AnnotationToken();
+        token6.addToken(keyword3.getValue());
+        token6.value = keyword3.getValue();
+        token6.type = Constant.AnnotationCategory.FILTER;
+        token6.begin = keyword3.getBegin();
+        token6.end = keyword3.getEnd();
+        datas.addToken(token6);
+
+        JSONArray res = BetweenAndInstruction.sort(arg1, arg2);
 
         JSONObject expressionStart = new JSONObject();
         expressionStart.put("name", ">=");
-        expressionStart.put("type", "function");
+        expressionStart.put("type", Constant.InstType.FUNCTION);
         JSONArray argStarts = new JSONArray();
         JSONObject argStart1 = new JSONObject();
         argStart1.put("type", Constant.InstType.COLUMN);
@@ -121,13 +107,13 @@ public class CLastInstruction {
         argStarts.add(argStart1);
         JSONObject argStart2 = new JSONObject();
         argStart2.put("type", Constant.InstType.DATE);
-        argStart2.put("value", params.get(0));
+        argStart2.put("value", res.get(0));
         argStarts.add(argStart2);
         expressionStart.put("args", argStarts);
 
         JSONObject expressionEnd = new JSONObject();
         expressionEnd.put("name", "<");
-        expressionEnd.put("type", "function");
+        expressionEnd.put("type", Constant.InstType.FUNCTION);
         JSONArray argEnds = new JSONArray();
         JSONObject argEnd1 = new JSONObject();
         argEnd1.put("type", Constant.InstType.COLUMN);
@@ -135,11 +121,12 @@ public class CLastInstruction {
         argEnds.add(argEnd1);
         JSONObject argEnd2 = new JSONObject();
         argEnd2.put("type", Constant.InstType.DATE);
-        argEnd2.put("value", params.get(1));
+        argEnd2.put("value", res.get(1));
         argEnds.add(argEnd2);
         expressionEnd.put("args", argEnds);
 
         jsonStart.put("expression", expressionStart);
+
         instructions.add(jsonStart);
 
         JSONObject jsonEnd = JSONObject.parseObject(jsonStart.toJSONString());
@@ -156,19 +143,10 @@ public class CLastInstruction {
         return instructions;
     }
 
-    //<last-chinese> <integer> <last-days-chinese>
-    private static JSONArray buildNoCol(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+    //    在 <date-string-value> 和 <date-string-value> 之间的
+    //    <date-string-value> 和 <date-string-value> 之间的
+    private static JSONArray build2(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
-        JSONArray instructions = new JSONArray();
-        JSONArray annotationId = new JSONArray();
-        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.FILTER, Constant.AnnotationCategory.FILTER);
-        annotationId.add(index);
-        JSONObject jsonStart = new JSONObject();
-        jsonStart.put("annotationId", annotationId);
-        jsonStart.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
-
-        FocusNode last = focusNodes.get(0).getChildren().getFirstNode();
-
         Column dateCol;
         AmbiguityDatas ambiguity = null;
         if (dateColumns.size() == 0) {
@@ -179,8 +157,8 @@ public class CLastInstruction {
         } else if (dateColumns.size() > 1) {
             // 多个日期列
             // 检测歧义是否解决
-            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue("last", amb);
-            int type = Constant.AmbiguityType.types.indexOf("last") - Constant.AmbiguityType.types.size();
+            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue("between_and", amb);
+            int type = Constant.AmbiguityType.types.indexOf("between_and") - Constant.AmbiguityType.types.size();
             if (ambiguitiesResolve != null && ambiguitiesResolve.isResolved) {// 歧义已经解决过，应用下发
                 AmbiguitiesRecord resolve = ambiguitiesResolve.ars.get(0);
                 dateCol = new Column();
@@ -192,7 +170,7 @@ public class CLastInstruction {
                 for (int i = 0; i < focusPhrase.size(); i++) {
                     title.append(focusPhrase.getNodeNew(i).getValue()).append(" ");
                 }
-                ambiguity = AnnotationToken.getAmbiguityDatas(amb, "last", title.toString().trim(), focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd());
+                ambiguity = AnnotationToken.getAmbiguityDatas(amb, "between_and", title.toString().trim(), focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd());
             } else {// 歧义没有解决过， 返回歧义
                 List<AmbiguitiesRecord> ars = new ArrayList<>();
                 for (Column col : dateColumns) {
@@ -211,38 +189,65 @@ public class CLastInstruction {
             dateCol = dateColumns.get(0);
         }
 
-        AnnotationToken token1 = new AnnotationToken();
-        token1.description = "column " + dateCol.getColumnDisplayName() + " in " + dateCol.getSourceName();
-        token1.tableName = dateCol.getSourceName();
-        token1.columnName = dateCol.getColumnDisplayName();
-        token1.columnId = dateCol.getColumnId();
-        token1.addToken(last.getValue());
-        token1.value = last.getValue();
-        token1.type = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
-        token1.begin = last.getBegin();
-        token1.end = last.getEnd();
-        token1.ambiguity = ambiguity;
-        datas.addToken(token1);
+        JSONArray instructions = new JSONArray();
+        JSONArray annotationId = new JSONArray();
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.FILTER, Constant.AnnotationCategory.FILTER);
+        annotationId.add(index);
+        JSONObject jsonStart = new JSONObject();
+        jsonStart.put("annotationId", annotationId);
+        jsonStart.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
-        FocusNode param = focusNodes.get(1);
-        param = param.isHasChild() ? param.getChildren().getFirstNode() : param;
-        int integer = Integer.parseInt(param.getValue());
-        datas.addToken(NumberArg.token(param));
+        int flag = 0;
+        FocusNode first = focusNodes.get(flag++);
+        FocusNode param1;
+        if (!"<date-string-value>".equals(first.getValue())) {
+            param1 = focusNodes.get(flag++);
+            AnnotationToken token1 = new AnnotationToken();
+            token1.addToken(first.getValue());
+            token1.value = first.getValue();
+            token1.type = Constant.AnnotationCategory.FILTER;
+            token1.begin = first.getBegin();
+            token1.end = first.getEnd();
+            datas.addToken(token1);
+        } else {
+            param1 = first;
+        }
 
-        FocusNode keywordNode = focusPhrase.getLastNode();
-        AnnotationToken token3 = new AnnotationToken();
-        token3.addToken(keywordNode.getValue());
-        token3.value = keywordNode.getValue();
-        token3.type = Constant.AnnotationTokenType.FILTER;
-        token3.begin = keywordNode.getBegin();
-        token3.end = keywordNode.getEnd();
-        datas.addToken(token3);
+        JSONObject arg1 = ColValueOrDateColInst.arg(param1, formulas);
+        datas.addTokens(ColValueOrDateColInst.tokens(param1, formulas, amb));
 
-        List<String> params = CommonFunc.params(key, integer);
+        FocusNode keyword1 = focusNodes.get(flag++);
+        AnnotationToken token2 = new AnnotationToken();
+        token2.addToken(keyword1.getValue());
+        token2.value = keyword1.getValue();
+        token2.type = Constant.AnnotationCategory.FILTER;
+        token2.begin = keyword1.getBegin();
+        token2.end = keyword1.getEnd();
+        datas.addToken(token2);
+
+        FocusNode param2 = focusNodes.get(flag++);
+        JSONObject arg2 = ColValueOrDateColInst.arg(param2, formulas);
+        datas.addTokens(ColValueOrDateColInst.tokens(param2, formulas, amb));
+
+        FocusNode keyword2 = focusNodes.get(flag);
+        AnnotationToken token4 = new AnnotationToken();
+        token4.description = "column " + dateCol.getColumnDisplayName() + " in " + dateCol.getSourceName();
+        token4.tableName = dateCol.getSourceName();
+        token4.columnName = dateCol.getColumnDisplayName();
+        token4.columnId = dateCol.getColumnId();
+        token4.addToken(keyword2.getValue());
+        token4.value = keyword2.getValue();
+        token4.type = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
+        token4.begin = keyword2.getBegin();
+        token4.end = keyword2.getEnd();
+        token4.ambiguity = ambiguity;
+        datas.addToken(token4);
+
+        JSONArray res = BetweenAndInstruction.sort(arg1, arg2);
 
         JSONObject expressionStart = new JSONObject();
         expressionStart.put("name", ">=");
-        expressionStart.put("type", "function");
+        expressionStart.put("type", Constant.InstType.FUNCTION);
         JSONArray argStarts = new JSONArray();
         JSONObject argStart1 = new JSONObject();
         argStart1.put("type", Constant.InstType.COLUMN);
@@ -250,13 +255,13 @@ public class CLastInstruction {
         argStarts.add(argStart1);
         JSONObject argStart2 = new JSONObject();
         argStart2.put("type", Constant.InstType.DATE);
-        argStart2.put("value", params.get(0));
+        argStart2.put("value", res.get(0));
         argStarts.add(argStart2);
         expressionStart.put("args", argStarts);
 
         JSONObject expressionEnd = new JSONObject();
         expressionEnd.put("name", "<");
-        expressionEnd.put("type", "function");
+        expressionEnd.put("type", Constant.InstType.FUNCTION);
         JSONArray argEnds = new JSONArray();
         JSONObject argEnd1 = new JSONObject();
         argEnd1.put("type", Constant.InstType.COLUMN);
@@ -264,11 +269,12 @@ public class CLastInstruction {
         argEnds.add(argEnd1);
         JSONObject argEnd2 = new JSONObject();
         argEnd2.put("type", Constant.InstType.DATE);
-        argEnd2.put("value", params.get(1));
+        argEnd2.put("value", res.get(1));
         argEnds.add(argEnd2);
         expressionEnd.put("args", argEnds);
 
         jsonStart.put("expression", expressionStart);
+
         instructions.add(jsonStart);
 
         JSONObject jsonEnd = JSONObject.parseObject(jsonStart.toJSONString());

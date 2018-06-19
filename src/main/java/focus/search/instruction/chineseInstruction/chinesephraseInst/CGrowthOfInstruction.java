@@ -8,56 +8,19 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Column;
-import focus.search.meta.Formula;
 
 import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/4/24
+ * date: 2018/6/19
  * description:
  */
-//<growth-of> := growth of <growth-of-measure> by <all-date-column> |
-//              growth of <growth-of-measure> by <all-date-column> <year-over-year> |
-//              growth of <growth-of-measure> by <all-date-column> <growth-of-by-date-interval> |
-//              growth of <growth-of-measure> by <all-date-column> <growth-of-by-date-interval> <year-over-year>;
-//
-//<growth-of-measure> := <number-source-column> |
-//        <growth-of-measure-operation> <number-source-column>;
-//<growth-of-measure-operation> := sum |
-//        average |
-//        count |
-//        max |
-//        min |
-//        standard deviation |
-//        unique count |
-//        variance;
-//
-//<growth-of-by-date-interval> := daily |
-//        weekly |
-//        monthly |
-//        quarterly |
-//        yearly;
-//
-//<year-over-year> := year over year;
-
+//<growth-of> := 按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval> |
+//        <year-over-year> 按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval>;
 public class CGrowthOfInstruction {
 
-//    {
-//        "annotationId": [1],
-//        "instId": "add_column_measure_for_growth",
-//        "operation": "sum",
-//        "column": 11
-//    },
-//    {
-//        "annotationId": [1],
-//        "instId": "use_column_for_growth_dimension",
-//        "interval": "daily",
-//        "period": "year-over-year",
-//        "column": 6
-//    }
-
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb) {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -65,20 +28,52 @@ public class CGrowthOfInstruction {
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", "add_column_measure_for_growth");
 
-        AnnotationToken token1 = new AnnotationToken();
-        token1.addToken("growth");
-        token1.addToken("of");
-        token1.value = "growth of";
-        token1.type = Constant.AnnotationCategory.GROWTH_OF_BY;
-        token1.begin = focusNodes.get(0).getBegin();
-        token1.end = focusNodes.get(1).getEnd();
-        datas.addToken(token1);
+        boolean hasYearOverYear = false;
+        int flag = 0;
+        FocusNode keyword1 = focusNodes.get(flag++);//按
+        if ("<year-over-year>".equals(keyword1.getValue())) {
+            AnnotationToken token1 = new AnnotationToken();
+            FocusNode yearOverYear = keyword1.getChildren().getFirstNode();
+            token1.addToken(yearOverYear.getValue());
+            token1.value = yearOverYear.getValue();
+            token1.type = "yearOverYear";
+            token1.begin = yearOverYear.getBegin();
+            token1.end = yearOverYear.getEnd();
+            datas.addToken(token1);
+            keyword1 = focusNodes.get(flag++);
+            hasYearOverYear = true;
+        }
 
-        FocusNode growthOfMeasure = focusNodes.get(2);// growth of
+        AnnotationToken token2 = new AnnotationToken();
+        token2.addToken("按");
+        token2.value = "按";
+        token2.type = Constant.AnnotationCategory.GROWTH_OF_BY;
+        token2.begin = keyword1.getBegin();
+        token2.end = keyword1.getEnd();
+        datas.addToken(token2);
+
+        //<all-date-column>
+        FocusPhrase datePhrase = focusNodes.get(flag++).getChildren();
+        Column dateCol = datePhrase.getLastNode().getColumn();
+
+        int dateBegin = datePhrase.getFirstNode().getBegin();
+        int dateEnd = datePhrase.getLastNode().getEnd();
+        datas.addToken(AnnotationToken.singleCol(dateCol, datePhrase.size() == 2, dateBegin, dateEnd, amb));
+
+        FocusNode keyword2 = focusNodes.get(flag++);//计算的
+        AnnotationToken token4 = new AnnotationToken();
+        token4.addToken("计算的");
+        token4.value = "计算的";
+        token4.type = Constant.AnnotationCategory.GROWTH_OF_BY;
+        token4.begin = keyword2.getBegin();
+        token4.end = keyword2.getEnd();
+        datas.addToken(token4);
+
+        FocusNode growthOfMeasure = focusNodes.get(flag++);
         FocusPhrase growthOf = growthOfMeasure.getChildren();
         if (growthOf.getFocusNodes().size() == 1) {
+            json1.put("instId", Constant.InstIdType.GROWTH_COLUMN);
             Column column = growthOf.getLastNode().getColumn();
             json1.put("column", column.getColumnId());
 
@@ -86,100 +81,50 @@ public class CGrowthOfInstruction {
             int end = growthOf.getLastNode().getEnd();
             datas.addToken(AnnotationToken.singleCol(column, growthOf.size() == 2, begin, end, amb));
         } else {
-            FocusPhrase growthOfMeasureOperation = growthOf.getFocusNodes().get(0).getChildren();
-            AnnotationToken token2 = new AnnotationToken();
-            StringBuilder operation = new StringBuilder();
-            for (int i = 0; i < growthOfMeasureOperation.size(); i++) {
-                if (operation.length() > 0) {
-                    operation.append(" ");
-                }
-                String ope = growthOfMeasureOperation.getNodeNew(i).getValue().toLowerCase();
-                operation.append(ope);
-                token2.addToken(ope);
-            }
+            json1.put("instId", Constant.InstIdType.GROWTH_COLUMN_MEASURE);
 
-            token2.value = operation.toString();
-            token2.type = "numberKeyword";
-            token2.begin = growthOfMeasureOperation.getFirstNode().getBegin();
-            token2.end = growthOfMeasureOperation.getLastNode().getEnd();
-            datas.addToken(token2);
-
-            json1.put("operation", operation.toString());
-            FocusPhrase tmp = growthOf.getFocusNodes().get(1).getChildren();
+            FocusPhrase tmp = growthOf.getFocusNodes().get(0).getChildren();
             Column column = tmp.getLastNode().getColumn();
             json1.put("column", column.getColumnId());
 
             int begin = tmp.getFirstNode().getBegin();
             int end = tmp.getLastNode().getEnd();
             datas.addToken(AnnotationToken.singleCol(column, tmp.size() == 2, begin, end, amb));
+
+            FocusPhrase growthOfMeasureOperation = growthOf.getFocusNodes().get(1).getChildren();
+            AnnotationToken token5 = new AnnotationToken();
+            FocusNode operate = growthOfMeasureOperation.getFirstNode();
+            token5.addToken(operate.getValue());
+            token5.value = operate.getValue();
+            token5.type = "numberKeyword";
+            token5.begin = operate.getBegin();
+            token5.end = operate.getEnd();
+            datas.addToken(token5);
+
+            json1.put("operation", getOperation(growthOfMeasureOperation));
         }
 
         instructions.add(json1);
 
-        AnnotationToken token4 = new AnnotationToken();
-        token4.addToken("by");
-        token4.value = "by";
-        token4.type = Constant.AnnotationCategory.GROWTH_OF_BY;
-        token4.begin = focusNodes.get(3).getBegin();
-        token4.end = focusNodes.get(3).getEnd();
-        datas.addToken(token4);
-
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
         json2.put("instId", Constant.InstIdType.GROWTH_DIMENSION);
-
-        //<all-date-column>
-        FocusPhrase datePhrase = focusNodes.get(4).getChildren();// by
-        Column column = datePhrase.getLastNode().getColumn();
-        json2.put("column", column.getColumnId());
-
-        int begin = datePhrase.getFirstNode().getBegin();
-        int end = datePhrase.getLastNode().getEnd();
-        datas.addToken(AnnotationToken.singleCol(column, datePhrase.size() == 2, begin, end, amb));
-
-        if (focusNodes.size() == 6) {
-            FocusNode param3 = focusNodes.get(5);
-            AnnotationToken token5 = new AnnotationToken();
-            token5.begin = param3.getChildren().getFirstNode().getBegin();
-            token5.end = param3.getChildren().getLastNode().getEnd();
-            if ("<year-over-year>".equals(param3.getValue())) {
-                json2.put("period", "year-over-year");
-                token5.addToken("year");
-                token5.addToken("over");
-                token5.addToken("year");
-                token5.value = "year over year";
-                token5.type = "yearOverYear";
-            } else {
-                String interval = param3.getChildren().getFirstNode().getValue().toLowerCase();
-                json2.put("interval", interval);
-                token5.addToken(interval);
-                token5.value = interval;
-                token5.type = "growthOfByDateInterval";
-            }
-            datas.addToken(token5);
-        } else if (focusNodes.size() == 7) {
-            String interval = focusNodes.get(5).getChildren().getFirstNode().getValue().toLowerCase();
-            json2.put("interval", interval);
+        json2.put("column", dateCol.getColumnId());
+        if (hasYearOverYear) {
             json2.put("period", "year-over-year");
-
-            AnnotationToken token5 = new AnnotationToken();
-            token5.begin = focusNodes.get(5).getChildren().getFirstNode().getBegin();
-            token5.end = focusNodes.get(5).getChildren().getLastNode().getEnd();
-            token5.addToken(interval);
-            token5.value = interval;
-            token5.type = "growthOfByDateInterval";
-            datas.addToken(token5);
-
-            AnnotationToken token6 = new AnnotationToken();
-            token6.begin = focusNodes.get(6).getChildren().getFirstNode().getBegin();
-            token6.end = focusNodes.get(6).getChildren().getLastNode().getEnd();
-            token6.addToken("year");
-            token6.addToken("over");
-            token6.addToken("year");
-            token6.value = "year over year";
-            token6.type = "yearOverYear";
-            datas.addToken(token6);
         }
+
+        //<growth-of-by-date-interval>
+        FocusPhrase dateInterval = focusNodes.get(flag).getChildren();
+        AnnotationToken token6 = new AnnotationToken();
+        FocusNode interval = dateInterval.getFirstNode();
+        token6.begin = interval.getBegin();
+        token6.end = interval.getEnd();
+        json2.put("interval", getInterval(dateInterval));
+        token6.addToken(interval.getValue());
+        token6.value = interval.getValue();
+        token6.type = "growthOfByDateInterval";
+        datas.addToken(token6);
         instructions.add(json2);
 
         JSONObject json3 = new JSONObject();
@@ -193,86 +138,60 @@ public class CGrowthOfInstruction {
 
     }
 
+    //    <growth-of-measure-sum-operation> := 的总和;
+    //    <growth-of-measure-average-operation> := 的平均值;
+    //    <growth-of-measure-count-operation> := 的数量;
+    //    <growth-of-measure-max-operation> := 的最大值;
+    //    <growth-of-measure-min-operation> := 的最小值;
+    //    <growth-of-measure-standard-deviation-operation> := 的标准差;
+    //    <growth-of-measure-unique-count-operation> := 去重后的数量;
+    //    <growth-of-measure-variance-operation> := 的方差;
+    private static String getOperation(FocusPhrase growthOfMeasureOperation) {
+        String instName = growthOfMeasureOperation.getInstName();
+        switch (instName) {
+            case "<growth-of-measure-sum-operation>":
+                return "sum";
+            case "<growth-of-measure-average-operation>":
+                return "average";
+            case "<growth-of-measure-count-operation>":
+                return "count";
+            case "<growth-of-measure-max-operation>":
+                return "max";
+            case "<growth-of-measure-min-operation>":
+                return "min";
+            case "<growth-of-measure-standard-deviation-operation>":
+                return "standard deviation";
+            case "<growth-of-measure-unique-count-operation>":
+                return "unique count";
+            case "<growth-of-measure-variance-operation>":
+                return "variance";
+            default:
+                return "sum";
+        }
+    }
+
+    //    <growth-of-daily-interval> := 的日增长率;
+    //    <growth-of-weekly-interval> := 的周增长率;
+    //    <growth-of-monthly-interval> := 的增长率 |
+    //        的月增长率;
+    //    <growth-of-quarterly-interval> := 的季度增长率;
+    //    <growth-of-yearly-interval> := 的年增长率;
+    private static String getInterval(FocusPhrase dateInterval) {
+        String instName = dateInterval.getInstName();
+        switch (instName) {
+            case "<growth-of-daily-interval>":
+                return "daily";
+            case "<growth-of-weekly-interval>":
+                return "weekly";
+            case "<growth-of-monthly-interval>":
+                return "monthly";
+            case "<growth-of-quarterly-interval>":
+                return "quarterly";
+            case "<growth-of-yearly-interval>":
+                return "yearly";
+            default:
+                return "monthly";
+        }
+    }
+
 }
-//{
-//    "type": "phrase",
-//    "id": 1,
-//    "category": "growthOfBy",
-//    "begin": 0,
-//    "end": 69,
-//    "tokens": [{
-//    "tokens": ["growth",
-//    "of"],
-//    "type": "growthOfBy",
-//    "value": "growth of",
-//    "begin": 0,
-//    "end": 9
-//    },
-//    {
-//    "tokens": ["standard",
-//    "deviation"],
-//    "type": "numberKeyword",
-//    "value": "standard deviation",
-//    "begin": 9,
-//    "end": 28
-//    },
-//    {
-//    "description": "column <b>age<\\\/b> in <b>users<\\\/b>",
-//    "tableName": "users",
-//    "columnName": "age",
-//    "columnId": 11,
-//    "type": "measure",
-//    "detailType": "floatMeasureColumn",
-//    "tokens": ["age"],
-//    "value": "age",
-//    "begin": 28,
-//    "end": 32
-//    },
-//    {
-//    "tokens": ["by"],
-//    "type": "growthOfBy",
-//    "value": "by",
-//    "begin": 32,
-//    "end": 35
-//    },
-//    {
-//    "description": "column <b>creationdate<\\\/b> in <b>users<\\\/b>",
-//    "tableName": "users",
-//    "columnName": "creationdate",
-//    "columnId": 8,
-//    "type": "attribute",
-//    "detailType": "dateAttributeColumn",
-//    "tokens": ["creationdate"],
-//    "value": "creationdate",
-//    "begin": 35,
-//    "end": 48
-//    },
-//    {
-//    "tokens": ["daily"],
-//    "type": "growthOfByDateInterval",
-//    "value": "daily",
-//    "begin": 48,
-//    "end": 54
-//    },
-//    {
-//    "tokens": ["year"],
-//    "type": null,
-//    "value": "year",
-//    "begin": 54,
-//    "end": 59
-//    },
-//    {
-//    "tokens": ["over"],
-//    "type": null,
-//    "value": "over",
-//    "begin": 59,
-//    "end": 64
-//    },
-//    {
-//    "tokens": ["year"],
-//    "type": null,
-//    "value": "year",
-//    "begin": 64,
-//    "end": 69
-//    }]
-//}

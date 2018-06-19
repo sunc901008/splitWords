@@ -11,6 +11,7 @@
 <phrase> := <top-n> |
             <bottom-n> |
             <sort-by> |
+            <growth-of> |
             <all-columns> |
             <number-complex-phrase> |
             <date-interval> |
@@ -29,7 +30,8 @@
                         <date-string-value> <bool-symbol> <date-string-value>;
 
 <date-complex-filter> := <before-after-filter> |
-                         <last-filter>;
+                         <last-filter> |
+                         <between-and-filter>;
 
 <equal-symbol> := 等于 |
                   =;
@@ -98,6 +100,41 @@
                         降序排列的 |
                         降序排序 |
                         降序排序的;
+
+<growth-of> := 按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval> |
+               <year-over-year> 按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval>;
+
+<year-over-year> := 与往年同期相比;
+<growth-of-measure> := <number-source-column> |
+                       <number-source-column> <growth-of-measure-operation>;
+<growth-of-measure-operation> := <growth-of-measure-sum-operation> |
+                                 <growth-of-measure-average-operation> |
+                                 <growth-of-measure-count-operation> |
+                                 <growth-of-measure-max-operation> |
+                                 <growth-of-measure-min-operation> |
+                                 <growth-of-measure-standard-deviation-operation> |
+                                 <growth-of-measure-unique-count-operation> |
+                                 <growth-of-measure-variance-operation>;
+<growth-of-measure-sum-operation> := 的总和;
+<growth-of-measure-average-operation> := 的平均值;
+<growth-of-measure-count-operation> := 的数量;
+<growth-of-measure-max-operation> := 的最大值;
+<growth-of-measure-min-operation> := 的最小值;
+<growth-of-measure-standard-deviation-operation> := 的标准差;
+<growth-of-measure-unique-count-operation> := 去重后的数量;
+<growth-of-measure-variance-operation> := 的方差;
+
+<growth-of-by-date-interval> := <growth-of-daily-interval> |
+                                <growth-of-weekly-interval> |
+                                <growth-of-monthly-interval> |
+                                <growth-of-quarterly-interval> |
+                                <growth-of-yearly-interval>;
+<growth-of-daily-interval> := 的日增长率;
+<growth-of-weekly-interval> := 的周增长率;
+<growth-of-monthly-interval> := 的增长率 |
+                              的月增长率;
+<growth-of-quarterly-interval> := 的季度增长率;
+<growth-of-yearly-interval> := 的年增长率;
 
 <date-interval> := <daily-interval> |
                    <weekly-interval> |
@@ -202,6 +239,10 @@
                         年的;
 <last-years-filter> := <last-chinese> <integer> <last-years-chinese> |
                        <all-date-column> <last-chinese> <integer> <last-years-chinese>;
+
+<between-and-filter> := <all-date-column> 在 <date-string-value> 和 <date-string-value> 之间的 |
+                        在 <date-string-value> 和 <date-string-value> 之间的 |
+                        <date-string-value> 和 <date-string-value> 之间的;
 
 <begins-with-filter> := <all-string-column> 开头是 <column-value> |
                         开头是 <column-value> 的 <all-string-column>;

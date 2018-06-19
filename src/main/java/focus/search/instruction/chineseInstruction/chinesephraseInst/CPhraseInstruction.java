@@ -39,7 +39,7 @@ public class CPhraseInstruction {
             case "<sort-by>":
                 return CSortByInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<growth-of>":
-                return CGrowthOfInstruction.build(fn.getChildren(), index, amb, formulas);
+                return CGrowthOfInstruction.build(fn.getChildren(), index, amb);
             case "<all-columns>":
                 return AllColumnsInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<number-complex-phrase>":

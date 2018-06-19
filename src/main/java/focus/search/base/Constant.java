@@ -228,8 +228,10 @@ public class Constant {
         public static final Integer LAST = -3;
         // 记录歧义 yearly/quarterly/monthly/weekly/daily
         public static final Integer DATE_INTERVAL = -4;
+        // 记录歧义 between and
+        public static final Integer BETWEEN_AND = -5;
 
-        public static final List<String> types = Arrays.asList("date_interval", "last", "after", "before");
+        public static final List<String> types = Arrays.asList("between_and", "date_interval", "last", "after", "before");
 
         public static String getWord(Integer type) {
             return types.get(types.size() + type);

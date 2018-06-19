@@ -19,7 +19,8 @@ import java.util.List;
  * description:
  */
 //<date-complex-filter> := <before-after-filter>|
-//                         <last-filter>;
+//                         <last-filter> |
+//                         <between-and-filter>;
 public class CFilterDateComplexInstruction {
     private static final Logger logger = Logger.getLogger(CFilterDateComplexInstruction.class);
 
@@ -32,7 +33,8 @@ public class CFilterDateComplexInstruction {
                 return CBeforeAfterInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<last-filter>":
                 return CLastInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
-            case "":
+            case "<between-and-filter>":
+                return CBetweenAndInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

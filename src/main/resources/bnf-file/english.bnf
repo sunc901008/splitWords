@@ -30,7 +30,8 @@
                         <date-string-value> <bool-symbol> <date-string-value>;
 
 <date-complex-filter> := <before-after-filter> |
-                         <last-filter>;
+                         <last-filter> |
+                         <between-and-filter>;
 
 <string-simple-filter> := <all-string-column> = <column-value>;
 
@@ -125,6 +126,8 @@
                        last <integer> years |
                        <all-date-column> last <integer> years;
 
+<between-and-filter> := <all-date-column> between <date-string-value> and <date-string-value>;
+
 <begins-with-filter> := <all-string-column> begins with <column-value>;
 
 <not-begins-with-filter> := <all-string-column> not begins with <column-value>;
@@ -197,11 +200,7 @@
 <value> := 1;
 
 <date-string-value> := <double-quote-date-string-value> |
-                       <single-quote-date-string-value> |
-                       <double-quote-date-string-value> , <date-string-value> |
-                       <double-quote-date-string-value> ， <date-string-value> |
-                       <single-quote-date-string-value> , <date-string-value> |
-                       <single-quote-date-string-value> ， <date-string-value>;
+                       <single-quote-date-string-value>;
 
 <double-quote-date-string-value> := " <date-value> " |
                                     “ <date-value> ”;

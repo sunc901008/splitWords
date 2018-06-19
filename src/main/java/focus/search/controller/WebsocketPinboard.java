@@ -162,10 +162,12 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         Common.send(session, response.response());
         JSONObject json = InstructionBuild.build(focusInst, search, amb, formulas, language);
         JSONArray instructions = json.getJSONArray("instructions");
-        JSONObject config = new JSONObject();
-        config.put("instId", Constant.InstIdType.SET_BI_CONFIG);
-        config.put("value", biConfig);
-        instructions.add(config);
+        if (biConfig != null && !biConfig.isEmpty()) {
+            JSONObject config = new JSONObject();
+            config.put("instId", Constant.InstIdType.SET_BI_CONFIG);
+            config.put("value", biConfig);
+            instructions.add(config);
+        }
         json.put("instructions", instructions.toJSONString());
 
         json.put("source", Constant.SearchOrPinboard.PINBOARD_USER);
