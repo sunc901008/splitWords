@@ -585,9 +585,16 @@ public class SuggestionUtils {
         if (!focusInst.isInstruction) {
             SuggestionResponse response = suggestionsNotCompleted(fp, search, focusInst, user, tokens, position);
             int endPos = position;
-            for (FocusToken token : originTokens) {
+            for (int i = 0; i < originTokens.size(); i++) {
+                FocusToken token = originTokens.get(i);
                 if (token.getStart() <= position && token.getEnd() >= position) {
                     endPos = token.getEnd();
+                    if (i + 1 < originTokens.size()) {
+                        FocusToken tmp = originTokens.get(i + 1);
+                        if (Constant.END_QUOTES.contains(tmp.getWord())) {
+                            endPos = tmp.getEnd();
+                        }
+                    }
                     break;
                 }
             }

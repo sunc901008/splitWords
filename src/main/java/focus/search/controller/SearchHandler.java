@@ -219,7 +219,7 @@ class SearchHandler {
         user.put("category", Constant.CategoryType.QUESTION);
 //        session.getAttributes().put("user", user);
 
-        Base.response(session, search, user, ambiguities, event, position);
+        Base.response(session, search, user, ambiguities, event, position, biConfig);
     }
 
     private static void selectSuggest(WebSocketSession session, JSONObject params) {

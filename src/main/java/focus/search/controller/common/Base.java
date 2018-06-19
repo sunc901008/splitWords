@@ -148,7 +148,7 @@ public class Base {
     //  search 输出返回结果
     public static void response(WebSocketSession session, String search, JSONObject user, int position) throws IOException, FocusHttpException,
             FocusParserException, FocusInstructionException, IllegalException {
-        response(session, search, user, null, null, position);
+        response(session, search, user, null, null, position, null);
     }
 
     /**
@@ -159,8 +159,7 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities, String event, int position) throws
-            IOException, FocusHttpException, FocusParserException, FocusInstructionException, IllegalException {
+    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities, String event, int position, JSONObject biConfig) throws IOException, FocusHttpException, FocusParserException, FocusInstructionException, IllegalException {
         // 接收请求的时间戳
         long received = Long.parseLong(session.getAttributes().get(WebsocketSearch.RECEIVED_TIMESTAMP).toString());
 
@@ -291,13 +290,22 @@ public class Base {
                     // 生成指令
                     JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user), language, dateColumns);
 
+                    JSONArray instructions = json.getJSONArray("instructions");
+                    if (biConfig != null) {
+                        JSONObject config = new JSONObject();
+                        config.put("instId", Constant.InstIdType.SET_BI_CONFIG);
+                        config.put("value", biConfig);
+                        instructions.add(config);
+                        json.put("instructions", instructions.toJSONString());
+                    }
+
                     json.put("source", Constant.SearchOrPinboard.SEARCH_USER); // 区分是search框还是pinboard
                     json.put("sourceToken", user.getString("sourceToken"));
 
                     logger.info("指令:\n\t" + json + "\n");
                     // Annotations
                     AnnotationResponse annotationResponse = new AnnotationResponse(search);
-                    annotationResponse.datas.addAll(getAnnotationDatas(json.getJSONArray("instructions")));
+                    annotationResponse.datas.addAll(getAnnotationDatas(instructions));
                     Common.send(session, annotationResponse.response());
 
                     // 生成suggestion
