@@ -1,9 +1,21 @@
-<question> := <number-columns>;
+<question> := <filter> |
+              <phrase>;
 
-<number-columns> := <int-column> |
-                    <number-function>;
+<filter> := <string-simple-filter> |
+            <date-complex-filter>;
 
-<number-function> := <integer> + <number-function> |
-                     <integer> + <integer>;
+<phrase> := <all-columns>;
 
-<integer> := 1;
+<string-simple-filter> := <all-string-column> = <column-value>;
+
+<date-complex-filter> := <before-after-filter> |
+                         <between-and-filter>;
+
+<before-after-filter> := <before-filter>;
+
+<before-filter> := before <date-columns> |
+                   before <date-string-value> |
+                   <all-date-column> before <date-columns>|
+                   <all-date-column> before <date-string-value>;
+
+<between-and-filter> := <all-date-column> between <date-string-value> and <date-string-value>;

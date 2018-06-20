@@ -655,16 +655,44 @@ public class FocusParser implements Serializable {
     }
 
     public BnfRule parse(String word) throws FocusParserException {
-//        for (BnfRule rule : parser.getM_rules()) {
-//            BnfRule br = parser.parse(rule, word);
-//            if (br != null)
-//                return br;
-//        }
-        List<BnfRule> rules = parseRules(word);
-        if (rules.size() > 0) {
-            return rules.get(rules.size() - 1);
+        List<BnfRule> rules = parser.getM_rules();
+        for (BnfRule rule : rules) {
+            if (contains(rule.getTerminalTokens(), word)) {
+                return parse(rule, word);
+            }
         }
-        throw new FocusParserException("Cannot find rule for word " + word);
+        return null;
+    }
+
+    private BnfRule parse(BnfRule rule, String word) throws FocusParserException {
+        for (TokenString ts : rule.getAlternatives()) {
+            if (contains(new ArrayList<>(ts.getTerminalTokens()), word)) {
+                for (Token t : ts) {
+                    if (t instanceof TerminalToken) {
+                        if (word.equals(t.getName())) {
+                            return rule;
+                        }
+                    } else {
+                        BnfRule r = parser.getRule(t);
+                        if (r != null) {
+                            if (contains(r.getTerminalTokens(), word)) {
+                                return parse(r, word);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean contains(List<TerminalToken> tokens, String word) {
+        for (TerminalToken token : tokens) {
+            if (word.equals(token.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // 迭代替换bnf规则
