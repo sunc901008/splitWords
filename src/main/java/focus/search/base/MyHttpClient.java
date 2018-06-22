@@ -69,7 +69,7 @@ public class MyHttpClient {
 
     private static JSONObject request(String url, String method, String entity, List<Header> headers) {
         String uuid = UUID.randomUUID().toString();
-        String msg = uuid + ":request. url:" + url + " method:" + method + " params:" + entity;
+        String msg = uuid + ":request. url:" + url + " method:" + method + " lastParams:" + entity;
         logger.info(msg);
         HttpEntityEnclosingRequestBase request;
         switch (method) {

@@ -43,7 +43,7 @@ class SearchHandler {
     private static final List<String> noImmediateResponse = Arrays.asList("init", "echo", "exportContext", "formulaCase");
 
     static void preHandle(WebSocketSession session, JSONObject params) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException, IllegalException {
-        logger.info("params: " + params);
+        logger.info("lastParams: " + params);
         Object object = session.getAttributes().get("user");
         JSONObject user = object == null ? new JSONObject() : (JSONObject) object;
         String type = params.getString("type");
@@ -207,7 +207,7 @@ class SearchHandler {
     }
 
     private static void search(WebSocketSession session, JSONObject params, JSONObject user) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException, IllegalException {
-        logger.info("params:" + params);
+        logger.info("lastParams:" + params);
         String search = params.getString("search");
         String event = params.getString("event");
         int position = params.getInteger("position");
@@ -226,7 +226,7 @@ class SearchHandler {
     }
 
     private static void disambiguite(WebSocketSession session, JSONObject params, JSONObject user) throws IOException {
-        logger.info("params:" + params);
+        logger.info("lastParams:" + params);
         String id = params.getString("id");
         int index = params.getInteger("index");
         JSONObject amb = user.getJSONObject("ambiguities");

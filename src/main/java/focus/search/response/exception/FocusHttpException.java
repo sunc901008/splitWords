@@ -27,7 +27,7 @@ public class FocusHttpException extends Exception {
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("url", url);
-        json.put("params", params);
+        json.put("lastParams", params);
         JSONArray jsonArray = new JSONArray();
         for (Header header : headers) {
             JSONObject h = new JSONObject();

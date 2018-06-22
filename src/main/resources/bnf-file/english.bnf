@@ -14,7 +14,6 @@
             <growth-of> |
             <all-columns> |
             <number-complex-phrase> |
-            <date-interval> |
             <formula-column>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
@@ -31,7 +30,9 @@
 
 <date-complex-filter> := <before-after-filter> |
                          <last-filter> |
-                         <between-and-filter>;
+                         <between-and-filter> |
+                         <date-interval> |
+                         <ago-filter>;
 
 <string-simple-filter> := <all-string-column> = <column-value>;
 
@@ -78,7 +79,38 @@
                    weekly |
                    monthly |
                    quarterly |
-                   yearly;
+                   yearly |
+                   by day of week |
+                   by week |
+                   by month |
+                   <to-date-interval>;
+
+<to-date-interval> := week to date |
+                      month to date |
+                      quarter to date |
+                      year to date;
+
+<ago-filter> := <ago-days-filter> |
+               <ago-weeks-filter> |
+               <ago-months-filter> |
+               <ago-quarters-filter> |
+               <ago-years-filter> |
+               <ago-minutes-filter> |
+               <ago-hours-filter>;
+
+<ago-days-filter> := <integer> days ago;
+
+<ago-weeks-filter> := <integer> weeks ago;
+
+<ago-months-filter> := <integer> months ago;
+
+<ago-quarters-filter> := <integer> quarters ago;
+
+<ago-years-filter> := <integer> years ago;
+
+<ago-minutes-filter> := <integer> minutes ago;
+
+<ago-hours-filter> := <integer> hours ago;
 
 <average-phrase> := average <number-source-column>;
 
@@ -99,7 +131,19 @@
                  <last-weeks-filter> |
                  <last-months-filter> |
                  <last-quarters-filter> |
-                 <last-years-filter>;
+                 <last-years-filter> |
+                 <last-minutes-filter> |
+                 <last-hours-filter>;
+
+<last-minutes-filter> := last minute |
+                        <all-date-column> last minute |
+                        last <integer> minutes |
+                        <all-date-column> last <integer> minutes;
+
+<last-hours-filter> := last hour |
+                        <all-date-column> last hour |
+                        last <integer> hours |
+                        <all-date-column> last <integer> hours;
 
 <last-days-filter> := last day |
                       <all-date-column> last day |

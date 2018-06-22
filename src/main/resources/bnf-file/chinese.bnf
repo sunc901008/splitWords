@@ -14,7 +14,6 @@
             <growth-of> |
             <all-columns> |
             <number-complex-phrase> |
-            <date-interval> |
             <formula-column>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
@@ -31,7 +30,9 @@
 
 <date-complex-filter> := <before-after-filter> |
                          <last-filter> |
-                         <between-and-filter>;
+                         <between-and-filter> |
+                         <date-interval> |
+                         <ago-filter>;
 
 <equal-symbol> := 等于 |
                   =;
@@ -140,7 +141,11 @@
                    <weekly-interval> |
                    <monthly-interval> |
                    <quarterly-interval> |
-                   <yearly-interval>;
+                   <yearly-interval> |
+                   <by-day-of-week-interval> |
+                   <by-week-interval> |
+                   <by-month-interval> |
+                   <to-date-interval>;
 
 <daily-interval> := 每天 |
                     每日 |
@@ -161,6 +166,167 @@
 <yearly-interval> := 每年 |
                      年度 |
                      年报;
+
+<by-day-of-week-interval> := 按周日期统计 |
+                             按周日期统计的 |
+                             按每周七天统计 |
+                             按每周七天统计的 |
+                             按周分天统计 |
+                             按周分天统计的;
+
+<by-week-interval> := 按周统计 |
+                      按周统计的;
+
+<by-month-interval> := 按月统计 |
+                       按月统计的;
+
+<to-date-interval> := <week-to-date-interval> |
+                      <month-to-date-interval> |
+                      <quarter-to-date-interval> |
+                      <year-to-date-interval>;
+
+<week-to-date-interval> := 本周截至目前 |
+                             本周截至目前的 |
+                             本周截至目前为止 |
+                             本周截至目前为止的 |
+                             当周截至目前 |
+                             当周截至目前的 |
+                             当周截至目前为止 |
+                             当周截至目前为止的 |
+                             本周截止目前 |
+                             本周截止目前的 |
+                             本周截止目前为止 |
+                             本周截止目前为止的 |
+                             当周截止目前 |
+                             当周截止目前的 |
+                             当周截止目前为止 |
+                             当周截止目前为止的 |
+                             本周 |
+                             当周;
+
+<month-to-date-interval> := 本月截至目前 |
+                             本月截至目前的 |
+                             本月截至目前为止 |
+                             本月截至目前为止的 |
+                             当月截至目前 |
+                             当月截至目前的 |
+                             当月截至目前为止 |
+                             当月截至目前为止的 |
+                             本月截止目前 |
+                             本月截止目前的 |
+                             本月截止目前为止 |
+                             本月截止目前为止的 |
+                             当月截止目前 |
+                             当月截止目前的 |
+                             当月截止目前为止 |
+                             当月截止目前为止的 |
+                             本月 |
+                             当月;
+
+<quarter-to-date-interval> := 本季度截至目前 |
+                             本季度截至目前的 |
+                             本季度截至目前为止 |
+                             本季度截至目前为止的 |
+                             当季度截至目前 |
+                             当季度截至目前的 |
+                             当季度截至目前为止 |
+                             当季度截至目前为止的 |
+                             本季度截止目前 |
+                             本季度截止目前的 |
+                             本季度截止目前为止 |
+                             本季度截止目前为止的 |
+                             当季度截止目前 |
+                             当季度截止目前的 |
+                             当季度截止目前为止 |
+                             当季度截止目前为止的 |
+                             本季度 |
+                             当季度 |
+                             本季截至目前 |
+                             本季截至目前的 |
+                             本季截至目前为止 |
+                             本季截至目前为止的 |
+                             当季截至目前 |
+                             当季截至目前的 |
+                             当季截至目前为止 |
+                             当季截至目前为止的 |
+                             本季截止目前 |
+                             本季截止目前的 |
+                             本季截止目前为止 |
+                             本季截止目前为止的 |
+                             当季截止目前 |
+                             当季截止目前的 |
+                             当季截止目前为止 |
+                             当季截止目前为止的 |
+                             本季 |
+                             当季;
+
+<year-to-date-interval> := 本年截至目前 |
+                           本年截至目前的 |
+                           本年截至目前为止 |
+                           本年截至目前为止的 |
+                           当年截至目前 |
+                           当年截至目前的 |
+                           当年截至目前为止 |
+                           当年截至目前为止的 |
+                           本年截止目前 |
+                           本年截止目前的 |
+                           本年截止目前为止 |
+                           本年截止目前为止的 |
+                           当年截止目前 |
+                           当年截止目前的 |
+                           当年截止目前为止 |
+                           当年截止目前为止的 |
+                           本年 |
+                           当年 |
+                           今年;
+
+<ago-filter> := <ago-days-filter> |
+               <ago-weeks-filter> |
+               <ago-months-filter> |
+               <ago-quarters-filter> |
+               <ago-years-filter> |
+               <ago-minutes-filter> |
+               <ago-hours-filter>;
+
+<ago-chinese> := 前 |
+                 前的 |
+                 以前 |
+                 以前的;
+
+<ago-day-chinese> := 天 |
+                     日;
+
+<ago-days-filter> := <integer> <ago-day-chinese> <ago-chinese>;
+
+<ago-week-chinese> := 周 |
+                      星期 |
+                      个星期;
+
+<ago-weeks-filter> := <integer> <ago-week-chinese> <ago-chinese>;
+
+<ago-month-chinese> := 月 |
+                       个月;
+
+<ago-months-filter> := <integer> <ago-month-chinese> <ago-chinese>;
+
+<ago-quarter-chinese> := 季度 |
+                         个季度;
+
+<ago-quarters-filter> := <integer> <ago-quarter-chinese> <ago-chinese>;
+
+<ago-year-chinese> := 年;
+
+<ago-years-filter> := <integer> <ago-year-chinese> <ago-chinese>;
+
+<ago-minute-chinese> := 分 |
+                        分钟;
+
+<ago-minutes-filter> := <integer> <ago-minute-chinese> <ago-chinese>;
+
+<ago-hour-chinese> := 小时 |
+                      个小时;
+
+<ago-hours-filter> := <integer> <ago-hour-chinese> <ago-chinese>;
 
 <average-phrase> := <number-source-column> 的平均值 |
                     平均 <number-source-column>;
@@ -196,7 +362,9 @@
                  <last-weeks-filter> |
                  <last-months-filter> |
                  <last-quarters-filter> |
-                 <last-years-filter>;
+                 <last-years-filter> |
+                 <last-minutes-filter> |
+                 <last-hours-filter>;
 
 <last-chinese> := 过去 |
                   前 |
@@ -239,6 +407,20 @@
                         年的;
 <last-years-filter> := <last-chinese> <integer> <last-years-chinese> |
                        <all-date-column> <last-chinese> <integer> <last-years-chinese>;
+
+<last-minutes-chinese> := 分 |
+                          分的 |
+                          分钟 |
+                          分钟的;
+<last-minutes-filter> := <last-chinese> <integer> <last-minutes-chinese> |
+                       <all-date-column> <last-chinese> <integer> <last-minutes-chinese>;
+
+<last-hours-chinese> := 小时 |
+                        小时的 |
+                        个小时 |
+                        个小时的;
+<last-hours-filter> := <last-chinese> <integer> <last-hours-chinese> |
+                       <all-date-column> <last-chinese> <integer> <last-hours-chinese>;
 
 <between-and-filter> := <all-date-column> 在 <date-string-value> 和 <date-string-value> 之间的 |
                         在 <date-string-value> 和 <date-string-value> 之间的 |

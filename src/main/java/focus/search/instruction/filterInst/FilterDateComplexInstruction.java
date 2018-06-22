@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.instruction.filterInst.dateComplexInst.BeforeAfterInstruction;
-import focus.search.instruction.filterInst.dateComplexInst.BetweenAndInstruction;
-import focus.search.instruction.filterInst.dateComplexInst.LastInstruction;
+import focus.search.instruction.filterInst.dateComplexInst.*;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
@@ -23,7 +21,9 @@ import java.util.List;
  */
 //<date-complex-filter> := <before-after-filter>|
 //                         <last-filter> |
-//                         <between-and-filter>;
+//                         <between-and-filter> |
+//                          <date-interval> |
+//                          <ago-filter>;
 public class FilterDateComplexInstruction {
     private static final Logger logger = Logger.getLogger(FilterDateComplexInstruction.class);
 
@@ -38,6 +38,10 @@ public class FilterDateComplexInstruction {
                 return LastInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<between-and-filter>":
                 return BetweenAndInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<date-interval>":
+                return DateIntervalInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
+            case "<ago-filter>":
+                return AgoIntervalInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

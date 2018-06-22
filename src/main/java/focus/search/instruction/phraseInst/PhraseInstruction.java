@@ -25,7 +25,6 @@ import java.util.List;
 //        <growth-of> |
 //        <all-columns> |
 //        <number-complex-phrase> |
-//        <date-interval> |
 //        <formula-column>;
 public class PhraseInstruction {
 
@@ -43,8 +42,6 @@ public class PhraseInstruction {
                 return AllColumnsInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<number-complex-phrase>":
                 return PhraseNumberComplexInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "<date-interval>":
-                return DateIntervalInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<formula-column>":
                 return FormulaColumnInstruction.build(fn.getChildren(), index, formulas);
             default:

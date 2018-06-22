@@ -168,7 +168,26 @@ public class Common {
         return null;
     }
 
-    // 获取当前天 起始时间
+    // 获取当前 起始时间 年月日时分秒
+    public static Calendar getNow() {
+        return Calendar.getInstance();
+    }
+
+    // 获取当前 起始时间 年月日时00
+    public static Calendar getStartHour() {
+        Calendar today = Calendar.getInstance();
+        clearMinute(today);
+        return today;
+    }
+
+    // 获取当前 起始时间 年月日时分0
+    public static Calendar getStartMinute() {
+        Calendar today = Calendar.getInstance();
+        clearSecond(today);
+        return today;
+    }
+
+    // 获取当前天 起始时间 年月日000
     public static Calendar getStartDay() {
         Calendar today = Calendar.getInstance();
         clearTime(today);
@@ -236,6 +255,19 @@ public class Common {
     private static void clearTime(Calendar today) {
         today.set(Calendar.HOUR_OF_DAY, 0);
         today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+    }
+
+    // 将日期的分秒设置为0
+    private static void clearMinute(Calendar today) {
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+    }
+
+    // 将日期的秒设置为0
+    private static void clearSecond(Calendar today) {
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
     }

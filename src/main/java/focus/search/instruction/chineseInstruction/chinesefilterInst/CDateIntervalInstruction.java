@@ -1,23 +1,21 @@
-package focus.search.instruction.chineseInstruction.chinesephraseInst;
+package focus.search.instruction.chineseInstruction.chinesefilterInst;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.instruction.CommonFunc;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
-import focus.search.meta.AmbiguitiesRecord;
-import focus.search.meta.AmbiguitiesResolve;
+import focus.search.instruction.filterInst.dateComplexInst.DateIntervalInstruction;
 import focus.search.meta.Column;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
 import focus.search.response.search.AmbiguityDatas;
-import focus.search.response.search.IllegalDatas;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,7 +27,11 @@ import java.util.List;
 //        <weekly-interval> |
 //        <monthly-interval> |
 //        <quarterly-interval> |
-//        <yearly-interval>;
+//        <yearly-interval> |
+//        <by-day-of-week-interval> |
+//        <by-week-interval> |
+//        <by-month-interval> |
+//        <to-date-interval>;
 public class CDateIntervalInstruction {
     private static final Logger logger = Logger.getLogger(CDateIntervalInstruction.class);
 
@@ -53,6 +55,17 @@ public class CDateIntervalInstruction {
             case "<yearly-interval>":
                 key = "yearly";
                 break;
+            case "<by-day-of-week-interval>":
+                key = "day of week";
+                break;
+            case "<by-week-interval>":
+                key = "week";
+                break;
+            case "<by-month-interval>":
+                key = "month";
+                break;
+            case "<to-date-interval>":
+                return buildToDate(fn.getChildren(), index, amb, dateColumns);
             default:
                 key = "daily";
         }
@@ -72,47 +85,9 @@ public class CDateIntervalInstruction {
         json1.put("instId", Constant.InstIdType.DATETIME_INTERVAL);
         json1.put("interval", key);
 
-        Column dateCol;
-        AmbiguityDatas ambiguity = null;
-        if (dateColumns.size() == 0) {
-            // 没有日期列
-            String reason = "no date columns in current sources";
-            IllegalDatas illegalDatas = new IllegalDatas(fn.getBegin(), fn.getEnd(), reason);
-            throw new IllegalException(reason, illegalDatas);
-        } else if (dateColumns.size() > 1) {
-            // 多个日期列
-            // 检测歧义是否解决
-            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue("date_interval", amb);
-            int type = Constant.AmbiguityType.types.indexOf("date_interval") - Constant.AmbiguityType.types.size();
-            if (ambiguitiesResolve != null && ambiguitiesResolve.isResolved) {// 歧义已经解决过，应用下发
-                AmbiguitiesRecord resolve = ambiguitiesResolve.ars.get(0);
-                dateCol = new Column();
-                dateCol.setColumnDisplayName(resolve.columnName);
-                dateCol.setColumnId(resolve.columnId);
-                dateCol.setColumnName(resolve.columnName);
-                dateCol.setSourceName(resolve.sourceName);
-                StringBuilder title = new StringBuilder();
-                for (int i = 0; i < focusPhrase.size(); i++) {
-                    title.append(focusPhrase.getNodeNew(i).getValue()).append(" ");
-                }
-                ambiguity = AnnotationToken.getAmbiguityDatas(amb, "date_interval", title.toString().trim(), fn.getBegin(), fn.getEnd());
-            } else {// 歧义没有解决过， 返回歧义
-                List<AmbiguitiesRecord> ars = new ArrayList<>();
-                for (Column col : dateColumns) {
-                    AmbiguitiesRecord ar = new AmbiguitiesRecord();
-                    ar.type = Constant.AmbiguityType.COLUMN;
-                    ar.sourceName = col.getSourceName();
-                    ar.columnId = col.getColumnId();
-                    ar.columnName = col.getColumnDisplayName();
-                    ar.realValue = ar.columnName;
-                    ar.possibleValue = ar.columnName;
-                    ars.add(ar);
-                }
-                throw new AmbiguitiesException(ars, fn.getBegin(), fn.getEnd(), type);
-            }
-        } else {
-            dateCol = dateColumns.get(0);
-        }
+        JSONObject json = CommonFunc.checkAmb(focusPhrase, fn, dateColumns, amb, "date_interval");
+        AmbiguityDatas ambiguity = (AmbiguityDatas) json.get("ambiguity");
+        Column dateCol = (Column) json.get("column");
 
         json1.put("column", dateCol.getColumnId());
 
@@ -139,6 +114,32 @@ public class CDateIntervalInstruction {
         instructions.add(json2);
 
         return instructions;
+    }
+
+    //    <to-date-interval> := <week-to-date-interval> |
+    //                      <month-to-date-interval> |
+    //                      <quarter-to-date-interval> |
+    //                      <year-to-date-interval>;
+    private static JSONArray buildToDate(FocusPhrase focusPhrase, int index, JSONObject amb, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+        String key;
+        FocusNode fn = focusPhrase.getFocusNodes().get(0);
+        switch (fn.getValue()) {
+            case "<week-to-date-interval>":
+                key = "week";
+                break;
+            case "<month-to-date-interval>":
+                key = "month";
+                break;
+            case "<quarter-to-date-interval>":
+                key = "quarter";
+                break;
+            case "<year-to-date-interval>":
+                key = "year";
+                break;
+            default:
+                key = "month";
+        }
+        return DateIntervalInstruction.buildToDate(fn.getChildren(), index, amb, dateColumns, key);
     }
 
 }

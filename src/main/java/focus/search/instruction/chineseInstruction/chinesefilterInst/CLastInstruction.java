@@ -9,18 +9,14 @@ import focus.search.instruction.CommonFunc;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberArg;
-import focus.search.meta.AmbiguitiesRecord;
-import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
 import focus.search.response.search.AmbiguityDatas;
-import focus.search.response.search.IllegalDatas;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,7 +29,9 @@ import java.util.Objects;
 //        <last-weeks-filter> |
 //        <last-months-filter> |
 //        <last-quarters-filter> |
-//        <last-years-filter>;
+//        <last-years-filter> |
+//        <last-minutes-filter> |
+//        <last-hours-filter>;
 public class CLastInstruction {
     private static final Logger logger = Logger.getLogger(CLastInstruction.class);
 
@@ -42,15 +40,19 @@ public class CLastInstruction {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<last-days-filter>":
-                return CLastDaysInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
+                return build(fn.getChildren(), index, amb, formulas, dateColumns, "day");
             case "<last-weeks-filter>":
-                return CLastWeeksInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
+                return build(fn.getChildren(), index, amb, formulas, dateColumns, "week");
             case "<last-months-filter>":
-                return CLastMonthsInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
+                return build(fn.getChildren(), index, amb, formulas, dateColumns, "month");
             case "<last-quarters-filter>":
-                return CLastQuartersInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
+                return build(fn.getChildren(), index, amb, formulas, dateColumns, "quarter");
             case "<last-years-filter>":
-                return CLastYearsInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
+                return build(fn.getChildren(), index, amb, formulas, dateColumns, "year");
+            case "<last-minutes-filter>":
+                return build(fn.getChildren(), index, amb, formulas, dateColumns, "minute");
+            case "<last-hours-filter>":
+                return build(fn.getChildren(), index, amb, formulas, dateColumns, "hour");
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -63,7 +65,7 @@ public class CLastInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         if (Objects.equals("<all-date-column>", first.getValue())) {
-            return buildStartsWithCol(focusPhrase, index, amb, formulas, dateColumns, key);
+            return buildStartsWithCol(focusPhrase, index, amb, key);
         } else {
             return buildNoCol(focusPhrase, index, amb, formulas, dateColumns, key);
         }
@@ -71,7 +73,7 @@ public class CLastInstruction {
     }
 
     //<all-date-column> <last-chinese> <integer> <last-days-chinese>;
-    private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+    private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -109,7 +111,7 @@ public class CLastInstruction {
         token4.end = keywordNode.getEnd();
         datas.addToken(token4);
 
-        List<String> params = CommonFunc.params(key, integer);
+        List<String> params = CommonFunc.lastParams(key, integer);
 
         JSONObject expressionStart = new JSONObject();
         expressionStart.put("name", ">=");
@@ -169,47 +171,9 @@ public class CLastInstruction {
 
         FocusNode last = focusNodes.get(0).getChildren().getFirstNode();
 
-        Column dateCol;
-        AmbiguityDatas ambiguity = null;
-        if (dateColumns.size() == 0) {
-            // 没有日期列
-            String reason = "no date columns in current sources";
-            IllegalDatas illegalDatas = new IllegalDatas(focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd(), reason);
-            throw new IllegalException(reason, illegalDatas);
-        } else if (dateColumns.size() > 1) {
-            // 多个日期列
-            // 检测歧义是否解决
-            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue("last", amb);
-            int type = Constant.AmbiguityType.types.indexOf("last") - Constant.AmbiguityType.types.size();
-            if (ambiguitiesResolve != null && ambiguitiesResolve.isResolved) {// 歧义已经解决过，应用下发
-                AmbiguitiesRecord resolve = ambiguitiesResolve.ars.get(0);
-                dateCol = new Column();
-                dateCol.setColumnDisplayName(resolve.columnName);
-                dateCol.setColumnId(resolve.columnId);
-                dateCol.setColumnName(resolve.columnName);
-                dateCol.setSourceName(resolve.sourceName);
-                StringBuilder title = new StringBuilder();
-                for (int i = 0; i < focusPhrase.size(); i++) {
-                    title.append(focusPhrase.getNodeNew(i).getValue()).append(" ");
-                }
-                ambiguity = AnnotationToken.getAmbiguityDatas(amb, "last", title.toString().trim(), focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd());
-            } else {// 歧义没有解决过， 返回歧义
-                List<AmbiguitiesRecord> ars = new ArrayList<>();
-                for (Column col : dateColumns) {
-                    AmbiguitiesRecord ar = new AmbiguitiesRecord();
-                    ar.type = Constant.AmbiguityType.COLUMN;
-                    ar.sourceName = col.getSourceName();
-                    ar.columnId = col.getColumnId();
-                    ar.columnName = col.getColumnDisplayName();
-                    ar.realValue = ar.columnName;
-                    ar.possibleValue = ar.columnName;
-                    ars.add(ar);
-                }
-                throw new AmbiguitiesException(ars, focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd(), type);
-            }
-        } else {
-            dateCol = dateColumns.get(0);
-        }
+        JSONObject json = CommonFunc.checkAmb(focusPhrase, focusPhrase.getFirstNode(), dateColumns, amb, "last");
+        AmbiguityDatas ambiguity = (AmbiguityDatas) json.get("ambiguity");
+        Column dateCol = (Column) json.get("column");
 
         AnnotationToken token1 = new AnnotationToken();
         token1.description = "column " + dateCol.getColumnDisplayName() + " in " + dateCol.getSourceName();
@@ -238,7 +202,7 @@ public class CLastInstruction {
         token3.end = keywordNode.getEnd();
         datas.addToken(token3);
 
-        List<String> params = CommonFunc.params(key, integer);
+        List<String> params = CommonFunc.lastParams(key, integer);
 
         JSONObject expressionStart = new JSONObject();
         expressionStart.put("name", ">=");

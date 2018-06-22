@@ -20,7 +20,9 @@ import java.util.List;
  */
 //<date-complex-filter> := <before-after-filter>|
 //                         <last-filter> |
-//                         <between-and-filter>;
+//                         <between-and-filter> |
+//                          <date-interval> |
+//                          <ago-filter>;
 public class CFilterDateComplexInstruction {
     private static final Logger logger = Logger.getLogger(CFilterDateComplexInstruction.class);
 
@@ -35,6 +37,10 @@ public class CFilterDateComplexInstruction {
                 return CLastInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<between-and-filter>":
                 return CBetweenAndInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
+            case "<date-interval>":
+                return CDateIntervalInstruction.build(fn.getChildren(), index, amb, dateColumns);
+            case "<ago-filter>":
+                return CAgoIntervalInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

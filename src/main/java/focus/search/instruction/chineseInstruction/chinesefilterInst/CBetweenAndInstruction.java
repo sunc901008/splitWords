@@ -5,22 +5,19 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.instruction.CommonFunc;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.filterInst.dateComplexInst.BetweenAndInstruction;
 import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
-import focus.search.meta.AmbiguitiesRecord;
-import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
 import focus.search.response.search.AmbiguityDatas;
-import focus.search.response.search.IllegalDatas;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -147,47 +144,10 @@ public class CBetweenAndInstruction {
     //    <date-string-value> 和 <date-string-value> 之间的
     private static JSONArray build2(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
-        Column dateCol;
-        AmbiguityDatas ambiguity = null;
-        if (dateColumns.size() == 0) {
-            // 没有日期列
-            String reason = "no date columns in current sources";
-            IllegalDatas illegalDatas = new IllegalDatas(focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd(), reason);
-            throw new IllegalException(reason, illegalDatas);
-        } else if (dateColumns.size() > 1) {
-            // 多个日期列
-            // 检测歧义是否解决
-            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue("between_and", amb);
-            int type = Constant.AmbiguityType.types.indexOf("between_and") - Constant.AmbiguityType.types.size();
-            if (ambiguitiesResolve != null && ambiguitiesResolve.isResolved) {// 歧义已经解决过，应用下发
-                AmbiguitiesRecord resolve = ambiguitiesResolve.ars.get(0);
-                dateCol = new Column();
-                dateCol.setColumnDisplayName(resolve.columnName);
-                dateCol.setColumnId(resolve.columnId);
-                dateCol.setColumnName(resolve.columnName);
-                dateCol.setSourceName(resolve.sourceName);
-                StringBuilder title = new StringBuilder();
-                for (int i = 0; i < focusPhrase.size(); i++) {
-                    title.append(focusPhrase.getNodeNew(i).getValue()).append(" ");
-                }
-                ambiguity = AnnotationToken.getAmbiguityDatas(amb, "between_and", title.toString().trim(), focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd());
-            } else {// 歧义没有解决过， 返回歧义
-                List<AmbiguitiesRecord> ars = new ArrayList<>();
-                for (Column col : dateColumns) {
-                    AmbiguitiesRecord ar = new AmbiguitiesRecord();
-                    ar.type = Constant.AmbiguityType.COLUMN;
-                    ar.sourceName = col.getSourceName();
-                    ar.columnId = col.getColumnId();
-                    ar.columnName = col.getColumnDisplayName();
-                    ar.realValue = ar.columnName;
-                    ar.possibleValue = ar.columnName;
-                    ars.add(ar);
-                }
-                throw new AmbiguitiesException(ars, focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd(), type);
-            }
-        } else {
-            dateCol = dateColumns.get(0);
-        }
+
+        JSONObject json = CommonFunc.checkAmb(focusPhrase, focusPhrase.getFirstNode(), dateColumns, amb, "between_and");
+        AmbiguityDatas ambiguity = (AmbiguityDatas) json.get("ambiguity");
+        Column dateCol = (Column) json.get("column");
 
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();

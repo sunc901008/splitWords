@@ -205,7 +205,7 @@ public class Base {
         }
         logger.info("split words:" + JSON.toJSONString(tokens));
 
-        logger.info("params ambiguities:" + ambiguities);
+        logger.info("lastParams ambiguities:" + ambiguities);
         if (ambiguities != null) {
             @SuppressWarnings("unchecked")
             List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");

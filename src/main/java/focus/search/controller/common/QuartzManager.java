@@ -40,7 +40,7 @@ public class QuartzManager {
             JobKey key = new JobKey(taskId);
             job.setJobClass(TimeoutTask.class);
             job.setKey(key);
-            // add params
+            // add lastParams
             JobDataMap map = new JobDataMap();
             map.put("session", session);
             job.setJobDataMap(map);
