@@ -77,7 +77,7 @@
 
 # number
 <strlen-function> := strlen ( <string-columns> ) |
-                     strlen ( <column-value> );
+                     strlen ( <single-column-value> );
 # number
 <if-then-else-number-function> := if <bool-columns> then <number> else <number> |
                                   if <no-or-and-bool-function-column> then <number> else <number> |
@@ -93,9 +93,9 @@
 
 # bool
 <contains-function> := contains ( <string-columns> , <string-columns> ) |
-                       contains ( <column-value> , <string-columns> ) |
-                       contains ( <string-columns> , <column-value> ) |
-                       contains ( <column-value> , <column-value> );
+                       contains ( <single-column-value> , <string-columns> ) |
+                       contains ( <string-columns> , <single-column-value> ) |
+                       contains ( <single-column-value> , <single-column-value> );
 
 <no-or-and-bool-function-column> := <to_bool-function> |
                                   <contains-function> |
@@ -161,22 +161,22 @@
 
 # string
 <concat-function> := concat ( <string-columns> , <string-columns> ) |
-                     concat ( <column-value> , <string-columns> ) |
-                     concat ( <string-columns> , <column-value> ) |
-                     concat ( <column-value> , <column-value> );
+                     concat ( <single-column-value> , <string-columns> ) |
+                     concat ( <string-columns> , <single-column-value> ) |
+                     concat ( <single-column-value> , <single-column-value> );
 
 # string
 <substr-function> := substr ( <string-columns> , <integer> , <integer> ) |
-                     substr ( <column-value> , <integer> , <integer> );
+                     substr ( <single-column-value> , <integer> , <integer> );
 
 # string
-<if-then-else-string-function> := if <bool-columns> then <column-value> else <column-value> |
-                                  if <no-or-and-bool-function-column> then <column-value> else <column-value>|
+<if-then-else-string-function> := if <bool-columns> then <single-column-value> else <single-column-value> |
+                                  if <no-or-and-bool-function-column> then <single-column-value> else <single-column-value>|
                                   if <bool-columns> then <string-columns> else <string-columns> |
                                   if <no-or-and-bool-function-column> then <string-columns> else <string-columns>;
 
 # string
-<ifnull-string-function> := ifnull ( <column-value> , <column-value> ) |
+<ifnull-string-function> := ifnull ( <single-column-value> , <single-column-value> ) |
                             ifnull ( <string-columns> , <string-columns> );
 
 # filter number function itself

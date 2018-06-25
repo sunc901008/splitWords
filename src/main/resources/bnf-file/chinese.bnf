@@ -40,6 +40,8 @@
 
 <string-complex-filter> := <begins-with-filter> |
                            <not-begins-with-filter> |
+                           <ends-with-filter> |
+                           <not-ends-with-filter> |
                            <contains-filter> |
                            <not-contains-filter>;
 
@@ -432,6 +434,12 @@
 <not-begins-with-filter> := <all-string-column> 开头不是 <column-value> |
                             开头不是 <column-value> 的 <all-string-column>;
 
+<ends-with-filter> := <all-string-column> 结尾是 <column-value> |
+                      结尾是 <column-value> 的 <all-string-column>;
+
+<not-ends-with-filter> := <all-string-column> 结尾不是 <column-value> |
+                          结尾不是 <column-value> 的 <all-string-column>;
+
 <contains-filter> := <all-string-column> 包含 <column-value> |
                      包含 <column-value> 的 <all-string-column>;
 
@@ -486,10 +494,11 @@
 
 <comma-symbol> := , |
                   ，;
-<column-value> := <double-quote-column-value> |
-                  <single-quote-column-value> |
-                  <double-quote-column-value> <comma-symbol> <column-value> |
-                  <single-quote-column-value> <comma-symbol> <column-value>;
+<column-value> := <single-column-value> |
+                  <single-column-value> <comma-symbol> <column-value>;
+
+<single-column-value> := <double-quote-column-value> |
+                         <single-quote-column-value>;
 
 <double-quote-column-value> := " <value> " |
                                “ <value> ”;

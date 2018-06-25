@@ -38,6 +38,8 @@
 
 <string-complex-filter> := <begins-with-filter> |
                            <not-begins-with-filter> |
+                           <ends-with-filter> |
+                           <not-ends-with-filter> |
                            <contains-filter> |
                            <not-contains-filter>;
 
@@ -176,6 +178,10 @@
 
 <not-begins-with-filter> := <all-string-column> not begins with <column-value>;
 
+<ends-with-filter> := <all-string-column> ends with <column-value>;
+
+<not-ends-with-filter> := <all-string-column> not ends with <column-value>;
+
 <contains-filter> := <all-string-column> contains <column-value>;
 
 <not-contains-filter> := <all-string-column> not contains <column-value>;
@@ -230,12 +236,13 @@
 <integer> := 1;
 <double> := 1;
 
-<column-value> := <double-quote-column-value> |
-                  <single-quote-column-value> |
-                  <double-quote-column-value> , <column-value> |
-                  <double-quote-column-value> ， <column-value> |
-                  <single-quote-column-value> , <column-value> |
-                  <single-quote-column-value> ， <column-value>;
+<comma-symbol> := , |
+                  ，;
+<column-value> := <single-column-value> |
+                  <single-column-value> <comma-symbol> <column-value>;
+
+<single-column-value> := <double-quote-column-value> |
+                         <single-quote-column-value>;
 
 <double-quote-column-value> := " <value> " |
                                “ <value> ”;
