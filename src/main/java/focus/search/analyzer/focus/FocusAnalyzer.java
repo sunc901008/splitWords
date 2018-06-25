@@ -111,7 +111,8 @@ public class FocusAnalyzer implements Serializable {
         // 关闭TokenStream（关闭StringReader）
         ts.close();
 
-        return mergeUserInput(tokens, str);
+        tokens = mergeQuoteValue(tokens, str);
+        return mergeMinus(tokens);
     }
 
     private List<FocusKWDict> makeTableDict(List<SourceReceived> sources) {
@@ -133,7 +134,8 @@ public class FocusAnalyzer implements Serializable {
         return list;
     }
 
-    private static List<FocusToken> mergeUserInput(List<FocusToken> tokens, String search) {
+    // 合并引号包含的列中值
+    private static List<FocusToken> mergeQuoteValue(List<FocusToken> tokens, String search) {
         List<FocusToken> merge = new ArrayList<>();
         int start = 0;
         int end = 0;
@@ -163,6 +165,47 @@ public class FocusAnalyzer implements Serializable {
             end = search.length();
             if (start < end)
                 merge.add(new FocusToken(search.substring(start), Constant.FNDType.COLUMN_VALUE, start, end));
+        }
+        return merge;
+    }
+
+    // 合并负号
+    private static List<FocusToken> mergeMinus(List<FocusToken> tokens) {
+        List<FocusToken> merge = new ArrayList<>();
+        if (tokens.size() < 2) {
+            return tokens;
+        } else if (tokens.size() == 2) {
+            FocusToken first = tokens.get(0);
+            FocusToken second = tokens.get(1);
+            if (Constant.MINUS.equals(first.getWord())
+                    && Common.isNumber(second.getType())) {
+                merge.add(new FocusToken(first.getWord() + second.getWord(), second.getType(), first.getStart(), second.getEnd()));
+                return merge;
+            }
+            return tokens;
+        }
+        FocusToken first = tokens.remove(0);
+        int loop = tokens.size();
+        merge.add(first);
+        while (loop > 0) {
+            FocusToken current = tokens.remove(0);
+            if (tokens.isEmpty()) {
+                merge.add(current);
+                break;
+            }
+            FocusToken next = tokens.get(0);
+            if (!Common.isNumber(first.getType())
+                    && Constant.MINUS.equals(current.getWord())
+                    && Common.isNumber(next.getType())) {
+                merge.add(new FocusToken(current.getWord() + next.getWord(), next.getType(), current.getStart(), next.getEnd()));
+                tokens.remove(0);
+                loop--;
+                first = next;
+            } else {
+                merge.add(current);
+                first = current;
+            }
+            loop--;
         }
         return merge;
     }

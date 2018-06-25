@@ -337,7 +337,11 @@ public class SuggestionUtils {
                     index = index + focusPhrase.size();
                     if (completed) {
                         ruleNames.clear();
-                        String val = focusPhrase.getNodeNew(index).getValue();
+                        FocusNode tmpNode = focusPhrase.getNodeNew(index);
+                        if (Constant.FNDType.INTEGER.equals(tmpNode.getType()) || Constant.FNDType.DOUBLE.equals(tmpNode.getType())) {
+                            continue;
+                        }
+                        String val = tmpNode.getValue();
                         ruleNames.add(terminalRule(fp, val));
                     }
                 }
@@ -716,4 +720,41 @@ public class SuggestionUtils {
         return null;
     }
 
+    // 根据bnf规则名字获取最底层的单元token
+    public static List<TerminalToken> terminalTokens(FocusParser parser, String ruleName) {
+        List<TerminalToken> tokens = new ArrayList<>();
+        BnfRule br = parser.getRule(ruleName);
+        if (br != null)
+            for (TokenString ts : br.getAlternatives()) {
+                for (Token token : ts) {
+                    if (token instanceof TerminalToken) {
+                        if (!((TerminalToken) token).getType().equals(Constant.FNDType.TABLE) && !isExist(tokens, (TerminalToken) token)) {
+                            tokens.add((TerminalToken) token);
+                        }
+                    } else {
+                        for (TerminalToken t : terminalTokens(parser, token.getName())) {
+                            if (!isExist(tokens, t)) {
+                                tokens.add(t);
+                            }
+                        }
+                    }
+                }
+            }
+        return tokens;
+    }
+
+    private static boolean isExist(List<TerminalToken> tokens, TerminalToken token) {
+        for (TerminalToken t : tokens) {
+            if (t.getType().equals(token.getType()) && t.getName().equals(token.getName())) {
+                if (token.getType().equals(Constant.FNDType.COLUMN)) {
+                    if (token.getColumn().getColumnId() == t.getColumn().getColumnId()) {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

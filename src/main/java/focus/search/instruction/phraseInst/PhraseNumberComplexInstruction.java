@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.instruction.phraseInst.numberComplexInst.AverageInstruction;
+import focus.search.instruction.phraseInst.numberComplexInst.*;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -17,7 +17,13 @@ import java.util.List;
  * date: 2018/5/28
  * description:
  */
-//<number-complex-phrase> := <average-phrase>;
+//<number-complex-phrase> := <average-phrase> |
+//                            <sum-phrase> |
+//                            <count-phrase> |
+//                            <max-min-phrase> |
+//                            <standard-deviation-phrase> |
+//                            <unique-count-phrase> |
+//                           <variance-phrase>;
 public class PhraseNumberComplexInstruction {
     private static final Logger logger = Logger.getLogger(PhraseNumberComplexInstruction.class);
 
@@ -28,7 +34,18 @@ public class PhraseNumberComplexInstruction {
         switch (fn.getValue()) {
             case "<average-phrase>":
                 return AverageInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "":
+            case "<sum-phrase>":
+                return SumInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<count-phrase>":
+                return CountInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<max-min-phrase>":
+                return MaxMinInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<standard-deviation-phrase>":
+                return StandardDeviationInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<unique-count-phrase>":
+                return UniqueCountInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<variance-phrase>":
+                return VarianceInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

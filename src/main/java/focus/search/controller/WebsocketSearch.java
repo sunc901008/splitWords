@@ -8,7 +8,6 @@ import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.common.Base;
-import focus.search.controller.common.SuggestionBuild;
 import focus.search.instruction.InstructionBuild;
 import focus.search.response.api.GetInstsResponse;
 import focus.search.response.api.NameCheckResponse;
@@ -16,6 +15,7 @@ import focus.search.response.exception.*;
 import focus.search.response.search.ChartsResponse;
 import focus.search.response.search.ErrorResponse;
 import focus.search.suggestions.HistoryUtils;
+import focus.search.suggestions.SuggestionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -136,7 +136,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
         FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
 
         NameCheckResponse response = new NameCheckResponse(Constant.Status.ERROR);
-        List<TerminalToken> tokens = SuggestionBuild.terminalTokens(fp, "<symbol>");
+        List<TerminalToken> tokens = SuggestionUtils.terminalTokens(fp, "<symbol>");
         for (TerminalToken token : tokens) {
             if (name.toLowerCase().contains(token.getName())) {
                 response.message = token.getName() + " is invalid character(s)";

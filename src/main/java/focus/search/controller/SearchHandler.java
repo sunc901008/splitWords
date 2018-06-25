@@ -13,7 +13,6 @@ import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.controller.common.FormulaCase;
-import focus.search.controller.common.SuggestionBuild;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Formula;
@@ -22,6 +21,7 @@ import focus.search.response.exception.*;
 import focus.search.response.search.*;
 import focus.search.suggestions.HistoryUtils;
 import focus.search.suggestions.SourcesUtils;
+import focus.search.suggestions.SuggestionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -67,9 +67,9 @@ class SearchHandler {
                 init(session, datas, user);
                 break;
             case "search":
-                search(session, datas, user);// todo event
+                search(session, datas, user);
                 break;
-            case "selectSuggest":// todo 使用场景未知
+            case "selectSuggest":// 使用场景未知
                 selectSuggest(session, datas);
                 break;
             case "disambiguite":
@@ -81,10 +81,10 @@ class SearchHandler {
             case "clearDisambiguite":
                 clearDisambiguite(session, datas, user);
                 break;
-            case "axis":// todo 使用场景未知
+            case "axis":// 使用场景未知
                 axis(session, datas);
                 break;
-            case "test":// todo 可废弃
+            case "test":// 可废弃
                 test(session, datas);
                 break;
             case "formula":
@@ -93,16 +93,16 @@ class SearchHandler {
             case "fnamecheck":
                 fnamecheck(session, datas, user);
                 break;
-            case "lang":// todo 可废弃
+            case "lang":// 可废弃
                 lang(session, datas, user);
                 break;
-            case "category":// todo 可废弃
+            case "category":// 可废弃
                 category(session, category, user);
                 break;
             case "exportContext":
                 exportContext(session, user);// 保存 answer 时需先导出 context
                 break;
-            case "importContext":// todo 可废弃
+            case "importContext":// 可废弃
                 importContext(session, datas);
                 break;
             case "putFormula":
@@ -534,7 +534,7 @@ class SearchHandler {
         FocusParser fp = (FocusParser) user.get("parser");
         // 系统关键词
         // 1. 符号
-        List<TerminalToken> tokens = SuggestionBuild.terminalTokens(fp, "<symbol>");
+        List<TerminalToken> tokens = SuggestionUtils.terminalTokens(fp, "<symbol>");
         for (TerminalToken token : tokens) {
             if (name.toLowerCase().contains(token.getName())) {
                 return "conflictWithKeyword";

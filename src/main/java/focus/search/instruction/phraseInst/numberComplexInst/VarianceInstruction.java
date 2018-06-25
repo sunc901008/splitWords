@@ -18,11 +18,11 @@ import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/5/28
+ * date: 2018/6/25
  * description:
  */
-//<average-phrase> := average <number-source-column>;
-public class AverageInstruction {
+//<variance-phrase> := variance <number-source-column>;
+public class VarianceInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
@@ -37,19 +37,19 @@ public class AverageInstruction {
         json1.put("name", Base.InstName(focusPhrase));
         json1.put("type", Constant.ColumnType.MEASURE);
 
-        FocusNode averageNode = focusNodes.get(0);
+        FocusNode sumNode = focusNodes.get(0);
         FocusPhrase numberPhrase = focusNodes.get(1).getChildren();
 
         AnnotationToken token1 = new AnnotationToken();
-        token1.addToken(averageNode.getValue());
-        token1.value = averageNode.getValue();
+        token1.addToken(sumNode.getValue());
+        token1.value = sumNode.getValue();
         token1.type = Constant.AnnotationTokenType.SYMBOL;
-        token1.begin = averageNode.getBegin();
-        token1.end = averageNode.getEnd();
+        token1.begin = sumNode.getBegin();
+        token1.end = sumNode.getEnd();
         datas.addToken(token1);
 
         JSONObject expression = new JSONObject();
-        expression.put("name", "average");
+        expression.put("name", "variance");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
 

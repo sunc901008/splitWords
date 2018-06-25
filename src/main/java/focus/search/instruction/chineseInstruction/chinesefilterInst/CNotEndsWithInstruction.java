@@ -20,9 +20,9 @@ import java.util.List;
  * date: 2018/5/28
  * description:
  */
-//<contains-filter> := <all-string-column> 包含 <column-value> |
-//        包含 <column-value> 的 <all-string-column>;
-public class CContainsInstruction {
+//<not-begins-with-filter> := <all-string-column> 结尾不是 <column-value> |
+//        结尾不是 <column-value> 的 <all-string-column>;
+public class CNotEndsWithInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
@@ -33,7 +33,7 @@ public class CContainsInstruction {
         }
     }
 
-    //    <all-string-column> 包含 <column-value>
+    //    <all-string-column> 结尾是 <column-value>
     private static JSONArray build1(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
@@ -49,19 +49,19 @@ public class CContainsInstruction {
 
         datas.addToken(AnnotationToken.singleCol(stringPhrase, amb));
 
-        FocusNode contains = focusNodes.get(1);
+        FocusNode key = focusNodes.get(1);
         AnnotationToken token2 = new AnnotationToken();
-        token2.addToken(contains.getValue());
-        token2.value = contains.getValue();
+        token2.addToken(key.getValue());
+        token2.value = key.getValue();
         token2.type = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
-        token2.begin = contains.getBegin();
-        token2.end = contains.getEnd();
+        token2.begin = key.getBegin();
+        token2.end = key.getEnd();
         datas.addToken(token2);
 
         datas.addTokens(ColumnValueInstruction.tokens(valueNode));
 
         JSONObject expression = new JSONObject();
-        expression.put("name", "contains");
+        expression.put("name", "not ends with");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
         args.add(ColumnInstruction.arg(stringPhrase));
@@ -80,7 +80,7 @@ public class CContainsInstruction {
         return instructions;
     }
 
-    //    包含 <column-value> 的 <all-string-column>
+    //    结尾是 <column-value> 的 <all-string-column>;
     private static JSONArray build2(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
@@ -116,8 +116,9 @@ public class CContainsInstruction {
 
         datas.addToken(AnnotationToken.singleCol(stringPhrase, amb));
 
+
         JSONObject expression = new JSONObject();
-        expression.put("name", "contains");
+        expression.put("name", "not ends with");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
         args.add(ColumnInstruction.arg(stringPhrase));

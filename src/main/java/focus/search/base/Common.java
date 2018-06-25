@@ -57,6 +57,10 @@ public class Common {
         }
     }
 
+    public static boolean isNumber(String type) {
+        return Constant.FNDType.INTEGER.equals(type) || Constant.FNDType.DOUBLE.equals(type);
+    }
+
     public static boolean intCheck(String s) {
         try {
             //noinspection ResultOfMethodCallIgnored

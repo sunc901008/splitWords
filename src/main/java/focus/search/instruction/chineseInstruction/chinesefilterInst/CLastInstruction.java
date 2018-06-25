@@ -62,6 +62,8 @@ public class CLastInstruction {
     //        天的;
     //<last-days-filter> := <last-chinese> <integer> <last-days-chinese> |
     //        <all-date-column> <last-chinese> <integer> <last-days-chinese>;
+    //        <all-date-column> <last-day-filter> |
+    //        <last-day-filter>;
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         if (Objects.equals("<all-date-column>", first.getValue())) {
@@ -73,6 +75,7 @@ public class CLastInstruction {
     }
 
     //<all-date-column> <last-chinese> <integer> <last-days-chinese>;
+    //<all-date-column> <last-day-filter>
     private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
@@ -84,11 +87,10 @@ public class CLastInstruction {
         jsonStart.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         FocusPhrase datePhrase = focusNodes.get(0).getChildren();
-        FocusNode last = focusNodes.get(1).getChildren().getFirstNode();
         Column dateCol = datePhrase.getLastNode().getColumn();
 
         datas.addToken(AnnotationToken.singleCol(datePhrase, amb));
-
+        FocusNode last = focusNodes.get(1).getChildren().getFirstNode();
         AnnotationToken token2 = new AnnotationToken();
         token2.addToken(last.getValue());
         token2.value = last.getValue();
@@ -97,19 +99,24 @@ public class CLastInstruction {
         token2.end = last.getEnd();
         datas.addToken(token2);
 
-        FocusNode param = focusNodes.get(2);
-        param = param.isHasChild() ? param.getChildren().getFirstNode() : param;
-        int integer = Integer.parseInt(param.getValue());
-        datas.addToken(NumberArg.token(param));
+        int integer;
+        if (focusNodes.size() == 2) {
+            integer = 1;
+        } else {
+            FocusNode param = focusNodes.get(2);
+            param = param.isHasChild() ? param.getChildren().getFirstNode() : param;
+            integer = Integer.parseInt(param.getValue());
+            datas.addToken(NumberArg.token(param));
 
-        FocusNode keywordNode = focusPhrase.getLastNode();
-        AnnotationToken token4 = new AnnotationToken();
-        token4.addToken(keywordNode.getValue());
-        token4.value = keywordNode.getValue();
-        token4.type = Constant.AnnotationTokenType.FILTER;
-        token4.begin = keywordNode.getBegin();
-        token4.end = keywordNode.getEnd();
-        datas.addToken(token4);
+            FocusNode keywordNode = focusPhrase.getLastNode();
+            AnnotationToken token4 = new AnnotationToken();
+            token4.addToken(keywordNode.getValue());
+            token4.value = keywordNode.getValue();
+            token4.type = Constant.AnnotationTokenType.FILTER;
+            token4.begin = keywordNode.getBegin();
+            token4.end = keywordNode.getEnd();
+            datas.addToken(token4);
+        }
 
         List<String> params = CommonFunc.lastParams(key, integer);
 
@@ -159,6 +166,7 @@ public class CLastInstruction {
     }
 
     //<last-chinese> <integer> <last-days-chinese>
+    //<last-day-filter>;
     private static JSONArray buildNoCol(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
@@ -187,21 +195,24 @@ public class CLastInstruction {
         token1.end = last.getEnd();
         token1.ambiguity = ambiguity;
         datas.addToken(token1);
+        int integer;
+        if (focusNodes.size() == 1) {
+            integer = 1;
+        } else {
+            FocusNode param = focusNodes.get(1);
+            param = param.isHasChild() ? param.getChildren().getFirstNode() : param;
+            integer = Integer.parseInt(param.getValue());
+            datas.addToken(NumberArg.token(param));
 
-        FocusNode param = focusNodes.get(1);
-        param = param.isHasChild() ? param.getChildren().getFirstNode() : param;
-        int integer = Integer.parseInt(param.getValue());
-        datas.addToken(NumberArg.token(param));
-
-        FocusNode keywordNode = focusPhrase.getLastNode();
-        AnnotationToken token3 = new AnnotationToken();
-        token3.addToken(keywordNode.getValue());
-        token3.value = keywordNode.getValue();
-        token3.type = Constant.AnnotationTokenType.FILTER;
-        token3.begin = keywordNode.getBegin();
-        token3.end = keywordNode.getEnd();
-        datas.addToken(token3);
-
+            FocusNode keywordNode = focusPhrase.getLastNode();
+            AnnotationToken token3 = new AnnotationToken();
+            token3.addToken(keywordNode.getValue());
+            token3.value = keywordNode.getValue();
+            token3.type = Constant.AnnotationTokenType.FILTER;
+            token3.begin = keywordNode.getBegin();
+            token3.end = keywordNode.getEnd();
+            datas.addToken(token3);
+        }
         List<String> params = CommonFunc.lastParams(key, integer);
 
         JSONObject expressionStart = new JSONObject();

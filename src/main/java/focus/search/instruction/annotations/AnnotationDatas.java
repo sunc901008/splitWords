@@ -37,8 +37,19 @@ public class AnnotationDatas {
         this.type = type;
     }
 
+    public void addToken(int index, AnnotationToken object) {
+        addToken(index, object.toJSON());
+    }
+
     public void addToken(AnnotationToken object) {
         addToken(object.toJSON());
+    }
+
+    public void addToken(int index, JSONObject object) {
+        if (this.tokens == null) {
+            this.tokens = new JSONArray();
+        }
+        this.tokens.add(index, object);
     }
 
     public void addToken(JSONObject object) {
@@ -49,7 +60,7 @@ public class AnnotationDatas {
     }
 
     public void addTokens(List<AnnotationToken> objects) {
-        for(AnnotationToken annotationToken : objects){
+        for (AnnotationToken annotationToken : objects) {
             addToken(annotationToken);
         }
     }

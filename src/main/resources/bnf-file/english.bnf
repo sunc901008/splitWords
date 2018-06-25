@@ -21,7 +21,13 @@
                           <number-columns> <bool-symbol> <number-columns> |
                           <number> <bool-symbol> <number>;
 
-<number-complex-phrase> := <average-phrase>;
+<number-complex-phrase> := <average-phrase> |
+                           <sum-phrase> |
+                           <count-phrase> |
+                           <max-min-phrase> |
+                           <standard-deviation-phrase> |
+                           <unique-count-phrase> |
+                           <variance-phrase>;
 
 <date-simple-filter> := <date-columns> <bool-symbol> <date-string-value> |
                         <date-string-value> <bool-symbol> <date-columns> |
@@ -69,7 +75,8 @@
                                  unique count |
                                  variance;
 
-<growth-of-by-date-interval> := daily |
+<growth-of-by-date-interval> := hourly |
+                                daily |
                                 weekly |
                                 monthly |
                                 quarterly |
@@ -77,7 +84,8 @@
 
 <year-over-year> := year over year;
 
-<date-interval> := daily |
+<date-interval> := hourly |
+                   daily |
                    weekly |
                    monthly |
                    quarterly |
@@ -115,6 +123,19 @@
 <ago-hours-filter> := <integer> hours ago;
 
 <average-phrase> := average <number-source-column>;
+
+<sum-phrase> := sum <number-source-column>;
+
+<count-phrase> := count <number-source-column>;
+
+<max-min-phrase> := max <number-source-column> |
+                    min <number-source-column>;
+
+<standard-deviation-phrase> := standard deviation <number-source-column>;
+
+<unique-count-phrase> := unique count <number-source-column>;
+
+<variance-phrase> := variance <number-source-column>;
 
 <before-after-filter> := <before-filter> |
                          <after-filter>;
@@ -172,7 +193,8 @@
                        last <integer> years |
                        <all-date-column> last <integer> years;
 
-<between-and-filter> := <all-date-column> between <date-string-value> and <date-string-value>;
+<between-and-filter> := <all-date-column> between <date-string-value> and <date-string-value> |
+                        <number-source-column> between <number> and <number>;
 
 <begins-with-filter> := <all-string-column> begins with <column-value>;
 

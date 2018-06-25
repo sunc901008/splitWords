@@ -21,6 +21,7 @@ import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.*;
 import focus.search.response.search.*;
 import focus.search.suggestions.HistoryUtils;
+import focus.search.suggestions.SourcesUtils;
 import focus.search.suggestions.SuggestionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.WebSocketSession;
@@ -286,7 +287,7 @@ public class Base {
                     StateResponse response = new StateResponse(search);
 
                     // 获取日期列
-                    List<Column> dateColumns = SuggestionBuild.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
+                    List<Column> dateColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
                     // 生成指令
                     JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user), language, dateColumns);
 

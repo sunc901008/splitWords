@@ -19,6 +19,8 @@ import java.util.List;
  */
 //<string-complex-filter> := <begins-with-filter> |
 //        <not-begins-with-filter> |
+//        <ends-with-filter> |
+//        <not-ends-with-filter> |
 //        <contains-filter> |
 //        <not-contains-filter>;
 public class CFilterStringComplexInstruction {
@@ -37,7 +39,10 @@ public class CFilterStringComplexInstruction {
                 return CContainsInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<not-contains-filter>":
                 return CNotContainsInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "":
+            case "<ends-with-filter>":
+                return CEndsWithInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<not-ends-with-filter>":
+                return CNotEndsWithInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

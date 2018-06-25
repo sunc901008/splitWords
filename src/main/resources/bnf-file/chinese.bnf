@@ -21,7 +21,13 @@
                           <number-columns> <bool-symbol> <number-columns> |
                           <number> <bool-symbol> <number>;
 
-<number-complex-phrase> := <average-phrase>;
+<number-complex-phrase> := <average-phrase> |
+                           <sum-phrase> |
+                           <count-phrase> |
+                           <max-min-phrase> |
+                           <standard-deviation-phrase> |
+                           <unique-count-phrase> |
+                           <variance-phrase>;
 
 <date-simple-filter> := <date-columns> <bool-symbol> <date-string-value> |
                         <date-string-value> <bool-symbol> <date-columns> |
@@ -333,6 +339,46 @@
 <average-phrase> := <number-source-column> 的平均值 |
                     平均 <number-source-column>;
 
+<sum-chinese> := 总量 |
+                 总和 |
+                 总数;
+<sum-1-chinese> := 的总量 |
+                   的总和 |
+                   的总数;
+<sum-phrase> := <number-source-column> <sum-1-chinese> |
+                <sum-chinese> <number-source-column>;
+
+<count-chinese> := 数量 |
+                   的数量 |
+                   计数 |
+                   的计数;
+<count-phrase> := <number-source-column> <count-chinese>;
+
+<max-chinese> := 最大;
+<max-1-chinese> := 最大值 |
+                   的最大值;
+<min-chinese> := 最小;
+<min-1-chinese> := 最小值 |
+                   的最小值;
+<max-min-phrase> := <max-phrase> |
+                    <min-phrase>;
+<max-phrase> := <max-chinese> <number-source-column> |
+                <number-source-column> <max-1-chinese>;
+<min-phrase> := <min-chinese> <number-source-column> |
+                <number-source-column> <min-1-chinese>;
+
+<standard-deviation-chinese> := 标准差 |
+                                的标准差;
+<standard-deviation-phrase> := <number-source-column> <standard-deviation-chinese>;
+
+<unique-count-chinese> := 去重后的数量 |
+                          的去重后的数量;
+<unique-count-phrase> := <number-source-column> <unique-count-chinese>;
+
+<variance-chinese> := 方差 |
+                      的方差;
+<variance-phrase> := <number-source-column> <variance-chinese>;
+
 <before-after-filter> := <before-filter> |
                          <after-filter>;
 
@@ -376,7 +422,12 @@
 <last-days-chinese> := 天 |
                        天的;
 <last-days-filter> := <last-chinese> <integer> <last-days-chinese> |
-                      <all-date-column> <last-chinese> <integer> <last-days-chinese>;
+                      <all-date-column> <last-chinese> <integer> <last-days-chinese> |
+                      <all-date-column> <last-day-filter> |
+                      <last-day-filter>;
+<last-day-filter> := 昨天 |
+                     最后一天 |
+                     前一天;
 
 <last-weeks-chinese> := 周 |
                         周的 |
@@ -385,14 +436,25 @@
                         个星期 |
                         个星期的;
 <last-weeks-filter> := <last-chinese> <integer> <last-weeks-chinese> |
-                       <all-date-column> <last-chinese> <integer> <last-weeks-chinese>;
+                       <all-date-column> <last-chinese> <integer> <last-weeks-chinese> |
+                       <all-date-column> <last-week-filter> |
+                       <last-week-filter>;
+<last-week-filter> := 上周 |
+                      上个星期 |
+                      前一周;
 
 <last-months-chinese> := 月 |
                          月的 |
                          个月 |
                          个月的;
 <last-months-filter> := <last-chinese> <integer> <last-months-chinese> |
-                        <all-date-column> <last-chinese> <integer> <last-months-chinese>;
+                        <all-date-column> <last-chinese> <integer> <last-months-chinese> |
+                        <all-date-column> <last-month-filter> |
+                        <last-month-filter>;
+<last-month-filter> := 上一个月 |
+                       上个月 |
+                       上月 |
+                       前一个月;
 
 <last-quarters-chinese> := 季度 |
                            季度的 |
@@ -403,30 +465,55 @@
                            个季度的 |
                            个季度的;
 <last-quarters-filter> := <last-chinese> <integer> <last-quarters-chinese> |
-                          <all-date-column> <last-chinese> <integer> <last-quarters-chinese>;
+                          <all-date-column> <last-chinese> <integer> <last-quarters-chinese> |
+                          <all-date-column> <last-quarter-filter> |
+                          <last-quarter-filter>;
+<last-quarter-filter> := 上个季度 |
+                         上季度 |
+                         上一季度;
 
 <last-years-chinese> := 年 |
                         年的;
 <last-years-filter> := <last-chinese> <integer> <last-years-chinese> |
-                       <all-date-column> <last-chinese> <integer> <last-years-chinese>;
+                       <all-date-column> <last-chinese> <integer> <last-years-chinese> |
+                       <all-date-column> <last-year-filter> |
+                       <last-year-filter>;
+<last-year-filter> := 去年 |
+                      上一年 |
+                      前一年;
 
 <last-minutes-chinese> := 分 |
                           分的 |
                           分钟 |
                           分钟的;
 <last-minutes-filter> := <last-chinese> <integer> <last-minutes-chinese> |
-                       <all-date-column> <last-chinese> <integer> <last-minutes-chinese>;
+                         <all-date-column> <last-chinese> <integer> <last-minutes-chinese> |
+                         <all-date-column> <last-minute-filter> |
+                         <last-minute-filter>;
+<last-minute-filter> := 前一分钟 |
+                        上一分钟;
 
 <last-hours-chinese> := 小时 |
                         小时的 |
                         个小时 |
                         个小时的;
 <last-hours-filter> := <last-chinese> <integer> <last-hours-chinese> |
-                       <all-date-column> <last-chinese> <integer> <last-hours-chinese>;
+                       <all-date-column> <last-chinese> <integer> <last-hours-chinese> |
+                       <all-date-column> <last-hour-filter> |
+                       <last-hour-filter>;
+<last-hour-filter> := 前一小时 |
+                      上一小时 |
+                      前一个小时 |
+                      上一个小时
+                      上个小时;
 
 <between-and-filter> := <all-date-column> 在 <date-string-value> 和 <date-string-value> 之间的 |
                         在 <date-string-value> 和 <date-string-value> 之间的 |
-                        <date-string-value> 和 <date-string-value> 之间的;
+                        <date-string-value> 和 <date-string-value> 之间的 |
+                        <between-and-1-filter>;
+
+<between-and-1-filter> := <number-source-column> 在 <number> 和 <number> 之间 |
+                        在 <number> 和 <number> 之间的 <number-source-column>;
 
 <begins-with-filter> := <all-string-column> 开头是 <column-value> |
                         开头是 <column-value> 的 <all-string-column>;

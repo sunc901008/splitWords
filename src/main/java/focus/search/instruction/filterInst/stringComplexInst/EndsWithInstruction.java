@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.ColumnInstruction;
@@ -17,11 +18,11 @@ import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/5/28
+ * date: 2018/6/25
  * description:
  */
-//<contains-filter> := <all-string-column> contains <column-value>;
-public class ContainsInstruction {
+//<ends-with-filter> := <all-string-column> ends with <column-value>;
+public class EndsWithInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
@@ -34,23 +35,25 @@ public class ContainsInstruction {
         json1.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         FocusPhrase stringPhrase = focusNodes.get(0).getChildren();
-        FocusNode valueNode = focusNodes.get(2);
+        FocusNode valueNode = focusNodes.get(3);
 
         datas.addToken(AnnotationToken.singleCol(stringPhrase, amb));
 
-        FocusNode contains = focusNodes.get(1);
+        FocusNode begins = focusNodes.get(1);
+        FocusNode with = focusNodes.get(2);
         AnnotationToken token2 = new AnnotationToken();
-        token2.addToken(contains.getValue());
-        token2.value = contains.getValue();
+        token2.addToken(begins.getValue());
+        token2.addToken(with.getValue());
+        token2.value = begins.getValue() + Base.space(with.getBegin() - begins.getEnd()) + with.getValue();
         token2.type = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
-        token2.begin = contains.getBegin();
-        token2.end = contains.getEnd();
+        token2.begin = begins.getBegin();
+        token2.end = with.getEnd();
         datas.addToken(token2);
 
         datas.addTokens(ColumnValueInstruction.tokens(valueNode));
 
         JSONObject expression = new JSONObject();
-        expression.put("name", "contains");
+        expression.put("name", "ends with");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
         args.add(ColumnInstruction.arg(stringPhrase));

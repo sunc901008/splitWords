@@ -1,4 +1,4 @@
-package focus.search.instruction.phraseInst.numberComplexInst;
+package focus.search.instruction.chineseInstruction.chinesephraseInst;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -18,12 +18,15 @@ import java.util.List;
 
 /**
  * creator: sunc
- * date: 2018/5/28
+ * date: 2018/6/25
  * description:
  */
-//<average-phrase> := average <number-source-column>;
-public class AverageInstruction {
+//<standard-deviation-chinese> := 标准差 |
+//        的标准差;
+//<standard-deviation-phrase> := <number-source-column> <standard-deviation-chinese>;
+public class CStandardDeviationInstruction {
 
+    //    <number-source-column> <standard-deviation-chinese>
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
@@ -37,19 +40,10 @@ public class AverageInstruction {
         json1.put("name", Base.InstName(focusPhrase));
         json1.put("type", Constant.ColumnType.MEASURE);
 
-        FocusNode averageNode = focusNodes.get(0);
-        FocusPhrase numberPhrase = focusNodes.get(1).getChildren();
-
-        AnnotationToken token1 = new AnnotationToken();
-        token1.addToken(averageNode.getValue());
-        token1.value = averageNode.getValue();
-        token1.type = Constant.AnnotationTokenType.SYMBOL;
-        token1.begin = averageNode.getBegin();
-        token1.end = averageNode.getEnd();
-        datas.addToken(token1);
+        FocusPhrase numberPhrase = focusNodes.get(0).getChildren();
 
         JSONObject expression = new JSONObject();
-        expression.put("name", "average");
+        expression.put("name", "standard deviation");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
 
@@ -67,6 +61,16 @@ public class AverageInstruction {
         int begin = numberPhrase.getFirstNode().getBegin();
         int end = numberPhrase.getLastNode().getEnd();
         datas.addToken(AnnotationToken.singleCol(column, numberPhrase.size() == 2, begin, end, amb));
+
+        FocusNode keywordNode = focusNodes.get(1);
+        keywordNode = keywordNode.isHasChild() ? keywordNode.getChildren().getFirstNode() : keywordNode;
+        AnnotationToken token2 = new AnnotationToken();
+        token2.addToken(keywordNode.getValue());
+        token2.value = keywordNode.getValue();
+        token2.type = Constant.AnnotationTokenType.SYMBOL;
+        token2.begin = keywordNode.getBegin();
+        token2.end = keywordNode.getEnd();
+        datas.addToken(token2);
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);

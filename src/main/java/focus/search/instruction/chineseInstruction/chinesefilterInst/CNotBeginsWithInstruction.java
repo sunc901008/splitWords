@@ -65,7 +65,7 @@ public class CNotBeginsWithInstruction {
         expression.put("type", "function");
         JSONArray args = new JSONArray();
         args.add(ColumnInstruction.arg(stringPhrase));
-        args.add(ColumnValueInstruction.arg(valueNode));
+        args.addAll(ColumnValueInstruction.args(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);
         instructions.add(json1);
@@ -122,7 +122,7 @@ public class CNotBeginsWithInstruction {
         expression.put("type", "function");
         JSONArray args = new JSONArray();
         args.add(ColumnInstruction.arg(stringPhrase));
-        args.add(ColumnValueInstruction.arg(valueNode));
+        args.addAll(ColumnValueInstruction.args(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);
         instructions.add(json1);
