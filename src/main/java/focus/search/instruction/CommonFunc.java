@@ -143,6 +143,64 @@ public class CommonFunc {
         return params;
     }
 
+    // next 返回过滤条件 ["start", "end"]
+    public static List<String> nextParams(String key, int param) {
+        List<String> params = new ArrayList<>();
+        Calendar current;
+        switch (key) {
+            case "day":
+                current = Common.getStartDay();
+                current.add(Calendar.DAY_OF_YEAR, 1);
+                params.add(Common.biTimeFormat(current));
+                current.add(Calendar.DAY_OF_YEAR, param);
+                params.add(Common.biTimeFormat(current));
+                return params;
+            case "week":
+                current = Common.getStartWeek();
+                current.add(Calendar.WEEK_OF_YEAR, 1);
+                params.add(Common.biTimeFormat(current));
+                current.add(Calendar.WEEK_OF_YEAR, param);
+                params.add(Common.biTimeFormat(current));
+                return params;
+            case "month":
+                current = Common.getStartMonth();
+                current.add(Calendar.MONTH, 1);
+                params.add(Common.biTimeFormat(current));
+                current.add(Calendar.MONTH, param);
+                params.add(Common.biTimeFormat(current));
+                return params;
+            case "quarter":
+                current = Common.getStartQuarter();
+                current.add(Calendar.MONTH, 3);
+                params.add(Common.biTimeFormat(current));
+                current.add(Calendar.MONTH, param * 3);
+                params.add(Common.biTimeFormat(current));
+                return params;
+            case "year":
+                current = Common.getStartYear();
+                current.add(Calendar.YEAR, 1);
+                params.add(Common.biTimeFormat(current));
+                current.add(Calendar.YEAR, param);
+                params.add(Common.biTimeFormat(current));
+                return params;
+            case "minute":
+                current = Common.getStartMinute();
+                current.add(Calendar.MINUTE, 1);
+                params.add(Common.biTimeFormat(current));
+                current.add(Calendar.MINUTE, param);
+                params.add(Common.biTimeFormat(current));
+                return params;
+            case "hour":
+                current = Common.getStartHour();
+                current.add(Calendar.HOUR_OF_DAY, param);
+                params.add(Common.biTimeFormat(current));
+                current.add(Calendar.HOUR_OF_DAY, param);
+                params.add(Common.biTimeFormat(current));
+                return params;
+        }
+        return params;
+    }
+
     // <to-date-interval> 返回过滤条件 ["start", "end"]
     public static List<String> params(String key) {
         List<String> params = new ArrayList<>();
@@ -151,6 +209,10 @@ public class CommonFunc {
         end.add(Calendar.DAY_OF_YEAR, 1);
         params.add(Common.biTimeFormat(end));
         switch (key) {
+            case "today":
+                current = Common.getStartDay();
+                params.add(0, Common.biTimeFormat(current));
+                return params;
             case "week":
                 current = Common.getStartWeek();
                 current.add(Calendar.WEEK_OF_YEAR, -1);

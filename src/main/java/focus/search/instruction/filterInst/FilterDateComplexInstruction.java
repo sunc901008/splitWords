@@ -21,6 +21,7 @@ import java.util.List;
  */
 //<date-complex-filter> := <before-after-filter>|
 //                         <last-filter> |
+//                         <next-filter> |
 //                         <between-and-filter> |
 //                          <date-interval> |
 //                          <ago-filter>;
@@ -36,6 +37,8 @@ public class FilterDateComplexInstruction {
                 return BeforeAfterInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<last-filter>":
                 return LastInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
+            case "<next-filter>":
+                return NextInstruction.build(fn.getChildren(), index, amb, formulas, dateColumns);
             case "<between-and-filter>":
                 return BetweenAndInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<date-interval>":

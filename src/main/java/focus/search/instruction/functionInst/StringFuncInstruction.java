@@ -6,6 +6,7 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.StringFunc.*;
+import focus.search.instruction.functionInst.numberFunc.DaysFuncInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -23,7 +24,9 @@ import java.util.List;
 //        <concat-function> |
 //        <substr-function> |
 //        <if-then-else-string-function> |
-//        <ifnull-string-function>;
+//        <ifnull-string-function> |
+//      <day-of-week-function> |
+//    <time-function>
 public class StringFuncInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
@@ -41,6 +44,9 @@ public class StringFuncInstruction {
                 return IfThenElseStringColFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<ifnull-string-function>":
                 return IfNullStringColFuncInstruction.build(focusPhrase, index, amb, formulas);
+            case "<day-of-week-function>":
+            case "<time-function>":
+                return DaysFuncInstruction.build(focusPhrase, index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -61,6 +67,9 @@ public class StringFuncInstruction {
                 return IfThenElseStringColFuncInstruction.arg(fn.getChildren(), formulas);
             case "<ifnull-string-function>":
                 return IfNullStringColFuncInstruction.arg(fn.getChildren(), formulas);
+            case "<day-of-week-function>":
+            case "<time-function>":
+                return DaysFuncInstruction.arg(fn.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -82,6 +91,9 @@ public class StringFuncInstruction {
                 return IfThenElseStringColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<ifnull-string-function>":
                 return IfNullStringColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<day-of-week-function>":
+            case "<time-function>":
+                return DaysFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

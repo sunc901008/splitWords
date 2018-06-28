@@ -3,6 +3,7 @@ package focus.search.bnf;
 import focus.search.base.Constant;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.*;
+import focus.search.response.exception.FocusParserException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -188,10 +189,43 @@ public class BnfRule implements Serializable {
         return p.getProperty("key", new_s);
     }
 
+    // 获取当前bnf下的所有 terminalToken
     public List<TerminalToken> getTerminalTokens() {
         List<TerminalToken> out = new ArrayList<>();
         for (TokenString ts : m_alternatives) {
             out.addAll(ts.getTerminalTokens());
+        }
+        return out;
+    }
+
+    // 获取当前bnf下以及子bnf的所有 terminalToken
+    public List<TerminalToken> getAllTerminalTokens(List<BnfRule> rules) {
+        List<String> ruleNames = new ArrayList<>();
+        List<TerminalToken> tokens = getAllTerminalTokens(ruleNames, rules);
+        ruleNames.clear();
+        return tokens;
+    }
+
+    // 获取当前bnf下以及子bnf的所有 terminalToken
+    private List<TerminalToken> getAllTerminalTokens(List<String> ruleNames, List<BnfRule> rules) {
+        List<TerminalToken> out = new ArrayList<>();
+        for (TokenString ts : m_alternatives) {
+            for (Token t : ts) {
+                if (ruleNames.contains(t.getName())) {
+                    continue;
+                }
+                ruleNames.add(t.getName());
+                if (t instanceof TerminalToken) {
+                    out.add((TerminalToken) t);
+                } else {
+                    try {
+                        BnfRule r = FocusParser.findRule(rules, t);
+                        out.addAll(r.getAllTerminalTokens(ruleNames, rules));
+                    } catch (FocusParserException ignored) {
+
+                    }
+                }
+            }
         }
         return out;
     }

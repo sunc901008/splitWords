@@ -160,14 +160,17 @@ public class BnfParser implements Serializable {
     }
 
     public BnfRule parse(BnfRule rule, String word) throws FocusParserException {
+        Map<String, Boolean> parseRules = new HashMap<>();
+        BnfRule br = parse(parseRules, rule, word);
+        parseRules.clear();
+        return br;
+    }
+
+    private BnfRule parse(Map<String, Boolean> parseRules, BnfRule rule, String word) throws FocusParserException {
         BnfRule br = new BnfRule();
         br.setLeftHandSide(rule.getLeftHandSide());
         for (TokenString alt : rule.getAlternatives()) {
             Token token = alt.getFirst();
-//            if (tokens instanceof ColumnValueTerminalToken) {
-//                //debug
-//                System.out.println(tokens.toString());
-//            }
             if (token instanceof TerminalToken) {
                 if (token.match(word)) {
                     if (isTerminal(token.getName())) {
@@ -185,8 +188,15 @@ public class BnfParser implements Serializable {
                 if (newBr == null && !token.getName().endsWith("-column>")) {
                     throw new FocusParserException("Cannot find rule for tokens " + JSONObject.toJSONString(token));
                 } else if (newBr != null) {
-                    if (newBr.equals(rule) || parse(newBr, word) != null) {
+                    if (parseRules.containsKey(newBr.getLeftHandSide().getName())) {
+                        if (parseRules.get(newBr.getLeftHandSide().getName())) {
+                            br.addAlternative(alt);
+                        }
+                    } else if (newBr.equals(rule) || parse(parseRules, newBr, word) != null) {
+                        parseRules.put(newBr.getLeftHandSide().getName(), true);
                         br.addAlternative(alt);
+                    } else {
+                        parseRules.put(newBr.getLeftHandSide().getName(), false);
                     }
                 }
             }

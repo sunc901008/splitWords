@@ -25,45 +25,43 @@ import java.util.Objects;
  * date: 2018/5/23
  * description:
  */
-//<last-filter> := <last-days-filter> |
-//        <last-weeks-filter> |
-//        <last-months-filter> |
-//        <last-quarters-filter> |
-//        <last-years-filter> |
-//        <last-minutes-filter> |
-//        <last-hours-filter>;
-public class CLastInstruction {
-    private static final Logger logger = Logger.getLogger(CLastInstruction.class);
+//<next-filter> := <next-days-filter> |
+//        <next-weeks-filter> |
+//        <next-months-filter> |
+//        <next-quarters-filter> |
+//        <next-years-filter> |
+//        <next-minutes-filter> |
+//        <next-hours-filter>;
+public class CNextInstruction {
+    private static final Logger logger = Logger.getLogger(CNextInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("CLastInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("CNextInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
-            case "<last-days-filter>":
+            case "<next-days-filter>":
                 return build(fn.getChildren(), index, amb, formulas, dateColumns, "day");
-            case "<last-weeks-filter>":
+            case "<next-weeks-filter>":
                 return build(fn.getChildren(), index, amb, formulas, dateColumns, "week");
-            case "<last-months-filter>":
+            case "<next-months-filter>":
                 return build(fn.getChildren(), index, amb, formulas, dateColumns, "month");
-            case "<last-quarters-filter>":
+            case "<next-quarters-filter>":
                 return build(fn.getChildren(), index, amb, formulas, dateColumns, "quarter");
-            case "<last-years-filter>":
+            case "<next-years-filter>":
                 return build(fn.getChildren(), index, amb, formulas, dateColumns, "year");
-            case "<last-minutes-filter>":
+            case "<next-minutes-filter>":
                 return build(fn.getChildren(), index, amb, formulas, dateColumns, "minute");
-            case "<last-hours-filter>":
+            case "<next-hours-filter>":
                 return build(fn.getChildren(), index, amb, formulas, dateColumns, "hour");
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
     }
 
-    //<last-days-chinese> := 天 |
-    //        天的;
-    //<last-days-filter> := <last-chinese> <integer> <last-days-chinese> |
-    //        <all-date-column> <last-chinese> <integer> <last-days-chinese>;
-    //        <all-date-column> <last-day-filter> |
-    //        <last-day-filter>;
+    //    <next-days-filter> := <next-chinese> <integer> <days-chinese> |
+    //                      <all-date-column> <next-chinese> <integer> <days-chinese> |
+    //                      <all-date-column> <next-day-filter> |
+    //                      <next-day-filter>;
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         if (Objects.equals("<all-date-column>", first.getValue())) {
@@ -74,8 +72,8 @@ public class CLastInstruction {
 
     }
 
-    //<all-date-column> <last-chinese> <integer> <last-days-chinese>;
-    //<all-date-column> <last-day-filter>
+    //<all-date-column> <next-chinese> <integer> <days-chinese>
+    //<all-date-column> <next-day-filter>
     private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
@@ -118,7 +116,7 @@ public class CLastInstruction {
             datas.addToken(token4);
         }
 
-        List<String> params = CommonFunc.lastParams(key, integer);
+        List<String> params = CommonFunc.nextParams(key, integer);
 
         JSONObject expressionStart = new JSONObject();
         expressionStart.put("name", ">=");
@@ -165,8 +163,8 @@ public class CLastInstruction {
         return instructions;
     }
 
-    //<last-chinese> <integer> <last-days-chinese>
-    //<last-day-filter>;
+    //<next-chinese> <integer> <days-chinese>
+    //<next-day-filter>;
     private static JSONArray buildNoCol(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
@@ -213,7 +211,7 @@ public class CLastInstruction {
             token3.end = keywordNode.getEnd();
             datas.addToken(token3);
         }
-        List<String> params = CommonFunc.lastParams(key, integer);
+        List<String> params = CommonFunc.nextParams(key, integer);
 
         JSONObject expressionStart = new JSONObject();
         expressionStart.put("name", ">=");

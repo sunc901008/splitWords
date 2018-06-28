@@ -3,6 +3,7 @@ package focus.search.controller.common;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
+import focus.search.instruction.functionInst.DateFunc.AddDaysFuncInstruction;
 import focus.search.instruction.functionInst.DateFunc.ToDateFuncInstruction;
 import focus.search.instruction.functionInst.StringFunc.ConcatFuncInstruction;
 import focus.search.instruction.functionInst.StringFunc.MonthFuncInstruction;
@@ -30,7 +31,7 @@ public class FormulaCase {
 // diff_days、month、month_number、year、！=、<、>、<=、>=、=、+、-、*、/、
 // and、if...then...else、ifnull、isnull、not、or、concat、contains、strlen、substr
 
-    private static final List<String> MATH_TYPE = Arrays.asList("+", "-", "*", "/");
+    private static final List<String> MATH_TYPE = Arrays.asList("+", "-", "*", "/", "^");
     private static final List<String> BOOL_TYPE = Arrays.asList(">", "<", ">=", "<=", "=", "!=");
     public static final List<String> boolFunc = Arrays.asList("isnull ( %s )", "to_bool ( %s )");
 
@@ -81,12 +82,9 @@ public class FormulaCase {
     private static JSONArray buildCaseSimple(JSONObject user, String keyword) {
         JSONArray cases = new JSONArray();
         cases.add(SourcesUtils.decimalSug() + keyword + SourcesUtils.decimalSug());
-        cases.add(SourcesUtils.decimalSug(false) + keyword + SourcesUtils.decimalSug(false));
         List<Column> numberColumns = SourcesUtils.colRandomSuggestions(user, Arrays.asList(Constant.DataType.INT, Constant.DataType.DOUBLE));
         String value1 = numberColumns.get(SourcesUtils.decimalSug(numberColumns.size())).getColumnDisplayName();
-        String value2 = numberColumns.get(SourcesUtils.decimalSug(numberColumns.size())).getColumnDisplayName();
         cases.add(value1 + keyword + SourcesUtils.decimalSug());
-        cases.add(value1 + keyword + value2);
         return cases;
     }
 
@@ -143,6 +141,79 @@ public class FormulaCase {
                 return StrlenFuncInstruction.buildCase(user);
             case "substr":
                 return SubstrFuncInstruction.buildCase(user);
+            case "stddev":
+                return StddevFuncInstruction.buildCase(user);
+            case "variance":
+                return VarianceFuncInstruction.buildCase(user);
+            case "unique_count":
+                return UniqueCountFuncInstruction.buildCase(user);
+            case "cumulative_average":
+            case "cumulative_max":
+            case "cumulative_min":
+            case "cumulative_sum":
+                return CumulativeFuncInstruction.buildCase(user, keyword);
+            case "moving_average":
+            case "moving_max":
+            case "moving_min":
+            case "moving_sum":
+                return MovingFuncInstruction.buildCase(user, keyword);
+            case "group_average":
+            case "group_count":
+            case "group_max":
+            case "group_min":
+            case "group_sum":
+            case "group_unique_count":
+            case "group_variance":
+                return GroupFuncInstruction.buildCase(user, keyword);
+            case "day":
+            case "day_number_of_week":
+            case "day_number_of_year":
+            case "date":
+            case "day_of_week":
+            case "hour_of_day":
+            case "is_weekend":
+            case "time":
+            case "start_of_month":
+            case "start_of_quarter":
+            case "start_of_week":
+            case "start_of_year":
+                return DaysFuncInstruction.buildCase(user, keyword);
+            case "add_days":
+                return AddDaysFuncInstruction.buildCase(user);
+            case "diff_time":
+                return DiffTimeFuncInstruction.buildCase(user);
+            case "abs":
+            case "acos":
+            case "asin":
+            case "atan":
+            case "cbrt":
+            case "ceil":
+            case "sin":
+            case "cos":
+            case "cube":
+            case "exp":
+            case "exp2":
+            case "floor":
+            case "ln":
+            case "log10":
+            case "log2":
+            case "sign":
+            case "sq":
+            case "sqrt":
+            case "tan":
+                return Math1FuncInstruction.buildCase(user, keyword);
+            case "greatest":
+            case "least":
+            case "atan2":
+            case "mod":
+            case "pow":
+            case "round":
+            case "safe_divide":
+                return Math2FuncInstruction.buildCase(user, keyword);
+            case "random":
+                return RandomFuncInstruction.buildCase();
+            case "strpos":
+                return StrposFuncInstruction.buildCase(user);
             default:
                 return null;
         }

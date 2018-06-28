@@ -100,7 +100,8 @@ public class DateIntervalInstruction {
         return instructions;
     }
 
-    //    <to-date-interval> := week to date |
+    //<to-date-interval> := today |
+    //    week to date |
     //    month to date |
     //    quarter to date |
     //    year to date;

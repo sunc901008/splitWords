@@ -6,6 +6,7 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.boolFunc.*;
+import focus.search.instruction.functionInst.numberFunc.DaysFuncInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -25,7 +26,8 @@ import java.util.List;
 //        <if-then-else-bool-column-function> |
 //        <ifnull-bool-column-function> |
 //        <isnull-function> |
-//        <not-function>;
+//        <not-function> |
+//    <is-weekend-function>;
 public class BoolFuncColInstruction {
     private static final Logger logger = Logger.getLogger(BoolFuncColInstruction.class);
 
@@ -49,6 +51,8 @@ public class BoolFuncColInstruction {
                 return IsNullFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<not-function>":
                 return NotFuncInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<is-weekend-function>":
+                return DaysFuncInstruction.build(focusPhrase, index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -73,6 +77,8 @@ public class BoolFuncColInstruction {
                 return IsNullFuncInstruction.arg(focusPhrase, formulas);
             case "<not-function>":
                 return NotFuncInstruction.arg(focusPhrase, formulas);
+            case "<is-weekend-function>":
+                return DaysFuncInstruction.arg(fn.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -97,6 +103,8 @@ public class BoolFuncColInstruction {
                 return IsNullFuncInstruction.tokens(focusPhrase, formulas, amb);
             case "<not-function>":
                 return NotFuncInstruction.tokens(focusPhrase, formulas, amb);
+            case "<is-weekend-function>":
+                return DaysFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

@@ -1,0 +1,32 @@
+<string-function-column> := <to_string-function> |
+                            <month-function> |
+                            <concat-function> |
+                            <substr-function> |
+                            <day-of-week-function> |
+                            <time-function>;
+
+# string
+<to_string-function> := to_string ( <all-columns> ) |
+                        to_string ( <number> );
+
+# string
+<month-function> := month ( <date-columns> ) |
+                    month ( <date-string-value> );
+
+# string
+<concat-function> := concat ( <string-columns> , <string-columns> ) |
+                     concat ( <single-column-value> , <string-columns> ) |
+                     concat ( <string-columns> , <single-column-value> ) |
+                     concat ( <single-column-value> , <single-column-value> );
+
+# string
+<substr-function> := substr ( <string-columns> , <integer> , <integer> ) |
+                     substr ( <single-column-value> , <integer> , <integer> );
+
+<day-of-week-function> := day_of_week ( <all-date-column> ) |
+                          day_of_week ( <date-string-value> );
+
+<time-function> := time ( <all-date-column> ) |
+                   time ( <date-string-value> );
+
+

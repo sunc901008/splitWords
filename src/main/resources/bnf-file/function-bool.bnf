@@ -1,0 +1,61 @@
+<bool-function-column> := <to_bool-function> |
+                          <contains-function> |
+                          <and-function> |
+                          <or-function> |
+                          <isnull-function> |
+                          <not-function> |
+                          <is-weekend-function>;
+
+# bool
+<to_bool-function> := to_bool ( <number-columns> ) |
+                      to_bool ( <number> );
+
+# bool
+<contains-function> := contains ( <string-columns> , <string-columns> ) |
+                       contains ( <single-column-value> , <string-columns> ) |
+                       contains ( <string-columns> , <single-column-value> ) |
+                       contains ( <single-column-value> , <single-column-value> );
+
+<no-or-and-bool-function-column> := <to_bool-function> |
+                                  <contains-function> |
+                                  <bool-function> |
+                                  <isnull-function> |
+                                  <not-function> |
+                                  <bool-columns>;
+# bool
+<and-function> := <bool-columns> and <no-or-and-bool-function-column> |
+                  <bool-columns> and <and-function> |
+                  <bool-columns> and <or-function> |
+                  <no-or-and-bool-function-column> and <no-or-and-bool-function-column>;
+
+# bool
+<or-function> := <bool-columns> or <no-or-and-bool-function-column> |
+                 <bool-columns> or <and-function> |
+                 <bool-columns> or <or-function> |
+                 <no-or-and-bool-function-column> or <no-or-and-bool-function-column>;
+
+# bool
+<isnull-function> := isnull ( <all-columns> ) |
+                     isnull ( <number> );
+
+# bool
+<not-function> := not ( <bool-columns> ) |
+                  not ( <no-or-and-bool-function-column> );
+
+# bool # todo base
+<bool-function> := <number> <function-bool-symbol> <number> |
+                   <number> <function-bool-symbol> <number-columns> |
+                   <number-columns> <function-bool-symbol> <number> |
+                   <number-columns> <function-bool-symbol> <number-columns>;
+
+<is-weekend-function> := is_weekend ( <all-date-column> ) |
+                         is_weekend ( <date-string-value> );
+
+
+
+
+
+
+
+
+

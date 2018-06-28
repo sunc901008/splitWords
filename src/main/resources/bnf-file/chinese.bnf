@@ -14,7 +14,8 @@
             <growth-of> |
             <all-columns> |
             <number-complex-phrase> |
-            <formula-column>;
+            <formula-column> |
+            <other-function-columns>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
                           <number> <bool-symbol> <number-columns> |
@@ -36,6 +37,7 @@
 
 <date-complex-filter> := <before-after-filter> |
                          <last-filter> |
+                         <next-filter> |
                          <between-and-filter> |
                          <date-interval> |
                          <ago-filter>;
@@ -188,10 +190,14 @@
 <by-month-interval> := 按月统计 |
                        按月统计的;
 
-<to-date-interval> := <week-to-date-interval> |
+<to-date-interval> := <today-interval> |
+                      <week-to-date-interval> |
                       <month-to-date-interval> |
                       <quarter-to-date-interval> |
                       <year-to-date-interval>;
+
+<today-interval> := 今天 |
+                    今日;
 
 <week-to-date-interval> := 本周截至目前 |
                              本周截至目前的 |
@@ -419,36 +425,36 @@
                   最近 |
                   近;
 
-<last-days-chinese> := 天 |
+<days-chinese> := 天 |
                        天的;
-<last-days-filter> := <last-chinese> <integer> <last-days-chinese> |
-                      <all-date-column> <last-chinese> <integer> <last-days-chinese> |
+<last-days-filter> := <last-chinese> <integer> <days-chinese> |
+                      <all-date-column> <last-chinese> <integer> <days-chinese> |
                       <all-date-column> <last-day-filter> |
                       <last-day-filter>;
 <last-day-filter> := 昨天 |
                      最后一天 |
                      前一天;
 
-<last-weeks-chinese> := 周 |
-                        周的 |
-                        星期 |
-                        星期的 |
-                        个星期 |
-                        个星期的;
-<last-weeks-filter> := <last-chinese> <integer> <last-weeks-chinese> |
-                       <all-date-column> <last-chinese> <integer> <last-weeks-chinese> |
+<weeks-chinese> := 周 |
+                    周的 |
+                    星期 |
+                    星期的 |
+                    个星期 |
+                    个星期的;
+<last-weeks-filter> := <last-chinese> <integer> <weeks-chinese> |
+                       <all-date-column> <last-chinese> <integer> <weeks-chinese> |
                        <all-date-column> <last-week-filter> |
                        <last-week-filter>;
 <last-week-filter> := 上周 |
                       上个星期 |
                       前一周;
 
-<last-months-chinese> := 月 |
+<months-chinese> := 月 |
                          月的 |
                          个月 |
                          个月的;
-<last-months-filter> := <last-chinese> <integer> <last-months-chinese> |
-                        <all-date-column> <last-chinese> <integer> <last-months-chinese> |
+<last-months-filter> := <last-chinese> <integer> <months-chinese> |
+                        <all-date-column> <last-chinese> <integer> <months-chinese> |
                         <all-date-column> <last-month-filter> |
                         <last-month-filter>;
 <last-month-filter> := 上一个月 |
@@ -456,7 +462,7 @@
                        上月 |
                        前一个月;
 
-<last-quarters-chinese> := 季度 |
+<quarters-chinese> := 季度 |
                            季度的 |
                            季 |
                            季的 |
@@ -464,41 +470,41 @@
                            个季的 |
                            个季度的 |
                            个季度的;
-<last-quarters-filter> := <last-chinese> <integer> <last-quarters-chinese> |
-                          <all-date-column> <last-chinese> <integer> <last-quarters-chinese> |
+<last-quarters-filter> := <last-chinese> <integer> <quarters-chinese> |
+                          <all-date-column> <last-chinese> <integer> <quarters-chinese> |
                           <all-date-column> <last-quarter-filter> |
                           <last-quarter-filter>;
 <last-quarter-filter> := 上个季度 |
                          上季度 |
                          上一季度;
 
-<last-years-chinese> := 年 |
-                        年的;
-<last-years-filter> := <last-chinese> <integer> <last-years-chinese> |
-                       <all-date-column> <last-chinese> <integer> <last-years-chinese> |
+<years-chinese> := 年 |
+                    年的;
+<last-years-filter> := <last-chinese> <integer> <years-chinese> |
+                       <all-date-column> <last-chinese> <integer> <years-chinese> |
                        <all-date-column> <last-year-filter> |
                        <last-year-filter>;
 <last-year-filter> := 去年 |
                       上一年 |
                       前一年;
 
-<last-minutes-chinese> := 分 |
-                          分的 |
-                          分钟 |
-                          分钟的;
-<last-minutes-filter> := <last-chinese> <integer> <last-minutes-chinese> |
-                         <all-date-column> <last-chinese> <integer> <last-minutes-chinese> |
+<minutes-chinese> := 分 |
+                      分的 |
+                      分钟 |
+                      分钟的;
+<last-minutes-filter> := <last-chinese> <integer> <minutes-chinese> |
+                         <all-date-column> <last-chinese> <integer> <minutes-chinese> |
                          <all-date-column> <last-minute-filter> |
                          <last-minute-filter>;
 <last-minute-filter> := 前一分钟 |
                         上一分钟;
 
-<last-hours-chinese> := 小时 |
-                        小时的 |
-                        个小时 |
-                        个小时的;
-<last-hours-filter> := <last-chinese> <integer> <last-hours-chinese> |
-                       <all-date-column> <last-chinese> <integer> <last-hours-chinese> |
+<hours-chinese> := 小时 |
+                    小时的 |
+                    个小时 |
+                    个小时的;
+<last-hours-filter> := <last-chinese> <integer> <hours-chinese> |
+                       <all-date-column> <last-chinese> <integer> <hours-chinese> |
                        <all-date-column> <last-hour-filter> |
                        <last-hour-filter>;
 <last-hour-filter> := 前一小时 |
@@ -506,6 +512,78 @@
                       前一个小时 |
                       上一个小时
                       上个小时;
+
+<next-filter> := <next-days-filter> |
+                 <next-weeks-filter> |
+                 <next-months-filter> |
+                 <next-quarters-filter> |
+                 <next-years-filter> |
+                 <next-minutes-filter> |
+                 <next-hours-filter>;
+
+<next-chinese> := 未来 |
+                  未来的 |
+                  接下来 |
+                  接下来的;
+
+<next-days-filter> := <next-chinese> <integer> <days-chinese> |
+                      <all-date-column> <next-chinese> <integer> <days-chinese> |
+                      <all-date-column> <next-day-filter> |
+                      <next-day-filter>;
+<next-day-filter> := 明天 |
+                     翌日 |
+                     次日;
+
+<next-weeks-filter> := <next-chinese> <integer> <weeks-chinese> |
+                       <all-date-column> <next-chinese> <integer> <weeks-chinese> |
+                       <all-date-column> <next-week-filter> |
+                       <next-week-filter>;
+<next-week-filter> := 下周 |
+                      下个星期 |
+                      下一周;
+
+<next-months-filter> := <next-chinese> <integer> <months-chinese> |
+                        <all-date-column> <next-chinese> <integer> <months-chinese> |
+                        <all-date-column> <next-month-filter> |
+                        <next-month-filter>;
+<next-month-filter> := 下一个月 |
+                       下个月 |
+                       下月 |
+                       未来一个月 |
+                       下一个月的 |
+                       下个月的 |
+                       下月的 |
+                       未来一个月的;
+
+<next-quarters-filter> := <next-chinese> <integer> <quarters-chinese> |
+                          <all-date-column> <next-chinese> <integer> <quarters-chinese> |
+                          <all-date-column> <next-quarter-filter> |
+                          <next-quarter-filter>;
+<next-quarter-filter> := 下个季度 |
+                         下季度 |
+                         下一季度;
+
+<next-years-filter> := <next-chinese> <integer> <years-chinese> |
+                       <all-date-column> <next-chinese> <integer> <years-chinese> |
+                       <all-date-column> <next-year-filter> |
+                       <next-year-filter>;
+<next-year-filter> := 明年 |
+                      下一年 |
+                      来年 |
+                      下一年度;
+
+<next-minutes-filter> := <next-chinese> <integer> <minutes-chinese> |
+                         <all-date-column> <next-chinese> <integer> <minutes-chinese> |
+                         <all-date-column> <next-minute-filter> |
+                         <next-minute-filter>;
+<next-minute-filter> := 下一分钟;
+
+<next-hours-filter> := <next-chinese> <integer> <hours-chinese> |
+                       <all-date-column> <next-chinese> <integer> <hours-chinese> |
+                       <all-date-column> <next-hour-filter> |
+                       <next-hour-filter>;
+<next-hour-filter> := 下一小时 |
+                      下个小时;
 
 <between-and-filter> := <all-date-column> 在 <date-string-value> 和 <date-string-value> 之间的 |
                         在 <date-string-value> 和 <date-string-value> 之间的 |
@@ -543,11 +621,15 @@
                     <number-function-column> |
                     ( <number-function-column> );;
 
-<string-columns> := <all-string-column>;
+<string-columns> := <all-string-column> |
+                    <string-function-column> |
+                    ( <string-function-column> );
 
 <bool-columns> := <all-bool-column>;
 
-<date-columns> := <all-date-column>;
+<date-columns> := <all-date-column> |
+                  <date-function-column> |
+                  ( <date-function-column> );
 
 <all-int-column> := <int-column> |
                     <table-int-column>;
@@ -564,10 +646,12 @@
 <all-date-column> := <date-column> |
                      <table-date-column>;
 
-<all-source-column> := <number-source-column> |
-                       <all-string-column> |
-                       <all-bool-column> |
-                       <all-date-column>;
+<all-source-column> := <not-number-source-column> |
+                       <number-source-column>;
+
+<not-number-source-column> := <all-string-column> |
+                              <all-bool-column> |
+                              <all-date-column>;
 
 <number-source-column> := <all-int-column> |
                           <all-double-column>;

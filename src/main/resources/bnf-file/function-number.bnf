@@ -1,0 +1,248 @@
+<number-function-column> := <average-function> |
+                            <count-function> |
+                            <max-function> |
+                            <min-function> |
+                            <sum-function> |
+                            <to_double-function> |
+                            <to_integer-function> |
+                            <diff_days-function> |
+                            <month_number-function> |
+                            <year-function> |
+                            <strlen-function> |
+                            <number-function> |
+                            <stddev-function> |
+                            <variance-function> |
+                            <unique-count-function> |
+                            <cumulative-function> |
+                            <moving-function> |
+                            <group-function> |
+                            <day-function> |
+                            <day-number-of-week-function> |
+                            <day-number-of-year-function> |
+                            <diff-time-function> |
+                            <hour-of-day-function> |
+                            <greatest-function> |
+                            <least-function> |
+                            <abs-function> |
+                            <acos-function> |
+                            <asin-function> |
+                            <atan-function> |
+                            <cbrt-function> |
+                            <ceil-function> |
+                            <sin-function> |
+                            <cos-function> |
+                            <cube-function> |
+                            <exp-function> |
+                            <exp2-function> |
+                            <floor-function> |
+                            <ln-function> |
+                            <log10-function> |
+                            <log2-function> |
+                            <sign-function> |
+                            <sq-function> |
+                            <sqrt-function> |
+                            <tan-function> |
+                            <atan2-function> |
+                            <mod-function> |
+                            <pow-function> |
+                            <round-function> |
+                            <safe-divide-function> |
+                            <random-function> |
+                            <strpos-function>;
+
+# number
+<average-function> := average ( <number-columns> ) |
+                      average ( <number> );
+
+# number
+<count-function> := count ( <all-source-column> ) |
+                    count ( <number> );
+
+# number
+<max-function> := max ( <all-date-column> ) |
+                  max ( <number-columns> ) |
+                  max ( <number> );
+
+# number
+<min-function> := min ( <all-date-column> ) |
+                  min ( <number-columns> ) |
+                  min ( <number> );
+
+# number
+<sum-function> := sum ( <number-columns> ) |
+                  sum ( <number> );
+
+# number
+<to_double-function> := to_double ( <all-columns> );
+
+#number
+<to_integer-function> := to_integer ( <all-columns> );
+
+# number
+<diff_days-function> := diff_days ( <date-string-value> , <date-columns> ) |
+                        diff_days ( <date-columns> , <date-columns> ) |
+                        diff_days ( <date-columns> , <date-string-value> ) |
+                        diff_days ( <date-string-value> , <date-string-value> );
+
+# number
+<month_number-function> := month_number ( <date-columns> ) |
+                           month_number ( <date-string-value> );
+
+# number
+<year-function> := year ( <date-columns> ) |
+                   year ( <date-string-value> );
+
+# number
+<strlen-function> := strlen ( <string-columns> ) |
+                     strlen ( <single-column-value> );
+
+# filter number function itself
+<no-number-function-column> := <average-function> |
+                            <count-function> |
+                            <max-function> |
+                            <min-function> |
+                            <sum-function> |
+                            <to_double-function> |
+                            <to_integer-function> |
+                            <diff_days-function> |
+                            <month_number-function> |
+                            <year-function> |
+                            <strlen-function>;
+
+# number # todo base
+<number-function> := <number> <math-symbol> <number-columns> |
+                     <number> <math-symbol> <number> |
+                     <number-source-column> <math-symbol> <number-columns> |
+                     <number-source-column> <math-symbol> <number> |
+                     <no-number-function-column> <math-symbol> <number-columns> |
+                     <no-number-function-column> <math-symbol> <number>;
+
+# todo add
+<stddev-function> := stddev ( <number-source-column> );
+<variance-function> := variance ( <number-source-column> );
+<unique-count-function> := unique_count ( <number-source-column> );
+
+<cumulative-function> := <cumulative-average-function> |
+                         <cumulative-max-function> |
+                         <cumulative-min-function> |
+                         <cumulative-sum-function>;
+<cumulative-average-function> := cumulative_average ( <number-source-column> , <attribute-list-params> );
+<cumulative-max-function> := cumulative_max ( <number-source-column> , <attribute-list-params> );
+<cumulative-min-function> := cumulative_min ( <number-source-column> , <attribute-list-params> );
+<cumulative-sum-function> := cumulative_sum ( <number-source-column> , <attribute-list-params> );
+
+<moving-function> := <moving-average-function> |
+                     <moving-max-function> |
+                     <moving-min-function> |
+                     <moving-sum-function>;
+<moving-average-function> := moving_average ( <number-source-column> , <integer> , <integer> , <attribute-list-params> );
+<moving-max-function> := moving_max ( <number-source-column> , <integer> , <integer> , <integer> , <attribute-list-params> );
+<moving-min-function> := moving_min ( <number-source-column> , <integer> , <integer> , <attribute-list-params> );
+<moving-sum-function> := moving_sum ( <number-source-column> , <integer> , <integer> , <attribute-list-params> );
+
+<group-function> := <group-average-function> |
+                    <group-count-function> |
+                    <group-max-function> |
+                    <group-min-function> |
+                    <group-sum-function> |
+                    <group-unique-count-function> |
+                    <group-variance-function>;
+<group-average-function> := group_average ( <number-source-column> , <attribute-list-params> );
+<group-count-function> := group_count ( <number-source-column> , <attribute-list-params> );
+<group-max-function> := group_max ( <number-source-column> , <attribute-list-params> );
+<group-min-function> := group_min ( <number-source-column> , <attribute-list-params> );
+<group-sum-function> := group_sum ( <number-source-column> , <attribute-list-params> );
+<group-unique-count-function> := group_unique_count ( <number-source-column> , <attribute-list-params> );
+<group-variance-function> := group_variance ( <number-source-column> , <attribute-list-params> );
+
+<day-function> := day ( <all-date-column> ) |
+                  day ( <date-string-value> );
+
+<day-number-of-week-function> := day_number_of_week ( <all-date-column> ) |
+                                 day_number_of_week ( <date-string-value> );
+
+<day-number-of-year-function> := day_number_of_year ( <all-date-column> ) |
+                                 day_number_of_year ( <date-string-value> );
+
+<diff-time-function> := diff_time ( <all-date-column> , <all-date-column> ) |
+                        diff_time ( <all-date-column> , <date-string-value> ) |
+                        diff_time ( <date-string-value> , <all-date-column> ) |
+                        diff_time ( <date-string-value> , <date-string-value> );
+
+<hour-of-day-function> := hour_of_day ( <all-date-column> ) |
+                          hour_of_day ( <date-string-value> );
+
+<greatest-function> := greatest ( <number-source-column> , <number> ) |
+                       greatest ( <number-source-column> , <number-source-column> ) |
+                       greatest ( <number> , <number> ) |
+                       greatest ( <number> , <number-source-column> );
+
+<least-function> := least ( <number-source-column> , <number> ) |
+                    least ( <number-source-column> , <number-source-column> ) |
+                    least ( <number> , <number> ) |
+                    least ( <number> , <number-source-column> );
+
+<abs-function> := abs ( <number-source-column> ) |
+                  abs ( <number> );
+<acos-function> := acos ( <number-source-column> ) |
+                   acos ( <number> );
+<asin-function> := asin ( <number-source-column> ) |
+                   asin ( <number> );
+<atan-function> := atan ( <number-source-column> ) |
+                   atan ( <number> );
+<cbrt-function> := cbrt ( <number-source-column> ) |
+                   cbrt ( <number> );
+<ceil-function> := ceil ( <number-source-column> ) |
+                   ceil ( <number> );
+<sin-function> := sin ( <number-source-column> ) |
+                  sin ( <number> );
+<cos-function> := cos ( <number-source-column> ) |
+                  cos ( <number> );
+<cube-function> := cube ( <number-source-column> ) |
+                   cube ( <number> );
+<exp-function> := exp ( <number-source-column> ) |
+                  exp ( <number> );
+<exp2-function> := exp2 ( <number-source-column> ) |
+                   exp2 ( <number> );
+<floor-function> := floor ( <number-source-column> ) |
+                    floor ( <number> );
+<ln-function> := ln ( <number-source-column> ) |
+                 ln ( <number> );
+<log10-function> := log10 ( <number-source-column> ) |
+                    log10 ( <number> );
+<log2-function> := log2 ( <number-source-column> ) |
+                   log2 ( <number> );
+<sign-function> := sign ( <number-source-column> ) |
+                   sign ( <number> );
+<sq-function> := sq ( <number-source-column> ) |
+                 sq ( <number> );
+<sqrt-function> := sqrt ( <number-source-column> ) |
+                   sqrt ( <number> );
+<tan-function> := tan ( <number-source-column> ) |
+                  tan ( <number> );
+
+<atan2-function> := atan2 ( <number-source-column> , <number-source-column> ) |
+                    atan2 ( <number-source-column> , <number> ) |
+                    atan2 ( <number> , <number-source-column> ) |
+                    atan2 ( <number> , <number> );
+<mod-function> := mod ( <number-source-column> , <number-source-column> ) |
+                  mod ( <number-source-column> , <number> ) |
+                  mod ( <number> , <number-source-column> ) |
+                  mod ( <number> , <number> );
+<pow-function> := pow ( <number-source-column> , <number-source-column> ) |
+                  pow ( <number-source-column> , <number> ) |
+                  pow ( <number> , <number-source-column> ) |
+                  pow ( <number> , <number> );
+<round-function> := round ( <number-source-column> , <number-source-column> ) |
+                    round ( <number-source-column> , <number> ) |
+                    round ( <number> , <number-source-column> ) |
+                    round ( <number> , <number> );
+<safe-divide-function> := safe_divide ( <number-source-column> , <number-source-column> ) |
+                          safe_divide ( <number-source-column> , <number> ) |
+                          safe_divide ( <number> , <number-source-column> ) |
+                          safe_divide ( <number> , <number> );
+
+<random-function> := random();
+
+<strpos-function> := strpos ( <single-column-value> , <single-column-value> ) |
+                     strpos ( <all-string-column> , <single-column-value> );

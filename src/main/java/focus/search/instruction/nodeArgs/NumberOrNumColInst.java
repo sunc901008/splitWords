@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.NumberColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
@@ -34,17 +35,22 @@ public class NumberOrNumColInst {
             return arg;
         } else if ("<number>".equals(focusNode.getValue())) {
             return NumberArg.arg(focusNode);
+        } else if ("<number-source-column>".equals(focusNode.getValue())) {
+            return ColumnInstruction.arg(focusNode.getChildren());
         }
         throw new FocusInstructionException(focusNode.toJSON());
     }
 
     // annotation tokens
     public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
+        List<AnnotationToken> tokens = new ArrayList<>();
         if ("<number-columns>".equals(focusNode.getValue())) {
             return NumberColInstruction.tokens(focusNode.getChildren(), formulas, amb);
         } else if ("<number>".equals(focusNode.getValue())) {
-            List<AnnotationToken> tokens = new ArrayList<>();
             tokens.add(NumberArg.token(focusNode));
+            return tokens;
+        } else if ("<number-source-column>".equals(focusNode.getValue())) {
+            tokens.add(AnnotationToken.singleCol(focusNode.getChildren(), amb));
             return tokens;
         }
         throw new FocusInstructionException(focusNode.toJSON());

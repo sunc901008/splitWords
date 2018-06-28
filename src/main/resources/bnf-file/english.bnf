@@ -14,7 +14,8 @@
             <growth-of> |
             <all-columns> |
             <number-complex-phrase> |
-            <formula-column>;
+            <formula-column> |
+            <other-function-columns>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
                           <number> <bool-symbol> <number-columns> |
@@ -36,6 +37,7 @@
 
 <date-complex-filter> := <before-after-filter> |
                          <last-filter> |
+                         <next-filter> |
                          <between-and-filter> |
                          <date-interval> |
                          <ago-filter>;
@@ -95,7 +97,8 @@
                    by month |
                    <to-date-interval>;
 
-<to-date-interval> := week to date |
+<to-date-interval> := today |
+                      week to date |
                       month to date |
                       quarter to date |
                       year to date;
@@ -193,6 +196,49 @@
                        last <integer> years |
                        <all-date-column> last <integer> years;
 
+<next-filter> := <next-days-filter> |
+                 <next-weeks-filter> |
+                 <next-months-filter> |
+                 <next-quarters-filter> |
+                 <next-years-filter> |
+                 <next-minutes-filter> |
+                 <next-hours-filter>;
+
+<next-minutes-filter> := next minute |
+                         <all-date-column> next minute |
+                         next <integer> minutes |
+                         <all-date-column> next <integer> minutes;
+
+<next-hours-filter> := next hour |
+                       <all-date-column> next hour |
+                       next <integer> hours |
+                       <all-date-column> next <integer> hours;
+
+<next-days-filter> := next day |
+                      <all-date-column> next day |
+                      next <integer> days |
+                      <all-date-column> next <integer> days;
+
+<next-weeks-filter> := next week |
+                       <all-date-column> next week |
+                       next <integer> weeks |
+                       <all-date-column> next <integer> weeks;
+
+<next-months-filter> := next month |
+                        <all-date-column> next month |
+                        next <integer> months |
+                        <all-date-column> next <integer> months;
+
+<next-quarters-filter> := next quarter |
+                          <all-date-column> next quarter |
+                          next <integer> quarters |
+                          <all-date-column> next <integer> quarters;
+
+<next-years-filter> := next year |
+                       <all-date-column> next year |
+                       next <integer> years |
+                       <all-date-column> next <integer> years;
+
 <between-and-filter> := <all-date-column> between <date-string-value> and <date-string-value> |
                         <number-source-column> between <number> and <number>;
 
@@ -243,10 +289,12 @@
 <all-date-column> := <date-column> |
                      <table-date-column>;
 
-<all-source-column> := <number-source-column> |
-                       <all-string-column> |
-                       <all-bool-column> |
-                       <all-date-column>;
+<all-source-column> := <not-number-source-column> |
+                       <number-source-column>;
+
+<not-number-source-column> := <all-string-column> |
+                              <all-bool-column> |
+                              <all-date-column>;
 
 <number-source-column> := <all-int-column> |
                           <all-double-column>;

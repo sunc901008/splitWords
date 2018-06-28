@@ -33,6 +33,7 @@ public class FormulaAnalysis {
     private static final String RIGHT_BRACKET = ")";
 
     // 运算优先级
+    private static final List<String> LEVEL0 = Arrays.asList("^");
     private static final List<String> LEVEL1 = Arrays.asList("*", "/");
     private static final List<String> LEVEL2 = Arrays.asList("+", "-");
     //    private static final List<String> LEVEL3 = Arrays.asList(">", "<", "=", "!=");
@@ -271,6 +272,9 @@ public class FormulaAnalysis {
     }
 
     private static int compareOperatorPriority(String type1, String type2) {
+        if (LEVEL0.contains(type1) && LEVEL0.contains(type2)) {
+            return 0;
+        }
         if (LEVEL1.contains(type1) && LEVEL1.contains(type2)) {
             return 0;
         }
@@ -280,10 +284,13 @@ public class FormulaAnalysis {
         if (LEVEL4.contains(type1) && LEVEL4.contains(type2)) {
             return 0;
         }
-        if (LEVEL1.contains(type1)) {
+        if (LEVEL0.contains(type1)) {
             return 1;
         }
-        if (LEVEL2.contains(type1) && !LEVEL1.contains(type2)) {
+        if (LEVEL1.contains(type1) && !LEVEL0.contains(type2)) {
+            return 1;
+        }
+        if (LEVEL2.contains(type1) && !LEVEL0.contains(type2) && !LEVEL1.contains(type2)) {
             return 1;
         }
         return -1;

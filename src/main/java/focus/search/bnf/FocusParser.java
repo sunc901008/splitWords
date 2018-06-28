@@ -56,11 +56,15 @@ public class FocusParser implements Serializable {
     private void init(String language) {
         if (Constant.Language.ENGLISH.equals(language)) {
             initBnf("bnf-file/english.bnf");
-            initBnf("bnf-file/function.bnf");
         } else {
             initBnf("bnf-file/chinese.bnf");
-            initBnf("bnf-file/function.bnf");
         }
+        initBnf("bnf-file/function.bnf");
+        initBnf("bnf-file/function-bool.bnf");
+        initBnf("bnf-file/function-date.bnf");
+        initBnf("bnf-file/function-number.bnf");
+        initBnf("bnf-file/function-other.bnf");
+        initBnf("bnf-file/function-string.bnf");
     }
 
     private void initBnf(String file) {
@@ -260,31 +264,33 @@ public class FocusParser implements Serializable {
 
             List<BnfRule> rules = new ArrayList<>();
             try {
-                rules = parseRules(ft.getWord());
+                rules = parseRules(ft);
             } catch (FocusParserException e) {
                 logger.warn(Common.printStacktrace(e));
             }
-            if (rules.isEmpty()) {
-                focusPhrases.clear();
-                for (FocusPhrase fp : tmp) {
-                    if (fp.size() > i && fp.getNodeNew(i).getValue().equalsIgnoreCase(ft.getWord())) {
-                        if (fp.size() == i + 1) {
-                            fp.setType(Constant.INSTRUCTION);
-                        }
-                        focusPhrases.add(fp);
-                    }
-                }
-                if (focusPhrases.isEmpty()) {// 出错结束
-                    FocusSubInst fsi = new FocusSubInst();
-                    fsi.setIndex(i);
-                    fsi.setFps(tmp);
-                    fsi.setError();
-                    return fsi;
-                }
-            } else {
-                logger.info("replace focusPhrase loop: " + i);
-                replace(rules, focusPhrases, ft, i);
-            }
+//            if (rules.isEmpty()) {
+//                focusPhrases.clear();
+//                for (FocusPhrase fp : tmp) {
+//                    if (fp.size() > i && fp.getNodeNew(i).getValue().equalsIgnoreCase(ft.getWord())) {
+//                        if (fp.size() == i + 1) {
+//                            fp.setType(Constant.INSTRUCTION);
+//                        }
+//                        focusPhrases.add(fp);
+//                    }
+//                }
+//                if (focusPhrases.isEmpty()) {// 出错结束
+//                    FocusSubInst fsi = new FocusSubInst();
+//                    fsi.setIndex(i);
+//                    fsi.setFps(tmp);
+//                    fsi.setError();
+//                    return fsi;
+//                }
+//            } else {
+//                logger.info("replace focusPhrase loop: " + i);
+//                replace(rules, focusPhrases, ft, i);
+//            }
+            logger.info("replace focusPhrase loop: " + i);
+            replace(rules, focusPhrases, ft, i);
             // 去除重复
             distinct(focusPhrases);
 
@@ -464,7 +470,7 @@ public class FocusParser implements Serializable {
 
     private void replace(List<BnfRule> rules, List<FocusPhrase> focusPhrases, FocusToken focusToken, int position) {
         int max_rule = 1;
-        while (!rules.isEmpty() && max_rule < MAX_RULE_LOOP) {
+        while (max_rule < MAX_RULE_LOOP) {
             //  记录替换token之前的phrase
             List<FocusPhrase> copy = new ArrayList<>(focusPhrases);
 
@@ -560,8 +566,7 @@ public class FocusParser implements Serializable {
     }
 
     private List<FocusPhrase> focusPhrases(FocusToken focusToken) throws FocusParserException {
-        String word = focusToken.getWord();
-        List<BnfRule> rules = parseRules(parser.getM_rules(), word);
+        List<BnfRule> rules = parseRules(focusToken);
 
         if (rules.size() <= 1) {
             return null;
@@ -601,11 +606,11 @@ public class FocusParser implements Serializable {
         return focusPhrases;
     }
 
-    private BnfRule findRule(List<BnfRule> rules, Token token) throws FocusParserException {
+    public static BnfRule findRule(List<BnfRule> rules, Token token) throws FocusParserException {
         return findRule(rules, token.getName());
     }
 
-    private BnfRule findRule(List<BnfRule> rules, String token) throws FocusParserException {
+    private static BnfRule findRule(List<BnfRule> rules, String token) throws FocusParserException {
         for (BnfRule rule : rules) {
             if (rule.getLeftHandSide().getName().equals(token)) {
                 return rule;
@@ -614,20 +619,21 @@ public class FocusParser implements Serializable {
         throw new FocusParserException("Cannot find rule for tokens " + JSONObject.toJSONString(token));
     }
 
-    public List<BnfRule> parseRules(String word) throws FocusParserException {
-        return parseRules(parser.getM_rules(), word);
-    }
-
-    private List<BnfRule> parseRules(List<BnfRule> rules, String word) throws FocusParserException {
+    private List<BnfRule> parseRules(FocusToken ft) throws FocusParserException {
         List<BnfRule> res = new ArrayList<>();
-        for (BnfRule br : rules) {
-            BnfRule rule = parser.parse(br, word);
+        for (BnfRule br : parser.getM_rules()) {
+            if (!Common.isNumber(ft.getType())) {
+                if (!containsContains(br.getAllTerminalTokens(parser.getM_rules()), ft.getWord())) {
+                    continue;
+                }
+            }
+            BnfRule rule = parser.parse(br, ft.getWord());
             if (rule != null) {
                 res.add(rule);
             }
         }
 
-        logger.info("adaptation " + word + " rules size:" + rules.size());
+        logger.info("adaptation " + ft.toJson() + " rules size:" + res.size());
         return res;
     }
 
@@ -657,38 +663,25 @@ public class FocusParser implements Serializable {
     public BnfRule parse(String word) throws FocusParserException {
         List<BnfRule> rules = parser.getM_rules();
         for (BnfRule rule : rules) {
-            if (contains(rule.getTerminalTokens(), word)) {
-                return parse(rule, word);
+            if (containsEquals(rule.getTerminalTokens(), word)) {
+                return rule;
             }
         }
         return null;
     }
 
-    private BnfRule parse(BnfRule rule, String word) throws FocusParserException {
-        for (TokenString ts : rule.getAlternatives()) {
-            if (contains(new ArrayList<>(ts.getTerminalTokens()), word)) {
-                for (Token t : ts) {
-                    if (t instanceof TerminalToken) {
-                        if (word.equals(t.getName())) {
-                            return rule;
-                        }
-                    } else {
-                        BnfRule r = parser.getRule(t);
-                        if (r != null) {
-                            if (contains(r.getTerminalTokens(), word)) {
-                                return parse(r, word);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static boolean contains(List<TerminalToken> tokens, String word) {
+    public static boolean containsEquals(List<TerminalToken> tokens, String word) {
         for (TerminalToken token : tokens) {
             if (word.equals(token.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean containsContains(List<TerminalToken> tokens, String word) {
+        for (TerminalToken token : tokens) {
+            if (token.getName().startsWith(word)) {
                 return true;
             }
         }

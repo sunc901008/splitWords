@@ -136,6 +136,9 @@ public class CDateIntervalInstruction {
             case "<year-to-date-interval>":
                 key = "year";
                 break;
+            case "<today-interval>":
+                key = "today";
+                break;
             default:
                 key = "month";
         }

@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.functionInst.DateFunc.AddDaysFuncInstruction;
 import focus.search.instruction.functionInst.DateFunc.IfNullDateColFuncInstruction;
 import focus.search.instruction.functionInst.DateFunc.IfThenElseDateColFuncInstruction;
 import focus.search.instruction.functionInst.DateFunc.ToDateFuncInstruction;
+import focus.search.instruction.functionInst.numberFunc.DaysFuncInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -21,8 +23,12 @@ import java.util.List;
  */
 
 //<date-function-column> := <to_date-function> |
-//        <if-then-else-date-column-function> |
-//        <ifnull-date-column-function>;
+//        <date-function> |
+//        <add-days-function> |
+//          <start-of-month-function> |
+//          <start-of-quarter-function> |
+//          <start-of-week-function> |
+//          <start-of-year-function>;
 public class DateFuncInstruction {
 
     // 完整指令
@@ -35,6 +41,14 @@ public class DateFuncInstruction {
                 return IfThenElseDateColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<ifnull-date-column-function>":
                 return IfNullDateColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<date-function>":
+            case "<start-of-month-function>":
+            case "<start-of-quarter-function>":
+            case "<start-of-week-function>":
+            case "<start-of-year-function>":
+                return DaysFuncInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<add-days-function>":
+                return AddDaysFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -46,10 +60,14 @@ public class DateFuncInstruction {
         switch (fn.getValue()) {
             case "<to_date-function>":
                 return ToDateFuncInstruction.arg(fn.getChildren(), formulas);
-            case "<if-then-else-date-column-function>":
-                return IfThenElseDateColFuncInstruction.arg(fn.getChildren(), formulas);
-            case "<ifnull-date-column-function>":
-                return IfNullDateColFuncInstruction.arg(fn.getChildren(), formulas);
+            case "<date-function>":
+            case "<start-of-month-function>":
+            case "<start-of-quarter-function>":
+            case "<start-of-week-function>":
+            case "<start-of-year-function>":
+                return DaysFuncInstruction.arg(fn.getChildren(), formulas);
+            case "<add-days-function>":
+                return AddDaysFuncInstruction.arg(fn.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -61,10 +79,14 @@ public class DateFuncInstruction {
         switch (fn.getValue()) {
             case "<to_date-function>":
                 return ToDateFuncInstruction.tokens(fn.getChildren(), formulas, amb);
-            case "<if-then-else-date-column-function>":
-                return IfThenElseDateColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
-            case "<ifnull-date-column-function>":
-                return IfNullDateColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<date-function>":
+            case "<start-of-month-function>":
+            case "<start-of-quarter-function>":
+            case "<start-of-week-function>":
+            case "<start-of-year-function>":
+                return DaysFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<add-days-function>":
+                return AddDaysFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

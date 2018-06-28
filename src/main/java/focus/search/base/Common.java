@@ -114,7 +114,7 @@ public class Common {
     // 获取定时任务时间 cron
     public static String getCron() {
         String time = "%s %s %s * * ?";
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = getNow();
         logger.info("Current time : " + sdf1.format(calendar.getTime()));
         calendar.add(Calendar.SECOND, Constant.BiTimeout);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -174,42 +174,43 @@ public class Common {
 
     // 获取当前 起始时间 年月日时分秒
     public static Calendar getNow() {
-        return Calendar.getInstance();
+        Calendar today = Calendar.getInstance();
+        today.setFirstDayOfWeek(Calendar.MONDAY);
+        return today;
     }
 
     // 获取当前 起始时间 年月日时00
     public static Calendar getStartHour() {
-        Calendar today = Calendar.getInstance();
+        Calendar today = getNow();
         clearMinute(today);
         return today;
     }
 
     // 获取当前 起始时间 年月日时分0
     public static Calendar getStartMinute() {
-        Calendar today = Calendar.getInstance();
+        Calendar today = getNow();
         clearSecond(today);
         return today;
     }
 
     // 获取当前天 起始时间 年月日000
     public static Calendar getStartDay() {
-        Calendar today = Calendar.getInstance();
+        Calendar today = getNow();
         clearTime(today);
         return today;
     }
 
     // 获取当前周 起始时间
     public static Calendar getStartWeek() {
-        Calendar today = Calendar.getInstance();
-        int day = today.get(Calendar.WEEK_OF_YEAR);
-        today.set(Calendar.DAY_OF_MONTH, day);
+        Calendar today = getNow();
+        today.add(Calendar.DAY_OF_YEAR, today.getFirstDayOfWeek() - today.get(Calendar.DAY_OF_WEEK));
         clearTime(today);
         return today;
     }
 
     // 获取当前月 起始时间
     public static Calendar getStartMonth() {
-        Calendar today = Calendar.getInstance();
+        Calendar today = getNow();
         clearDay(today);
         clearTime(today);
         return today;
@@ -217,7 +218,7 @@ public class Common {
 
     // 获取当前季度 起始时间
     public static Calendar getStartQuarter() {
-        Calendar today = Calendar.getInstance();
+        Calendar today = getNow();
         int currentMonth = today.get(Calendar.MONTH) + 1;
         try {
             if (currentMonth >= 1 && currentMonth <= 3)
@@ -238,7 +239,7 @@ public class Common {
 
     // 获取当前月 起始时间
     public static Calendar getStartYear() {
-        Calendar today = Calendar.getInstance();
+        Calendar today = getNow();
         clearMonth(today);
         clearDay(today);
         clearTime(today);

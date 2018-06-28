@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.instruction.functionInst.OtherFuncInstruction;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
 import focus.search.instruction.sourceInst.FormulaColumnInstruction;
 import focus.search.meta.Column;
@@ -25,7 +26,8 @@ import java.util.List;
 //        <growth-of> |
 //        <all-columns> |
 //        <number-complex-phrase> |
-//        <formula-column>;
+//        <formula-column> |
+//        <other-function-columns>;
 public class CPhraseInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
@@ -44,6 +46,8 @@ public class CPhraseInstruction {
                 return CPhraseNumberComplexInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<formula-column>":
                 return FormulaColumnInstruction.build(fn.getChildren(), index, formulas);
+            case "<other-function-columns>":
+                return OtherFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

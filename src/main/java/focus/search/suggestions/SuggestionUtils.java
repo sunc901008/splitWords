@@ -225,6 +225,10 @@ public class SuggestionUtils {
                     }
                     if (!focusNode.isTerminal()) {
                         BnfRule br = fp.getRule(focusNode.getValue());
+                        if (suggestions.contains(br.getLeftHandSide().getName())) {
+                            continue;
+                        }
+                        suggestions.add(br.getLeftHandSide().getName());
                         List<TerminalToken> terminalTokens = terminalToken(fp, br);
                         if (terminalTokens.size() > 0) {
                             TerminalToken token = terminalTokens.remove(0);

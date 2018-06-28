@@ -1,0 +1,28 @@
+<other-function-columns> := <if-then-else-function> |
+                            <ifnull-function>;
+
+<if-then-else-bool-filter> := <bool-columns> |
+                              <bool-function>;
+# other
+<if-then-else-function> := if <if-then-else-bool-filter> then <all-string-column> else <single-column-value> |
+                           if <if-then-else-bool-filter> then <all-string-column> else <all-string-column> |
+                           if <if-then-else-bool-filter> then <single-column-value> else <single-column-value> |
+                           if <if-then-else-bool-filter> then <single-column-value> else <all-string-column> |
+                           if <if-then-else-bool-filter> then <number-source-column> else <number> |
+                           if <if-then-else-bool-filter> then <number-source-column> else <number-source-column> |
+                           if <if-then-else-bool-filter> then <number> else <number> |
+                           if <if-then-else-bool-filter> then <number> else <number-source-column> |
+                           if <if-then-else-bool-filter> then <all-bool-column> else <all-bool-column> |
+                           if <if-then-else-bool-filter> then <all-date-column> else <date-string-value> |
+                           if <if-then-else-bool-filter> then <all-date-column> else <all-date-column> |
+                           if <if-then-else-bool-filter> then <date-string-value> else <date-string-value> |
+                           if <if-then-else-bool-filter> then <date-string-value> else <all-date-column>;
+
+# other
+<ifnull-function> := ifnull ( <number-source-column> , <number> ) |
+                     ifnull ( <number-source-column> , <number-source-column> ) |
+                     ifnull ( <all-string-column> , <single-column-value> ) |
+                     ifnull ( <all-string-column> , <all-string-column> ) |
+                     ifnull ( <all-bool-column> , <all-bool-column> ) |
+                     ifnull ( <all-date-column> , <all-date-column> ) |
+                     ifnull ( <all-date-column> , <date-string-value> );
