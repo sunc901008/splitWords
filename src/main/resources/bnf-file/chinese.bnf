@@ -664,7 +664,8 @@
 <double> := 1;
 
 <comma-symbol> := , |
-                  ，;
+                  ，|
+                  、;
 <column-value> := <single-column-value> |
                   <single-column-value> <comma-symbol> <column-value>;
 
