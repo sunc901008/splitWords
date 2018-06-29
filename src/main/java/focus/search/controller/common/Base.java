@@ -317,7 +317,8 @@ public class Base {
                     // search finish
                     Common.send(session, SearchFinishedResponse.response(search, received));
 
-                    if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event) && FocusToken.tokensToString(tokens).equals(getLastQuestion(historyQuestions))) {
+                    if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event)
+                            || FocusToken.tokensToString(tokens).equals(getLastQuestion(historyQuestions))) {
                         return;
                     }
                     // prepareQuery
