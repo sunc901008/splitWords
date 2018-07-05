@@ -6,6 +6,7 @@ import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
+import focus.search.base.LanguageUtils;
 import focus.search.bnf.*;
 import focus.search.bnf.tokens.*;
 import focus.search.controller.common.FormulaAnalysis;
@@ -40,9 +41,6 @@ public class SuggestionUtils {
 
     private static final Integer DEFAULT_BNF_DEEP = 5;
 
-    private static final String STRING_GUIDANCE = "You can select a suggestion below or input a string with quote.Multi value split with comma.";
-    private static final String DATE_GUIDANCE = "You can select a suggestion below or input a date with quote.";
-
     /**
      * ① 输入的question能够匹配上一个完整的bnf规则，即能够正常下发指令。
      * <p>
@@ -56,6 +54,7 @@ public class SuggestionUtils {
      * @return SuggestionResponse
      */
     public static SuggestionResponse suggestionsCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) throws IllegalException, IOException, AmbiguitiesException {
+        String language = user.getString("language");
         if (tokens.get(tokens.size() - 1).getEnd() > position) {//光标在search中间
             return middlePosition(fp, search, user, tokens, position);
         }
@@ -70,6 +69,8 @@ public class SuggestionUtils {
 
         List<List<String>> bnfList = checkDefault(focusInst);
 
+        String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
+
         for (Object history : historyQuestions) {
             String suggestion = ((HistoryQuestion) history).question;
             String tokensToStr = FocusToken.tokensToString(tokens);
@@ -79,12 +80,14 @@ public class SuggestionUtils {
                 ss.endPos = position;
                 ss.suggestion = suggestion;
                 ss.suggestionType = Constant.SuggestionType.HISTORY;
-                ss.description = "history";
+                ss.description = historyDescription;
                 datas.addSug(ss);
             }
         }
 
-        completed(fp, datas, focusInst, tokens, position, addSpace);
+        completed(fp, datas, focusInst, tokens, position, addSpace, language);
+
+        String systemDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_system);
 
         for (List<String> bnfName : bnfList) {
             for (String ruleName : bnfName) {
@@ -98,7 +101,7 @@ public class SuggestionUtils {
                 ss.endPos = position;
                 ss.suggestion = suggestion;
                 ss.suggestionType = Constant.SuggestionType.PHRASE;
-                ss.description = "suggestion system";
+                ss.description = systemDescription;
                 datas.addSug(ss);
             }
         }
@@ -106,8 +109,8 @@ public class SuggestionUtils {
         return response;
     }
 
-    private static void completed(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace) throws IllegalException {
-        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, true);
+    private static void completed(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, String language) throws IllegalException {
+        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, true, language);
     }
 
     /**
@@ -123,6 +126,7 @@ public class SuggestionUtils {
      * @return SuggestionResponse
      */
     public static SuggestionResponse suggestionsNotCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) throws IllegalException, IOException, AmbiguitiesException {
+        String language = user.getString("language");
         if (tokens.get(tokens.size() - 1).getEnd() > position) {//光标在search中间
             return middlePosition(fp, search, user, tokens, position);
         }
@@ -134,6 +138,7 @@ public class SuggestionUtils {
 //        datas.phraseBeginPos = datas.beginPos;
 
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
+        String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
 
         for (Object history : historyQuestions) {
             String suggestion = ((HistoryQuestion) history).question;
@@ -144,22 +149,24 @@ public class SuggestionUtils {
                 ss.endPos = position;
                 ss.suggestion = suggestion;
                 ss.suggestionType = Constant.SuggestionType.HISTORY;
-                ss.description = "history";
+                ss.description = historyDescription;
                 datas.addSug(ss);
             }
         }
 
-        notCompleted(fp, datas, focusInst, tokens, position, addSpace);
+        notCompleted(fp, datas, focusInst, tokens, position, addSpace, language);
 
         response.setDatas(datas);
         return response;
     }
 
-    private static void notCompleted(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace) throws IllegalException {
-        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, false);
+    private static void notCompleted(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, String language) throws IllegalException {
+        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, false, language);
     }
 
-    private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed) throws IllegalException {
+    private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed, String language) throws IllegalException {
+        String columnDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_column);
+
         int index = tokens.size() - 1;
         int last = tokens.size() - 1;
         Set<String> suggestions = new HashSet<>();//已经添加的suggestion
@@ -203,7 +210,7 @@ public class SuggestionUtils {
                                     ss.endPos = position;
                                     ss.suggestion = String.format("\"%s\"", token.getString("content"));
                                     ss.suggestionType = Constant.SuggestionType.COLUMN_VALUE;
-                                    ss.description = "column value in " + column.getColumnDisplayName();
+                                    ss.description = String.format(columnDescription, column.getColumnDisplayName());
                                     sss.add(ss);
                                 }
                                 break;
@@ -213,14 +220,18 @@ public class SuggestionUtils {
                         }
                     }
 
+                    String stringGuidance = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_string_guidance);
+                    String dateGuidance = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_date_guidance);
+                    String numberDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_number);
+
                     FocusNode focusNode = focusPhrase.getNodeNew(index + 1);
                     String inputValue = focusNode.getValue();
                     if (ColumnValueTerminalToken.COLUMN_VALUE.equals(inputValue) || ColumnValueTerminalToken.COLUMN_VALUE_BNF.equals(inputValue)) {
-                        datas.guidance = String.format("%sExample: \"focus\",'data'.", STRING_GUIDANCE);
+                        datas.guidance = String.format(stringGuidance, "\"focus\",'data'.");
                         break;
                     }
                     if (DateValueTerminalToken.DATE_VALUE.equals(inputValue) || DateValueTerminalToken.DATE_VALUE_BNF.equals(inputValue)) {
-                        datas.guidance = String.format("%sExample: %s.", DATE_GUIDANCE, SourcesUtils.dateSug());
+                        datas.guidance = String.format(dateGuidance, SourcesUtils.dateSug());
                         break;
                     }
                     if (!focusNode.isTerminal()) {
@@ -246,7 +257,7 @@ public class SuggestionUtils {
                                 ss.endPos = position;
                                 ss.suggestion = suggestion;
                                 ss.suggestionType = Constant.SuggestionType.NUMBER;
-                                ss.description = "this is a number.";
+                                ss.description = numberDescription;
                                 sss.add(ss);
                             } else if (Constant.FNDType.COLUMN.equals(type)) {
                                 Column column = token.getColumn();
@@ -256,7 +267,7 @@ public class SuggestionUtils {
                                 ss.endPos = position;
                                 ss.suggestion = suggestion;
                                 ss.suggestionType = Constant.SuggestionType.COLUMN;
-                                ss.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                                ss.description = String.format(columnDescription, column.getColumnDisplayName());
                                 sss.add(ss);
                                 while (!terminalTokens.isEmpty()) {
                                     TerminalToken tmp = terminalTokens.remove(0);
@@ -270,7 +281,7 @@ public class SuggestionUtils {
                                     ssTmp.endPos = position;
                                     ssTmp.suggestion = addSpace ? " " + tmp.getName() : tmp.getName();
                                     ssTmp.suggestionType = Constant.SuggestionType.COLUMN;
-                                    ssTmp.description = columnTmp.getColumnDisplayName() + " in table " + columnTmp.getSourceName();
+                                    ssTmp.description = String.format(columnDescription, columnTmp.getColumnDisplayName());
                                     sss.add(ssTmp);
                                 }
                             } else {
@@ -296,7 +307,7 @@ public class SuggestionUtils {
                             String description = ss.suggestionType;
                             if (Constant.FNDType.COLUMN.equals(ss.suggestionType)) {
                                 Column column = focusNode.getColumn();
-                                description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                                description = String.format(columnDescription, column.getColumnDisplayName());
                             }
                             ss.description = description;
                             sss.add(ss);
@@ -328,7 +339,7 @@ public class SuggestionUtils {
                             continue;
                         }
                         hasAddColumnIds.add(column.getColumnId());
-                        ss.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                        ss.description = String.format(columnDescription, column.getColumnDisplayName());
                         datas.addSug(ss, suggestions.contains(fn.getValue()));
                     } else {
                         datas.addSug(ss);
@@ -378,15 +389,16 @@ public class SuggestionUtils {
      * @param user      websocket用户信息
      * @param tokens    分词结果
      */
-    public static void suggestionsMiddleError(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, IllegalDatas datas) throws IllegalException, IOException, AmbiguitiesException {
+    public static List<SuggestionSuggestion> suggestionsMiddleError(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens) throws IllegalException, IOException, AmbiguitiesException {
+        String language = user.getString("language");
         int errorTokenIndex = focusInst.position;
         int beginPos = tokens.get(errorTokenIndex).getStart();
         int endPos = search.length();
-        datas.reason = "can not understand";
         tokens = tokens.subList(0, errorTokenIndex);
         List<SuggestionSuggestion> sss = new ArrayList<>();
 
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
+        String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
 
         for (Object history : historyQuestions) {
             String suggestion = ((HistoryQuestion) history).question;
@@ -397,12 +409,17 @@ public class SuggestionUtils {
                 ss.endPos = endPos;
                 ss.suggestion = suggestion;
                 ss.suggestionType = Constant.SuggestionType.HISTORY;
-                ss.description = "history";
+                ss.description = historyDescription;
                 sss.add(ss);
             }
         }
 
         Set<String> suggestions = new HashSet<>();
+        String columnDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_column);
+        String numberDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_number);
+        String colValueDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_column_value);
+        String dateValueDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_date_value);
+
         for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
             if (errorTokenIndex <= 0) {
                 break;
@@ -428,26 +445,23 @@ public class SuggestionUtils {
                                 hasNumber = true;
                             }
                             value = SourcesUtils.decimalSug(true);
-                            description = "this is a number.";
-                            datas.reason = "You can input a number.Example:" + SourcesUtils.decimalSug(true);
+                            description = numberDescription;
                         }
 
                         String val = focusNode.getValue();
                         if (ColumnValueTerminalToken.COLUMN_VALUE.equals(val) || ColumnValueTerminalToken.COLUMN_VALUE_BNF.equals(val)) {
                             value = SourcesUtils.stringSug();
                             type = Constant.SuggestionType.COLUMN_VALUE;
-                            description = "this is a column value.";
-                            datas.reason = "You can select a suggestion below or input a string with quote.Example: \"focus\",'data'.";
+                            description = colValueDescription;
                         } else if (DateValueTerminalToken.DATE_VALUE.equals(val) || DateValueTerminalToken.DATE_VALUE_BNF.equals(val)) {
                             value = SourcesUtils.dateSug();
                             type = Constant.SuggestionType.DATE_VALUE;
-                            description = "this is a date value.";
-                            datas.reason = String.format("You can select a suggestion below or input a date with quote.Example: %s.", SourcesUtils.dateSug());
+                            description = dateValueDescription;
                         }
 
                         if (Constant.FNDType.COLUMN.equals(type)) {
                             Column column = token.getColumn();
-                            description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                            description = String.format(columnDescription, column.getColumnDisplayName());
                         }
 
                         SuggestionSuggestion ss = new SuggestionSuggestion();
@@ -469,7 +483,7 @@ public class SuggestionUtils {
                         String description = ss.suggestionType;
                         if (Constant.FNDType.COLUMN.equals(ss.suggestionType)) {
                             Column column = focusNode.getColumn();
-                            description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+                            description = String.format(columnDescription, column.getColumnDisplayName());
                         }
                         ss.description = description;
                         sss.add(ss);
@@ -479,7 +493,7 @@ public class SuggestionUtils {
                 errorTokenIndex = errorTokenIndex - focusPhrase.size();
             }
         }
-        datas.suggestions = sss;
+        return sss;
     }
 
     /**
@@ -524,6 +538,10 @@ public class SuggestionUtils {
 
         datas.beginPos = 0;
 //        datas.phraseBeginPos = datas.beginPos;
+        String language = user.getString("language");
+        String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
+        String systemDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_system);
+        String columnDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_column);
 
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
 
@@ -536,7 +554,7 @@ public class SuggestionUtils {
             ss.endPos = endPos;
             ss.suggestion = suggestion;
             ss.suggestionType = Constant.SuggestionType.HISTORY;
-            ss.description = "history";
+            ss.description = historyDescription;
             datas.addSug(ss);
         }
 
@@ -551,7 +569,7 @@ public class SuggestionUtils {
                 ss.endPos = endPos;
                 ss.suggestion = suggestion;
                 ss.suggestionType = Constant.SuggestionType.PHRASE;
-                ss.description = "suggestion system";
+                ss.description = systemDescription;
                 datas.addSug(ss);
             }
         }
@@ -563,7 +581,7 @@ public class SuggestionUtils {
             ss.endPos = endPos;
             ss.suggestion = column.getColumnDisplayName();
             ss.suggestionType = Constant.SuggestionType.COLUMN;
-            ss.description = column.getColumnDisplayName() + " in table " + column.getSourceName();
+            ss.description = String.format(columnDescription, column.getColumnDisplayName());
             datas.addSug(ss);
         }
 

@@ -81,7 +81,7 @@ public class CommonFunc {
                     ar.possibleValue = ar.columnName;
                     ars.add(ar);
                 }
-                throw new AmbiguitiesException(ars, fn.getBegin(), fn.getEnd(), type);
+                throw new AmbiguitiesException(ars, focusPhrase.getFirstNode().getBegin(), focusPhrase.getLastNode().getEnd(), type);
             }
         } else {
             dateCol = dateColumns.get(0);

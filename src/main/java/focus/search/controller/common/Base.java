@@ -7,6 +7,7 @@ import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
+import focus.search.base.LanguageUtils;
 import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusParser;
@@ -181,6 +182,9 @@ public class Base {
 
         logger.info("current ambiguities:" + amb);
 
+        String ambiguityTitle = LanguageUtils.getMsg(language, LanguageUtils.Ambiguity_title);
+        String ambiguityItem = LanguageUtils.getMsg(language, LanguageUtils.Ambiguity_item);
+
         // 分词  中文分词会出现歧义
         List<FocusToken> tokens;
         try {
@@ -195,7 +199,7 @@ public class Base {
             datas.begin = e.begin;
             datas.end = e.end;
             datas.id = id;
-            datas.title = "ambiguity word: " + ambiguityWord;
+            datas.title = String.format(ambiguityTitle, ambiguityWord);
             e.ars.forEach(a -> datas.possibleMenus.add(a.possibleValue));
             response.setDatas(datas);
             Common.send(session, response.response());
@@ -356,8 +360,13 @@ public class Base {
                 int strPosition = tokens.get(focusInst.position).getStart();
                 IllegalDatas datas = new IllegalDatas();
                 datas.beginPos = strPosition;
+                String reason = LanguageUtils.getMsg(language, LanguageUtils.IllegalDatas_reason);
+                String reasonItem = LanguageUtils.getMsg(language, LanguageUtils.IllegalDatas_reason_item);
                 if (focusInst.position == 0) {
-                    SuggestionUtils.suggestionsStartError(fp, search, user, datas);
+                    SuggestionResponse suggestionResponse = SuggestionUtils.suggestionsNull(fp, user, search, search.length());
+                    StringBuilder sb = new StringBuilder();
+                    suggestionResponse.getDatas().suggestions.forEach(s -> sb.append(String.format(reasonItem, s.suggestion)));
+                    datas.reason = String.format(reason, sb.toString());
                     response.setDatas(datas);
                     Common.send(session, response.response());
                     logger.info(response.response());
@@ -368,7 +377,10 @@ public class Base {
                         SuggestionResponse suggestionResponse = SuggestionUtils.suggestionsMiddleError(fp, search, user, tokens, position);
                         Common.send(session, suggestionResponse.response());
                     } else {
-                        SuggestionUtils.suggestionsMiddleError(fp, search, focusInst, user, tokens, datas);
+                        List<SuggestionSuggestion> sss = SuggestionUtils.suggestionsMiddleError(fp, search, focusInst, user, tokens);
+                        StringBuilder sb = new StringBuilder();
+                        sss.forEach(s -> sb.append(String.format(reasonItem, s.suggestion)));
+                        datas.reason = String.format(reason, sb.toString());
                         response.setDatas(datas);
                         Common.send(session, response.response());
                         logger.info(response.response());
@@ -396,8 +408,17 @@ public class Base {
             datas.begin = e.begin;
             datas.end = e.end;
             datas.id = id;
-            datas.title = "ambiguity word: " + title;
-            e.ars.forEach(a -> datas.possibleMenus.add(a.columnName + " in table " + a.sourceName));
+            datas.title = String.format(ambiguityTitle, title);
+            e.ars.forEach(a -> {
+                String value1 = a.columnName;
+                String value2 = a.sourceName;
+                if (Constant.Language.CHINESE.equals(language)) {
+                    value1 = a.sourceName;
+                    value2 = a.columnName;
+                }
+                String value = String.format(ambiguityItem, value1, value2);
+                datas.possibleMenus.add(value);
+            });
             response.setDatas(datas);
             Common.send(session, response.response());
             logger.info(response.response());

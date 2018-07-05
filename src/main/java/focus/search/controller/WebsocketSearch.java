@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Common;
 import focus.search.base.Constant;
+import focus.search.base.LanguageUtils;
 import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.tokens.TerminalToken;
@@ -135,25 +136,29 @@ public class WebsocketSearch extends TextWebSocketHandler {
     public static JSONObject modelNameCheck(String name, String language, String type) {
         FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
 
+        String message;
         NameCheckResponse response = new NameCheckResponse(Constant.Status.ERROR);
         List<TerminalToken> tokens = SuggestionUtils.terminalTokens(fp, "<symbol>");
         for (TerminalToken token : tokens) {
             if (name.toLowerCase().contains(token.getName())) {
-                response.message = token.getName() + " is invalid character(s)";
+                message = LanguageUtils.getMsg(language, LanguageUtils.modelNameCheck_invalid_character);
+                response.message = String.format(message, name, token.getName());
                 return response.toJSON();
             }
         }
 
         for (TerminalToken token : fp.getTerminalTokens()) {
             if (name.toLowerCase().equals(token.getName().toLowerCase())) {
-                response.message = token.getName() + " is a focus keyword";
+                message = LanguageUtils.getMsg(language, LanguageUtils.modelNameCheck_keyword);
+                response.message = String.format(message, name, name);
                 return response.toJSON();
             }
         }
 
         //  纯数字
         if (Common.intCheck(name) || Common.doubleCheck(name)) {
-            response.message = name + " can not be a pure digital";
+            message = LanguageUtils.getMsg(language, LanguageUtils.modelNameCheck_pure_digital);
+            response.message = String.format(message, name);
             return response.toJSON();
         }
 
