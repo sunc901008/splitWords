@@ -117,7 +117,6 @@
                      <no-number-function-column> <math-symbol> <number-columns> |
                      <no-number-function-column> <math-symbol> <number>;
 
-# todo add
 <stddev-function> := stddev ( <number-source-column> );
 <variance-function> := variance ( <number-source-column> );
 <unique-count-function> := unique_count ( <number-source-column> );

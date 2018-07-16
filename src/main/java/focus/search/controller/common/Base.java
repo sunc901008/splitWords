@@ -218,14 +218,16 @@ public class Base {
             user.put("ambiguities", amb);
         }
 
+        int userId = user.getInteger("id");
+
         try {
             // 解析结果
             FocusInst focusInst;
             if (isQuestion) {
                 logger.info("search question. tokens:" + JSON.toJSONString(tokens) + " ambiguities:" + amb);
-                focusInst = fp.parseQuestion(tokens, amb);
+                focusInst = fp.parseQuestion(tokens, amb, userId);
             } else {
-                focusInst = fp.parseFormula(tokens, amb);
+                focusInst = fp.parseFormula(tokens, amb, userId);
             }
 
             logger.info(focusInst.toJSON().toJSONString());

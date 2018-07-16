@@ -19,6 +19,8 @@ public class Constant {
 
     public static final String MINUS = "-";
 
+    public static final String REDIS_PREFIX = "user_%d_%s";
+
     public static final List<String> START_QUOTES = Arrays.asList("\"", "“", "'", "‘");
     public static final List<String> END_QUOTES = Arrays.asList("\"", "”", "'", "’");
 

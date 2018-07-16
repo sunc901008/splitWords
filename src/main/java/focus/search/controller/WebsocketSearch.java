@@ -116,7 +116,7 @@ public class WebsocketSearch extends TextWebSocketHandler {
 
             try {
                 // 解析结果
-                FocusInst focusInst = fp.parseQuestion(tokens, amb);
+                FocusInst focusInst = fp.parseQuestion(tokens, amb, 0);
                 if (focusInst.position < 0) {
                     if (focusInst.isInstruction) {
                         JSONObject json = InstructionBuild.build(focusInst, question, amb, Base.getFormula(user), language);
