@@ -261,7 +261,9 @@
 
 <number-columns> := <all-int-column> |
                     <all-double-column> |
+                    #<number-columns> <math-symbol> <number-columns> |
                     <number-function-column> |
+                    #<number> |
                     ( <number-function-column> );
 
 <string-columns> := <all-string-column> |

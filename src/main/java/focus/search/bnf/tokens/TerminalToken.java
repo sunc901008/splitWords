@@ -47,4 +47,10 @@ public class TerminalToken extends Token {
         return getName().toLowerCase().startsWith(s.toLowerCase());
     }
 
+    public boolean match(String s, boolean isPrefix) {
+        String ruleName = getName().toLowerCase();
+        s = s.toLowerCase();
+        return isPrefix ? ruleName.startsWith(s) : ruleName.equals(s);
+    }
+
 }

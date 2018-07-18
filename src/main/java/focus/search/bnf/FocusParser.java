@@ -18,10 +18,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * creator: sunc
@@ -196,7 +193,7 @@ public class FocusParser implements Serializable {
 
         String value = null;
         String key = String.format(Constant.REDIS_PREFIX, userId, focusToken.getWord());
-        value = RedisUtils.get(key);
+//        value = RedisUtils.get(key);
         List<FocusPhrase> focusPhrases = null;
         if (value != null) {
             focusPhrases = JSONArray.parseArray(value, FocusPhrase.class);
@@ -314,6 +311,90 @@ public class FocusParser implements Serializable {
         fsi.setIndex(-1);
 
         return fsi;
+    }
+
+    public List<FocusPhrase> subParseRebuild(List<FocusToken> tokens, JSONObject amb) throws AmbiguitiesException {
+        List<FocusPhrase> focusPhrases = new ArrayList<>();
+        BnfRule start = parser.getM_rules().peekFirst();
+        subParseRebuild(start, focusPhrases, tokens, amb, 0, 0);
+        return focusPhrases;
+    }
+
+    private void subParseRebuild(final BnfRule rule, List<FocusPhrase> focusPhrases, List<FocusToken> tokens, JSONObject amb, int index, int level) throws AmbiguitiesException {
+        if (level > MAX_RULE_LOOP) {
+            System.out.println("max rule deep!");
+            throw new AmbiguitiesException();
+        }
+
+        boolean wrong = true;
+        for (TokenString alt : rule.getAlternatives()) {
+            FocusToken ft = tokens.get(index);
+            FocusPhrase fp = new FocusPhrase(rule.getLeftHandSide().getName());
+            TokenString newAlt = alt.getCopy();
+            Iterator<Token> altIt = newAlt.iterator();
+            wrong = false;
+            while (altIt.hasNext() && !wrong) {
+                Token token = altIt.next();
+                ft = tokens.get(index);
+                if (token instanceof IntegerTerminalToken || token instanceof NumberTerminalToken) {
+                    if (token.match(ft.getWord())) {
+                        FocusNode child = new FocusNode(token.getName());
+                        child.setValue(ft.getWord());
+                        child.setBegin(ft.getStart());
+                        child.setEnd(ft.getEnd());
+                        child.setType(ft.getType());
+                        child.setTerminal();
+                        fp.addPn(child);
+                        index++;
+                    } else {
+                        wrong = true;
+                        index = 0;
+                    }
+                } else if (token instanceof TerminalToken) {
+                    if (((TerminalToken) token).match(ft.getWord(), index == tokens.size())) {
+                        FocusNode child = new FocusNode(token.getName());
+                        child.setValue(ft.getWord());
+                        child.setBegin(ft.getStart());
+                        child.setEnd(ft.getEnd());
+                        child.setType(ft.getType());
+                        child.setTerminal();
+                        fp.addPn(child);
+                        index++;
+                    } else {
+                        wrong = true;
+                        index = 0;
+                    }
+                } else {
+                    BnfRule r = getRule(token);
+                    if (r == null) {
+                        continue;
+                    }
+                    List<FocusPhrase> tmp = new ArrayList<>();
+                    subParseRebuild(r, tmp, tokens, amb, index, level + 1);
+                    for (FocusPhrase t : tmp) {
+                        FocusPhrase fpNew = new FocusPhrase(rule.getLeftHandSide().getName());
+                        FocusNode child = new FocusNode(token.getName());
+                        child.setChildren(t);
+                        fpNew.addPn(child);
+                        if (focusPhrases.isEmpty() || focusPhrases.get(0).position <= fpNew.position) {
+                            focusPhrases.add(fpNew);
+                        }
+                    }
+                }
+            }
+            if (!wrong) {
+                if (!altIt.hasNext() && index == tokens.size()) {
+                    fp.setType(Constant.INSTRUCTION);
+                    focusPhrases.clear();
+                    focusPhrases.add(fp);
+                } else {
+                    fp.position = index;
+                    if (focusPhrases.isEmpty() || focusPhrases.get(0).position <= fp.position) {
+                        focusPhrases.add(fp);
+                    }
+                }
+            }
+        }
     }
 
     private FocusSubInst check(List<FocusPhrase> focusPhrases, int i, String token, boolean notLast) {
