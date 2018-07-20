@@ -1,5 +1,5 @@
 <question> := <number-function>;
 <number-function> := <add> | <sub> | - <number-function> | <integer> | ( <number-function> );
-<add> := <number-function> + <number-function>;
-<sub> := <number-function> - <number-function>;
+<add> := <integer> + <number-function>;
+<sub> := <integer> - <number-function>;
 <integer> := 1;

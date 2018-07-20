@@ -98,16 +98,55 @@
 
 # filter number function itself
 <no-number-function-column> := <average-function> |
-                            <count-function> |
-                            <max-function> |
-                            <min-function> |
-                            <sum-function> |
-                            <to_double-function> |
-                            <to_integer-function> |
-                            <diff_days-function> |
-                            <month_number-function> |
-                            <year-function> |
-                            <strlen-function>;
+                               <count-function> |
+                               <max-function> |
+                               <min-function> |
+                               <sum-function> |
+                               <to_double-function> |
+                               <to_integer-function> |
+                               <diff_days-function> |
+                               <month_number-function> |
+                               <year-function> |
+                               <strlen-function> |
+                               <stddev-function> |
+                               <variance-function> |
+                               <unique-count-function> |
+                               <cumulative-function> |
+                               <moving-function> |
+                               <group-function> |
+                               <day-function> |
+                               <day-number-of-week-function> |
+                               <day-number-of-year-function> |
+                               <diff-time-function> |
+                               <hour-of-day-function> |
+                               <greatest-function> |
+                               <least-function> |
+                               <abs-function> |
+                               <acos-function> |
+                               <asin-function> |
+                               <atan-function> |
+                               <cbrt-function> |
+                               <ceil-function> |
+                               <sin-function> |
+                               <cos-function> |
+                               <cube-function> |
+                               <exp-function> |
+                               <exp2-function> |
+                               <floor-function> |
+                               <ln-function> |
+                               <log10-function> |
+                               <log2-function> |
+                               <sign-function> |
+                               <sq-function> |
+                               <sqrt-function> |
+                               <tan-function> |
+                               <atan2-function> |
+                               <mod-function> |
+                               <pow-function> |
+                               <round-function> |
+                               <safe-divide-function> |
+                               <random-function> |
+                               <strpos-function>;
 
 # number # todo base
 <number-function> := <number> <math-symbol> <number-columns> |
@@ -115,7 +154,8 @@
                      <number-source-column> <math-symbol> <number-columns> |
                      <number-source-column> <math-symbol> <number> |
                      <no-number-function-column> <math-symbol> <number-columns> |
-                     <no-number-function-column> <math-symbol> <number>;
+                     <no-number-function-column> <math-symbol> <number> |
+                     <number>;
 
 <stddev-function> := stddev ( <number-source-column> );
 <variance-function> := variance ( <number-source-column> );
@@ -241,7 +281,7 @@
                           safe_divide ( <number> , <number-source-column> ) |
                           safe_divide ( <number> , <number> );
 
-<random-function> := random();
+<random-function> := random ( );
 
 <strpos-function> := strpos ( <single-column-value> , <single-column-value> ) |
                      strpos ( <all-string-column> , <single-column-value> );

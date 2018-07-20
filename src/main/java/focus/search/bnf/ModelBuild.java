@@ -36,11 +36,11 @@ public class ModelBuild {
                     br.setLeftHandSide(new NonTerminalToken("<double-column>"));
                     br1.setLeftHandSide(new NonTerminalToken("<table-double-column>"));
                 } else if (col.dataType.equalsIgnoreCase(Constant.DataType.TIMESTAMP)) {
-                    br.setLeftHandSide(new NonTerminalToken("<date-column>"));
-                    br1.setLeftHandSide(new NonTerminalToken("<table-date-column>"));
+                    br.setLeftHandSide(new NonTerminalToken("<timestamp-column>"));
+                    br1.setLeftHandSide(new NonTerminalToken("<table-timestamp-column>"));
                 } else if (col.dataType.equalsIgnoreCase(Constant.DataType.BOOLEAN)) {
-                    br.setLeftHandSide(new NonTerminalToken("<bool-column>"));
-                    br1.setLeftHandSide(new NonTerminalToken("<table-bool-column>"));
+                    br.setLeftHandSide(new NonTerminalToken("<boolean-column>"));
+                    br1.setLeftHandSide(new NonTerminalToken("<table-boolean-column>"));
                 } else {
                     br.setLeftHandSide(new NonTerminalToken("<string-column>"));
                     br1.setLeftHandSide(new NonTerminalToken("<table-string-column>"));

@@ -602,12 +602,11 @@ public class SuggestionUtils {
         JSONObject amb = user.getJSONObject("ambiguities");
         boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(category);
         List<FocusToken> tokens = fp.focusAnalyzer.test(subSearch, language);
-        int userId = user.getInteger("id");
         FocusInst focusInst;
         if (isQuestion) {
-            focusInst = fp.parseQuestion(tokens, amb, userId);
+            focusInst = fp.parseQuestion(tokens, amb, user);
         } else {
-            focusInst = fp.parseFormula(tokens, amb, userId);
+            focusInst = fp.parseFormula(tokens, amb, user);
         }
         if (!focusInst.isInstruction) {
             SuggestionResponse response = suggestionsNotCompleted(fp, search, focusInst, user, tokens, position);

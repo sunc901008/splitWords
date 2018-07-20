@@ -11,6 +11,8 @@ import focus.search.bnf.tokens.*;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
+import focus.search.metaReceived.ColumnReceived;
+import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusParserException;
 import org.apache.log4j.Logger;
@@ -18,7 +20,10 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * creator: sunc
@@ -101,7 +106,7 @@ public class FocusParser implements Serializable {
         return parser.getRule(name);
     }
 
-    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb, int userId) throws AmbiguitiesException {
+    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb, JSONObject user) throws AmbiguitiesException {
         List<FocusToken> copyTokens = new ArrayList<>(tokens);
         FocusInst fi = new FocusInst();
         int flag = 0;
@@ -113,7 +118,7 @@ public class FocusParser implements Serializable {
             }
             FocusSubInst fsi;
             try {
-                fsi = subParse(copyTokens, amb, userId);
+                fsi = subParse(copyTokens, amb, user);
             } catch (AmbiguitiesException e) {
                 e.position = flag + e.position;
                 throw e;
@@ -149,7 +154,7 @@ public class FocusParser implements Serializable {
             }
         }
         if (error > 0 && error < position) {
-            FocusSubInst fsi = subParse(tokens.subList(error, position), amb, userId);
+            FocusSubInst fsi = subParse(tokens.subList(error, position), amb, user);
             assert fsi != null;
             fi.addPfs(fsi.getFps());
             if (fsi.isError()) {
@@ -159,13 +164,13 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
-    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb, int userId) throws AmbiguitiesException {
+    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb, JSONObject user) throws AmbiguitiesException {
         FocusInst fi = new FocusInst();
         int flag = 0;
         int position = 0;
         FocusSubInst fsi;
         try {
-            fsi = subParse(tokens, amb, userId);
+            fsi = subParse(tokens, amb, user);
         } catch (AmbiguitiesException e) {
             e.position = flag + e.position;
             throw e;
@@ -188,18 +193,66 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
-    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, int userId) throws AmbiguitiesException {
+    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, JSONObject user) throws AmbiguitiesException {
         FocusToken focusToken = tokens.get(0);
 
-        String value = null;
-        String key = String.format(Constant.REDIS_PREFIX, userId, focusToken.getWord());
-//        value = RedisUtils.get(key);
+        String key = null;
+        Column column = null;
+        switch (focusToken.getType()) {
+            case "integer":
+                key = Constant.REDIS_INTEGER_PREFIX;
+                break;
+            case "double":
+                key = Constant.REDIS_DOUBLE_PREFIX;
+                break;
+            default:
+                if (user == null) {
+                    break;
+                }
+                String language = user.getString("language");
+                language = Common.isEmpty(language) ? Constant.Language.ENGLISH : language;
+                List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
+                boolean isMatch = false;
+                for (SourceReceived sr : srs) {
+                    if (sr.sourceName.startsWith(focusToken.getWord())) {
+                        key = String.format(Constant.REDIS_TABLE_PREFIX, language);
+                        break;
+                    }
+                    for (ColumnReceived cr : sr.columns) {
+                        if (cr.columnDisplayName.startsWith(focusToken.getWord())) {
+                            key = String.format(Constant.REDIS_COLUMN_PREFIX, language, cr.dataType);
+                            isMatch = true;
+                            column = cr.transfer();
+                            column.setTableId(sr.tableId);
+                            column.setSourceName(sr.sourceName);
+                            column.setTbPhysicalName(sr.physicalName);
+                            column.setDbName(sr.parentDB);
+                            break;
+                        }
+                    }
+                    if (isMatch) {
+                        break;
+                    }
+                }
+                if (!isMatch)
+                    key = String.format(Constant.REDIS_KEYWORD_PREFIX, focusToken.getWord());
+        }
+
         List<FocusPhrase> focusPhrases = null;
-        if (value != null) {
+        String value;
+        if (key != null && (value = RedisUtils.get(key)) != null) {
             focusPhrases = JSONArray.parseArray(value, FocusPhrase.class);
+            for (FocusPhrase fp : focusPhrases) {
+                FocusNode node = fp.getFirstNode();
+                node.setBegin(focusToken.getStart());
+                node.setEnd(focusToken.getEnd());
+                node.setValue(focusToken.getWord());
+                node.setColumn(column);
+                fp.replaceNode(0, node);
+            }
         } else {
             try {
-                focusPhrases = focusPhrases(focusToken);
+                focusPhrases = focusPhrases(focusToken, amb);
             } catch (FocusParserException e) {
                 logger.warn(Common.printStacktrace(e));
             }
@@ -273,14 +326,13 @@ public class FocusParser implements Serializable {
                 continue;
             }
 
-            List<BnfRule> rules = new ArrayList<>();
             try {
-                rules = parseRules(ft);
+                List<BnfRule> rules = parseRules(ft);
+                logger.info("replace focusPhrase loop: " + i);
+                replace(rules, focusPhrases, ft, i, amb);
             } catch (FocusParserException e) {
                 logger.warn(Common.printStacktrace(e));
             }
-            logger.info("replace focusPhrase loop: " + i);
-            replace(rules, focusPhrases, ft, i);
             // 去除重复
             distinct(focusPhrases);
 
@@ -311,90 +363,6 @@ public class FocusParser implements Serializable {
         fsi.setIndex(-1);
 
         return fsi;
-    }
-
-    public List<FocusPhrase> subParseRebuild(List<FocusToken> tokens, JSONObject amb) throws AmbiguitiesException {
-        List<FocusPhrase> focusPhrases = new ArrayList<>();
-        BnfRule start = parser.getM_rules().peekFirst();
-        subParseRebuild(start, focusPhrases, tokens, amb, 0, 0);
-        return focusPhrases;
-    }
-
-    private void subParseRebuild(final BnfRule rule, List<FocusPhrase> focusPhrases, List<FocusToken> tokens, JSONObject amb, int index, int level) throws AmbiguitiesException {
-        if (level > MAX_RULE_LOOP) {
-            System.out.println("max rule deep!");
-            throw new AmbiguitiesException();
-        }
-
-        boolean wrong = true;
-        for (TokenString alt : rule.getAlternatives()) {
-            FocusToken ft = tokens.get(index);
-            FocusPhrase fp = new FocusPhrase(rule.getLeftHandSide().getName());
-            TokenString newAlt = alt.getCopy();
-            Iterator<Token> altIt = newAlt.iterator();
-            wrong = false;
-            while (altIt.hasNext() && !wrong) {
-                Token token = altIt.next();
-                ft = tokens.get(index);
-                if (token instanceof IntegerTerminalToken || token instanceof NumberTerminalToken) {
-                    if (token.match(ft.getWord())) {
-                        FocusNode child = new FocusNode(token.getName());
-                        child.setValue(ft.getWord());
-                        child.setBegin(ft.getStart());
-                        child.setEnd(ft.getEnd());
-                        child.setType(ft.getType());
-                        child.setTerminal();
-                        fp.addPn(child);
-                        index++;
-                    } else {
-                        wrong = true;
-                        index = 0;
-                    }
-                } else if (token instanceof TerminalToken) {
-                    if (((TerminalToken) token).match(ft.getWord(), index == tokens.size())) {
-                        FocusNode child = new FocusNode(token.getName());
-                        child.setValue(ft.getWord());
-                        child.setBegin(ft.getStart());
-                        child.setEnd(ft.getEnd());
-                        child.setType(ft.getType());
-                        child.setTerminal();
-                        fp.addPn(child);
-                        index++;
-                    } else {
-                        wrong = true;
-                        index = 0;
-                    }
-                } else {
-                    BnfRule r = getRule(token);
-                    if (r == null) {
-                        continue;
-                    }
-                    List<FocusPhrase> tmp = new ArrayList<>();
-                    subParseRebuild(r, tmp, tokens, amb, index, level + 1);
-                    for (FocusPhrase t : tmp) {
-                        FocusPhrase fpNew = new FocusPhrase(rule.getLeftHandSide().getName());
-                        FocusNode child = new FocusNode(token.getName());
-                        child.setChildren(t);
-                        fpNew.addPn(child);
-                        if (focusPhrases.isEmpty() || focusPhrases.get(0).position <= fpNew.position) {
-                            focusPhrases.add(fpNew);
-                        }
-                    }
-                }
-            }
-            if (!wrong) {
-                if (!altIt.hasNext() && index == tokens.size()) {
-                    fp.setType(Constant.INSTRUCTION);
-                    focusPhrases.clear();
-                    focusPhrases.add(fp);
-                } else {
-                    fp.position = index;
-                    if (focusPhrases.isEmpty() || focusPhrases.get(0).position <= fp.position) {
-                        focusPhrases.add(fp);
-                    }
-                }
-            }
-        }
     }
 
     private FocusSubInst check(List<FocusPhrase> focusPhrases, int i, String token, boolean notLast) {
@@ -449,7 +417,10 @@ public class FocusParser implements Serializable {
      * date: 2018/3/1
      * description: 检测歧义
      */
-    private void ambiguitiesCheck(FocusToken token, List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
+    private static void ambiguitiesCheck(FocusToken token, List<FocusPhrase> focusPhrases, int index, JSONObject amb) throws AmbiguitiesException {
+        if (amb == null) {
+            return;
+        }
         List<AmbiguitiesRecord> ars = new ArrayList<>();
 
         FocusNode node = focusPhrases.get(0).getNodeNew(index);
@@ -520,7 +491,7 @@ public class FocusParser implements Serializable {
         return true;
     }
 
-    private void distinct(List<FocusPhrase> focusPhrases) {
+    private static void distinct(List<FocusPhrase> focusPhrases) {
         List<FocusPhrase> copy = new ArrayList<>(focusPhrases);
         for (FocusPhrase fp0 : copy) {
             List<Integer> remove = new ArrayList<>();
@@ -542,7 +513,8 @@ public class FocusParser implements Serializable {
 
     }
 
-    private void replace(List<BnfRule> rules, List<FocusPhrase> focusPhrases, FocusToken focusToken, int position) {
+    // todo rebuild
+    private void replace(List<BnfRule> rules, List<FocusPhrase> focusPhrases, FocusToken focusToken, int position, JSONObject amb) throws AmbiguitiesException {
         long start = Calendar.getInstance().getTimeInMillis();
         int max_rule = 1;
         while (max_rule < MAX_RULE_LOOP) {
@@ -588,9 +560,9 @@ public class FocusParser implements Serializable {
                             continue;
                         }
                         String brName = br.getLeftHandSide().getName();
-                        if ("<number-function>".equals(brName)) {
-                            replaceBnf(br);
-                        }
+//                        if ("<number-function>".equals(brName) || "<number-function-column>".equals(brName)) {
+//                            replaceBnf(br);
+//                        }
                         for (TokenString ts : br.getAlternatives()) {
                             FocusPhrase newFp = new FocusPhrase(brName);
                             for (int i = 0; i < ts.size(); i++) {
@@ -638,14 +610,20 @@ public class FocusParser implements Serializable {
 //                break;
 //            }
         }
+
+        // 去除重复
+        distinct(focusPhrases);
+
+        // 歧义检测
+        ambiguitiesCheck(focusToken, focusPhrases, position, amb);
+
         long end = Calendar.getInstance().getTimeInMillis();
 
         System.out.println(focusToken.getWord().toUpperCase() + " COST :" + (end - start));
 
-        System.out.println("--------------------------------");
     }
 
-    private List<FocusPhrase> focusPhrases(FocusToken focusToken) throws FocusParserException {
+    public List<FocusPhrase> focusPhrases(FocusToken focusToken, JSONObject amb) throws FocusParserException, AmbiguitiesException {
         List<BnfRule> rules = parseRules(focusToken);
 
         if (rules.size() <= 1) {
@@ -681,11 +659,11 @@ public class FocusParser implements Serializable {
         }
         rules.removeAll(removes);
 
-        System.out.println("-------------------------------------");
+        System.out.println("-----------------replace start------------------:" + focusToken.toJson());
         System.out.println(Calendar.getInstance().getTimeInMillis());
-        replace(rules, focusPhrases, focusToken, 0);
+        replace(rules, focusPhrases, focusToken, 0, amb);
         System.out.println(Calendar.getInstance().getTimeInMillis());
-        System.out.println("-------------------------------------");
+        System.out.println("-----------------replace end--------------------");
 
         return focusPhrases;
     }
@@ -729,6 +707,10 @@ public class FocusParser implements Serializable {
             }
         }
         return false;
+    }
+
+    public List<BnfRule> getAllRules() {
+        return parser.getM_rules();
     }
 
     // 判断是否为规则中的单元词
@@ -779,7 +761,7 @@ public class FocusParser implements Serializable {
 //<number-function-column> := <number-function-column> + <integer> + <integer> |
 //							<integer> + <integer> + <integer> |
 //                            <integer> + <integer>;
-    private void replaceBnf(BnfRule br) {
+    public void replaceBnf(BnfRule br) {
         List<TokenString> list = new ArrayList<>();
         BnfRule rule = new BnfRule();
         rule.addAlternatives(br.getAlternatives());
@@ -829,6 +811,17 @@ public class FocusParser implements Serializable {
         List<TerminalToken> tokens = getTerminalTokens();
         for (TerminalToken token : tokens) {
             if (value.equals(token.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 是否以系统默认关键词开头(排除表名列名)
+    public boolean isStartsWithKeyword(String value) {
+        List<TerminalToken> tokens = getTerminalTokens();
+        for (TerminalToken token : tokens) {
+            if (value.startsWith(token.getName()) && !Constant.FNDType.TABLE.equals(token.getType()) && !Constant.FNDType.COLUMN.equals(token.getType())) {
                 return true;
             }
         }

@@ -122,7 +122,7 @@ public class WebserviceController {
             FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
             ModelBuild.buildTable(fp, srs);
             List<FocusToken> tokens = fp.focusAnalyzer.test(answer.getString("question"), language);
-            FocusInst fi = fp.parseQuestion(tokens, ambiguities, 0);
+            FocusInst fi = fp.parseQuestion(tokens, ambiguities, null);
             if (fi.position < 0) {
                 int n = tokens.size();
                 for (FocusPhrase f : fi.getFocusPhrases()) {

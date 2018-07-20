@@ -195,8 +195,8 @@ public class FocusParser_bak implements Serializable {
         FocusToken focusToken = tokens.get(0);
 
         String value = null;
-        String key = String.format(Constant.REDIS_PREFIX, userId, focusToken.getWord());
-        value = RedisUtils.get(key);
+//        String key = String.format(Constant.REDIS_NUMBER_PREFIX, userId, focusToken.getWord());
+//        value = RedisUtils.get(key);
         List<FocusPhrase> focusPhrases = null;
         if (value != null) {
             focusPhrases = JSONArray.parseArray(value, FocusPhrase.class);
@@ -223,7 +223,7 @@ public class FocusParser_bak implements Serializable {
 
             JSONArray jsonArray = new JSONArray();
             focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
-            RedisUtils.set(key, jsonArray.toJSONString());
+//            RedisUtils.set(key, jsonArray.toJSONString());
         }
 
         for (int i = 1; i < tokens.size(); i++) {

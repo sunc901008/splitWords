@@ -148,7 +148,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
 
             return;
         }
-        FocusInst focusInst = fp.parseQuestion(tokens, amb, 0);
+        FocusInst focusInst = fp.parseQuestion(tokens, amb, null);
         if (!focusInst.isInstruction) {
             // TODO: 2018/5/8 return error
 

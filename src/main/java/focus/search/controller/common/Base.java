@@ -12,6 +12,7 @@ import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.FocusPhrase;
+import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.WebsocketSearch;
 import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
@@ -218,16 +219,57 @@ public class Base {
             user.put("ambiguities", amb);
         }
 
-        int userId = user.getInteger("id");
+        if (tokens.size() == 1) {
+            FocusToken input = tokens.get(0);
+            if (!Constant.FNDType.INTEGER.equals(input.getType()) && !Constant.FNDType.DOUBLE.equals(input.getType()) && !fp.isKeyword(input.getWord())) {
+                // 出错或者不完整的keyword
+                List<TerminalToken> terminalTokens = fp.getTerminalTokens();
+                List<SuggestionSuggestion> sss = new ArrayList<>();
+                for (TerminalToken t : terminalTokens) {
+                    if (t.getName().startsWith(input.getWord())) {
+                        SuggestionSuggestion ss = new SuggestionSuggestion();
+                        ss.beginPos = 0;
+                        ss.endPos = position;
+                        ss.suggestion = t.getName();
+                        ss.suggestionType = t.getType();
+                        sss.add(ss);
+                    }
+                }
+                if (sss.isEmpty()) {
+                    IllegalResponse response = new IllegalResponse(search);
+                    IllegalDatas datas = new IllegalDatas();
+                    datas.beginPos = 0;
+                    String reason = LanguageUtils.getMsg(language, LanguageUtils.IllegalDatas_reason);
+                    String reasonItem = LanguageUtils.getMsg(language, LanguageUtils.IllegalDatas_reason_item);
+                    SuggestionResponse suggestionResponse = SuggestionUtils.suggestionsNull(fp, user, search, search.length());
+                    StringBuilder sb = new StringBuilder();
+                    suggestionResponse.getDatas().suggestions.forEach(s -> sb.append(String.format(reasonItem, s.suggestion)));
+                    datas.reason = String.format(reason, sb.toString());
+                    response.setDatas(datas);
+                    Common.send(session, response.response());
+                } else {
+                    SuggestionDatas datas = new SuggestionDatas();
+                    datas.addAllSug(sss);
+                    SuggestionResponse response = new SuggestionResponse(search);
+                    response.setDatas(datas);
+                    Common.send(session, response.response());
+                }
+
+                // search finish
+                Common.send(session, SearchFinishedResponse.response(search, received));
+                return;
+            }
+
+        }
 
         try {
             // 解析结果
             FocusInst focusInst;
             if (isQuestion) {
                 logger.info("search question. tokens:" + JSON.toJSONString(tokens) + " ambiguities:" + amb);
-                focusInst = fp.parseQuestion(tokens, amb, userId);
+                focusInst = fp.parseQuestion(tokens, amb, user);
             } else {
-                focusInst = fp.parseFormula(tokens, amb, userId);
+                focusInst = fp.parseFormula(tokens, amb, user);
             }
 
             logger.info(focusInst.toJSON().toJSONString());

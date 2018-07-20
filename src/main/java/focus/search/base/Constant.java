@@ -1,5 +1,18 @@
 package focus.search.base;
 
+import com.alibaba.fastjson.JSONArray;
+import focus.search.analyzer.focus.FocusToken;
+import focus.search.bnf.BnfRule;
+import focus.search.bnf.FocusParser;
+import focus.search.bnf.FocusPhrase;
+import focus.search.bnf.tokens.NonTerminalToken;
+import focus.search.bnf.tokens.TerminalToken;
+import focus.search.bnf.tokens.Token;
+import focus.search.bnf.tokens.TokenString;
+import focus.search.controller.common.Base;
+import focus.search.meta.Column;
+import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.exception.FocusParserException;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
@@ -19,7 +32,12 @@ public class Constant {
 
     public static final String MINUS = "-";
 
-    public static final String REDIS_PREFIX = "user_%d_%s";
+    public static final String REDIS_INTEGER_PREFIX = "focus_integer";
+    public static final String REDIS_DOUBLE_PREFIX = "focus_double";
+    public static final String REDIS_KEYWORD_PREFIX = "focus_keyword_%s";
+    public static final String REDIS_TABLE_PREFIX = "%s_focus_table";// language_focus_table
+    public static final String REDIS_COLUMN_PREFIX = "%s_focus_column_%s";// 根据data type区分 language_focus_column_int
+    private static final String tableName = "focus";
 
     public static final List<String> START_QUOTES = Arrays.asList("\"", "“", "'", "‘");
     public static final List<String> END_QUOTES = Arrays.asList("\"", "”", "'", "’");
@@ -88,6 +106,153 @@ public class Constant {
                 }
             } catch (IOException e) {
                 logger.error(e.getMessage());
+            }
+        }
+        long start = Common.getNow().getTimeInMillis();
+        insertRedis();
+        long end = Common.getNow().getTimeInMillis();
+        System.out.println("===================init:" + (end - start));
+    }
+
+    private static void all(Set<String> terminals, List<BnfRule> rules, String ruleName) {
+        BnfRule startRule = findRule(rules, ruleName);
+        if (startRule != null)
+            for (TokenString t : startRule.getAlternatives()) {
+                Token token = t.peekFirst();
+                if (token instanceof TerminalToken) {
+                    terminals.add(token.getName());
+                } else {
+                    all(terminals, rules, token.getName());
+                }
+            }
+    }
+
+    private static BnfRule findRule(List<BnfRule> rules, String ruleName) {
+        for (BnfRule br : rules) {
+            if (br.getLeftHandSide().getName().equals(ruleName)) {
+                return br;
+            }
+        }
+        return null;
+    }
+
+    private static void insertRedis() {
+        final Set<String> initEnglishKeywordRedis = new HashSet<>();
+        FocusParser englishParser = Base.englishParser.deepClone();
+        all(initEnglishKeywordRedis, englishParser.getAllRules(), "<question>");
+        for (String keyword : initEnglishKeywordRedis) {
+            initKeyword(englishParser, keyword);
+        }
+        List<String> englishColNames = getInitSource(englishParser, Language.ENGLISH);
+        initSource(englishParser, tableName, Language.ENGLISH);
+        initSource(englishParser, englishColNames);
+        final Set<String> initChineseKeywordRedis = new HashSet<>();
+        FocusParser chineseParser = Base.chineseParser.deepClone();
+        all(initChineseKeywordRedis, chineseParser.getAllRules(), "<question>");
+        for (String keyword : initChineseKeywordRedis) {
+            if (initEnglishKeywordRedis.contains(keyword)) {
+                continue;
+            }
+            initKeyword(chineseParser, keyword);
+        }
+        List<String> chineseColNames = getInitSource(chineseParser, Language.CHINESE);
+        initSource(chineseParser, tableName, Language.CHINESE);
+        initSource(chineseParser, chineseColNames);
+    }
+
+    private static List<String> getInitSource(FocusParser fp, String language) {
+        List<String> colNames = new ArrayList<>();
+        String colName;
+        String type;
+
+        for (Column col : columns(language)) {
+            type = col.getDataType();
+            colName = col.getColumnDisplayName();
+            BnfRule br = new BnfRule();
+            BnfRule br1 = new BnfRule();
+            br.setLeftHandSide(new NonTerminalToken(String.format("<%s-column>", type)));
+            br1.setLeftHandSide(new NonTerminalToken(String.format("<table-%s-column>", type)));
+            TokenString alternative_to_add = new TokenString();
+
+            alternative_to_add.add(new TerminalToken(colName, Constant.FNDType.COLUMN, col));
+            br.addAlternative(alternative_to_add);
+            fp.addRule(br);
+
+            TokenString alternative_to_add1 = new TokenString();
+            alternative_to_add1.add(new TerminalToken(tableName, Constant.FNDType.TABLE));
+            alternative_to_add1.add(new TerminalToken(colName, Constant.FNDType.COLUMN, col));
+            br1.addAlternative(alternative_to_add1);
+            fp.addRule(br1);
+            colNames.add(colName);
+        }
+        return colNames;
+    }
+
+    private static List<Column> columns(String language) {
+        List<Column> columns = new ArrayList<>();
+        List<String> types = Arrays.asList(DataType.INT, DataType.DOUBLE, DataType.TIMESTAMP, DataType.BOOLEAN, DataType.STRING);
+        int id = 1;
+        for (String type : types) {
+            Column col = new Column();
+            col.setColumnDisplayName(String.format(REDIS_COLUMN_PREFIX, language, type));
+            col.setColumnId(id++);
+            col.setDataType(type);
+            columns.add(col);
+        }
+        return columns;
+    }
+
+    private static void initKeyword(FocusParser parser, String keyword) {
+        try {
+            String key = String.format(REDIS_KEYWORD_PREFIX, keyword);
+            String type = FNDType.KEYWORD;
+            if ("<integer>".equals(keyword)) {
+                keyword = "1";
+                type = FNDType.INTEGER;
+                key = REDIS_INTEGER_PREFIX;
+            } else if ("<double>".equals(keyword)) {
+                keyword = "1.0";
+                type = FNDType.DOUBLE;
+                key = REDIS_DOUBLE_PREFIX;
+            }
+            FocusToken focusToken = new FocusToken(keyword, type, 0, keyword.length());
+
+            List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null);
+            JSONArray jsonArray = new JSONArray();
+            focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
+
+            RedisUtils.set(key, jsonArray.toJSONString());
+        } catch (FocusParserException | AmbiguitiesException e) {
+            logger.warn(Common.printStacktrace(e));
+        }
+    }
+
+    private static void initSource(FocusParser parser, String tableName, String language) {
+        try {
+            FocusToken focusToken = new FocusToken(tableName, FNDType.TABLE, 0, tableName.length());
+
+            List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null);
+            JSONArray jsonArray = new JSONArray();
+            focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
+
+            RedisUtils.set(String.format(REDIS_TABLE_PREFIX, language), jsonArray.toJSONString());
+        } catch (FocusParserException | AmbiguitiesException e) {
+            logger.warn(Common.printStacktrace(e));
+        }
+    }
+
+    private static void initSource(FocusParser parser, List<String> colNames) {
+        for (String colName : colNames) {
+            try {
+                FocusToken focusToken = new FocusToken(colName, FNDType.COLUMN, 0, colName.length());
+
+                List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null);
+                JSONArray jsonArray = new JSONArray();
+                focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
+
+                RedisUtils.set(colName, jsonArray.toJSONString());
+            } catch (FocusParserException | AmbiguitiesException e) {
+                logger.warn(Common.printStacktrace(e));
             }
         }
     }

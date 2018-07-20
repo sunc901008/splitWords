@@ -26,7 +26,8 @@ import java.util.List;
 //        <number-source-column> <math-symbol> <number-columns> |
 //        <number-source-column> <math-symbol> <number> |
 //        <no-number-function-column> <math-symbol> <number-columns> |
-//        <no-number-function-column> <math-symbol> <number>;
+//        <no-number-function-column> <math-symbol> <number> |
+//        <number>;
 public class BaseNumberFuncInstruction {
 
     // 完整指令
@@ -62,6 +63,13 @@ public class BaseNumberFuncInstruction {
 //        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
 //        FocusNode symbol = focusPhrase.getFocusNodes().get(1);
 
+        if (focusPhrase.getFocusNodes().size() == 1) {//<number>
+            JSONObject expression = new JSONObject();
+            expression.put("type", "number");
+            expression.put("name", focusPhrase.getFirstNode().getValue());
+            return expression;
+        }
+
         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.numberAnalysis(focusPhrase);
 
         JSONObject expression = new JSONObject();
@@ -90,11 +98,19 @@ public class BaseNumberFuncInstruction {
 
     // annotation tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
-        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
-        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
-        FocusNode symbol = focusPhrase.getFocusNodes().get(1).getChildren().getFirstNode();
+        List<FocusNode> nodes = focusPhrase.getFocusNodes();
 
         List<AnnotationToken> tokens = new ArrayList<>();
+
+        if (nodes.size() == 1) {//<number>
+            tokens.add(NumberArg.token(focusPhrase.getFirstNode()));
+            return tokens;
+        }
+
+        FocusNode param1 = nodes.get(0);
+        FocusNode param2 = nodes.get(2);
+        FocusNode symbol = nodes.get(1).getChildren().getFirstNode();
+
         if ("<number>".equals(param1.getValue())) {
             tokens.add(NumberArg.token(param1));
         } else if ("<number-source-column>".equals(param1.getValue())) {

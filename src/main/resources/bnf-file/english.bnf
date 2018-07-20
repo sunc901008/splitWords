@@ -261,9 +261,7 @@
 
 <number-columns> := <all-int-column> |
                     <all-double-column> |
-                    #<number-columns> <math-symbol> <number-columns> |
                     <number-function-column> |
-                    #<number> |
                     ( <number-function-column> );
 
 <string-columns> := <all-string-column> |
@@ -285,11 +283,11 @@
 <all-string-column> := <string-column> |
                        <table-string-column>;
 
-<all-bool-column> := <bool-column> |
-                     <table-bool-column>;
+<all-bool-column> := <boolean-column> |
+                     <table-boolean-column>;
 
-<all-date-column> := <date-column> |
-                     <table-date-column>;
+<all-date-column> := <timestamp-column> |
+                     <table-timestamp-column>;
 
 <all-source-column> := <not-number-source-column> |
                        <number-source-column>;

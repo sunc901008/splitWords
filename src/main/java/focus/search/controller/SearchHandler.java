@@ -363,7 +363,7 @@ class SearchHandler {
                 e.printStackTrace();
             }
             try {
-                FocusInst focusInst = fp.parseFormula(tokens, amb, user.getInteger("id"));
+                FocusInst focusInst = fp.parseFormula(tokens, amb, user);
                 FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
 
                 formula.setColumnType(formulaReceived.columnType);
@@ -434,7 +434,7 @@ class SearchHandler {
                         e.printStackTrace();
                     }
                     try {
-                        FocusInst focusInst = fp.parseFormula(tokens, amb, user.getInteger("id"));
+                        FocusInst focusInst = fp.parseFormula(tokens, amb, user);
                         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
 
                         formula.setColumnType(formulaReceived.columnType);
