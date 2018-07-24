@@ -52,7 +52,7 @@ public class BoolFuncColInstruction {
             case "<not-function>":
                 return NotFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<is-weekend-function>":
-                return DaysFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return DaysFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -68,7 +68,7 @@ public class BoolFuncColInstruction {
                 return ContainsFuncInstruction.arg(focusPhrase, formulas);
             case "<and-function>":
             case "<or-function>":
-                return AndOrFuncInstruction.arg(focusPhrase, formulas);
+                return AndOrFuncInstruction.arg(fn.getChildren(), formulas);
             case "<if-then-else-bool-column-function>":
                 return IfThenElseBoolColFuncInstruction.arg(focusPhrase, formulas);
             case "<ifnull-bool-column-function>":
@@ -94,7 +94,7 @@ public class BoolFuncColInstruction {
                 return ContainsFuncInstruction.tokens(focusPhrase, formulas, amb);
             case "<and-function>":
             case "<or-function>":
-                return AndOrFuncInstruction.tokens(focusPhrase, formulas, amb);
+                return AndOrFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<if-then-else-bool-column-function>":
                 return IfThenElseBoolColFuncInstruction.tokens(focusPhrase, formulas, amb);
             case "<ifnull-bool-column-function>":

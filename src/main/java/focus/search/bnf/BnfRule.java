@@ -1,5 +1,7 @@
 package focus.search.bnf;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.exception.InvalidRuleException;
 import focus.search.bnf.tokens.*;
@@ -24,18 +26,22 @@ public class BnfRule implements Serializable {
     /**
      * A list of tokens strings that for all the possible cases of that rule
      */
-    private List<TokenString> m_alternatives = new ArrayList<>();
+    private List<TokenString> alternatives = new ArrayList<>();
 
     /**
      * The left-hand side of the rule. Since we deal with BNF grammars, this
      * left-hand side must be a single non-terminal symbol.
      */
-    private NonTerminalToken m_leftHandSide;
+    private NonTerminalToken leftHandSide;
 
     /**
      * Creates a new empty BNF rule
      */
     public BnfRule() {
+    }
+
+    public void setAlternatives(List<TokenString> alternatives) {
+        this.alternatives = alternatives;
     }
 
     /**
@@ -144,7 +150,7 @@ public class BnfRule implements Serializable {
      * @param t The non-terminal tokens that will be used for the left-hand side of the rule
      */
     public void setLeftHandSide(final NonTerminalToken t) {
-        m_leftHandSide = t;
+        leftHandSide = t;
     }
 
     /**
@@ -154,7 +160,7 @@ public class BnfRule implements Serializable {
      */
     public void addAlternative(final TokenString ts) {
         if (!exist(ts)) {
-            m_alternatives.add(ts);
+            alternatives.add(ts);
         }
     }
 
@@ -164,7 +170,7 @@ public class BnfRule implements Serializable {
      * @return A list of alternatives, each of which is a string of tokens (either terminal or non-terminal)
      */
     public List<TokenString> getAlternatives() {
-        return m_alternatives;
+        return alternatives;
     }
 
     /**
@@ -173,7 +179,7 @@ public class BnfRule implements Serializable {
      * @return The left-hand side symbol
      */
     public NonTerminalToken getLeftHandSide() {
-        return m_leftHandSide;
+        return leftHandSide;
     }
 
     // transfer UNICODE
@@ -192,7 +198,7 @@ public class BnfRule implements Serializable {
     // 获取当前bnf下的所有 terminalToken
     public List<TerminalToken> getTerminalTokens() {
         List<TerminalToken> out = new ArrayList<>();
-        for (TokenString ts : m_alternatives) {
+        for (TokenString ts : alternatives) {
             out.addAll(ts.getTerminalTokens());
         }
         return out;
@@ -206,10 +212,18 @@ public class BnfRule implements Serializable {
         return tokens;
     }
 
+    public void addAlternatives(Collection<TokenString> alternatives) {
+        for (TokenString ts : alternatives) {
+            if (!exist(ts)) {
+                this.alternatives.add(ts);
+            }
+        }
+    }
+
     // 获取当前bnf下以及子bnf的所有 terminalToken
     private List<TerminalToken> getAllTerminalTokens(List<String> ruleNames, List<BnfRule> rules) {
         List<TerminalToken> out = new ArrayList<>();
-        for (TokenString ts : m_alternatives) {
+        for (TokenString ts : alternatives) {
             for (Token t : ts) {
                 if (ruleNames.contains(t.getName())) {
                     continue;
@@ -230,21 +244,13 @@ public class BnfRule implements Serializable {
         return out;
     }
 
-    public void addAlternatives(Collection<TokenString> alternatives) {
-        for (TokenString ts : alternatives) {
-            if (!exist(ts)) {
-                m_alternatives.add(ts);
-            }
-        }
-    }
-
     public void resetAlternatives(Collection<TokenString> alternatives) {
-        m_alternatives.clear();
-        m_alternatives.addAll(alternatives);
+        this.alternatives.clear();
+        this.alternatives.addAll(alternatives);
     }
 
     private boolean exist(TokenString ts) {
-        for (TokenString t : m_alternatives) {
+        for (TokenString t : alternatives) {
             if (t.equals(ts)) {
                 return true;
             }
@@ -255,9 +261,9 @@ public class BnfRule implements Serializable {
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append(m_leftHandSide).append(" := ");
+        out.append(leftHandSide).append(" := ");
         boolean first = true;
-        for (TokenString alt : m_alternatives) {
+        for (TokenString alt : alternatives) {
             if (!first) {
                 out.append(" | ");
             }
@@ -268,18 +274,41 @@ public class BnfRule implements Serializable {
     }
 
     public boolean equals(BnfRule br) {
-        if (!m_leftHandSide.getName().equals(br.getLeftHandSide().getName())) {
+        if (!leftHandSide.getName().equals(br.getLeftHandSide().getName())) {
             return false;
         }
-        if (m_alternatives.size() != br.getAlternatives().size()) {
+        if (alternatives.size() != br.getAlternatives().size()) {
             return false;
         }
-        for (int i = 0; i < m_alternatives.size(); i++) {
-            if (!m_alternatives.get(i).equals(br.getAlternatives().get(i))) {
+        for (int i = 0; i < alternatives.size(); i++) {
+            if (!alternatives.get(i).equals(br.getAlternatives().get(i))) {
                 return false;
             }
         }
         return true;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("leftHandSide", leftHandSide.toJSON());
+        JSONArray jsonArray = new JSONArray();
+        alternatives.forEach(f -> jsonArray.add(f.toJSON()));
+        json.put("alternatives", alternatives);
+        return json;
+    }
+
+    public static BnfRule recover(JSONObject jsonObject) {
+        BnfRule bnfRule = new BnfRule();
+        bnfRule.setLeftHandSide(JSONObject.parseObject(jsonObject.getString("leftHandSide"), NonTerminalToken.class));
+        JSONArray jsonArray = jsonObject.getJSONArray("alternatives");
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONArray ts = jsonArray.getJSONArray(i);
+            TokenString tokenString = new TokenString();
+            for (Object object : ts) {
+
+            }
+        }
+        return bnfRule;
     }
 
 }

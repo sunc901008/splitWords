@@ -9,12 +9,14 @@
 
     <context:component-scan base-package="focus.search.suggestions"/>
 
+    <bean id="insertRedis" class="focus.search.base.Constant" init-method="insertRedis"/>
+
     <!--手动注入 focus.search.service.HistoryServiceImpl-->
     <bean id="historyUtils" class="focus.search.suggestions.HistoryUtils" init-method="init">
         <property name="historyService" ref="historyService"/>
     </bean>
 
-    <bean id="historyService" class="focus.search.service.HistoryServiceImpl" />
+    <bean id="historyService" class="focus.search.service.HistoryServiceImpl"/>
 
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" depends-on="flyway">
         <property name="dataSource" ref="dataSource"/>

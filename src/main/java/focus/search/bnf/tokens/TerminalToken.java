@@ -1,5 +1,6 @@
 package focus.search.bnf.tokens;
 
+import com.alibaba.fastjson.JSONObject;
 import focus.search.meta.Column;
 
 public class TerminalToken extends Token {
@@ -7,9 +8,9 @@ public class TerminalToken extends Token {
     private String type;
     private Column column;
 
-    /**
-     * Creates a new terminal tokens with a label
-     */
+    public TerminalToken() {
+    }
+
     public TerminalToken(final String label, String type) {
         super(label);
         this.type = type;
@@ -51,6 +52,14 @@ public class TerminalToken extends Token {
         String ruleName = getName().toLowerCase();
         s = s.toLowerCase();
         return isPrefix ? ruleName.startsWith(s) : ruleName.equals(s);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("type", type);
+        json.put("m_name", getName());
+        return json;
     }
 
 }

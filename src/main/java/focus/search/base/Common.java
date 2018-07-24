@@ -5,9 +5,7 @@ import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -275,6 +273,29 @@ public class Common {
     private static void clearSecond(Calendar today) {
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
+    }
+
+    // 拷贝对象
+    public static Object deepClone(Object t) {
+        Object outer = null;
+        try {
+            ByteArrayOutputStream bao = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bao);
+            oos.writeObject(t);
+            ByteArrayInputStream bai = new ByteArrayInputStream(bao.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bai);
+            outer = ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return outer;
+    }
+
+    // debug 打印
+    public static void info(Object object) {
+        if (Constant.debugLog) {
+            System.out.println(object);
+        }
     }
 
 }

@@ -201,7 +201,9 @@ class SearchHandler {
         }
         response.setDatas(init.toJson());
         logger.info(response.response());
-        logger.info("after init user: " + user);
+        JSONObject log = JSONObject.parseObject(user.toJSONString());
+        log.remove("parser");
+        logger.info("after init user: " + log);
         Common.send(session, response.response());
 
     }

@@ -20,7 +20,6 @@ public class FocusPhrase {
     private String instName;
     private String type = Constant.SUGGESTION;
     private List<FocusNode> focusNodes = new ArrayList<>();
-    public int position;
 
     public FocusPhrase() {
     }
@@ -197,7 +196,6 @@ public class FocusPhrase {
         focusNodes.forEach(f -> jsonArray.add(f.toJSON()));
         json.put("focusNodes", jsonArray);
         json.put("type", type);
-        json.put("position", position);
         return json;
     }
 

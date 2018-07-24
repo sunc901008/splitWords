@@ -210,7 +210,7 @@ public class SuggestionUtils {
                                     ss.endPos = position;
                                     ss.suggestion = String.format("\"%s\"", token.getString("content"));
                                     ss.suggestionType = Constant.SuggestionType.COLUMN_VALUE;
-                                    ss.description = String.format(columnDescription, column.getColumnDisplayName());
+                                    ss.description = String.format(columnDescription, column.getSourceName());
                                     sss.add(ss);
                                 }
                                 break;
@@ -267,7 +267,7 @@ public class SuggestionUtils {
                                 ss.endPos = position;
                                 ss.suggestion = suggestion;
                                 ss.suggestionType = Constant.SuggestionType.COLUMN;
-                                ss.description = String.format(columnDescription, column.getColumnDisplayName());
+                                ss.description = String.format(columnDescription, column.getSourceName());
                                 sss.add(ss);
                                 while (!terminalTokens.isEmpty()) {
                                     TerminalToken tmp = terminalTokens.remove(0);
@@ -307,7 +307,7 @@ public class SuggestionUtils {
                             String description = ss.suggestionType;
                             if (Constant.FNDType.COLUMN.equals(ss.suggestionType)) {
                                 Column column = focusNode.getColumn();
-                                description = String.format(columnDescription, column.getColumnDisplayName());
+                                description = String.format(columnDescription, column.getSourceName());
                             }
                             ss.description = description;
                             sss.add(ss);

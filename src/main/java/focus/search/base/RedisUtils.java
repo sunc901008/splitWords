@@ -1,8 +1,8 @@
 package focus.search.base;
 
-import focus.search.analyzer.focus.FocusToken;
 import org.apache.log4j.Logger;
-import org.aspectj.apache.bcel.classfile.ConstantMethodType;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -34,7 +34,8 @@ public final class RedisUtils {
         try {
             File file = new File("/srv/focus/conf/search/redis.properties");
             if (!file.exists()) {
-                file = new File(System.getProperty("user.dir") + "/src/main/resources/conf/redis.properties");
+                ResourceLoader resolver = new DefaultResourceLoader();
+                file = resolver.getResource("conf/redis.properties").getFile();
             }
             inputStream = new BufferedInputStream(new FileInputStream(file));
             Properties properties = new Properties();
@@ -132,13 +133,22 @@ public final class RedisUtils {
         logger.info(String.format("redis delete:%s", key));
     }
 
+    public static void clear() {
+        Jedis jedis = getInstance();
+        jedis.flushDB();
+        if (jedis.isConnected()) {
+            jedis.close();
+        }
+        logger.info("redis flushDB");
+    }
+
     public static String get(String key) {
         Jedis jedis = getInstance();
         String value = null;
         if (!jedis.exists(key)) {
             logger.warn(String.format("redis key is not exist:%s", key));
         } else {
-            logger.info(String.format("redis  get:%s", key));
+            logger.info(String.format("redis get:%s", key));
             value = jedis.get(key);
         }
         if (jedis.isConnected()) {

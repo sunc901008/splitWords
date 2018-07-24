@@ -19,8 +19,10 @@
 <no-or-and-bool-function-column> := <to_bool-function> |
                                   <contains-function> |
                                   <bool-function> |
+                                  ( <bool-function> ) |
                                   <isnull-function> |
                                   <not-function> |
+                                  <is-weekend-function> |
                                   <bool-columns>;
 # bool
 <and-function> := <bool-columns> and <no-or-and-bool-function-column> |
@@ -40,7 +42,7 @@
 
 # bool
 <not-function> := not ( <bool-columns> ) |
-                  not ( <no-or-and-bool-function-column> );
+                  not ( <bool-function-column> );
 
 # bool # todo base
 <bool-function> := <number> <function-bool-symbol> <number> |

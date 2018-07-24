@@ -5,6 +5,7 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.boolFunc.*;
+import focus.search.instruction.functionInst.numberFunc.DaysFuncInstruction;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
@@ -18,13 +19,16 @@ import java.util.List;
  * date: 2018/4/19
  * description:
  */
+//        <isnull-function> |
+//        <not-function>|
+//        <bool-columns>;
 //<no-or-and-bool-function-column> := <to_bool-function> |
 //        <contains-function> |
 //        <bool-function> |
-//        <if-then-else-bool-column-function> |
-//        <ifnull-bool-column-function> |
+//        ( <bool-function> ) |
 //        <isnull-function> |
-//        <not-function>|
+//        <not-function> |
+//        <is-weekend-function> |
 //        <bool-columns>;
 
 public class NoOrAndBoolFuncColInstruction {
@@ -36,6 +40,8 @@ public class NoOrAndBoolFuncColInstruction {
                 return ToBoolFuncInstruction.arg(node.getChildren(), formulas);
             case "<contains-function>":
                 return ContainsFuncInstruction.arg(node.getChildren(), formulas);
+            case "(":
+                return BracketBaseBoolFuncInstruction.arg(focusPhrase, formulas);
             case "<bool-function>":
                 return BaseBoolFuncInstruction.arg(node.getChildren(), formulas);
             case "<if-then-else-bool-column-function>":
@@ -46,6 +52,8 @@ public class NoOrAndBoolFuncColInstruction {
                 return IsNullFuncInstruction.arg(node.getChildren(), formulas);
             case "<not-function>":
                 return NotFuncInstruction.arg(node.getChildren(), formulas);
+            case "<is-weekend-function>":
+                return DaysFuncInstruction.arg(node.getChildren(), formulas);
             case "<bool-columns>":
                 return ColumnInstruction.arg(node.getChildren());
             default:
@@ -61,6 +69,8 @@ public class NoOrAndBoolFuncColInstruction {
                 return ToBoolFuncInstruction.tokens(node.getChildren(), formulas, amb);
             case "<contains-function>":
                 return ContainsFuncInstruction.tokens(node.getChildren(), formulas, amb);
+            case "(":
+                return BracketBaseBoolFuncInstruction.tokens(focusPhrase, formulas, amb);
             case "<bool-function>":
                 return BaseBoolFuncInstruction.tokens(node.getChildren(), formulas, amb);
             case "<if-then-else-bool-column-function>":
@@ -71,6 +81,8 @@ public class NoOrAndBoolFuncColInstruction {
                 return IsNullFuncInstruction.tokens(node.getChildren(), formulas, amb);
             case "<not-function>":
                 return NotFuncInstruction.tokens(node.getChildren(), formulas, amb);
+            case "<is-weekend-function>":
+                return DaysFuncInstruction.tokens(node.getChildren(), formulas, amb);
             case "<bool-columns>":
                 List<AnnotationToken> tokens = new ArrayList<>();
                 FocusPhrase fp = node.getChildren();

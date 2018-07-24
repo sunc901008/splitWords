@@ -569,8 +569,8 @@ public class Base {
         instName.append(first.getValue());
         for (int i = 1; i < fp.size(); i++) {
             FocusNode fn = fp.getNodeNew(i);
-            instName.append(fn.getValue());
             instName.append(space(fn.getBegin() - space));
+            instName.append(fn.getValue());
             space = fn.getEnd();
         }
         return instName.toString();

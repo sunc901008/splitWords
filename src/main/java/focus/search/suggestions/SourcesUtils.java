@@ -33,11 +33,7 @@ public class SourcesUtils {
     public static List<Column> colRandomSuggestions(JSONObject user, List<String> types) {
         List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
         List<Column> columns = new ArrayList<>();
-        int count = 10;
         for (SourceReceived source : srs) {
-            if (count <= 0) {
-                break;
-            }
             for (ColumnReceived col : source.columns) {
                 if (types.isEmpty() || types.contains(col.dataType)) {
                     Column column = col.transfer();
@@ -46,7 +42,6 @@ public class SourcesUtils {
                     column.setTableId(source.tableId);
                     column.setDbName(source.parentDB);
                     columns.add(column);
-                    count--;
                 }
             }
         }

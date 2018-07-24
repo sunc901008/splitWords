@@ -1,5 +1,7 @@
 package focus.search.bnf.tokens;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.io.Serializable;
 
 public abstract class Token implements Serializable {
@@ -8,14 +10,18 @@ public abstract class Token implements Serializable {
     /**
      * The tokens's name
      */
-    private String m_name;
+    private String name;
+
+    public Token() {
+
+    }
 
     /**
      * Creates a tokens with a name
      */
-    Token(String name) {
+    public Token(String name) {
         if (name != null) {
-            m_name = name;
+            this.name = name;
         }
     }
 
@@ -25,16 +31,26 @@ public abstract class Token implements Serializable {
      * @return The name
      */
     public String getName() {
-        return m_name;
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public boolean equals(Object o) {
-        return !(o == null || !(o instanceof Token)) && ((Token) o).getName().compareTo(m_name) == 0;
+        return !(o == null || !(o instanceof Token)) && ((Token) o).getName().compareTo(name) == 0;
     }
 
     public abstract boolean matches(final Token tok);
 
     public abstract boolean match(final String s);
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        return json;
+    }
 
 }

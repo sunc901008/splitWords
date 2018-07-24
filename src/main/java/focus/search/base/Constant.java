@@ -1,6 +1,7 @@
 package focus.search.base;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.bnf.BnfRule;
 import focus.search.bnf.FocusParser;
@@ -34,10 +35,12 @@ public class Constant {
 
     public static final String REDIS_INTEGER_PREFIX = "focus_integer";
     public static final String REDIS_DOUBLE_PREFIX = "focus_double";
-    public static final String REDIS_KEYWORD_PREFIX = "focus_keyword_%s";
+    public static final String REDIS_KEYWORD_PREFIX = "%s_focus_keyword_%s";
     public static final String REDIS_TABLE_PREFIX = "%s_focus_table";// language_focus_table
     public static final String REDIS_COLUMN_PREFIX = "%s_focus_column_%s";// 根据data type区分 language_focus_column_int
     private static final String tableName = "focus";
+    public static final String REDIS_RULE_PREFIX = "%s_focus_rule_%s";
+    private static SerializerFeature[] features = new SerializerFeature[]{SerializerFeature.WriteClassName};
 
     public static final List<String> START_QUOTES = Arrays.asList("\"", "“", "'", "‘");
     public static final List<String> END_QUOTES = Arrays.asList("\"", "”", "'", "’");
@@ -64,9 +67,12 @@ public class Constant {
     public static boolean passUc = false;
     public static boolean passIndex = false;
 
+    public static boolean debugLog = true;
+    public static boolean rebuildRedis = true;
+
     private static final Properties properties = new Properties();
 
-    static {
+    private static void initConfig() {
         InputStream inputStream = null;
         try {
             File file = new File("/srv/focus/conf/search/config.properties");
@@ -94,6 +100,8 @@ public class Constant {
 
             passUc = Boolean.parseBoolean(properties.getProperty("passUc", "false"));
             passIndex = Boolean.parseBoolean(properties.getProperty("passIndex", "false"));
+            debugLog = Boolean.parseBoolean(properties.getProperty("debugLog", "false"));
+            rebuildRedis = Boolean.parseBoolean(properties.getProperty("rebuildRedis", "false"));
 
             BiTimeout = Integer.parseInt(properties.getProperty("biTimeout", "120"));
 
@@ -108,10 +116,38 @@ public class Constant {
                 logger.error(e.getMessage());
             }
         }
+    }
+
+    public static void insertRedis() {
+        initConfig();
+        if (!rebuildRedis) {
+            return;
+        }
+        RedisUtils.clear();
         long start = Common.getNow().getTimeInMillis();
-        insertRedis();
+        final Set<String> initEnglishKeywordRedis = new HashSet<>();
+        FocusParser englishParser = Base.englishParser.deepClone();
+        all(initEnglishKeywordRedis, englishParser.getAllRules(), "<question>");
+        for (String keyword : initEnglishKeywordRedis) {
+            initKeyword(englishParser, keyword, Language.ENGLISH);
+        }
+        List<String> englishColNames = getInitSource(englishParser, Language.ENGLISH);
+        initSource(englishParser, tableName, Language.ENGLISH);
+        initSource(englishParser, englishColNames, Language.ENGLISH);
+        final Set<String> initChineseKeywordRedis = new HashSet<>();
+        FocusParser chineseParser = Base.chineseParser.deepClone();
+        all(initChineseKeywordRedis, chineseParser.getAllRules(), "<question>");
+        for (String keyword : initChineseKeywordRedis) {
+            if (initEnglishKeywordRedis.contains(keyword)) {
+                continue;
+            }
+            initKeyword(chineseParser, keyword, Language.CHINESE);
+        }
+        List<String> chineseColNames = getInitSource(chineseParser, Language.CHINESE);
+        initSource(chineseParser, tableName, Language.CHINESE);
+        initSource(chineseParser, chineseColNames, Language.ENGLISH);
         long end = Common.getNow().getTimeInMillis();
-        System.out.println("===================init:" + (end - start));
+        logger.info("init focus phrase and focus rule success. cost:" + (end - start));
     }
 
     private static void all(Set<String> terminals, List<BnfRule> rules, String ruleName) {
@@ -134,30 +170,6 @@ public class Constant {
             }
         }
         return null;
-    }
-
-    private static void insertRedis() {
-        final Set<String> initEnglishKeywordRedis = new HashSet<>();
-        FocusParser englishParser = Base.englishParser.deepClone();
-        all(initEnglishKeywordRedis, englishParser.getAllRules(), "<question>");
-        for (String keyword : initEnglishKeywordRedis) {
-            initKeyword(englishParser, keyword);
-        }
-        List<String> englishColNames = getInitSource(englishParser, Language.ENGLISH);
-        initSource(englishParser, tableName, Language.ENGLISH);
-        initSource(englishParser, englishColNames);
-        final Set<String> initChineseKeywordRedis = new HashSet<>();
-        FocusParser chineseParser = Base.chineseParser.deepClone();
-        all(initChineseKeywordRedis, chineseParser.getAllRules(), "<question>");
-        for (String keyword : initChineseKeywordRedis) {
-            if (initEnglishKeywordRedis.contains(keyword)) {
-                continue;
-            }
-            initKeyword(chineseParser, keyword);
-        }
-        List<String> chineseColNames = getInitSource(chineseParser, Language.CHINESE);
-        initSource(chineseParser, tableName, Language.CHINESE);
-        initSource(chineseParser, chineseColNames);
     }
 
     private static List<String> getInitSource(FocusParser fp, String language) {
@@ -202,9 +214,9 @@ public class Constant {
         return columns;
     }
 
-    private static void initKeyword(FocusParser parser, String keyword) {
+    private static void initKeyword(FocusParser parser, String keyword, String language) {
         try {
-            String key = String.format(REDIS_KEYWORD_PREFIX, keyword);
+            String key = String.format(REDIS_KEYWORD_PREFIX, language, keyword);
             String type = FNDType.KEYWORD;
             if ("<integer>".equals(keyword)) {
                 keyword = "1";
@@ -214,10 +226,13 @@ public class Constant {
                 keyword = "1.0";
                 type = FNDType.DOUBLE;
                 key = REDIS_DOUBLE_PREFIX;
+            } else {// set rule into redis
+                List<BnfRule> rules = parser.parseRules(new FocusToken(keyword, "", 0, keyword.length()));
+                RedisUtils.set(String.format(REDIS_RULE_PREFIX, language, keyword), JSONArray.toJSONString(rules, features));
             }
             FocusToken focusToken = new FocusToken(keyword, type, 0, keyword.length());
 
-            List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null);
+            List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null, language);
             JSONArray jsonArray = new JSONArray();
             focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
 
@@ -231,7 +246,7 @@ public class Constant {
         try {
             FocusToken focusToken = new FocusToken(tableName, FNDType.TABLE, 0, tableName.length());
 
-            List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null);
+            List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null, language);
             JSONArray jsonArray = new JSONArray();
             focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
 
@@ -241,12 +256,12 @@ public class Constant {
         }
     }
 
-    private static void initSource(FocusParser parser, List<String> colNames) {
+    private static void initSource(FocusParser parser, List<String> colNames, String language) {
         for (String colName : colNames) {
             try {
                 FocusToken focusToken = new FocusToken(colName, FNDType.COLUMN, 0, colName.length());
 
-                List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null);
+                List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null, language);
                 JSONArray jsonArray = new JSONArray();
                 focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
 

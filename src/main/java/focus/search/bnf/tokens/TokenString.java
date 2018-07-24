@@ -1,5 +1,6 @@
 package focus.search.bnf.tokens;
 
+import com.alibaba.fastjson.JSONArray;
 import focus.search.meta.Column;
 
 import java.util.HashSet;
@@ -12,7 +13,6 @@ public class TokenString extends LinkedList<Token> {
      * Creates a new empty tokens string
      */
     public TokenString() {
-        super();
     }
 
     /**
@@ -61,6 +61,12 @@ public class TokenString extends LinkedList<Token> {
         TokenString out = new TokenString();
         out.addAll(this);
         return out;
+    }
+
+    public JSONArray toJSON() {
+        JSONArray jsonArray = new JSONArray();
+        this.forEach(t -> jsonArray.add(t.toJSON()));
+        return jsonArray;
     }
 
 }

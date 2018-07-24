@@ -15,6 +15,10 @@ public class NonTerminalToken extends Token {
      */
     public static final transient String s_rightSymbol = ">";
 
+    public NonTerminalToken() {
+
+    }
+
     public NonTerminalToken(String s) {
         super(s);
     }
