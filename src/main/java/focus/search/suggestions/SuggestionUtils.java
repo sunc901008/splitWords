@@ -177,6 +177,9 @@ public class SuggestionUtils {
             if (focusPhrase.isSuggestion()) {
                 FocusNode fn = focusPhrase.getNodeNew(index);
                 if (fn.getValue().equalsIgnoreCase(tokens.get(last).getWord())) {
+                    if (focusPhrase.size() <= index + 1) {
+                        continue;
+                    }
                     if (Constant.FNDType.DATE_VALUE.equals(fn.getType()) && Common.isEmpty(Common.dateFormat(fn.getValue()))) {// 日期字符串并且非法
 //                        datas.guidance = String.format("%SExample: %s.", DATE_GUIDANCE, SourcesUtils.dateSug());
 //                        break;

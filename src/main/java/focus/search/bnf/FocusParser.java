@@ -217,14 +217,14 @@ public class FocusParser implements Serializable {
                 List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
                 boolean isMatch = false;
                 for (SourceReceived sr : srs) {
-                    if (sr.sourceName.startsWith(focusToken.getWord())) {
+                    if (sr.sourceName.equals(focusToken.getWord())) {
                         key = String.format(Constant.REDIS_TABLE_PREFIX, language);
                         isMatch = true;
                         sourceReceived = sr;
                         break;
                     }
                     for (ColumnReceived cr : sr.columns) {
-                        if (cr.columnDisplayName.startsWith(focusToken.getWord())) {
+                        if (cr.columnDisplayName.equals(focusToken.getWord())) {
                             key = String.format(Constant.REDIS_COLUMN_PREFIX, language, cr.dataType);
                             isMatch = true;
                             column = cr.transfer();
@@ -289,9 +289,10 @@ public class FocusParser implements Serializable {
                     if (phrase.size() < 2) {
                         continue;
                     }
+                    String strPhrase = phrase.toJSON().toJSONString();
                     FocusNode colNode = phrase.getNodeNew(1);
+                    String strNode = JSONObject.toJSONString(colNode, Constant.features);
                     String type = colNode.getColumn().getDataType();
-                    FocusPhrase copy = JSONObject.parseObject(phrase.toJSON().toJSONString(), FocusPhrase.class);
                     if (Constant.DataType.STRING.equals(type)) {
                         columns = stringCols;
                     } else if (Constant.DataType.TIMESTAMP.equals(type)) {
@@ -305,9 +306,11 @@ public class FocusParser implements Serializable {
                     }
                     if (!columns.isEmpty()) {
                         for (Column replace : columns) {
-                            colNode.setValue(replace.getColumnDisplayName());
-                            colNode.setColumn(replace);
-                            copy.replaceNode(1, colNode);
+                            FocusPhrase copy = JSONObject.parseObject(strPhrase, FocusPhrase.class);
+                            FocusNode copyNode = JSONObject.parseObject(strNode, FocusNode.class);
+                            copyNode.setValue(replace.getColumnDisplayName());
+                            copyNode.setColumn(replace);
+                            copy.replaceNode(1, copyNode);
                             focusPhrases.add(copy);
                         }
                     }
@@ -622,22 +625,23 @@ public class FocusParser implements Serializable {
                     noNeedReplace.add(focusPhrase);
                 } else {
                     FocusNode fn = focusPhrase.getNodeNew(position);
-                    TerminalToken tt = terminal(fn.getValue());
-                    logger.info(fn.toJSON() + ":" + (tt == null ? "" : tt.toJSON()));
-                    if (tt != null && fn.getValue().toLowerCase().startsWith(value.toLowerCase())) {
-                        if (fn.getValue().equalsIgnoreCase(value)) {
-                            fn.setTerminal();
-                            fn.setBegin(focusToken.getStart());
-                            fn.setEnd(focusToken.getEnd());
+                    if (fn.isTerminal()) {
+                        fn.setBegin(focusToken.getStart());
+                        fn.setEnd(focusToken.getEnd());
+                        if (parser.isTerminal(fn.getValue())) {
+                            fn.setValue(value);
                             if (focusPhrase.size() == position + 1) {
                                 focusPhrase.setType(Constant.INSTRUCTION);
                             }
+                            noNeedReplace.add(focusPhrase);
+                        } else if (fn.getValue().toLowerCase().startsWith(focusToken.getWord().toLowerCase())) {
+                            if (fn.getValue().equalsIgnoreCase(value)) {
+                                if (focusPhrase.size() == position + 1) {
+                                    focusPhrase.setType(Constant.INSTRUCTION);
+                                }
+                            }
+                            noNeedReplace.add(focusPhrase);
                         }
-                        noNeedReplace.add(focusPhrase);
-                    } else if (fn.isTerminal()) {
-                        noNeedReplace.add(focusPhrase);
-                        loop--;
-                        continue;
                     } else {
                         BnfRule br;
                         try {
@@ -656,10 +660,7 @@ public class FocusParser implements Serializable {
                             if (first instanceof TerminalToken) {
                                 firstNode.setValue(first.getName());
                                 firstNode.setType(((TerminalToken) first).getType());
-                                if (firstNode.getType().equals(Constant.FNDType.INTEGER)
-                                        || firstNode.getType().equals(Constant.FNDType.DOUBLE)
-                                        || firstNode.getType().equals(Constant.FNDType.COLUMN_VALUE)
-                                        || firstNode.getType().equals(Constant.FNDType.DATE_VALUE)) {
+                                if (parser.isTerminal(firstNode.getType())) {
                                     firstNode.setValue(value);
                                 }
                                 firstNode.setColumn(((TerminalToken) first).getColumn());
@@ -692,6 +693,7 @@ public class FocusParser implements Serializable {
             }
             if (focusPhrases.isEmpty()) {
                 focusPhrases.addAll(copy);
+                focusPhrases.removeAll(noNeedReplace);
                 break;
             }
         }

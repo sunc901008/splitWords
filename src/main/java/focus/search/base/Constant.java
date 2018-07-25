@@ -40,7 +40,7 @@ public class Constant {
     public static final String REDIS_COLUMN_PREFIX = "%s_focus_column_%s";// 根据data type区分 language_focus_column_int
     private static final String tableName = "focus";
     public static final String REDIS_RULE_PREFIX = "%s_focus_rule_%s";
-    private static SerializerFeature[] features = new SerializerFeature[]{SerializerFeature.WriteClassName};
+    public static SerializerFeature[] features = new SerializerFeature[]{SerializerFeature.WriteClassName};
 
     public static final List<String> START_QUOTES = Arrays.asList("\"", "“", "'", "‘");
     public static final List<String> END_QUOTES = Arrays.asList("\"", "”", "'", "’");
