@@ -23,7 +23,8 @@ import java.util.List;
  * description:
  */
 //<not-function> := not ( <bool-columns> ) |
-//        not ( <bool-function-column> );
+//        not ( <bool-function-column> ) |
+//       not ( <bool-function> );
 public class NotFuncInstruction {
     private static final String example = "not ( %s )";
 

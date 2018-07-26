@@ -203,6 +203,7 @@ class SearchHandler {
         logger.info(response.response());
         JSONObject log = JSONObject.parseObject(user.toJSONString());
         log.remove("parser");
+        log.remove("sources");
         logger.info("after init user: " + log);
         Common.send(session, response.response());
 

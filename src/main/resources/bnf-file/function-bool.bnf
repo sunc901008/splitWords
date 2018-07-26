@@ -42,7 +42,8 @@
 
 # bool
 <not-function> := not ( <bool-columns> ) |
-                  not ( <bool-function-column> );
+                  not ( <bool-function-column> ) |
+                  not ( <bool-function> );
 
 # bool # todo base
 <bool-function> := <number> <function-bool-symbol> <number> |

@@ -35,6 +35,8 @@ public class BoolColOrBoolFuncColInst {
                 return NoOrAndBoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
+            case "<bool-function>":
+                return BaseBoolFuncInstruction.arg(focusNode.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusNode.toJSON());
         }
@@ -49,6 +51,8 @@ public class BoolColOrBoolFuncColInst {
                 return NoOrAndBoolFuncColInstruction.tokens(focusNode.getChildren(), formulas, amb);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.tokens(focusNode.getChildren(), formulas, amb);
+            case "<bool-function>":
+                return BaseBoolFuncInstruction.tokens(focusNode.getChildren(), formulas, amb);
             default:
                 throw new FocusInstructionException(focusNode.toJSON());
         }
