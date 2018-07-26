@@ -1,8 +1,10 @@
 package focus.search.response.exception;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.meta.AmbiguitiesRecord;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,7 +13,7 @@ import java.util.List;
  * description:
  */
 public class AmbiguitiesException extends Exception {
-    public List<AmbiguitiesRecord> ars;
+    public List<AmbiguitiesRecord> ars = new ArrayList<>();
     public int begin;
     public int end;
     public int position;
@@ -46,5 +48,16 @@ public class AmbiguitiesException extends Exception {
 
     public String toString() {
         return toJSON().toJSONString();
+    }
+
+    public static AmbiguitiesException recover(String amb) {
+        AmbiguitiesException ae = new AmbiguitiesException();
+        JSONObject json = JSONObject.parseObject(amb);
+        ae.begin = json.getInteger("begin");
+        ae.end = json.getInteger("end");
+        ae.position = json.getInteger("position");
+        JSONArray ars = json.getJSONArray("ars");
+        ars.forEach(ar -> ae.ars.add(JSONObject.parseObject(ar.toString(), AmbiguitiesRecord.class)));
+        return ae;
     }
 }

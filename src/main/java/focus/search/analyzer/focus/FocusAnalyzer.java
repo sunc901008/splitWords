@@ -1,6 +1,5 @@
 package focus.search.analyzer.focus;
 
-import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
 import focus.search.base.Common;
@@ -100,7 +99,7 @@ public class FocusAnalyzer implements Serializable {
             logger.info("split exception:" + amb);
             Common.info("split exception:" + amb);
             try {
-                AmbiguitiesException ae = JSONObject.parseObject(amb, AmbiguitiesException.class);
+                AmbiguitiesException ae = AmbiguitiesException.recover(amb);
                 assert ae != null;
                 throw ae;
             } catch (Exception e1) {
