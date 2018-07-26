@@ -123,13 +123,14 @@ public class Common {
 
     // 日期字符串格式化
     private static final SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final SimpleDateFormat sdf7 = new SimpleDateFormat("yyyy/MM/dd");
     private static final SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat sdf3 = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     private static final SimpleDateFormat sdf4 = new SimpleDateFormat("MM/dd/yyyy");
     private static final SimpleDateFormat sdf5 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private static final SimpleDateFormat sdf6 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private static final List<SimpleDateFormat> sdfList = Arrays.asList(sdf1, sdf2, sdf3, sdf4, sdf5, sdf6);
+    private static final SimpleDateFormat sdf6 = new SimpleDateFormat("dd/MM/yyyy");
+    private static final List<SimpleDateFormat> sdfList = Arrays.asList(sdf0, sdf1, sdf2, sdf3, sdf4, sdf5, sdf6, sdf7);
 
     public static String biTimeFormat(Date date) {
         return sdf0.format(date);
