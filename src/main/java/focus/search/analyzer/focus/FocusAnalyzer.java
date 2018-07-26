@@ -98,6 +98,7 @@ public class FocusAnalyzer implements Serializable {
         } catch (IOException e) {
             String amb = e.getMessage();
             logger.info("split exception:" + amb);
+            Common.info("split exception:" + amb);
             try {
                 AmbiguitiesException ae = JSONObject.parseObject(amb, AmbiguitiesException.class);
                 assert ae != null;

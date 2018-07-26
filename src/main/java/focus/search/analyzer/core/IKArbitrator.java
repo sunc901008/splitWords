@@ -99,7 +99,27 @@ class IKArbitrator {
         while (!pathOptions.isEmpty()) {
             LexemePath lexemePath = pathOptions.pollFirst();
             if (lexemePath.getPathBegin() == begin && lexemePath.getPathEnd() == end) {
-                queue.add(lexemePath);
+                int loop = lexemePath.size();
+                List<Lexeme> list = new ArrayList<>();
+                while (loop > 0) {
+                    loop--;
+                    Lexeme lexeme = lexemePath.pollFirst();
+                    list.add(lexeme);
+                    lexemePath.addLexeme(lexeme);
+                }
+                boolean match = true;
+                int start = begin;
+                for (Lexeme lexeme : list) {
+                    if (lexeme.getBegin() == start) {
+                        start = lexeme.getBegin() + lexeme.getLength();
+                    } else {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    queue.add(lexemePath);
+                }
             }
         }
         //为英文数字混合，按照最长匹配，返回第一个
