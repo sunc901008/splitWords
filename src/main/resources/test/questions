@@ -17,9 +17,9 @@ growth of age by creationdate daily year over year
 growth of standard deviation age by creationdate daily year over year
 growth of users age by creationdate daily
 col
-// if 3>2 then creationdate else to_date(3)
+// if 3>2 then creationdate else "01/01/2000"
 // if 3>2 then "aa" else "bb"
-// if 3>2 then if 3>2 then "aa" else "bb" else if 3>2 then "aa" else "bb"
+// if 3>2 then 5 then 6
 creationdate after "01/01/2000"
 after "01/01/2000"
 last 5 days
@@ -55,7 +55,7 @@ substr("hello,world", 0, 5)
 to_string(to_string(views+6))
 contains(to_string(to_string(views+6)) , "focus")
 month(to_date(123))
-ifnull(to_string(views+6) , name)
+ifnull(6 , age)
 
 // other
 7 - 2 * 3

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.OtherFuncInstruction;
@@ -49,6 +50,7 @@ public class IfThenElseFuncInstruction {
         json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
 
         json1.put("expression", arg(focusPhrase, formulas));
+        json1.put("name", Base.InstName(focusPhrase));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
