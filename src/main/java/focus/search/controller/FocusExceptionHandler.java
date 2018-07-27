@@ -10,7 +10,6 @@ import focus.search.response.search.ErrorResponse;
 import focus.search.response.search.FatalResponse;
 import focus.search.response.search.IllegalResponse;
 import org.apache.log4j.Logger;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;

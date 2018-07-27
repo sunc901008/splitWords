@@ -17,6 +17,7 @@ import java.util.List;
  * date: 2018/4/19
  * description:
  */
+@Deprecated
 public class ColumnValueInstruction {
 
     public static JSONArray build(FocusPhrase prePhrase, FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
@@ -24,7 +25,7 @@ public class ColumnValueInstruction {
         String columnValue = fn.getValue();
         Column column = prePhrase.getLastNode().getColumn();
         if (column != null) {
-
+            return null;
         }
         return null;
     }

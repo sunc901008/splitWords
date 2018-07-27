@@ -92,7 +92,7 @@ public class AndOrFuncInstruction {
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
         json1.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
-        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.FILTER, Constant.AnnotationCategory.EXPRESSION);
 
         json1.put("expression", allBoolColBuild(focusPhrase, formulas));
         json1.put("name", Base.InstName(focusPhrase));
@@ -173,7 +173,7 @@ public class AndOrFuncInstruction {
     private static JSONArray noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
-        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.FILTER, Constant.AnnotationCategory.EXPRESSION);
 
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
@@ -198,7 +198,7 @@ public class AndOrFuncInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
+    private static JSONObject noOrAndBoolFuncColBuild(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);
         FocusNode symbol = focusPhrase.getFocusNodes().get(1);
@@ -216,7 +216,7 @@ public class AndOrFuncInstruction {
     }
 
     // annotation tokens
-    public static List<AnnotationToken> noOrAndBoolFuncColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
+    private static List<AnnotationToken> noOrAndBoolFuncColBuildTokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusNode param1 = focusPhrase.getFocusNodes().get(0);
         FocusNode param2 = focusPhrase.getFocusNodes().get(2);

@@ -5,7 +5,6 @@ import focus.search.base.Constant;
 import focus.search.response.search.ErrorResponse;
 import org.apache.log4j.Logger;
 import org.quartz.*;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ public class TimeoutTask implements Job {
             Common.send(session, ErrorResponse.response(Constant.ErrorType.BI_TIMEOUT).toJSONString());
             // 删除任务
             QuartzManager.deleteJob(jobDetail.getKey());
-        } catch (IOException |SchedulerException e) {
+        } catch (IOException | SchedulerException e) {
             logger.error(Common.printStacktrace(e));
         }
     }

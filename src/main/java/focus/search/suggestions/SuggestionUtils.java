@@ -34,7 +34,7 @@ public class SuggestionUtils {
     private static final Logger logger = Logger.getLogger(SuggestionUtils.class);
 
     // 预设提示规则，规则内互斥，规则外互不影响
-    private static final List<String> DEFAULT_DATE_BNF_1 = Arrays.asList("<growth-of>");
+    private static final List<String> DEFAULT_DATE_BNF_1 = Arrays.asList("<growth-of>");// todo add other suggestion
     private static final List<String> DEFAULT_DATE_BNF_2 = Arrays.asList("<last-filter>", "<before-after-filter>");
 
     private static final List<List<String>> DEFAULT_BNF = Arrays.asList(DEFAULT_DATE_BNF_1, DEFAULT_DATE_BNF_2);

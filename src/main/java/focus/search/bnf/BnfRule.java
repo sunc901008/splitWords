@@ -297,18 +297,4 @@ public class BnfRule implements Serializable {
         return json;
     }
 
-    public static BnfRule recover(JSONObject jsonObject) {
-        BnfRule bnfRule = new BnfRule();
-        bnfRule.setLeftHandSide(JSONObject.parseObject(jsonObject.getString("leftHandSide"), NonTerminalToken.class));
-        JSONArray jsonArray = jsonObject.getJSONArray("alternatives");
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JSONArray ts = jsonArray.getJSONArray(i);
-            TokenString tokenString = new TokenString();
-            for (Object object : ts) {
-
-            }
-        }
-        return bnfRule;
-    }
-
 }

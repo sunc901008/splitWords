@@ -61,7 +61,7 @@ class IKArbitrator {
      *
      * @param lexemeCell 歧义路径链表头
      * @param crossPath  歧义路径文本
-     * @return
+     * @return LexemePath
      */
     private LexemePath judge(QuickSortSet.Cell lexemeCell, LexemePath crossPath, AnalyzeContext context) throws AmbiguitiesException {
         // 候选路径集合
@@ -190,7 +190,7 @@ class IKArbitrator {
     /**
      * 回滚词元链，直到它能够接受指定的词元
      *
-     * @param l
+     * @param l lexeme
      */
     private void backPath(Lexeme l, LexemePath option) {
         while (option.checkCross(l)) {

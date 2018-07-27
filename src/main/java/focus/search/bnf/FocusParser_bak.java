@@ -6,7 +6,6 @@ import focus.search.analyzer.focus.FocusAnalyzer;
 import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Common;
 import focus.search.base.Constant;
-import focus.search.base.RedisUtils;
 import focus.search.bnf.tokens.*;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;

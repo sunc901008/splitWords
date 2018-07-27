@@ -138,7 +138,7 @@ public class FocusAnalyzer implements Serializable {
     private static List<FocusToken> mergeQuoteValue(List<FocusToken> tokens, String search) {
         List<FocusToken> merge = new ArrayList<>();
         int start = 0;
-        int end = 0;
+        int end;
         quoteNode qn = new quoteNode();
         while (!tokens.isEmpty()) {
             FocusToken tmp = tokens.remove(0);

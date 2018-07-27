@@ -57,7 +57,7 @@ public class BeforeAfterInstruction {
         FocusNode first = focusNodes.get(0);
         Column dateCol;
         FocusNode param;
-        AmbiguityDatas ambiguity = null;
+        AmbiguityDatas ambiguity;
         if (Objects.equals("<all-date-column>", first.getValue())) {
             FocusPhrase fp = first.getChildren();
             dateCol = fp.getLastNode().getColumn();

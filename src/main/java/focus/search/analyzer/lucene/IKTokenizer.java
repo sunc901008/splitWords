@@ -56,7 +56,7 @@ public final class IKTokenizer extends Tokenizer implements Serializable {
     /**
      * Lucene 4.0 Tokenizer适配器类构造函数
      *
-     * @param in
+     * @param in input reader
      */
     public IKTokenizer(Reader in) {
         super(in);
