@@ -41,6 +41,8 @@ public class SuggestionUtils {
 
     private static final Integer DEFAULT_BNF_DEEP = 5;
 
+    private static final int historySize = 3;
+
     /**
      * ① 输入的question能够匹配上一个完整的bnf规则，即能够正常下发指令。
      * <p>
@@ -71,7 +73,11 @@ public class SuggestionUtils {
 
         String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
 
+        int count = 0;
         for (Object history : historyQuestions) {
+            if (count >= historySize) {
+                break;
+            }
             String suggestion = ((HistoryQuestion) history).question;
             String tokensToStr = FocusToken.tokensToString(tokens);
             if (suggestion.startsWith(tokensToStr) && !suggestion.equals(tokensToStr)) {
@@ -82,6 +88,7 @@ public class SuggestionUtils {
                 ss.suggestionType = Constant.SuggestionType.HISTORY;
                 ss.description = historyDescription;
                 datas.addSug(ss);
+                count++;
             }
         }
 
@@ -140,7 +147,11 @@ public class SuggestionUtils {
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
         String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
 
+        int count = 0;
         for (Object history : historyQuestions) {
+            if (count >= historySize) {
+                break;
+            }
             String suggestion = ((HistoryQuestion) history).question;
             String tokensToStr = FocusToken.tokensToString(tokens);
             if (suggestion.startsWith(tokensToStr)) {
@@ -151,6 +162,7 @@ public class SuggestionUtils {
                 ss.suggestionType = Constant.SuggestionType.HISTORY;
                 ss.description = historyDescription;
                 datas.addSug(ss);
+                count++;
             }
         }
 
@@ -218,7 +230,9 @@ public class SuggestionUtils {
                                 }
                                 break;
                             } else {// 没有列中值，提示其他
-                                // TODO: 2018/6/14 是否给出告警，提示不存在列中值
+                                logger.warn(String.format("column value '%s' is not exist. column:id:%d,name:%s", word, column.getColumnId(), column.getColumnDisplayName()));
+                                // todo 重建该列的 index
+
                             }
                         }
                     }
@@ -403,7 +417,11 @@ public class SuggestionUtils {
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
         String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
 
+        int count = 0;
         for (Object history : historyQuestions) {
+            if (count >= historySize) {
+                break;
+            }
             String suggestion = ((HistoryQuestion) history).question;
             String tokensToStr = FocusToken.tokensToString(tokens);
             if (suggestion.startsWith(tokensToStr)) {
@@ -414,6 +432,7 @@ public class SuggestionUtils {
                 ss.suggestionType = Constant.SuggestionType.HISTORY;
                 ss.description = historyDescription;
                 sss.add(ss);
+                count++;
             }
         }
 
@@ -550,7 +569,11 @@ public class SuggestionUtils {
 
         List<List<String>> bnfList = checkDefault();
 
+        int count = 0;
         for (Object history : historyQuestions) {
+            if (count >= historySize) {
+                break;
+            }
             String suggestion = ((HistoryQuestion) history).question;
             SuggestionSuggestion ss = new SuggestionSuggestion();
             ss.beginPos = 0;
@@ -559,6 +582,7 @@ public class SuggestionUtils {
             ss.suggestionType = Constant.SuggestionType.HISTORY;
             ss.description = historyDescription;
             datas.addSug(ss);
+            count++;
         }
 
         for (List<String> bnfName : bnfList) {

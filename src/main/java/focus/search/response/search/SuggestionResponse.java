@@ -1,5 +1,6 @@
 package focus.search.response.search;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 /**
@@ -28,16 +29,19 @@ public class SuggestionResponse {
         JSONObject json = new JSONObject();
         json.put("type", "suggestions");
         json.put("question", this.question);
-        json.put("datas", this.datas.toJSON());
+        json.put("datas", filterDatas(this.datas.toJSON()));
         return json.toJSONString();
     }
 
     /**
-     * 过滤suggestion,各类型的suggestion数量限制,以及去重
+     * 过滤suggestion,各类型的suggestion数量限制
      */
-    // TODO: 2018/6/6
-    public void filterDatas() {
+    private static final int SIZE = 10;
 
+    private JSONObject filterDatas(JSONObject datas) {
+        JSONArray suggestions = datas.getJSONArray("suggestions");
+        datas.put("suggestions", suggestions.subList(0, Math.min(SIZE, suggestions.size())));
+        return datas;
     }
 
 }
