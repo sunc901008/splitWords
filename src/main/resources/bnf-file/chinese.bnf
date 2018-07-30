@@ -126,9 +126,12 @@
                                  <growth-of-measure-standard-deviation-operation> |
                                  <growth-of-measure-unique-count-operation> |
                                  <growth-of-measure-variance-operation>;
-<growth-of-measure-sum-operation> := 的总和;
+<growth-of-measure-sum-operation> := 的总和 |
+                                     的总量 |
+                                     的总数;
 <growth-of-measure-average-operation> := 的平均值;
-<growth-of-measure-count-operation> := 的数量;
+<growth-of-measure-count-operation> := 的数量 |
+                                       的计数;
 <growth-of-measure-max-operation> := 的最大值;
 <growth-of-measure-min-operation> := 的最小值;
 <growth-of-measure-standard-deviation-operation> := 的标准差;
@@ -345,11 +348,11 @@
 <average-phrase> := <number-source-column> 的平均值 |
                     平均 <number-source-column>;
 
-<sum-chinese> := 总量 |
-                 总和 |
+<sum-chinese> := 总和 |
+                 总量 |
                  总数;
-<sum-1-chinese> := 的总量 |
-                   的总和 |
+<sum-1-chinese> := 的总和 |
+                   的总量 |
                    的总数;
 <sum-phrase> := <number-source-column> <sum-1-chinese> |
                 <sum-chinese> <number-source-column>;
@@ -588,6 +591,8 @@
 <between-and-filter> := <all-date-column> 在 <date-string-value> 和 <date-string-value> 之间的 |
                         在 <date-string-value> 和 <date-string-value> 之间的 |
                         <date-string-value> 和 <date-string-value> 之间的 |
+                        <number-source-column> 在 <date-string-value> 和 <date-string-value> 之间 |
+                        <number-source-column> 在 <date-string-value> 和 <date-string-value> 之间的 |
                         <between-and-1-filter>;
 
 <between-and-1-filter> := <number-source-column> 在 <number> 和 <number> 之间 |

@@ -2,6 +2,7 @@ package focus.search.analyzer.dic;
 
 import focus.search.analyzer.focus.FocusKWDict;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,6 +14,8 @@ public class Dictionary {
      * 词典单子实例
      */
     private static Dictionary singleton;
+
+    private static final List<String> allWords = new ArrayList<>();
 
     /*
      * 主词典对象
@@ -42,6 +45,7 @@ public class Dictionary {
     public static void reset() {
         if (singleton != null) {
             singleton._MainDict.reset();
+            allWords.clear();
         }
     }
 
@@ -80,11 +84,15 @@ public class Dictionary {
     }
 
     public static void addWord(FocusKWDict word) {
-        singleton._MainDict.fillSegment(word.getWord().trim().toLowerCase().toCharArray(), word.getType());
+        String key = word.getWord().trim();
+        singleton._MainDict.fillSegment(key.toLowerCase().toCharArray(), word.getType());
+        allWords.add(key);
     }
 
-    public static void deleteWord(String word) {
+    private static void deleteWord(String word) {
+        word = word.trim();
         singleton._MainDict.removeSegment(word.trim().toLowerCase().toCharArray());
+        allWords.remove(word);
     }
 
     /**
@@ -100,6 +108,10 @@ public class Dictionary {
     public Hit matchWithHit(char[] charArray, int currentIndex, Hit matchedHit) {
         DictSegment ds = matchedHit.getMatchedDictSegment();
         return ds.match(charArray, currentIndex, 1, matchedHit);
+    }
+
+    public static List<String> allWords() {
+        return allWords;
     }
 
 }

@@ -112,7 +112,8 @@ public class FocusAnalyzer implements Serializable {
         ts.close();
 
         tokens = mergeQuoteValue(tokens, str);
-        return mergeMinus(tokens);
+        tokens = mergeMinus(tokens);
+        return mergePrefixWord(tokens);
     }
 
     private List<FocusKWDict> makeTableDict(List<SourceReceived> sources) {
@@ -169,7 +170,12 @@ public class FocusAnalyzer implements Serializable {
         return merge;
     }
 
-    // 合并负号
+    /**
+     * 合并负号:6--3 -> (6) (-) (-3)
+     *
+     * @param tokens 分词列表
+     * @return 合并后的分词列表
+     */
     private static List<FocusToken> mergeMinus(List<FocusToken> tokens) {
         List<FocusToken> merge = new ArrayList<>();
         if (tokens.size() < 2) {
@@ -206,6 +212,42 @@ public class FocusAnalyzer implements Serializable {
                 first = current;
             }
             loop--;
+        }
+        return merge;
+    }
+
+    /**
+     * 合并部分关键词(中文): 系统中有关键词：的，的平均值
+     * 输入“的平” -> 分词结果为：(的：keyword) (平：error)
+     * “的平”是“的平均值”一部分，因此合并分词：(的平：error)
+     *
+     * @param tokens 分词列表
+     * @return 合并后的分词列表
+     */
+    private static List<FocusToken> mergePrefixWord(List<FocusToken> tokens) {
+        int size = tokens.size();
+        if (size < 2) {
+            return tokens;
+        }
+        if (!"TYPE_ERROR".equals(tokens.get(size - 1).getType())) {
+            return tokens;
+        }
+        FocusToken lastSecond = tokens.get(size - 2);
+        FocusToken last = tokens.get(size - 1);
+        if (lastSecond.getEnd() != last.getStart()) {
+            return tokens;
+        }
+        List<FocusToken> merge = new ArrayList<>();
+        merge.addAll(tokens.subList(0, size - 2));
+        String word = lastSecond.getWord() + last.getWord();
+        List<String> allWords = Dictionary.allWords();
+        for (String keyword : allWords) {
+            if (keyword.startsWith(word)) {
+                last.setWord(word);
+                last.setStart(lastSecond.getStart());
+                merge.add(last);
+                break;
+            }
         }
         return merge;
     }

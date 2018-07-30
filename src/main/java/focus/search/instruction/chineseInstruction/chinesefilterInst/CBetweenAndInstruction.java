@@ -5,12 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.controller.common.Base;
 import focus.search.instruction.CommonFunc;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.filterInst.dateComplexInst.BetweenAndInstruction;
 import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
 import focus.search.instruction.nodeArgs.NumberArg;
+import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.NumberColInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
@@ -31,6 +33,7 @@ import java.util.Objects;
 //<between-and-filter> := <all-date-column> 在 <date-string-value> 和 <date-string-value> 之间的 |
 //        在 <date-string-value> 和 <date-string-value> 之间的 |
 //        <date-string-value> 和 <date-string-value> 之间的 |
+//        <number-source-column> 在 <date-string-value> 和 <date-string-value> 之间 |
 //        <between-and-1-filter>;
 public class CBetweenAndInstruction {
     private static final Logger logger = Logger.getLogger(CBetweenAndInstruction.class);
@@ -42,6 +45,8 @@ public class CBetweenAndInstruction {
             return build1(focusPhrase, index, amb, formulas);
         } else if (Objects.equals("<between-and-1-filter>", first.getValue())) {
             return build3(first.getChildren(), index, amb, formulas);
+        } else if (Objects.equals("<number-source-column>", first.getValue())) {
+            return build4(focusPhrase, index, amb, formulas, dateColumns);
         } else {
             return build2(focusPhrase, index, amb, formulas, dateColumns);
         }
@@ -372,6 +377,145 @@ public class CBetweenAndInstruction {
         // annotation content
         json2.put("content", datas);
         instructions.add(json2);
+
+        return instructions;
+    }
+
+    //        <number-source-column> 在 <date-string-value> 和 <date-string-value> 之间 |
+    private static JSONArray build4(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException,
+            IllegalException, AmbiguitiesException {
+        List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
+
+        FocusNode numberSourceColumn = focusNodes.get(0);
+        FocusPhrase numberSourcePhrase = numberSourceColumn.getChildren();
+        JSONArray instructions = new JSONArray();
+        JSONArray annotationId = new JSONArray();
+        annotationId.add(index);
+        JSONObject json1 = new JSONObject();
+        json1.put("annotationId", annotationId);
+        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
+        json1.put("category", Constant.AnnotationCategory.EXPRESSION);
+
+        json1.put("name", Base.InstName(numberSourcePhrase));
+
+        json1.put("expression", ColumnInstruction.arg(numberSourcePhrase));
+        instructions.add(json1);
+        logger.debug(instructions);
+
+        JSONObject json2 = new JSONObject();
+        json2.put("annotationId", annotationId);
+        json2.put("instId", Constant.InstIdType.ANNOTATION);
+
+        // annotation content
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE);
+
+        if ("<number-function-column>".equals(focusPhrase.getFocusNodes().get(0).getValue())) {
+            datas.category = Constant.AnnotationCategory.EXPRESSION;
+        } else {
+            datas.category = Constant.AnnotationCategory.MEASURE_COLUMN;
+        }
+
+        datas.addToken(AnnotationToken.singleCol(numberSourcePhrase, amb));
+        json2.put("content", datas);
+
+        instructions.add(json2);
+        //----------------------------------------
+        JSONObject json = CommonFunc.checkAmb(focusPhrase, focusPhrase.getFirstNode(), dateColumns, amb, "between_and");
+        AmbiguityDatas ambiguity = (AmbiguityDatas) json.get("ambiguity");
+        Column dateCol = (Column) json.get("column");
+
+        JSONArray annotationId1 = new JSONArray();
+        AnnotationDatas datas1 = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.FILTER, Constant.AnnotationCategory.FILTER);
+        annotationId1.add(index + 1);
+        JSONObject jsonStart = new JSONObject();
+        jsonStart.put("annotationId", annotationId1);
+        jsonStart.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
+
+        int flag = 1;
+        FocusNode first = focusNodes.get(flag++);
+        FocusNode param1 = focusNodes.get(flag++);
+        AnnotationToken token1 = new AnnotationToken();
+        token1.addToken(first.getValue());
+        token1.value = first.getValue();
+        token1.type = Constant.AnnotationCategory.FILTER;
+        token1.begin = first.getBegin();
+        token1.end = first.getEnd();
+        datas1.addToken(token1);
+
+        JSONObject arg1 = ColValueOrDateColInst.arg(param1, formulas);
+        datas1.addTokens(ColValueOrDateColInst.tokens(param1, formulas, amb));
+
+        FocusNode keyword1 = focusNodes.get(flag++);
+        AnnotationToken token2 = new AnnotationToken();
+        token2.addToken(keyword1.getValue());
+        token2.value = keyword1.getValue();
+        token2.type = Constant.AnnotationCategory.FILTER;
+        token2.begin = keyword1.getBegin();
+        token2.end = keyword1.getEnd();
+        datas1.addToken(token2);
+
+        FocusNode param2 = focusNodes.get(flag++);
+        JSONObject arg2 = ColValueOrDateColInst.arg(param2, formulas);
+        datas1.addTokens(ColValueOrDateColInst.tokens(param2, formulas, amb));
+
+        FocusNode keyword2 = focusNodes.get(flag);
+        AnnotationToken token4 = new AnnotationToken();
+        token4.description = "column " + dateCol.getColumnDisplayName() + " in " + dateCol.getSourceName();
+        token4.tableName = dateCol.getSourceName();
+        token4.columnName = dateCol.getColumnDisplayName();
+        token4.columnId = dateCol.getColumnId();
+        token4.addToken(keyword2.getValue());
+        token4.value = keyword2.getValue();
+        token4.type = Constant.AnnotationCategory.ATTRIBUTE_COLUMN;
+        token4.begin = keyword2.getBegin();
+        token4.end = keyword2.getEnd();
+        token4.ambiguity = ambiguity;
+        datas1.addToken(token4);
+
+        JSONArray res = BetweenAndInstruction.sort(arg1, arg2);
+
+        JSONObject expressionStart = new JSONObject();
+        expressionStart.put("name", ">=");
+        expressionStart.put("type", Constant.InstType.FUNCTION);
+        JSONArray argStarts = new JSONArray();
+        JSONObject argStart1 = new JSONObject();
+        argStart1.put("type", Constant.InstType.COLUMN);
+        argStart1.put("value", dateCol.getColumnId());
+        argStarts.add(argStart1);
+        JSONObject argStart2 = new JSONObject();
+        argStart2.put("type", Constant.InstType.DATE);
+        argStart2.put("value", res.get(0));
+        argStarts.add(argStart2);
+        expressionStart.put("args", argStarts);
+
+        JSONObject expressionEnd = new JSONObject();
+        expressionEnd.put("name", "<");
+        expressionEnd.put("type", Constant.InstType.FUNCTION);
+        JSONArray argEnds = new JSONArray();
+        JSONObject argEnd1 = new JSONObject();
+        argEnd1.put("type", Constant.InstType.COLUMN);
+        argEnd1.put("value", dateCol.getColumnId());
+        argEnds.add(argEnd1);
+        JSONObject argEnd2 = new JSONObject();
+        argEnd2.put("type", Constant.InstType.DATE);
+        argEnd2.put("value", res.get(1));
+        argEnds.add(argEnd2);
+        expressionEnd.put("args", argEnds);
+
+        jsonStart.put("expression", expressionStart);
+
+        instructions.add(jsonStart);
+
+        JSONObject jsonEnd = JSONObject.parseObject(jsonStart.toJSONString());
+        jsonEnd.put("expression", expressionEnd);
+        instructions.add(jsonEnd);
+
+        JSONObject json3 = new JSONObject();
+        json3.put("annotationId", annotationId1);
+        json3.put("instId", Constant.InstIdType.ANNOTATION);
+        // annotation content
+        json3.put("content", datas1);
+        instructions.add(json3);
 
         return instructions;
     }
