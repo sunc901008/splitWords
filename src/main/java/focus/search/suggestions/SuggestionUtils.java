@@ -231,8 +231,13 @@ public class SuggestionUtils {
                                 break;
                             } else {// 没有列中值，提示其他
                                 logger.warn(String.format("column value '%s' is not exist. column:id:%d,name:%s", word, column.getColumnId(), column.getColumnDisplayName()));
-                                // todo 重建该列的 index
-
+                                JSONObject json = new JSONObject();
+                                json.put("id", column.getColumnId());
+                                try {
+                                    Clients.Bi.rebuildIndex(json.toJSONString());
+                                } catch (FocusHttpException e) {
+                                    logger.error(Common.printStacktrace(e));
+                                }
                             }
                         }
                     }

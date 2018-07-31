@@ -105,12 +105,12 @@ public class WebsocketSearch extends TextWebSocketHandler {
             String language = user.getString("language");
 
             // 分词
-            // TODO: 2018/5/21 歧义
-            List<FocusToken> tokens = null;
+            List<FocusToken> tokens;
             try {
                 tokens = fp.focusAnalyzer.test(question, language);
             } catch (AmbiguitiesException e) {
-                e.printStackTrace();
+                logger.error(Common.printStacktrace(e));
+                return response.toJSON();
             }
             JSONObject amb = user.getJSONObject("ambiguities");
 

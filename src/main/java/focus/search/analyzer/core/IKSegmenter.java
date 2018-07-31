@@ -104,7 +104,6 @@ public final class IKSegmenter {
                 }
             }
             // 对分词进行歧义处理
-            // todo true
             this.arbitrator.process(context);
             // 将分词结果输出到结果集，并处理未切分的单个CJK字符
             context.outputToResult();

@@ -358,14 +358,9 @@ class SearchHandler {
             json.put("formulaObj", null);
             json.put("message", null);
             Formula formula = new Formula();
-            List<FocusToken> tokens = null;
+            List<FocusToken> tokens;
             try {
-                // TODO: 2018/5/21 ambiguity
                 tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
-            } catch (AmbiguitiesException e) {
-                e.printStackTrace();
-            }
-            try {
                 FocusInst focusInst = fp.parseFormula(tokens, amb, user);
                 FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
 
@@ -385,9 +380,7 @@ class SearchHandler {
                 json.put("status", "success");
             } catch (AmbiguitiesException e) {
                 logger.error(e.getMessage());
-
                 json.put("status", "illegal");
-
             } catch (IllegalException e) {
                 e.question = formulaReceived.formula;
                 throw e;
@@ -429,14 +422,9 @@ class SearchHandler {
                     json.put("formulaObj", null);
                     json.put("message", null);
 
-                    List<FocusToken> tokens = null;
+                    List<FocusToken> tokens;
                     try {
-                        // TODO: 2018/5/21 ambiguity
                         tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
-                    } catch (AmbiguitiesException e) {
-                        e.printStackTrace();
-                    }
-                    try {
                         FocusInst focusInst = fp.parseFormula(tokens, amb, user);
                         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
 

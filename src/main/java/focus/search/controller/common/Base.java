@@ -275,40 +275,6 @@ public class Base {
             logger.info(focusInst.toJSON().toJSONString());
 
             if (focusInst.position < 0) {// 未出错
-//                int n = tokens.size();
-//                for (FocusPhrase f : focusInst.getFocusPhrases()) {
-//                    for (int i = 0; i < f.size(); i++) {
-//                        if (n <= 0) {
-//                            break;
-//                        }
-//                        FocusNode node = f.getNodeNew(i);
-//                        if (Constant.FNDType.COLUMN.equals(node.getType())) {
-//                            Column col = node.getColumn();
-//                            AmbiguitiesResolve ambiguitiesResolve = AmbiguitiesResolve.getByValue(col.getColumnDisplayName(), amb);
-//                            if (ambiguitiesResolve == null) {
-//                                ambiguitiesResolve = new AmbiguitiesResolve();
-//
-//                                AmbiguitiesRecord ar = new AmbiguitiesRecord();
-//                                ar.type = Constant.AmbiguityType.COLUMN;
-//                                ar.sourceName = col.getSourceName();
-//                                ar.columnId = col.getColumnId();
-//                                ar.columnName = col.getColumnDisplayName();
-//                                ar.realValue = ar.columnName;
-//                                ar.possibleValue = ar.columnName;
-//
-//                                ambiguitiesResolve.ars.add(0, ar);
-//                                ambiguitiesResolve.isResolved = true;
-//                                ambiguitiesResolve.value = col.getColumnName();
-//                                amb.put(UUID.randomUUID().toString(), ambiguitiesResolve);
-//                            }
-//                        }
-//                        n--;
-//                    }
-//                    if (n <= 0) {
-//                        break;
-//                    }
-//                }
-//                user.put("ambiguities", amb);
 
                 if (!focusInst.isInstruction) {// 出入不完整
                     SuggestionResponse response = SuggestionUtils.suggestionsNotCompleted(fp, search, focusInst, user, tokens, search.length());

@@ -6,15 +6,21 @@ import focus.search.analyzer.focus.FocusToken;
 import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
+import focus.search.base.LanguageUtils;
 import focus.search.bnf.FocusInst;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.ModelBuild;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.QuartzManager;
 import focus.search.instruction.InstructionBuild;
+import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Formula;
 import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.SourceReceived;
+import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.exception.FocusHttpException;
+import focus.search.response.exception.FocusInstructionException;
+import focus.search.response.exception.IllegalException;
 import focus.search.response.pinboard.InitStateResponse;
 import focus.search.response.search.*;
 import org.apache.log4j.Logger;
@@ -137,21 +143,91 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         }
     }
 
-    private static void query(WebSocketSession session, JSONObject pinboard, String search, JSONObject amb, String sourceToken, JSONObject biConfig) throws Exception {
+    private static void query(WebSocketSession session, JSONObject pinboard, String search, JSONObject amb, String sourceToken, JSONObject biConfig) throws IOException {
         FocusParser fp = (FocusParser) pinboard.get("parser");
         String language = pinboard.getString("language");
+        String ambiguityTitle = LanguageUtils.getMsg(language, LanguageUtils.Ambiguity_title);
+        String ambiguityItem = LanguageUtils.getMsg(language, LanguageUtils.Ambiguity_item);
         @SuppressWarnings("unchecked")
         List<Formula> formulas = (List<Formula>) pinboard.get("formulas");
-        List<FocusToken> tokens = fp.focusAnalyzer.test(search, language);
-        if (tokens.size() == 0) {
-            // TODO: 2018/5/8 return error
+        List<FocusToken> tokens;
+        FocusInst focusInst;
+        try {
+            tokens = fp.focusAnalyzer.test(search, language);
+        } catch (AmbiguitiesException e) {
+            logger.error(Common.printStacktrace(e));
+            AmbiguityResponse response = new AmbiguityResponse(search);
+            String ambiguityWord = search.substring(e.begin, e.end);
+            String id = AmbiguitiesResolve.mergeAmbiguities(e.ars, ambiguityWord, amb);
 
+            AmbiguityDatas datas = new AmbiguityDatas();
+            datas.begin = e.begin;
+            datas.end = e.end;
+            datas.id = id;
+            datas.title = String.format(ambiguityTitle, ambiguityWord);
+            e.ars.forEach(a -> datas.possibleMenus.add(a.possibleValue));
+            response.setDatas(datas);
+            Common.send(session, response.response());
+            logger.info(response.response());
+
+            Common.send(session, SearchFinishedResponse.response(search, 0));
             return;
         }
-        FocusInst focusInst = fp.parseQuestion(tokens, amb, null);
-        if (!focusInst.isInstruction) {
-            // TODO: 2018/5/8 return error
+        if (tokens.size() == 0) {
+            IllegalResponse response = new IllegalResponse(search);
+            Common.send(session, response.response());
+            return;
+        }
+        JSONObject json;
+        try {
+            focusInst = fp.parseQuestion(tokens, amb, null);
+            if (!focusInst.isInstruction) {
+                IllegalResponse response = new IllegalResponse(search);
+                Common.send(session, response.response());
+                return;
+            }
+            json = InstructionBuild.build(focusInst, search, amb, formulas, language);
+        } catch (FocusInstructionException | IllegalException e) {
+            logger.error(Common.printStacktrace(e));
+            FocusExceptionHandler.handle(session, e);
+            return;
 
+        } catch (AmbiguitiesException e) {
+            logger.error(Common.printStacktrace(e));
+            AmbiguityResponse response = new AmbiguityResponse(search);
+
+            String title;
+            String ambiguityWord;
+            if (e.position < 0) {
+                ambiguityWord = Constant.AmbiguityType.getWord(e.position);
+                title = search.substring(e.begin, e.end);
+            } else {
+                ambiguityWord = tokens.get(e.position).getWord();
+                title = ambiguityWord;
+            }
+
+            String id = AmbiguitiesResolve.mergeAmbiguities(e.ars, ambiguityWord, amb);
+
+            AmbiguityDatas datas = new AmbiguityDatas();
+            datas.begin = e.begin;
+            datas.end = e.end;
+            datas.id = id;
+            datas.title = String.format(ambiguityTitle, title);
+            e.ars.forEach(a -> {
+                String value1 = a.columnName;
+                String value2 = a.sourceName;
+                if (Constant.Language.CHINESE.equals(language)) {
+                    value1 = a.sourceName;
+                    value2 = a.columnName;
+                }
+                String value = String.format(ambiguityItem, value1, value2);
+                datas.possibleMenus.add(value);
+            });
+            response.setDatas(datas);
+            Common.send(session, response.response());
+            logger.info(response.response());
+
+            Common.send(session, SearchFinishedResponse.response(search, 0));
             return;
         }
 
@@ -160,7 +236,6 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         response.setDatas("prepareQuery");
         // prepareQuery response
         Common.send(session, response.response());
-        JSONObject json = InstructionBuild.build(focusInst, search, amb, formulas, language);
         JSONArray instructions = json.getJSONArray("instructions");
         if (biConfig != null && !biConfig.isEmpty()) {
             JSONObject config = new JSONObject();
@@ -189,8 +264,12 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         // precheck response
         Common.send(session, response.response());
 
-        if (Base.checkQuery(session, json, search)) {
-            return;
+        try {
+            if (Base.checkQuery(session, json, search)) {
+                return;
+            }
+        } catch (IOException e) {
+            logger.error(Common.printStacktrace(e));
         }
 
         // 指令检测完毕
@@ -203,7 +282,14 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         // executeQuery response
         Common.send(session, response.response());
 
-        JSONObject res = Clients.Bi.query(json.toJSONString());
+        JSONObject res;
+        try {
+            res = Clients.Bi.query(json.toJSONString());
+        } catch (FocusHttpException e) {
+            logger.error(Common.printStacktrace(e));
+            FocusExceptionHandler.handle(session, e);
+            return;
+        }
         String taskId = res.getString("taskId");
 
         QuartzManager.addJob(taskId, session);

@@ -48,6 +48,7 @@ public class Clients {
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.biHost, Constant.biPort, Constant.biBaseUrl);
         private static final String CHECK_QUERY = "checkQuery";
         private static final String QUERY = "query";
+        private static final String REBUILD_INDEX = "indexbuild";
 
         public static JSONObject checkQuery(String params) throws FocusHttpException {
             return post(baseUrl + CHECK_QUERY, params, Collections.singletonList(baseHeader));
@@ -59,6 +60,10 @@ public class Clients {
 
         public static void abortQuery(String params) throws FocusHttpException {
             delete(baseUrl + QUERY, params, Collections.singletonList(baseHeader));
+        }
+
+        public static void rebuildIndex(String params) throws FocusHttpException {
+            post(baseUrl + REBUILD_INDEX, params, Collections.singletonList(baseHeader));
         }
     }
 

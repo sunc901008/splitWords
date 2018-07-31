@@ -80,7 +80,6 @@ public class AnnotationToken {
         token.value = column.getColumnDisplayName();
         token.begin = begin;
         token.end = end;
-        // todo modify detailType
         token.detailType = column.getDataType();
         if (hasTable) {
             token.addToken(column.getSourceName());
