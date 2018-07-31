@@ -7,7 +7,6 @@ import focus.search.meta.Column;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -17,7 +16,6 @@ import java.util.*;
  */
 public class SourcesUtils {
     private static final List<String> randomString = Arrays.asList("hello", "world", "focus", "example");
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // 获取当前所有列信息
     public static List<Column> colRandomSuggestions(JSONObject user) {
@@ -72,25 +70,16 @@ public class SourcesUtils {
      * @return 随机的一个字符串单词, 带双引号
      * @see #randomString {@link #randomString}
      */
-    public static String stringSug(String quote) {
-        return String.format("%s%s%s", quote, randomString.get(decimalSug(randomString.size())), quote);
-    }
-
     public static String stringSug() {
-        return stringSug("\"");
+        return String.format("%s%s%s", "\"", randomString.get(decimalSug(randomString.size())), "\"");
     }
 
     /**
-     * @return 随机的一个时间字符串, 带双引号
-     * @see #sdf {@link #sdf}
+     * @return 随机的一个时间字符串, 带双引号 {@link Common#sdf0}
      */
-    public static String dateSug(String quote) {
-        Date date = Calendar.getInstance().getTime();
-        return String.format("%s%s%s", quote, sdf.format(date), quote);
-    }
-
     public static String dateSug() {
-        return dateSug("\"");
+        Date date = Calendar.getInstance().getTime();
+        return String.format("%s%s%s", "\"", Common.sdf0.format(date), "\"");
     }
 
 }

@@ -27,7 +27,7 @@ public class Common {
         send(session, new TextMessage(message));
     }
 
-    public static void send(WebSocketSession session, TextMessage message) throws IOException {
+    private static void send(WebSocketSession session, TextMessage message) throws IOException {
         if (session.isOpen()) {
             session.sendMessage(message);
         } else {
@@ -122,17 +122,16 @@ public class Common {
     }
 
     // 日期字符串格式化
-    private static final SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    private static final SimpleDateFormat sdf7 = new SimpleDateFormat("yyyy/MM/dd");
-    private static final SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-    private static final SimpleDateFormat sdf3 = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-    private static final SimpleDateFormat sdf4 = new SimpleDateFormat("MM/dd/yyyy");
-    private static final SimpleDateFormat sdf5 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private static final SimpleDateFormat sdf6 = new SimpleDateFormat("dd/MM/yyyy");
-    private static final List<SimpleDateFormat> sdfList = Arrays.asList(sdf0, sdf1, sdf2, sdf3, sdf4, sdf5, sdf6, sdf7);
+    public static final SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+    private static final SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy/MM/dd HH");
+    private static final SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy/MM/dd");
+    private static final SimpleDateFormat sdf4 = new SimpleDateFormat("yyyy/MM");
+    private static final SimpleDateFormat sdf5 = new SimpleDateFormat("yyyy");
+    private static final SimpleDateFormat sdf6 = new SimpleDateFormat("MM/dd");
+    private static final List<SimpleDateFormat> sdfList = Arrays.asList(sdf0, sdf1, sdf2);
 
-    public static String biTimeFormat(Date date) {
+    private static String biTimeFormat(Date date) {
         return sdf0.format(date);
     }
 
@@ -152,10 +151,34 @@ public class Common {
             logger.info(String.format("invalid input date: %s", date));
             return null;
         }
-        for (SimpleDateFormat sdf : sdfList) {
-            Date d = dateParse(sdf, date);
+        Date d = null;
+        if (!date.contains(" ")) {
+            int length = date.length();
+            if (length <= 10 && length >= 8) {
+                d = dateParse(sdf3, date);
+            } else if (length <= 7 && length >= 6) {
+                d = dateParse(sdf4, date);
+            } else if (length == 4 && !date.contains("/")) {
+                d = dateParse(sdf5, date);
+            } else if (length <= 5 && length >= 3) {
+                d = dateParse(sdf6, date);
+                if (d != null) {
+                    Calendar calendar = getStartDay();
+                    int year = calendar.get(Calendar.YEAR);
+                    calendar.setTime(d);
+                    calendar.set(Calendar.YEAR, year);
+                    d = calendar.getTime();
+                }
+            }
             if (d != null) {
                 return biTimeFormat(d);
+            }
+        } else {
+            for (SimpleDateFormat sdf : sdfList) {
+                d = dateParse(sdf, date);
+                if (d != null) {
+                    return biTimeFormat(d);
+                }
             }
         }
         return null;
