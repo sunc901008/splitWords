@@ -149,9 +149,9 @@ public class Base {
      * @throws IOException 异常
      */
     //  search 输出返回结果
-    public static void response(WebSocketSession session, String search, JSONObject user, int position) throws IOException, FocusHttpException,
+    public static void response(WebSocketSession session, String search, JSONObject user, List<Ambiguities> ambiguities, int position) throws IOException, FocusHttpException,
             FocusParserException, FocusInstructionException, IllegalException {
-        response(session, search, user, null, null, position, null);
+        response(session, search, user, ambiguities, null, position, null);
     }
 
     /**
@@ -172,7 +172,6 @@ public class Base {
 
         boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(category);
 
-        JSONArray historyQuestions = user.getJSONArray("historyQuestions");
         if (Common.isEmpty(search.trim())) {
             SuggestionResponse response = SuggestionUtils.suggestionsNull(fp, user, search, search.length());
             Common.send(session, response.response());
@@ -265,8 +264,8 @@ public class Base {
         try {
             // 解析结果
             FocusInst focusInst;
+            logger.info(String.format("isQuestion:%s tokens:%s ambiguities:%s language:%s", isQuestion, JSON.toJSONString(tokens), amb, language));
             if (isQuestion) {
-                logger.info("search question. tokens:" + JSON.toJSONString(tokens) + " ambiguities:" + amb);
                 focusInst = fp.parseQuestion(tokens, amb, language, srs);
             } else {
                 focusInst = fp.parseFormula(tokens, amb, language, srs);
@@ -287,10 +286,23 @@ public class Base {
                     Common.send(session, SearchFinishedResponse.response(search, received));
                 } else {//  输入完整
                     if (!isQuestion) {// formula
+                        // 生成suggestion
+                        SuggestionResponse sug = SuggestionUtils.suggestionsCompleted(fp, search, focusInst, user, tokens, position);
+                        if (sug != null)
+                            Common.send(session, sug.response());
                         FormulaResponse response = new FormulaResponse(search);
-                        FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
+
+                        // 获取日期列
+                        List<Column> dateColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
+                        FocusPhrase formula = focusInst.firstFocusPhrase();
+                        if (formula == null) {
+                            Common.send(session, FatalResponse.response("focusPhrase is null", session.getAttributes().get("sourceToken").toString()));
+                            return;
+                        }
+                        FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(formula, amb, language, dateColumns);
+                        logger.info(formulaObj.toJSON());
                         FormulaDatas datas = new FormulaDatas();
-                        datas.settings = FormulaAnalysis.getSettings(formulaObj);
+                        datas.settings = FormulaAnalysis.getSettings(formula);
                         datas.formulaObj = formulaObj.toString();
                         response.setDatas(datas);
                         Common.send(session, response.response());
@@ -331,7 +343,7 @@ public class Base {
                     // search finish
                     Common.send(session, SearchFinishedResponse.response(search, received));
 
-                    if (!Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event)) {
+                    if (event != null && !Constant.Event.TEXT_CHANGE.equalsIgnoreCase(event)) {
                         return;
                     }
                     // prepareQuery

@@ -29,10 +29,10 @@ public class FocusInst {
         return focusPhrases.get(0).getFirstNode();
     }
 
-    public FocusPhrase lastFocusPhrase() {
+    public FocusPhrase firstFocusPhrase() {
         if (focusPhrases.isEmpty())
             return null;
-        return focusPhrases.get(focusPhrases.size() - 1);
+        return focusPhrases.get(0);
     }
 
     public void setFocusPhrases(List<FocusPhrase> focusPhrases) {

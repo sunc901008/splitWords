@@ -10,6 +10,7 @@ import focus.search.bnf.FocusParser;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.common.Base;
 import focus.search.instruction.InstructionBuild;
+import focus.search.meta.Column;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.api.GetInstsResponse;
 import focus.search.response.api.NameCheckResponse;
@@ -17,6 +18,7 @@ import focus.search.response.exception.*;
 import focus.search.response.search.ChartsResponse;
 import focus.search.response.search.ErrorResponse;
 import focus.search.suggestions.HistoryUtils;
+import focus.search.suggestions.SourcesUtils;
 import focus.search.suggestions.SuggestionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.CloseStatus;
@@ -122,7 +124,9 @@ public class WebsocketSearch extends TextWebSocketHandler {
                 FocusInst focusInst = fp.parseQuestion(tokens, amb, language, srs);
                 if (focusInst.position < 0) {
                     if (focusInst.isInstruction) {
-                        JSONObject json = InstructionBuild.build(focusInst, question, amb, Base.getFormula(user), language);
+                        // 获取日期列
+                        List<Column> dateColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
+                        JSONObject json = InstructionBuild.build(focusInst, question, amb, Base.getFormula(user), language, dateColumns);
                         response = new GetInstsResponse(Constant.Status.SUCCESS);
                         response.instructions = json.getString("instructions");
                     }

@@ -65,7 +65,7 @@ public class SuggestionUtils {
         SuggestionResponse response = new SuggestionResponse(search);
         SuggestionDatas datas = new SuggestionDatas();
 
-//        datas.beginPos = focusInst.lastFocusPhrase().getLastNode().getEnd();
+//        datas.beginPos = focusInst.firstFocusPhrase().getLastNode().getEnd();
 //        datas.phraseBeginPos = datas.beginPos;
 
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
@@ -74,25 +74,27 @@ public class SuggestionUtils {
 
         String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
 
-        int count = 0;
-        for (Object history : historyQuestions) {
-            if (count >= historySize) {
-                break;
-            }
-            String suggestion = ((HistoryQuestion) history).question;
-            String tokensToStr = FocusToken.tokensToString(tokens);
-            if (suggestion.startsWith(tokensToStr) && !suggestion.equals(tokensToStr)) {
-                SuggestionSuggestion ss = new SuggestionSuggestion();
-                ss.beginPos = 0;
-                ss.endPos = position;
-                ss.suggestion = suggestion;
-                ss.suggestionType = Constant.SuggestionType.HISTORY;
-                ss.description = historyDescription;
-                datas.addSug(ss);
-                count++;
+        boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(user.getString("category"));
+        if (isQuestion) {
+            int count = 0;
+            for (Object history : historyQuestions) {
+                if (count >= historySize) {
+                    break;
+                }
+                String suggestion = ((HistoryQuestion) history).question;
+                String tokensToStr = FocusToken.tokensToString(tokens);
+                if (suggestion.startsWith(tokensToStr) && !suggestion.equals(tokensToStr)) {
+                    SuggestionSuggestion ss = new SuggestionSuggestion();
+                    ss.beginPos = 0;
+                    ss.endPos = position;
+                    ss.suggestion = suggestion;
+                    ss.suggestionType = Constant.SuggestionType.HISTORY;
+                    ss.description = historyDescription;
+                    datas.addSug(ss);
+                    count++;
+                }
             }
         }
-
         completed(fp, datas, focusInst, tokens, position, addSpace, language);
 
         String systemDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_system);
@@ -142,31 +144,33 @@ public class SuggestionUtils {
         SuggestionResponse response = new SuggestionResponse(search);
         SuggestionDatas datas = new SuggestionDatas();
 
-//        datas.beginPos = focusInst.lastFocusPhrase().getLastNode().getEnd();
+//        datas.beginPos = focusInst.firstFocusPhrase().getLastNode().getEnd();
 //        datas.phraseBeginPos = datas.beginPos;
 
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
         String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
 
-        int count = 0;
-        for (Object history : historyQuestions) {
-            if (count >= historySize) {
-                break;
-            }
-            String suggestion = ((HistoryQuestion) history).question;
-            String tokensToStr = FocusToken.tokensToString(tokens);
-            if (suggestion.startsWith(tokensToStr)) {
-                SuggestionSuggestion ss = new SuggestionSuggestion();
-                ss.beginPos = 0;
-                ss.endPos = position;
-                ss.suggestion = suggestion;
-                ss.suggestionType = Constant.SuggestionType.HISTORY;
-                ss.description = historyDescription;
-                datas.addSug(ss);
-                count++;
+        boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(user.getString("category"));
+        if (isQuestion) {
+            int count = 0;
+            for (Object history : historyQuestions) {
+                if (count >= historySize) {
+                    break;
+                }
+                String suggestion = ((HistoryQuestion) history).question;
+                String tokensToStr = FocusToken.tokensToString(tokens);
+                if (suggestion.startsWith(tokensToStr)) {
+                    SuggestionSuggestion ss = new SuggestionSuggestion();
+                    ss.beginPos = 0;
+                    ss.endPos = position;
+                    ss.suggestion = suggestion;
+                    ss.suggestionType = Constant.SuggestionType.HISTORY;
+                    ss.description = historyDescription;
+                    datas.addSug(ss);
+                    count++;
+                }
             }
         }
-
         notCompleted(fp, datas, focusInst, tokens, position, addSpace, language);
 
         response.setDatas(datas);
@@ -423,25 +427,27 @@ public class SuggestionUtils {
         JSONArray historyQuestions = user.getJSONArray("historyQuestions");
         String historyDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_history);
 
-        int count = 0;
-        for (Object history : historyQuestions) {
-            if (count >= historySize) {
-                break;
-            }
-            String suggestion = ((HistoryQuestion) history).question;
-            String tokensToStr = FocusToken.tokensToString(tokens);
-            if (suggestion.startsWith(tokensToStr)) {
-                SuggestionSuggestion ss = new SuggestionSuggestion();
-                ss.beginPos = 0;
-                ss.endPos = endPos;
-                ss.suggestion = suggestion;
-                ss.suggestionType = Constant.SuggestionType.HISTORY;
-                ss.description = historyDescription;
-                sss.add(ss);
-                count++;
+        boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(user.getString("category"));
+        if (isQuestion) {
+            int count = 0;
+            for (Object history : historyQuestions) {
+                if (count >= historySize) {
+                    break;
+                }
+                String suggestion = ((HistoryQuestion) history).question;
+                String tokensToStr = FocusToken.tokensToString(tokens);
+                if (suggestion.startsWith(tokensToStr)) {
+                    SuggestionSuggestion ss = new SuggestionSuggestion();
+                    ss.beginPos = 0;
+                    ss.endPos = endPos;
+                    ss.suggestion = suggestion;
+                    ss.suggestionType = Constant.SuggestionType.HISTORY;
+                    ss.description = historyDescription;
+                    sss.add(ss);
+                    count++;
+                }
             }
         }
-
         Set<String> suggestions = new HashSet<>();
         String columnDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_column);
         String numberDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_number);
@@ -571,42 +577,45 @@ public class SuggestionUtils {
         String systemDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_system);
         String columnDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_column);
 
-        JSONArray historyQuestions = user.getJSONArray("historyQuestions");
+        boolean isQuestion = Constant.CategoryType.QUESTION.equalsIgnoreCase(user.getString("category"));
 
-        List<List<String>> bnfList = checkDefault();
+        if (isQuestion) {
+            JSONArray historyQuestions = user.getJSONArray("historyQuestions");
 
-        int count = 0;
-        for (Object history : historyQuestions) {
-            if (count >= historySize) {
-                break;
-            }
-            String suggestion = ((HistoryQuestion) history).question;
-            SuggestionSuggestion ss = new SuggestionSuggestion();
-            ss.beginPos = 0;
-            ss.endPos = endPos;
-            ss.suggestion = suggestion;
-            ss.suggestionType = Constant.SuggestionType.HISTORY;
-            ss.description = historyDescription;
-            datas.addSug(ss);
-            count++;
-        }
+            List<List<String>> bnfList = checkDefault();
 
-        for (List<String> bnfName : bnfList) {
-            for (String ruleName : bnfName) {
-                BnfRule br = fp.getRule(ruleName);
-                String suggestion = bnfRuleSug(fp, br).trim();
-                if (suggestion.isEmpty())
-                    continue;
+            int count = 0;
+            for (Object history : historyQuestions) {
+                if (count >= historySize) {
+                    break;
+                }
+                String suggestion = ((HistoryQuestion) history).question;
                 SuggestionSuggestion ss = new SuggestionSuggestion();
                 ss.beginPos = 0;
                 ss.endPos = endPos;
                 ss.suggestion = suggestion;
-                ss.suggestionType = Constant.SuggestionType.PHRASE;
-                ss.description = systemDescription;
+                ss.suggestionType = Constant.SuggestionType.HISTORY;
+                ss.description = historyDescription;
                 datas.addSug(ss);
+                count++;
+            }
+
+            for (List<String> bnfName : bnfList) {
+                for (String ruleName : bnfName) {
+                    BnfRule br = fp.getRule(ruleName);
+                    String suggestion = bnfRuleSug(fp, br).trim();
+                    if (suggestion.isEmpty())
+                        continue;
+                    SuggestionSuggestion ss = new SuggestionSuggestion();
+                    ss.beginPos = 0;
+                    ss.endPos = endPos;
+                    ss.suggestion = suggestion;
+                    ss.suggestionType = Constant.SuggestionType.PHRASE;
+                    ss.description = systemDescription;
+                    datas.addSug(ss);
+                }
             }
         }
-
         List<Column> columns = SourcesUtils.colRandomSuggestions(user);
         for (Column column : columns) {
             SuggestionSuggestion ss = new SuggestionSuggestion();

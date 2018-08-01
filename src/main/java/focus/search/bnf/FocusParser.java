@@ -165,6 +165,7 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
+    // todo 公式解析
     public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs) throws AmbiguitiesException {
         FocusInst fi = new FocusInst();
         int flag = 0;

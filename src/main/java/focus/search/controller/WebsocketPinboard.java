@@ -15,6 +15,7 @@ import focus.search.controller.common.Base;
 import focus.search.controller.common.QuartzManager;
 import focus.search.instruction.InstructionBuild;
 import focus.search.meta.AmbiguitiesResolve;
+import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.metaReceived.Ambiguities;
 import focus.search.metaReceived.SourceReceived;
@@ -24,6 +25,7 @@ import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
 import focus.search.response.pinboard.InitStateResponse;
 import focus.search.response.search.*;
+import focus.search.suggestions.SourcesUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -191,7 +193,9 @@ public class WebsocketPinboard extends TextWebSocketHandler {
                 Common.send(session, response.response());
                 return;
             }
-            json = InstructionBuild.build(focusInst, search, amb, formulas, language);
+            // 获取日期列
+            List<Column> dateColumns = SourcesUtils.colRandomSuggestions(pinboard, Constant.DataType.TIMESTAMP);
+            json = InstructionBuild.build(focusInst, search, amb, formulas, language, dateColumns);
         } catch (FocusInstructionException | IllegalException e) {
             logger.error(Common.printStacktrace(e));
             FocusExceptionHandler.handle(session, e);

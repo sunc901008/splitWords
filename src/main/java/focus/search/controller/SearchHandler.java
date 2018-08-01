@@ -15,6 +15,7 @@ import focus.search.controller.common.FormulaAnalysis;
 import focus.search.controller.common.FormulaCase;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
+import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.metaReceived.*;
 import focus.search.response.exception.*;
@@ -281,11 +282,12 @@ class SearchHandler {
     private static void formula(WebSocketSession session, JSONObject params, JSONObject user) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException, IllegalException {
         String search = params.getString("formula");
         int position = params.getInteger("position");
+        List<Ambiguities> ambiguities = JSONArray.parseArray(params.getString("ambiguities"), Ambiguities.class);
         Boolean debug = params.getBoolean("debug");
 
         user.put("category", Constant.CategoryType.EXPRESSION);
 
-        Base.response(session, search, user, position);
+        Base.response(session, search, user, ambiguities, position);
 
     }
 
@@ -364,7 +366,10 @@ class SearchHandler {
             try {
                 tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
                 FocusInst focusInst = fp.parseFormula(tokens, amb, language, srs);
-                FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
+
+                // 获取日期列
+                List<Column> dateColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
+                FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.firstFocusPhrase(), amb, language, dateColumns);
 
                 formula.setColumnType(formulaReceived.columnType);
                 formula.setAggregation(formulaReceived.aggregation);
@@ -430,7 +435,8 @@ class SearchHandler {
                     try {
                         tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
                         FocusInst focusInst = fp.parseFormula(tokens, amb, language, srs);
-                        FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
+                        List<Column> dateColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
+                        FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.firstFocusPhrase(), amb, language, dateColumns);
 
                         formula.setColumnType(formulaReceived.columnType);
                         formula.setAggregation(formulaReceived.aggregation);

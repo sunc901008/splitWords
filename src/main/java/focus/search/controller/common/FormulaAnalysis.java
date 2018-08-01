@@ -8,6 +8,7 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
+import focus.search.meta.Column;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -218,8 +219,8 @@ public class FormulaAnalysis {
         return args;
     }
 
-    public static FormulaObj analysis(FocusPhrase focusPhrase) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        JSONArray instructions = InstructionBuild.build(focusPhrase, 1, new JSONObject(), new ArrayList<>());
+    public static FormulaObj analysis(FocusPhrase focusPhrase, JSONObject amb, String language, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+        JSONArray instructions = InstructionBuild.build(focusPhrase, 1, amb, language, dateColumns);
         for (int i = 0; i < instructions.size(); i++) {
             JSONObject instruction = instructions.getJSONObject(i);
             if (instruction.getString("instId").equals(Constant.InstIdType.ADD_EXPRESSION)) {
@@ -253,13 +254,14 @@ public class FormulaAnalysis {
         return JSONObject.parseObject(stack.pop().toJSONString(), FormulaObj.class);
     }
 
-    public static FormulaSettings getSettings(FormulaObj formulaObj) {
+    // todo fix settings
+    public static FormulaSettings getSettings(FocusPhrase formula) {
         FormulaSettings settings = new FormulaSettings();
-        if (BOOL_OPERATOR.contains(formulaObj.name)) {
+        if ("<filter>".equals(formula.getInstName())) {
             settings.dataType = BOOLEAN;
             settings.aggregation = Collections.singletonList(NONE);
             settings.columnType = ATTRIBUTE;
-        } else if (NUMERIC_OPERATOR.contains(formulaObj.name)) {
+        } else if (NUMERIC_OPERATOR.contains(formula.getInstName())) {
             settings.dataType = NUMERIC;
             settings.aggregation = ALL_AGGREGATION;
             settings.columnType = MEASURE;
