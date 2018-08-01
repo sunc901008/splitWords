@@ -10,6 +10,7 @@ import focus.search.bnf.FocusParser;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.common.Base;
 import focus.search.instruction.InstructionBuild;
+import focus.search.metaReceived.SourceReceived;
 import focus.search.response.api.GetInstsResponse;
 import focus.search.response.api.NameCheckResponse;
 import focus.search.response.exception.*;
@@ -114,9 +115,11 @@ public class WebsocketSearch extends TextWebSocketHandler {
             }
             JSONObject amb = user.getJSONObject("ambiguities");
 
+            @SuppressWarnings("unchecked")
+            List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
             try {
                 // 解析结果
-                FocusInst focusInst = fp.parseQuestion(tokens, amb, user);
+                FocusInst focusInst = fp.parseQuestion(tokens, amb, language, srs);
                 if (focusInst.position < 0) {
                     if (focusInst.isInstruction) {
                         JSONObject json = InstructionBuild.build(focusInst, question, amb, Base.getFormula(user), language);

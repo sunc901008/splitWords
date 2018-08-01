@@ -212,9 +212,9 @@ public class Base {
         logger.info("split words:" + JSON.toJSONString(tokens));
 
         logger.info("lastParams ambiguities:" + ambiguities);
+        @SuppressWarnings("unchecked")
+        List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
         if (ambiguities != null) {
-            @SuppressWarnings("unchecked")
-            List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
             ambiguities(ambiguities, srs, amb);
             user.put("ambiguities", amb);
         }
@@ -267,9 +267,9 @@ public class Base {
             FocusInst focusInst;
             if (isQuestion) {
                 logger.info("search question. tokens:" + JSON.toJSONString(tokens) + " ambiguities:" + amb);
-                focusInst = fp.parseQuestion(tokens, amb, user);
+                focusInst = fp.parseQuestion(tokens, amb, language, srs);
             } else {
-                focusInst = fp.parseFormula(tokens, amb, user);
+                focusInst = fp.parseFormula(tokens, amb, language, srs);
             }
 
             logger.info(focusInst.toJSON().toJSONString());

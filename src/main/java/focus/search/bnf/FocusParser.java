@@ -107,7 +107,7 @@ public class FocusParser implements Serializable {
         return parser.getRule(name);
     }
 
-    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb, JSONObject user) throws AmbiguitiesException {
+    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs) throws AmbiguitiesException {
         List<FocusToken> copyTokens = new ArrayList<>(tokens);
         FocusInst fi = new FocusInst();
         int flag = 0;
@@ -119,7 +119,7 @@ public class FocusParser implements Serializable {
             }
             FocusSubInst fsi;
             try {
-                fsi = subParse(copyTokens, amb, user);
+                fsi = subParse(copyTokens, amb, language, srs);
             } catch (AmbiguitiesException e) {
                 e.position = flag + e.position;
                 throw e;
@@ -155,7 +155,7 @@ public class FocusParser implements Serializable {
             }
         }
         if (error > 0 && error < position) {
-            FocusSubInst fsi = subParse(tokens.subList(error, position), amb, user);
+            FocusSubInst fsi = subParse(tokens.subList(error, position), amb, language, srs);
             assert fsi != null;
             fi.addPfs(fsi.getFps());
             if (fsi.isError()) {
@@ -165,13 +165,13 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
-    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb, JSONObject user) throws AmbiguitiesException {
+    public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs) throws AmbiguitiesException {
         FocusInst fi = new FocusInst();
         int flag = 0;
         int position = 0;
         FocusSubInst fsi;
         try {
-            fsi = subParse(tokens, amb, user);
+            fsi = subParse(tokens, amb, language, srs);
         } catch (AmbiguitiesException e) {
             e.position = flag + e.position;
             throw e;
@@ -194,10 +194,9 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
-    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, JSONObject user) throws AmbiguitiesException {
+    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs) throws AmbiguitiesException {
         FocusToken focusToken = tokens.get(0);
 
-        String language = user.getString("language");
         language = Common.isEmpty(language) ? Constant.Language.ENGLISH : language;
 
         String key = null;
@@ -211,10 +210,6 @@ public class FocusParser implements Serializable {
                 key = Constant.REDIS_DOUBLE_PREFIX;
                 break;
             default:
-                if (user == null) {
-                    break;
-                }
-                List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
                 boolean isMatch = false;
                 for (SourceReceived sr : srs) {
                     if (sr.sourceName.equals(focusToken.getWord())) {

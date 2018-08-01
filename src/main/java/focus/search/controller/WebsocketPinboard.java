@@ -1,5 +1,6 @@
 package focus.search.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import focus.search.analyzer.focus.FocusToken;
@@ -178,9 +179,13 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             Common.send(session, response.response());
             return;
         }
+        logger.info("split words:" + JSON.toJSONString(tokens));
+
+        @SuppressWarnings("unchecked")
+        List<SourceReceived> srs = (List<SourceReceived>) pinboard.get("sources");
         JSONObject json;
         try {
-            focusInst = fp.parseQuestion(tokens, amb, null);
+            focusInst = fp.parseQuestion(tokens, amb, language, srs);
             if (!focusInst.isInstruction) {
                 IllegalResponse response = new IllegalResponse(search);
                 Common.send(session, response.response());

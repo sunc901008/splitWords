@@ -339,6 +339,8 @@ class SearchHandler {
         FocusParser fp = (FocusParser) user.get("parser");
         String language = user.getString("language");
         JSONObject amb = user.getJSONObject("ambiguities");
+        @SuppressWarnings("unchecked")
+        List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
         List<FormulaReceived> formulaReceivedList = JSONArray.parseArray(params.toJSONString(), FormulaReceived.class);
 
         FormulaControllerResponse response = new FormulaControllerResponse();
@@ -361,7 +363,7 @@ class SearchHandler {
             List<FocusToken> tokens;
             try {
                 tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
-                FocusInst focusInst = fp.parseFormula(tokens, amb, user);
+                FocusInst focusInst = fp.parseFormula(tokens, amb, language, srs);
                 FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
 
                 formula.setColumnType(formulaReceived.columnType);
@@ -401,6 +403,8 @@ class SearchHandler {
         FocusParser fp = (FocusParser) user.get("parser");
         String language = user.getString("language");
         JSONObject amb = user.getJSONObject("ambiguities");
+        @SuppressWarnings("unchecked")
+        List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
         List<Formula> formulas = Base.getFormula(user);
 
         FormulaControllerResponse response = new FormulaControllerResponse();
@@ -425,7 +429,7 @@ class SearchHandler {
                     List<FocusToken> tokens;
                     try {
                         tokens = fp.focusAnalyzer.test(formulaReceived.formula, language);
-                        FocusInst focusInst = fp.parseFormula(tokens, amb, user);
+                        FocusInst focusInst = fp.parseFormula(tokens, amb, language, srs);
                         FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.analysis(focusInst.lastFocusPhrase());
 
                         formula.setColumnType(formulaReceived.columnType);
