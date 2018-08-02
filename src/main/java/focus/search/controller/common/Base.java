@@ -372,9 +372,40 @@ public class Base {
                     String taskId = res.getString("taskId");
                     session.getAttributes().put("taskId", taskId);
                     QuartzManager.addJob(taskId, session);
-
-                    // 添加到历史记录中,并且放弃上一次搜索
-                    HistoryUtils.addQuestion(new HistoryQuestion(tokens, user.getString("sourceList"), taskId), user);
+                    FocusPhrase tmp;
+                    List<FocusNode> nodes;
+                    boolean add = true;
+                    for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
+                        if (focusPhrase.isSuggestion() || !add) {
+                            break;
+                        }
+                        tmp = focusPhrase.getNode(0).getChildren();
+                        if ("<string-simple-filter>".equals(tmp.getInstName())) {
+                            nodes = tmp.getFocusNodes();
+                            Column column = nodes.get(0).getChildren().getLastNode().getColumn();
+                            FocusPhrase columnValue = nodes.get(2).getChildren();
+                            try {
+                                List<FocusNode> columnValueNodes = columnValue.getFocusNodes();
+                                for (int i = 0; i < columnValueNodes.size(); i = i + 2) {
+                                    FocusNode columnValueNode = columnValueNodes.get(i);
+                                    JSONObject result = Clients.Index.tokens(column, columnValueNode.getChildren().getNodeNew(1).getValue(), 10);
+                                    JSONArray jsonArray = result.getJSONArray("tokens");
+                                    if (jsonArray.isEmpty()) {
+                                        add = false;
+                                        break;
+                                    }
+                                }
+                            } catch (FocusHttpException e) {
+                                logger.error(Common.printStacktrace(e));
+                                add = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (add) {// 含有列中值并且列中值不存在的question，不记录到history中
+                        // 添加到历史记录中,并且放弃上一次搜索
+                        HistoryUtils.addQuestion(new HistoryQuestion(tokens, user.getString("sourceList"), taskId), user);
+                    }
                 }
             } else {//  出错
                 IllegalResponse response = new IllegalResponse(search);
@@ -409,7 +440,10 @@ public class Base {
                 }
             }
 
-        } catch (AmbiguitiesException e) {
+        } catch (
+                AmbiguitiesException e)
+
+        {
             AmbiguityResponse response = new AmbiguityResponse(search);
 
             String title;
@@ -446,10 +480,14 @@ public class Base {
 
             Common.send(session, SearchFinishedResponse.response(search, received));
 
-        } catch (IllegalException e) {
+        } catch (
+                IllegalException e)
+
+        {
             e.question = search;
             throw e;
         }
+
     }
 
     /**
