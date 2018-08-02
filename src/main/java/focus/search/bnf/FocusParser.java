@@ -38,10 +38,6 @@ public class FocusParser implements Serializable {
     public FocusAnalyzer focusAnalyzer = new FocusAnalyzer();
     private final static int MAX_RULE_LOOP = 20;
 
-    public FocusParser() {
-        this(Constant.Language.ENGLISH);
-    }
-
     public FocusParser(String language) {
         init(language);
     }
@@ -165,14 +161,13 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
-    // todo 公式解析
     public FocusInst parseFormula(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs) throws AmbiguitiesException {
         FocusInst fi = new FocusInst();
         int flag = 0;
         int position = 0;
         FocusSubInst fsi;
         try {
-            fsi = subParse(tokens, amb, language, srs);
+            fsi = subParse(tokens, amb, language, srs, true);
         } catch (AmbiguitiesException e) {
             e.position = flag + e.position;
             throw e;
@@ -195,7 +190,46 @@ public class FocusParser implements Serializable {
         return fi;
     }
 
+    /**
+     * filter phrase list if the phrase is not a function
+     *
+     * @param focusPhrases phrase list
+     */
+    private void filterFormulaPhrase(List<FocusPhrase> focusPhrases) {
+        int size = focusPhrases.size();
+        while (size > 0) {
+            FocusPhrase fp = focusPhrases.remove(0);
+            FocusPhrase tmp;
+            size--;
+            String instName = fp.getInstName();
+            if ("<filter>".equals(instName)) {// filter
+                tmp = fp.getFocusNodes().get(0).getChildren();
+                instName = tmp.getInstName();
+                if ("<bool-function-column>".equals(instName)) {
+                    focusPhrases.add(fp);
+                }
+            } else {// phrase
+                tmp = fp.getFocusNodes().get(0).getChildren();
+                instName = tmp.getInstName();
+                if ("<other-function-columns>".equals(instName)) {
+                    focusPhrases.add(fp);
+                } else if ("<all-columns>".equals(instName)) {
+//                    tmp = tmp.getFocusNodes().get(0).getChildren();// <XXXXX-columns>
+//                    tmp = tmp.getFocusNodes().get(0).getChildren();// <XXXXX-function-column>
+//                    instName = tmp.getInstName();// <XXXXX-function-column>
+//                    if (instName.endsWith("-function-column>")) {
+                    focusPhrases.add(fp);
+//                    }
+                }
+            }
+        }
+    }
+
     private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs) throws AmbiguitiesException {
+        return subParse(tokens, amb, language, srs, false);
+    }
+
+    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs, boolean isFormula) throws AmbiguitiesException {
         FocusToken focusToken = tokens.get(0);
 
         language = Common.isEmpty(language) ? Constant.Language.ENGLISH : language;
@@ -334,11 +368,12 @@ public class FocusParser implements Serializable {
             ambiguitiesCheck(focusToken, focusPhrases, 0, amb);
         }
 
-//        List<TerminalToken> list = getTerminalTokens();
-//        StringBuilder stringBuilder = new StringBuilder("terminal tokens:");
-//        list.forEach(t -> stringBuilder.append(t.toJSON()).append(","));
-//        logger.info(stringBuilder.toString());
-//        Common.info(stringBuilder.toString());
+        if (isFormula) {
+            filterFormulaPhrase(focusPhrases);
+            if (focusPhrases.isEmpty()) {
+                return null;
+            }
+        }
 
         for (int i = 1; i < tokens.size(); i++) {
             FocusToken ft = tokens.get(i);

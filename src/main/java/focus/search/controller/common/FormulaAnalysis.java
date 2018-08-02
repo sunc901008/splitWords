@@ -254,17 +254,65 @@ public class FormulaAnalysis {
         return JSONObject.parseObject(stack.pop().toJSONString(), FormulaObj.class);
     }
 
-    // todo fix settings
     public static FormulaSettings getSettings(FocusPhrase formula) {
         FormulaSettings settings = new FormulaSettings();
-        if ("<filter>".equals(formula.getInstName())) {
-            settings.dataType = BOOLEAN;
-            settings.aggregation = Collections.singletonList(NONE);
-            settings.columnType = ATTRIBUTE;
-        } else if (NUMERIC_OPERATOR.contains(formula.getInstName())) {
+        String dataType = STRING;
+        String instName = formula.getInstName();
+        if ("<filter>".equals(instName)) {// filter
+            dataType = BOOLEAN;
+        } else {// phrase
+            FocusPhrase tmp = formula.getFocusNodes().get(0).getChildren();
+            instName = tmp.getInstName();
+            if ("<other-function-columns>".equals(instName)) {
+                tmp = tmp.getFocusNodes().get(0).getChildren();
+                instName = tmp.getInstName();
+                List<FocusNode> focusNodes = tmp.getFocusNodes();
+                FocusNode fn;
+                if ("<if-then-else-function>".equals(instName)) {
+                    fn = focusNodes.get(focusNodes.size() - 1);
+                } else {
+                    fn = focusNodes.get(focusNodes.size() - 2);
+                }
+                switch (fn.getValue()) {
+                    case "<number>":
+                    case "<number-source-column>":
+                        dataType = NUMERIC;
+                        break;
+                    case "<all-bool-column>":
+                        dataType = BOOLEAN;
+                        break;
+                    case "<all-date-column>":
+                    case "<date-string-value>":
+                        dataType = TIMESTAMP;
+                        break;
+                    case "<single-column-value>":
+                    case "<all-string-column>":
+                    default:
+                        dataType = STRING;
+                }
+            } else if ("<all-columns>".equals(instName)) {
+                tmp = tmp.getFocusNodes().get(0).getChildren();// <XXXXX-columns>
+//                tmp = tmp.getFocusNodes().get(0).getChildren();// <XXXXX-function-column>
+                instName = tmp.getInstName();// <XXXXX-function-column>
+                if ("<number-columns>".equals(instName)) {
+                    dataType = NUMERIC;
+                } else if ("<string-columns>".equals(instName)) {
+                    dataType = STRING;
+                } else if ("<bool-columns>".equals(instName)) {
+                    dataType = BOOLEAN;
+                } else {
+                    dataType = TIMESTAMP;
+                }
+            }
+        }
+        if (NUMERIC.equals(dataType)) {
             settings.dataType = NUMERIC;
             settings.aggregation = ALL_AGGREGATION;
             settings.columnType = MEASURE;
+        } else {
+            settings.dataType = dataType;
+            settings.aggregation = Collections.singletonList(NONE);
+            settings.columnType = ATTRIBUTE;
         }
         return settings;
     }
