@@ -271,7 +271,7 @@ public class Base {
                 focusInst = fp.parseFormula(tokens, amb, language, srs);
             }
 
-            logger.info(focusInst.toJSON().toJSONString());
+//            logger.info(focusInst.toJSON().toJSONString());
 
             if (focusInst.position < 0) {// 未出错
 

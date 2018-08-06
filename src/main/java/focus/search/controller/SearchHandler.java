@@ -41,7 +41,8 @@ class SearchHandler {
     private static final Logger logger = Logger.getLogger(SearchHandler.class);
 
     private static final List<String> array = Arrays.asList("putFormula", "modifyFormula", "deleteFormula");
-    private static final List<String> noImmediateResponse = Arrays.asList("init", "echo", "exportContext", "formulaCase");
+    private static final List<String> noImmediateResponse = Arrays.asList("init", "echo", "exportContext", "formulaCase", "putFormula",
+            "modifyFormula");
 
     static void preHandle(WebSocketSession session, JSONObject params) throws IOException, FocusHttpException, FocusInstructionException, FocusParserException, IllegalException {
         logger.info("lastParams: " + params);

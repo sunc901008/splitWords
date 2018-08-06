@@ -235,7 +235,7 @@ public class FocusParser implements Serializable {
         language = Common.isEmpty(language) ? Constant.Language.ENGLISH : language;
 
         String key = null;
-        Column column = null;
+        List<Column> columnAmb = new ArrayList<>();
         SourceReceived sourceReceived = null;
         switch (focusToken.getType()) {
             case "integer":
@@ -256,20 +256,17 @@ public class FocusParser implements Serializable {
                     for (ColumnReceived cr : sr.columns) {
                         if (cr.columnDisplayName.equals(focusToken.getWord())) {
                             key = String.format(Constant.REDIS_COLUMN_PREFIX, language, cr.dataType);
-                            isMatch = true;
-                            column = cr.transfer();
+                            Column column = cr.transfer();
                             column.setTableId(sr.tableId);
                             column.setSourceName(sr.sourceName);
                             column.setTbPhysicalName(sr.physicalName);
                             column.setDbName(sr.parentDB);
+                            columnAmb.add(column);
                             break;
                         }
                     }
-                    if (isMatch) {
-                        break;
-                    }
                 }
-                if (!isMatch)
+                if (!isMatch && columnAmb.isEmpty())
                     key = String.format(Constant.REDIS_KEYWORD_PREFIX, language, focusToken.getWord());
         }
 
@@ -277,13 +274,29 @@ public class FocusParser implements Serializable {
         String value;
         if (key != null && (value = RedisUtils.get(key)) != null) {
             focusPhrases = JSONArray.parseArray(value, FocusPhrase.class);
-            for (FocusPhrase fp : focusPhrases) {
-                FocusNode node = fp.getFirstNode();
-                node.setBegin(focusToken.getStart());
-                node.setEnd(focusToken.getEnd());
-                node.setValue(focusToken.getWord());
-                node.setColumn(column);
-                fp.replaceNode(0, node);
+            int loop = focusPhrases.size();
+            while (loop > 0) {
+                loop--;
+                FocusPhrase fp = focusPhrases.remove(0);
+                if (columnAmb.isEmpty()) {
+                    FocusNode node = fp.getFirstNode();
+                    node.setBegin(focusToken.getStart());
+                    node.setEnd(focusToken.getEnd());
+                    node.setValue(focusToken.getWord());
+                    fp.replaceNode(0, node);
+                    focusPhrases.add(fp);
+                } else {
+                    for (Column column : columnAmb) {
+                        FocusPhrase focusPhraseNew = JSONObject.parseObject(fp.toJSON().toJSONString(), FocusPhrase.class);
+                        FocusNode node = focusPhraseNew.getFirstNode();
+                        node.setBegin(focusToken.getStart());
+                        node.setEnd(focusToken.getEnd());
+                        node.setValue(focusToken.getWord());
+                        node.setColumn(column);
+                        focusPhraseNew.replaceNode(0, node);
+                        focusPhrases.add(focusPhraseNew);
+                    }
+                }
             }
             if (sourceReceived != null) {// 说明是表名,表名之后只能是列名
                 List<Column> intCols = new ArrayList<>();
@@ -312,7 +325,7 @@ public class FocusParser implements Serializable {
                         intCols.add(col);
                     }
                 }
-                int loop = focusPhrases.size();
+                loop = focusPhrases.size();
                 while (loop > 0) {
                     loop--;
                     FocusPhrase phrase = focusPhrases.remove(0);
@@ -364,9 +377,10 @@ public class FocusParser implements Serializable {
             // 去除重复
             distinct(focusPhrases);
 
-            // 歧义检测
-            ambiguitiesCheck(focusToken, focusPhrases, 0, amb);
         }
+
+        // 歧义检测
+        ambiguitiesCheck(focusToken, focusPhrases, 0, amb);
 
         if (isFormula) {
             filterFormulaPhrase(focusPhrases);
