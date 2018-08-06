@@ -1,9 +1,10 @@
 package focus.search.response.search;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import focus.search.meta.Formula;
 import focus.search.meta.Source;
-import focus.search.response.JSONFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class InitResponse {
         return json.toJSONString();
     }
 
-    public static class Init implements JSONFormat {
+    public static class Init {
         private String status;
         private String message;
         private List<Source> sources = new ArrayList<>();
@@ -109,6 +110,10 @@ public class InitResponse {
 
         public void setFormulas(List<Formula> formulas) {
             this.formulas = formulas;
+        }
+
+        public JSONObject toJson() {
+            return JSON.parseObject(JSON.toJSONString(this, SerializerFeature.WriteDateUseDateFormat));
         }
     }
 

@@ -129,7 +129,7 @@ class SearchHandler {
     // - expressionOrLogicalExpression : formula
     private static void init(WebSocketSession session, JSONObject datas, JSONObject user) throws IOException, FocusHttpException {
         String category = datas.getString("category");
-        String context = datas.getString("context");
+        JSONObject context = datas.getJSONObject("context");
         String curSearchToken = datas.getString("curSearchToken");
         String language = datas.getString("lang");
         String sourceToken = datas.getString("sourceToken");
@@ -172,19 +172,23 @@ class SearchHandler {
             // 歧义记录
             JSONObject ambiguities = new JSONObject();
 
+            List<Formula> formulas = null;
             // 根据 context 恢复歧义|上下文|语言等
             if (context != null) {
-                JSONObject contextJson = JSONObject.parseObject(context);
-                ambiguities = Base.context(contextJson, srs);
+                ambiguities = Base.context(context, srs);
+
+                logger.info(String.format("ambiguities:%s.context:%s", ambiguities, context));
 
                 // 恢复语言环境
-                language = contextJson.getString("language");
+                language = context.getString("language");
                 user.put("language", language);
 
                 //  恢复公式
-                String formulaStr = contextJson.getString("formulas");
-                if (!Common.isEmpty(formulaStr)) {
-                    List<Formula> formulas = JSONArray.parseArray(formulaStr, Formula.class);
+                JSONArray formulaStr = context.getJSONArray("formulas");
+                logger.info(String.format("formula:%s", formulaStr));
+                if (formulaStr != null) {
+                    formulas = JSONArray.parseArray(formulaStr.toJSONString(), Formula.class);
+                    logger.info(JSONArray.toJSONString(formulas));
                     init.setFormulas(formulas);
                     user.put("formulas", formulas);
                 }
@@ -197,6 +201,9 @@ class SearchHandler {
             }
 
             FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
+            if (formulas != null) {
+                ModelBuild.buildFormulas(fp, formulas);
+            }
             ModelBuild.buildTable(fp, srs);
             user.put("parser", fp);
         }

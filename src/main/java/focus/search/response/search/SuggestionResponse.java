@@ -1,6 +1,5 @@
 package focus.search.response.search;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 public class SuggestionResponse {
 
     private String question;
-    private SuggestionDatas datas;
+    private SuggestionDatas datas = new SuggestionDatas();
 
     public SuggestionResponse(String question) {
         this.question = question;

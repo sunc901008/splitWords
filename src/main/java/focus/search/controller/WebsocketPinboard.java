@@ -102,22 +102,26 @@ public class WebsocketPinboard extends TextWebSocketHandler {
                 continue;
             }
             pinboard.put("sources", srs);
-            String context = answer.getString("context");
+            JSONObject context = answer.getJSONObject("context");
             String language = Constant.Language.ENGLISH;
             JSONObject ambiguities = new JSONObject();
+            List<Formula> formulas = null;
             if (context != null) {
-                JSONObject contextJson = JSONObject.parseObject(context);
-                ambiguities = Base.context(contextJson, srs);
-                language = contextJson.getString("language");
-                String formulaStr = contextJson.getString("formulas");
-                if (!Common.isEmpty(formulaStr)) {
-                    List<Formula> formulas = JSONArray.parseArray(formulaStr, Formula.class);
+                ambiguities = Base.context(context, srs);
+                language = context.getString("language");
+                JSONArray formulaStr = context.getJSONArray("formulas");
+                logger.info(String.format("formula:%s", formulaStr));
+                if (formulaStr != null) {
+                    formulas = JSONArray.parseArray(formulaStr.toJSONString(), Formula.class);
                     pinboard.put("formulas", formulas);
                 }
             }
+            FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
+            if (formulas != null) {
+                ModelBuild.buildFormulas(fp, formulas);
+            }
             pinboard.put("ambiguities", ambiguities);
             pinboard.put("language", language);
-            FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
             ModelBuild.buildTable(fp, srs);
             pinboard.put("parser", fp);
             parsers.add(pinboard);

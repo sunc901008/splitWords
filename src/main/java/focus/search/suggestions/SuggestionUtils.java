@@ -632,6 +632,9 @@ public class SuggestionUtils {
      */
     private static SuggestionResponse middlePosition(final FocusParser fp, String search, JSONObject user, List<FocusToken> originTokens, int position) throws IllegalException, IOException, AmbiguitiesException {
         String subSearch = search.substring(0, position);
+        if (Common.isEmpty(subSearch)) {
+            return new SuggestionResponse(search);
+        }
         String category = user.getString("category");
         String language = user.getString("language");
         JSONObject amb = user.getJSONObject("ambiguities");
