@@ -636,6 +636,8 @@ public class Base {
             session.close();
             return;
         }
+        // 初始化历史问题
+        user.put("historyQuestions", HistoryUtils.initHistory(user));
         session.getAttributes().put("user", user);
         logger.info(user.getString("name") + " connected to server.");
         users.add(session);

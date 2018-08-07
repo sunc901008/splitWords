@@ -9,6 +9,7 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.InstructionBuild;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -26,7 +27,15 @@ import static focus.search.base.Constant.AggregationType.*;
 public class FormulaAnalysis {
 
     public static final List<String> func = Arrays.asList("<average-function>", "<count-function>", "<max-function>", "<min-function>",
-            "<sum-function>", "<to_double-function>", "<to_integer-function>", "<diff_days-function>", "<month_number-function>", "<year-function>", "<strlen-function>", "<ifnull-number-function>");
+            "<sum-function>", "<to_double-function>", "<to_integer-function>", "<diff_days-function>", "<month_number-function>",
+            "<year-function>", "<strlen-function>", "<number-function>", "<if-then-else-number-function>", "<ifnull-number-function>",
+            "<stddev-function>", "<variance-function>", "<unique-count-function>", "<cumulative-function>", "<moving-function>",
+            "<group-function>", "<day-function>", "<day-number-of-week-function>", "<day-number-of-year-function>", "<hour-of-day-function>",
+            "<diff-time-function>", "<abs-function>", "<acos-function>", "<asin-function>", "<atan-function>", "<cbrt-function>",
+            "<ceil-function>", "<sin-function>", "<cos-function>", "<cube-function>", "<exp-function>", "<exp2-function>",
+            "<floor-function>", "<ln-function>", "<log10-function>", "<log2-function>", "<sign-function>", "<sq-function>",
+            "<sqrt-function>", "<tan-function>", "<greatest-function>", "<least-function>", "<atan2-function>", "<mod-function>",
+            "<pow-function>", "<round-function>", "<safe-divide-function>", "<random-function>", "<strpos-function>");
 
     private static final String BRACKET = "bracket";
 
@@ -154,7 +163,7 @@ public class FormulaAnalysis {
      * @param focusPhrase 解析后的表达式
      * @return 返回后缀表达式
      */
-    private static List<Arg> getNumberAfterList(FocusPhrase focusPhrase) throws FocusInstructionException, IllegalException {
+    private static List<Arg> getNumberAfterList(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         List<Arg> args = new ArrayList<>();
 
         List<FocusNode> focusNodes = focusPhrase.allFormulaNode();
@@ -182,10 +191,20 @@ public class FormulaAnalysis {
                     args.add(stack.pop());
                 }
                 stack.pop();    // 把左括号弹出
-            } else if (type.equalsIgnoreCase(Constant.FNDType.COLUMN)) {     // 若为列
+            } else if (type.equalsIgnoreCase(Constant.FNDType.COLUMN)) {     // 若为普通列
                 Arg arg = new Arg();
                 arg.type = Constant.InstType.COLUMN;
                 arg.value = temp.getColumn().getColumnId();
+                args.add(arg);
+            } else if (type.equalsIgnoreCase(Constant.FNDType.FORMULA)) {     // 若为公式列
+                Arg arg = new Arg();
+                for (Formula formula : formulas) {
+                    if (temp.getValue().equals(formula.getName())) {
+                        arg.value = formula.getInstruction();
+                        break;
+                    }
+                }
+                arg.type = Constant.InstType.NUMBER_FUNCTION;
                 args.add(arg);
             } else if (type.equalsIgnoreCase(Constant.FNDType.INTEGER)) {
                 // 若为数字
@@ -231,8 +250,8 @@ public class FormulaAnalysis {
         throw new FocusInstructionException(focusPhrase.toJSON());
     }
 
-    public static FormulaObj numberAnalysis(FocusPhrase focusPhrase) throws FocusInstructionException, IllegalException {
-        List<Arg> args = getNumberAfterList(focusPhrase);
+    public static FormulaObj numberAnalysis(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
+        List<Arg> args = getNumberAfterList(focusPhrase, formulas);
         Stack<JSONObject> stack = new Stack<>();
         for (Arg arg : args) {
             if (!isOperator(arg.value.toString())) {// 不是操作符

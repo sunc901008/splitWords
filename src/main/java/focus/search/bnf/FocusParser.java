@@ -8,6 +8,7 @@ import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.base.RedisUtils;
 import focus.search.bnf.tokens.*;
+import focus.search.controller.common.FormulaAnalysis;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
@@ -239,6 +240,8 @@ public class FocusParser implements Serializable {
         String word = focusToken.getWord();
         List<Column> columnAmb = new ArrayList<>();
         SourceReceived sourceReceived = null;
+        boolean isFormulaName = false;
+        boolean isTableName = false;
         switch (focusToken.getType()) {
             case "integer":
                 key = Constant.REDIS_INTEGER_PREFIX;
@@ -247,21 +250,21 @@ public class FocusParser implements Serializable {
                 key = Constant.REDIS_DOUBLE_PREFIX;
                 break;
             case "formulaName":
-                String dataType = Constant.DataType.STRING;
+                String dataType = FormulaAnalysis.STRING;
                 for (Formula formula : formulas) {
                     if (word.equals(formula.getName())) {
-                        dataType = formula.type();
+                        dataType = formula.getDataType();
+                        isFormulaName = true;
                         break;
                     }
                 }
-                key = String.format(Constant.REDIS_COLUMN_PREFIX, language, dataType);
+                key = String.format(Constant.REDIS_FORMULA_PREFIX, language, dataType);
                 break;
             default:
-                boolean isMatch = false;
                 for (SourceReceived sr : srs) {
                     if (sr.sourceName.equals(word)) {
                         key = String.format(Constant.REDIS_TABLE_PREFIX, language);
-                        isMatch = true;
+                        isTableName = true;
                         sourceReceived = sr;
                         break;
                     }
@@ -278,39 +281,41 @@ public class FocusParser implements Serializable {
                         }
                     }
                 }
-                if (!isMatch && columnAmb.isEmpty())
-                    key = String.format(Constant.REDIS_KEYWORD_PREFIX, language, focusToken.getWord());
+                if (!isTableName && columnAmb.isEmpty())
+                    key = String.format(Constant.REDIS_KEYWORD_PREFIX, language, word);
         }
 
         List<FocusPhrase> focusPhrases = null;
         String value;
         if (key != null && (value = RedisUtils.get(key)) != null) {
             focusPhrases = JSONArray.parseArray(value, FocusPhrase.class);
-            int loop = focusPhrases.size();
-            while (loop > 0) {
-                loop--;
-                FocusPhrase fp = focusPhrases.remove(0);
-                if (columnAmb.isEmpty()) {
+            if (isFormulaName) {// 公式
+                for (FocusPhrase fp : focusPhrases) {
                     FocusNode node = fp.getFirstNode();
                     node.setBegin(focusToken.getStart());
                     node.setEnd(focusToken.getEnd());
-                    node.setValue(focusToken.getWord());
+                    node.setValue(word);
+                    node.setType(Constant.FNDType.FORMULA);
+                    node.setColumn(null);
                     fp.replaceNode(0, node);
-                    focusPhrases.add(fp);
-                } else {
+                }
+            } else if (!columnAmb.isEmpty()) {// 列名
+                int loop = focusPhrases.size();
+                while (loop > 0) {
+                    loop--;
+                    FocusPhrase fp = focusPhrases.remove(0);
                     for (Column column : columnAmb) {
                         FocusPhrase focusPhraseNew = JSONObject.parseObject(fp.toJSON().toJSONString(), FocusPhrase.class);
                         FocusNode node = focusPhraseNew.getFirstNode();
                         node.setBegin(focusToken.getStart());
                         node.setEnd(focusToken.getEnd());
-                        node.setValue(focusToken.getWord());
+                        node.setValue(word);
                         node.setColumn(column);
                         focusPhraseNew.replaceNode(0, node);
                         focusPhrases.add(focusPhraseNew);
                     }
                 }
-            }
-            if (sourceReceived != null) {// 说明是表名,表名之后只能是列名
+            } else if (isTableName) {// 说明是表名,表名之后只能是列名
                 List<Column> intCols = new ArrayList<>();
                 List<Column> doubleCols = new ArrayList<>();
                 List<Column> booleanCols = new ArrayList<>();
@@ -337,7 +342,7 @@ public class FocusParser implements Serializable {
                         intCols.add(col);
                     }
                 }
-                loop = focusPhrases.size();
+                int loop = focusPhrases.size();
                 while (loop > 0) {
                     loop--;
                     FocusPhrase phrase = focusPhrases.remove(0);
@@ -370,7 +375,17 @@ public class FocusParser implements Serializable {
                         }
                     }
                 }
+
+            } else {// keyword
+                for (FocusPhrase fp : focusPhrases) {
+                    FocusNode node = fp.getFirstNode();
+                    node.setBegin(focusToken.getStart());
+                    node.setEnd(focusToken.getEnd());
+                    node.setValue(word);
+                    fp.replaceNode(0, node);
+                }
             }
+
         } else {
             try {
                 focusPhrases = focusPhrases(focusToken, amb, language);
@@ -380,7 +395,7 @@ public class FocusParser implements Serializable {
             if (focusPhrases == null || focusPhrases.isEmpty()) {
                 return null;
             }
-            FocusSubInst fsiCheck = check(focusPhrases, 0, focusToken.getWord(), tokens.size() > 1);// 是不是最后一个token
+            FocusSubInst fsiCheck = check(focusPhrases, 0, word, tokens.size() > 1);// 是不是最后一个token
             if (fsiCheck != null)
                 return fsiCheck;
 

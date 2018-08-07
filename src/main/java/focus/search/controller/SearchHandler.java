@@ -145,8 +145,6 @@ class SearchHandler {
         user.put("sourceToken", sourceToken);
         session.getAttributes().put("sourceToken", sourceToken);
         user.put("curSearchToken", curSearchToken);
-        // 初始化历史问题
-        user.put("historyQuestions", HistoryUtils.initHistory(user));
         JSONObject getSource;
         getSource = Clients.WebServer.getSource(sourceToken);
         logger.info(getSource.toJSONString());
