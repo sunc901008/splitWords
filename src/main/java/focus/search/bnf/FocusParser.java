@@ -11,6 +11,7 @@ import focus.search.bnf.tokens.*;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.AmbiguitiesException;
@@ -103,7 +104,7 @@ public class FocusParser implements Serializable {
         return parser.getRule(name);
     }
 
-    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs) throws AmbiguitiesException {
+    public FocusInst parseQuestion(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs, List<Formula> formulas) throws AmbiguitiesException {
         List<FocusToken> copyTokens = new ArrayList<>(tokens);
         FocusInst fi = new FocusInst();
         int flag = 0;
@@ -115,7 +116,7 @@ public class FocusParser implements Serializable {
             }
             FocusSubInst fsi;
             try {
-                fsi = subParse(copyTokens, amb, language, srs);
+                fsi = subParse(copyTokens, amb, language, srs, formulas);
             } catch (AmbiguitiesException e) {
                 e.position = flag + e.position;
                 throw e;
@@ -151,7 +152,7 @@ public class FocusParser implements Serializable {
             }
         }
         if (error > 0 && error < position) {
-            FocusSubInst fsi = subParse(tokens.subList(error, position), amb, language, srs);
+            FocusSubInst fsi = subParse(tokens.subList(error, position), amb, language, srs, formulas);
             assert fsi != null;
             fi.addPfs(fsi.getFps());
             if (fsi.isError()) {
@@ -167,7 +168,7 @@ public class FocusParser implements Serializable {
         int position = 0;
         FocusSubInst fsi;
         try {
-            fsi = subParse(tokens, amb, language, srs, true);
+            fsi = subParse(tokens, amb, language, srs, true, new ArrayList<>());
         } catch (AmbiguitiesException e) {
             e.position = flag + e.position;
             throw e;
@@ -225,16 +226,17 @@ public class FocusParser implements Serializable {
         }
     }
 
-    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs) throws AmbiguitiesException {
-        return subParse(tokens, amb, language, srs, false);
+    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs, List<Formula> formulas) throws AmbiguitiesException {
+        return subParse(tokens, amb, language, srs, false, formulas);
     }
 
-    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs, boolean isFormula) throws AmbiguitiesException {
+    private FocusSubInst subParse(List<FocusToken> tokens, JSONObject amb, String language, List<SourceReceived> srs, boolean isFormula, List<Formula> formulas) throws AmbiguitiesException {
         FocusToken focusToken = tokens.get(0);
 
         language = Common.isEmpty(language) ? Constant.Language.ENGLISH : language;
 
         String key = null;
+        String word = focusToken.getWord();
         List<Column> columnAmb = new ArrayList<>();
         SourceReceived sourceReceived = null;
         switch (focusToken.getType()) {
@@ -244,17 +246,27 @@ public class FocusParser implements Serializable {
             case "double":
                 key = Constant.REDIS_DOUBLE_PREFIX;
                 break;
+            case "formulaName":
+                String dataType = Constant.DataType.STRING;
+                for (Formula formula : formulas) {
+                    if (word.equals(formula.getName())) {
+                        dataType = formula.getDataType();
+                        break;
+                    }
+                }
+                key = String.format(Constant.REDIS_COLUMN_PREFIX, language, dataType);
+                break;
             default:
                 boolean isMatch = false;
                 for (SourceReceived sr : srs) {
-                    if (sr.sourceName.equals(focusToken.getWord())) {
+                    if (sr.sourceName.equals(word)) {
                         key = String.format(Constant.REDIS_TABLE_PREFIX, language);
                         isMatch = true;
                         sourceReceived = sr;
                         break;
                     }
                     for (ColumnReceived cr : sr.columns) {
-                        if (cr.columnDisplayName.equals(focusToken.getWord())) {
+                        if (cr.columnDisplayName.equals(word)) {
                             key = String.format(Constant.REDIS_COLUMN_PREFIX, language, cr.dataType);
                             Column column = cr.transfer();
                             column.setTableId(sr.tableId);

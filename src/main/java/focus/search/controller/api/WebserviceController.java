@@ -32,6 +32,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import javax.servlet.ServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -122,7 +123,7 @@ public class WebserviceController {
             FocusParser fp = Constant.Language.ENGLISH.equals(language) ? Base.englishParser.deepClone() : Base.chineseParser.deepClone();
             ModelBuild.buildTable(fp, srs);
             List<FocusToken> tokens = fp.focusAnalyzer.test(answer.getString("question"), language);
-            FocusInst fi = fp.parseQuestion(tokens, ambiguities, language, srs);
+            FocusInst fi = fp.parseQuestion(tokens, ambiguities, language, srs, new ArrayList<>());
             if (fi.position < 0) {
                 int n = tokens.size();
                 for (FocusPhrase f : fi.getFocusPhrases()) {

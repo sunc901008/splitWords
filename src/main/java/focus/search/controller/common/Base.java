@@ -260,13 +260,13 @@ public class Base {
             }
 
         }
-
+        List<Formula> formulas = Base.getFormula(user);
         try {
             // 解析结果
             FocusInst focusInst;
             logger.info(String.format("isQuestion:%s tokens:%s ambiguities:%s language:%s", isQuestion, JSON.toJSONString(tokens), amb, language));
             if (isQuestion) {
-                focusInst = fp.parseQuestion(tokens, amb, language, srs);
+                focusInst = fp.parseQuestion(tokens, amb, language, srs, formulas);
             } else {
                 focusInst = fp.parseFormula(tokens, amb, language, srs);
             }
@@ -315,7 +315,7 @@ public class Base {
                     // 获取日期列
                     List<Column> dateColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
                     // 生成指令
-                    JSONObject json = InstructionBuild.build(focusInst, search, amb, getFormula(user), language, dateColumns);
+                    JSONObject json = InstructionBuild.build(focusInst, search, amb, formulas, language, dateColumns);
 
                     JSONArray instructions = json.getJSONArray("instructions");
                     if (biConfig != null && !biConfig.isEmpty()) {
