@@ -280,7 +280,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         Common.send(session, response.response());
 
         try {
-            if (Base.checkQuery(session, json, search)) {
+            if (Base.checkQuery(session, json, search, pinboard.getString("accessToken"))) {
                 return;
             }
         } catch (IOException e) {

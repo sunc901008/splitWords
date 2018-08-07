@@ -59,7 +59,12 @@ public class Clients {
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.webServerHost, Constant.webServerPort, Constant.webServerBaseUrl);
         private static final String GET_SOURCE = "getSource";
         private static final String QUERY = "query";
+        private static final String CHECK_QUERY = "checkQuery";
 
+        public static JSONObject checkQuery(String params, String accessToken) throws FocusHttpException {
+            BasicHeader header = new BasicHeader("Access-Token", accessToken);
+            return post(baseUrl + CHECK_QUERY, params, Arrays.asList(header, baseHeader));
+        }
         public static JSONObject getSource(String sourceToken, String accessToken) throws FocusHttpException {
             BasicHeader header1 = new BasicHeader("sourceToken", sourceToken);
             BasicHeader header2 = new BasicHeader("Access-Token", accessToken);
