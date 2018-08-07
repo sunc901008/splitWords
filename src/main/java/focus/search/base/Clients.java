@@ -62,17 +62,17 @@ public class Clients {
 
         public static JSONObject getSource(String sourceToken, String accessToken) throws FocusHttpException {
             BasicHeader header1 = new BasicHeader("sourceToken", sourceToken);
-            BasicHeader header2 = new BasicHeader("accessToken", accessToken);
+            BasicHeader header2 = new BasicHeader("Access-Token", accessToken);
             return get(baseUrl + GET_SOURCE, null, Arrays.asList(header1, header2, baseHeader));
         }
 
         public static JSONObject query(String params, String accessToken) throws FocusHttpException {
-            BasicHeader header = new BasicHeader("accessToken", accessToken);
+            BasicHeader header = new BasicHeader("Access-Token", accessToken);
             return post(baseUrl + QUERY, params, Arrays.asList(header, baseHeader));
         }
 
         public static void abortQuery(String params, String accessToken) throws FocusHttpException {
-            BasicHeader header = new BasicHeader("accessToken", accessToken);
+            BasicHeader header = new BasicHeader("Access-Token", accessToken);
             delete(baseUrl + QUERY, params, Arrays.asList(header, baseHeader));
         }
 
