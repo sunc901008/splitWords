@@ -145,6 +145,8 @@ class SearchHandler {
         user.put("sourceToken", sourceToken);
         session.getAttributes().put("sourceToken", sourceToken);
         user.put("curSearchToken", curSearchToken);
+        // 初始化历史问题
+        user.put("historyQuestions", HistoryUtils.initHistory(user));
         JSONObject getSource;
         getSource = Clients.WebServer.getSource(sourceToken);
         logger.info(getSource.toJSONString());
@@ -166,9 +168,6 @@ class SearchHandler {
             JSONArray sourceList = new JSONArray();
             srs.forEach(sr -> sourceList.add(sr.tableId));
             user.put("sourceList", sourceList.toJSONString());
-
-            // 初始化历史问题
-            user.put("historyQuestions", HistoryUtils.initHistory(user));
 
             // 歧义记录
             JSONObject ambiguities = new JSONObject();
