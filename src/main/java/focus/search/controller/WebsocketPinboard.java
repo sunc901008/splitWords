@@ -191,7 +191,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
         List<SourceReceived> srs = (List<SourceReceived>) pinboard.get("sources");
         JSONObject json;
         try {
-            focusInst = fp.parseQuestion(tokens, amb, language, srs);
+            focusInst = fp.parseQuestion(tokens, amb, language, srs, formulas);
             if (!focusInst.isInstruction) {
                 IllegalResponse response = new IllegalResponse(search);
                 Common.send(session, response.response());

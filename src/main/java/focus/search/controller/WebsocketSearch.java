@@ -11,6 +11,7 @@ import focus.search.bnf.tokens.TerminalToken;
 import focus.search.controller.common.Base;
 import focus.search.instruction.InstructionBuild;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.api.GetInstsResponse;
 import focus.search.response.api.NameCheckResponse;
@@ -120,13 +121,14 @@ public class WebsocketSearch extends TextWebSocketHandler {
             @SuppressWarnings("unchecked")
             List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
             try {
+                List<Formula> formulas = Base.getFormula(user);
                 // 解析结果
-                FocusInst focusInst = fp.parseQuestion(tokens, amb, language, srs);
+                FocusInst focusInst = fp.parseQuestion(tokens, amb, language, srs, formulas);
                 if (focusInst.position < 0) {
                     if (focusInst.isInstruction) {
                         // 获取日期列
                         List<Column> dateColumns = SourcesUtils.colRandomSuggestions(user, Constant.DataType.TIMESTAMP);
-                        JSONObject json = InstructionBuild.build(focusInst, question, amb, Base.getFormula(user), language, dateColumns);
+                        JSONObject json = InstructionBuild.build(focusInst, question, amb, formulas, language, dateColumns);
                         response = new GetInstsResponse(Constant.Status.SUCCESS);
                         response.instructions = json.getString("instructions");
                     }

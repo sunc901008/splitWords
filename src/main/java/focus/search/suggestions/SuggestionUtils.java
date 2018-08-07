@@ -9,8 +9,10 @@ import focus.search.base.Constant;
 import focus.search.base.LanguageUtils;
 import focus.search.bnf.*;
 import focus.search.bnf.tokens.*;
+import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.meta.HistoryQuestion;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.AmbiguitiesException;
@@ -644,7 +646,7 @@ public class SuggestionUtils {
         List<FocusToken> tokens = fp.focusAnalyzer.test(subSearch, language);
         FocusInst focusInst;
         if (isQuestion) {
-            focusInst = fp.parseQuestion(tokens, amb, language, srs);
+            focusInst = fp.parseQuestion(tokens, amb, language, srs, Base.getFormula(user));
         } else {
             focusInst = fp.parseFormula(tokens, amb, language, srs);
         }
