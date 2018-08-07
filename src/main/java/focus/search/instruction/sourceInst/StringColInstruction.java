@@ -9,6 +9,7 @@ import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.instruction.functionInst.StringFuncInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
@@ -26,6 +27,7 @@ import java.util.List;
 
 //<string-columns> := <all-string-column> |
 //        <string-function-column> |
+//        <string-formula-column> |
 //        ( <string-function-column> );
 public class StringColInstruction {
 
@@ -40,23 +42,10 @@ public class StringColInstruction {
         json1.put("category", Constant.AnnotationCategory.EXPRESSION);
         json1.put("type", Constant.ColumnType.ATTRIBUTE);
 
-//        String aggregation = Constant.AggregationType.NONE;
-        JSONObject json = build(focusPhrase, formulas);
-        String type = json.getString("type");
-        JSONObject expression = new JSONObject();
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            expression.put("type", "column");
-            Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
-//            aggregation = column.getAggregation();
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            expression = json.getJSONObject(Constant.InstType.FUNCTION);
-        }
-
         json1.put("name", Base.InstName(focusPhrase));
 //        json1.put("aggregation", aggregation);
 
-        json1.put("expression", expression);
+        json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -84,6 +73,8 @@ public class StringColInstruction {
             expression.put("value", column.getColumnId());
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
+        } else if (Constant.InstType.FORMULA.equals(type)) {
+            expression = json.getJSONObject(Constant.InstType.FUNCTION);
         }
         return expression;
     }
@@ -105,6 +96,14 @@ public class StringColInstruction {
             case "<string-function-column>":
                 res.put("type", Constant.InstType.FUNCTION);
                 res.put("function", StringFuncInstruction.arg(node.getChildren(), formulas));
+                return res;
+            case FormulaAnalysis.LEFT_BRACKET:
+                res.put("type", Constant.InstType.FUNCTION);
+                res.put("function", NumberFuncInstruction.arg(focusPhrase.getFocusNodes().get(1).getChildren(), formulas));
+                return res;
+            case "<string-formula-column>":
+                res.put("type", Constant.InstType.FORMULA);
+                res.put("function", FormulaColumnInstruction.build(node.getChildren(), formulas));
                 return res;
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
@@ -139,6 +138,8 @@ public class StringColInstruction {
                 return tokens;
             case "<string-function-column>":
                 return StringFuncInstruction.tokens(node.getChildren(), formulas, amb);
+            case "<string-formula-column>":
+                return FormulaColumnInstruction.tokens(node.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

@@ -20,11 +20,21 @@ import java.util.List;
  * date: 2018/4/17
  * description:
  */
-//<bool-columns> := <all-bool-column>;
+//<bool-columns> := <all-bool-column> |
+//                  <bool-formula-column>;
 public class BoolColInstruction {
 
     // 完整指令 bool-columns
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+        FocusNode node = focusPhrase.getFocusNodes().get(0);
+        if ("<all-bool-column>".equals(node.getValue())) {
+            return buildColumn(focusPhrase, index, amb, formulas);
+        } else {
+            return FormulaColumnInstruction.build(focusPhrase, index, formulas);
+        }
+    }
+
+    private static JSONArray buildColumn(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -76,12 +86,23 @@ public class BoolColInstruction {
             }
             res.put("column", json.get("column"));
             return res;
+        } else {
+            return FormulaColumnInstruction.build(node.getChildren(), formulas);
         }
-        throw new FocusInstructionException(focusPhrase.toJSON());
     }
 
     // annotation tokens
-    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) {
+    public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
+        FocusPhrase focusPhrase = focusNode.getChildren();
+        FocusNode node = focusPhrase.getFocusNodes().get(0);
+        if ("<all-bool-column>".equals(node.getValue())) {
+            return tokensColumn(focusNode, amb);
+        } else {
+            return FormulaColumnInstruction.tokens(focusPhrase, formulas);
+        }
+    }
+
+    private static List<AnnotationToken> tokensColumn(FocusNode focusNode, JSONObject amb) {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusPhrase fp = focusNode.getChildren();
         int begin = fp.getFirstNode().getBegin();

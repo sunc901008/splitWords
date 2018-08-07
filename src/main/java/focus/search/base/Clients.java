@@ -82,24 +82,24 @@ public class Clients {
     public static class Uc {
 
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.ucHost, Constant.ucPort, Constant.ucBaseUrl);
-        private static final String USERINFO = "user/userinfo";
-        private static final String STATUS = "status";
+        private static final String USERINFO = baseUrl + "user/userinfo";
+        private static final String STATUS = baseUrl + "status";
 
         public static boolean isLogin(String accessToken) throws FocusHttpException {
             if (Common.isEmpty(accessToken))
                 return false;
-            JSONObject res = get(baseUrl + STATUS, null, Arrays.asList(new BasicHeader("Access-Token", accessToken), baseHeader));
+            JSONObject res = get(STATUS, null, Arrays.asList(new BasicHeader("Access-Token", accessToken), baseHeader));
+//            return res.getBoolean("success");
             return res.getString("status").equals("success");
         }
 
         public static JSONObject getUserInfo(String accessToken) throws FocusHttpException {
-            String url = baseUrl + USERINFO;
             List<Header> headers = Arrays.asList(new BasicHeader("Access-Token", accessToken), baseHeader);
-            JSONObject response = get(url, null, headers);
-            if (response.getString("status").equals("success")) {
-                return response.getJSONObject("user");
+            JSONObject res = get(USERINFO, null, headers);
+            if (res.getString("status").equals("success")) {
+                return res.getJSONObject("user");
             } else {
-                throw new FocusHttpException(url, null, headers);
+                throw new FocusHttpException(USERINFO, null, headers);
             }
         }
 

@@ -56,7 +56,7 @@ public class Constant {
     public static String webServerBaseUrl = "/api/bi";
 
     public static String ucHost = "localhost";
-    public static Integer ucPort = 8004;
+    public static Integer ucPort = 8003;
     public static String ucBaseUrl = "/api/uc";
 
 
@@ -91,7 +91,7 @@ public class Constant {
             webServerBaseUrl = properties.getProperty("webServerBaseUrl", "/api/bi");
 
             ucHost = properties.getProperty("ucHost", "localhost");
-            ucPort = Integer.parseInt(properties.getProperty("ucPort", "8004"));
+            ucPort = Integer.parseInt(properties.getProperty("ucPort", "8003"));
             ucBaseUrl = properties.getProperty("ucBaseUrl", "/api/uc");
 
             indexHost = properties.getProperty("indexHost", "localhost");

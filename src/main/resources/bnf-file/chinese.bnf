@@ -14,7 +14,6 @@
             <growth-of> |
             <all-columns> |
             <number-complex-phrase> |
-            <formula-column> |
             <other-function-columns>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
@@ -623,16 +622,20 @@
 
 <number-columns> := <all-int-column> |
                     <all-double-column> |
+                    <number-formula-column> |
                     <number-function-column> |
                     ( <number-function-column> );;
 
 <string-columns> := <all-string-column> |
+                    <string-formula-column> |
                     <string-function-column> |
                     ( <string-function-column> );
 
-<bool-columns> := <all-bool-column>;
+<bool-columns> := <all-bool-column> |
+                  <bool-formula-column>;
 
 <date-columns> := <all-date-column> |
+                  <date-formula-column> |
                   <date-function-column> |
                   ( <date-function-column> );
 

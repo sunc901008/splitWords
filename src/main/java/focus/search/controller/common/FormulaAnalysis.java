@@ -48,10 +48,10 @@ public class FormulaAnalysis {
     // 聚合类型
     private static final List<String> ALL_AGGREGATION = Arrays.asList(SUM, MIN, MAX, AVERAGE, STD_DEVIATION, VARIANCE, NONE, COUNT, COUNT_DISTINCT);
     // 数据类型
-    private static final String TIMESTAMP = "Timestamp";
-    private static final String STRING = "String";
-    private static final String BOOLEAN = "Boolean";
-    private static final String NUMERIC = "Numeric";
+    public static final String TIMESTAMP = "Timestamp";
+    public static final String STRING = "String";
+    public static final String BOOLEAN = "Boolean";
+    public static final String NUMERIC = "Numeric";
     // 列类型
     private static final List<String> MEASURE = Collections.singletonList("MEASURE");
     private static final List<String> ATTRIBUTE = Collections.singletonList("ATTRIBUTE");

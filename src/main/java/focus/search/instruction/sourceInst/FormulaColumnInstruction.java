@@ -10,6 +10,7 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class FormulaColumnInstruction {
 
-    // 完整指令 formula-column
+    // 完整指令 *-formula-column
     public static JSONArray build(FocusPhrase focusPhrase, int index, List<Formula> formulas) throws FocusInstructionException {
         FocusNode formulaNode = focusPhrase.getFirstNode();
 
@@ -34,7 +35,7 @@ public class FormulaColumnInstruction {
         Formula formula = getFormula(formulas, formulaNode.getValue());
         json1.put("aggregation", formula.getAggregation());
         json1.put("type", formula.getColumnType());
-        json1.put("expression", JSONObject.parse(formula.getInstruction().toJSONString()));
+        json1.put("expression", JSONObject.parseObject(formula.getInstruction().toJSONString()));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
@@ -43,7 +44,7 @@ public class FormulaColumnInstruction {
 
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.FORMULA_NAME);
 
-        datas.addToken(AnnotationToken.singleFormula(formulaNode, formula));
+        datas.addTokens(tokens(focusPhrase, formulas));
 
         // annotation content
         json2.put("content", datas);
@@ -65,4 +66,20 @@ public class FormulaColumnInstruction {
         throw new FocusInstructionException(exception);
     }
 
+    // 其他指令的一部分
+    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+        FocusNode formulaNode = focusPhrase.getFirstNode();
+        Formula formula = getFormula(formulas, formulaNode.getValue());
+        return JSONObject.parseObject(formula.getInstruction().toJSONString());
+    }
+
+    // token
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+        FocusNode formulaNode = focusPhrase.getFirstNode();
+        List<AnnotationToken> tokens = new ArrayList<>();
+        Formula formula = getFormula(formulas, formulaNode.getValue());
+        JSONObject token = AnnotationToken.singleFormula(formulaNode, formula);
+        tokens.add(JSONObject.parseObject(token.toJSONString(), AnnotationToken.class));
+        return tokens;
+    }
 }

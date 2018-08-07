@@ -27,6 +27,7 @@ import java.util.List;
 
 //<number-columns> := <all-int-column> |
 //        <all-double-column> |
+//            <number-formula-column> |
 //        <number-function-column> |
 //        ( <number-function-column> );
 public class NumberColInstruction {
@@ -42,6 +43,7 @@ public class NumberColInstruction {
         json1.put("annotationId", annotationId);
         json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
         json1.put("category", Constant.AnnotationCategory.EXPRESSION);
+        json1.put("type", Constant.ColumnType.MEASURE);
 
         JSONObject expression = new JSONObject();
         JSONObject json = build(focusPhrase, formulas);
@@ -54,7 +56,8 @@ public class NumberColInstruction {
             json1.put("type", column.getColumnType());
         } else if (Constant.InstType.FUNCTION.equals(type)) {
             expression = json.getJSONObject(Constant.InstType.FUNCTION);
-            json1.put("type", Constant.ColumnType.MEASURE);
+        } else if (Constant.InstType.FORMULA.equals(type)) {
+            expression = json.getJSONObject(Constant.InstType.FUNCTION);
         }
 
         json1.put("name", Base.InstName(focusPhrase));
@@ -103,6 +106,14 @@ public class NumberColInstruction {
                 res.put("type", Constant.InstType.FUNCTION);
                 res.put("function", NumberFuncInstruction.arg(node.getChildren(), formulas));
                 return res;
+            case FormulaAnalysis.LEFT_BRACKET:
+                res.put("type", Constant.InstType.FUNCTION);
+                res.put("function", NumberFuncInstruction.arg(focusPhrase.getFocusNodes().get(1).getChildren(), formulas));
+                return res;
+            case "<number-formula-column>":
+                res.put("type", Constant.InstType.FORMULA);
+                res.put("function", FormulaColumnInstruction.build(node.getChildren(), formulas));
+                return res;
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -137,6 +148,8 @@ public class NumberColInstruction {
                 return tokens;
             case "<number-function-column>":
                 return NumberFuncInstruction.tokens(node.getChildren(), formulas, amb);
+            case "<number-formula-column>":
+                return FormulaColumnInstruction.tokens(node.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
