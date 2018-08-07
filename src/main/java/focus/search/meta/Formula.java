@@ -1,6 +1,8 @@
 package focus.search.meta;
 
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
+import focus.search.controller.common.FormulaAnalysis;
 
 /**
  * creator: sunc
@@ -83,6 +85,17 @@ public class Formula {
         json.put("columnType", columnType);
         json.put("instruction", instruction);
         return json;
+    }
+
+    public String type() {
+        if (FormulaAnalysis.BOOLEAN.equals(this.dataType)) {
+            return Constant.DataType.BOOLEAN;
+        } else if (FormulaAnalysis.TIMESTAMP.equals(this.dataType)) {
+            return Constant.DataType.TIMESTAMP;
+        } else if (FormulaAnalysis.STRING.equals(this.dataType)) {
+            return Constant.DataType.STRING;
+        }
+        return Constant.DataType.DOUBLE;
     }
 
 }

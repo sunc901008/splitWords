@@ -250,7 +250,7 @@ public class FocusParser implements Serializable {
                 String dataType = Constant.DataType.STRING;
                 for (Formula formula : formulas) {
                     if (word.equals(formula.getName())) {
-                        dataType = formula.getDataType();
+                        dataType = formula.type();
                         break;
                     }
                 }
