@@ -100,7 +100,7 @@ public class WebserviceController {
             JSONObject answer = answers.getJSONObject(i);
             JSONObject getSource;
             try {
-                getSource = Clients.WebServer.getSource(answer.getString("sourceToken"));
+                getSource = Clients.WebServer.getSource(answer.getString("sourceToken"), params.getString("accessToken"));
             } catch (Exception e) {
                 logger.error(ErrorResponse.response(Constant.ErrorType.ERROR, e.getMessage()));
                 continue;

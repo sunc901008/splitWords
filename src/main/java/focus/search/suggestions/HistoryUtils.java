@@ -89,7 +89,7 @@ public class HistoryUtils {
             String taskId = HistoryQuestion.equals(last, current);
             if (taskId != null) {
                 addQuestion(current, questions);
-                Clients.Bi.abortQuery(taskId);
+                Clients.WebServer.abortQuery(taskId, user.getString("accessToken"));
             } else {
                 last.score = last.score + 1;
             }

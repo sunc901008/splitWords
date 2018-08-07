@@ -367,7 +367,7 @@ public class Base {
                     response.setDatas("executeQuery");
                     Common.send(session, response.response());
 
-                    JSONObject res = Clients.Bi.query(json.toJSONString());
+                    JSONObject res = Clients.WebServer.query(json.toJSONString(), user.getString("accessToken"));
                     logger.debug("executeQuery result:" + res);
                     String taskId = res.getString("taskId");
                     session.getAttributes().put("taskId", taskId);

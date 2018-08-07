@@ -146,7 +146,7 @@ class SearchHandler {
         session.getAttributes().put("sourceToken", sourceToken);
         user.put("curSearchToken", curSearchToken);
         JSONObject getSource;
-        getSource = Clients.WebServer.getSource(sourceToken);
+        getSource = Clients.WebServer.getSource(sourceToken, user.getString("accessToken"));
         logger.info(getSource.toJSONString());
 
         InitResponse response = new InitResponse("response", "init");
