@@ -57,7 +57,7 @@ public class Constant {
 
     public static String ucHost = "localhost";
     public static Integer ucPort = 8003;
-    public static String ucBaseUrl = "/api/uc";
+    public static String ucBaseUrl = "/uc";
 
 
     public static String indexHost = "localhost";
@@ -92,7 +92,7 @@ public class Constant {
 
             ucHost = properties.getProperty("ucHost", "localhost");
             ucPort = Integer.parseInt(properties.getProperty("ucPort", "8003"));
-            ucBaseUrl = properties.getProperty("ucBaseUrl", "/api/uc");
+            ucBaseUrl = properties.getProperty("ucBaseUrl", "/uc");
 
             indexHost = properties.getProperty("indexHost", "localhost");
             indexPort = Integer.parseInt(properties.getProperty("indexPort", "8999"));
