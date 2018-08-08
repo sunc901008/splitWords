@@ -52,7 +52,7 @@ public class BoolFuncColInstruction {
             case "<not-function>":
                 return NotFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<is-weekend-function>":
-                return DaysFuncInstruction.build(fn.getChildren(), index, amb, formulas);
+                return DaysFuncInstruction.build(fn.getChildren(), index, amb, formulas, true);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

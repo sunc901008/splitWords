@@ -68,12 +68,14 @@ public class FormulaAnalysis {
     public static class FormulaObj {
         public String type;
         public String name;
+        public Object value;
         public JSONArray args = new JSONArray();
 
         public JSONObject toJSON() {
             JSONObject json = new JSONObject();
             json.put("type", type);
             json.put("name", name);
+            json.put("value", value);
             json.put("args", args);
             return json;
         }

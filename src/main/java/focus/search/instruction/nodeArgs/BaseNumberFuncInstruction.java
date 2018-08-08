@@ -63,7 +63,7 @@ public class BaseNumberFuncInstruction {
         if (focusPhrase.getFocusNodes().size() == 1) {//<number>
             JSONObject expression = new JSONObject();
             expression.put("type", "number");
-            expression.put("name", focusPhrase.getFirstNode().getValue());
+            expression.put("value", focusPhrase.getFirstNode().getValue());
             return expression;
         }
 
