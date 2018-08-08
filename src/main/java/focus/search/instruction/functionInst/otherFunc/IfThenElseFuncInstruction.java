@@ -118,7 +118,7 @@ public class IfThenElseFuncInstruction {
         token2.end = focusNodes.get(2).getEnd();
         tokens.add(token2);
 
-        tokens.add(OtherFuncInstruction.token(param2, amb));
+        tokens.add(OtherFuncInstruction.token(param2, amb, formulas));
 
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusNodes.get(4).getValue();
@@ -127,7 +127,7 @@ public class IfThenElseFuncInstruction {
         token4.end = focusNodes.get(4).getEnd();
         tokens.add(token4);
 
-        tokens.add(OtherFuncInstruction.token(param3, amb));
+        tokens.add(OtherFuncInstruction.token(param3, amb, formulas));
         return tokens;
     }
 

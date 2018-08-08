@@ -11,7 +11,6 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -66,16 +65,7 @@ public class IsNullFuncInstruction {
         JSONArray args = new JSONArray();
 
         if ("<all-columns>".equals(param.getValue())) {
-            JSONObject json = AllColumnsInstruction.build(param.getChildren(), formulas);
-            String type = json.getString("type");
-            JSONObject arg1 = new JSONObject();
-            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-                arg1.put("type", "column");
-                arg1.put("value", ((Column) json.get("column")).getColumnId());
-            } else if (Constant.InstType.FUNCTION.equals(type)) {
-                arg1 = json.getJSONObject(Constant.InstType.FUNCTION);
-            }
-            args.add(arg1);
+            args.add(AllColumnsInstruction.arg(param.getChildren(), formulas));
         } else if ("<number>".equals(param.getValue())) {
             args.add(NumberArg.arg(param));
         }

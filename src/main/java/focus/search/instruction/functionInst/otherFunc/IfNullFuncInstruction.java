@@ -91,7 +91,7 @@ public class IfNullFuncInstruction {
         token2.end = focusPhrase.getFocusNodes().get(1).getEnd();
         tokens.add(token2);
 
-        tokens.add(OtherFuncInstruction.token(param1, amb));
+        tokens.add(OtherFuncInstruction.token(param1, amb, formulas));
 
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusPhrase.getFocusNodes().get(3).getValue();
@@ -100,7 +100,7 @@ public class IfNullFuncInstruction {
         token4.end = focusPhrase.getFocusNodes().get(3).getEnd();
         tokens.add(token4);
 
-        tokens.add(OtherFuncInstruction.token(param2, amb));
+        tokens.add(OtherFuncInstruction.token(param2, amb, formulas));
 
         AnnotationToken token6 = new AnnotationToken();
         token6.value = focusPhrase.getFocusNodes().get(5).getValue();

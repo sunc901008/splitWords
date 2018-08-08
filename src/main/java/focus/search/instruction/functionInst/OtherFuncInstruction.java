@@ -31,7 +31,7 @@ public class OtherFuncInstruction {
 
     // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        logger.info("OtherFuncInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("OtherFuncInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<if-then-else-function>":
@@ -75,7 +75,7 @@ public class OtherFuncInstruction {
             case "<all-date-column>":
             case "<all-bool-column>":
             case "<all-string-column>":
-                return ColumnInstruction.arg(param.getChildren());
+                return ColumnInstruction.arg(param.getChildren(), formulas);
             case "<single-column-value>":
                 return ColumnValueInstruction.arg(param);
             case "<number>":
@@ -87,13 +87,13 @@ public class OtherFuncInstruction {
         }
     }
 
-    public static AnnotationToken token(FocusNode param, JSONObject amb) throws FocusInstructionException {
+    public static AnnotationToken token(FocusNode param, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         switch (param.getValue()) {
             case "<number-source-column>":
             case "<all-date-column>":
             case "<all-bool-column>":
             case "<all-string-column>":
-                return AnnotationToken.singleCol(param.getChildren(), amb);
+                return AnnotationToken.singleCol(param.getChildren(), amb, formulas);
             case "<single-column-value>":
                 return ColumnValueInstruction.tokens(param).get(0);
             case "<number>":

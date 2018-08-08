@@ -26,7 +26,7 @@ public class CFilterNumOrNumColInstruction {
     private static final Logger logger = Logger.getLogger(CFilterNumOrNumColInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        logger.info("instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("instruction arg. focusPhrase:" + focusPhrase.toJSON());
         return FilterNumOrNumColInstruction.build(focusPhrase, index, amb, formulas);
     }
 

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.instruction.CommonFunc;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.Formula;
@@ -32,7 +33,7 @@ public class FormulaColumnInstruction {
         json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
         json1.put("name", formulaNode.getValue());
         json1.put("category", Constant.AnnotationCategory.EXPRESSION_OR_LOGICAL);
-        Formula formula = getFormula(formulas, formulaNode.getValue());
+        Formula formula = CommonFunc.getFormula(formulas, formulaNode.getValue());
         json1.put("aggregation", formula.getAggregation());
         json1.put("type", formula.getColumnType());
         json1.put("expression", JSONObject.parseObject(formula.getInstruction().toJSONString()));
@@ -54,22 +55,10 @@ public class FormulaColumnInstruction {
         return instructions;
     }
 
-    private static Formula getFormula(List<Formula> formulas, String formulaName) throws FocusInstructionException {
-        for (Formula f : formulas) {
-            if (f.getName().equalsIgnoreCase(formulaName)) {
-                return f;
-            }
-        }
-        JSONObject exception = new JSONObject();
-        exception.put("formulas", formulas);
-        exception.put("formulaName", formulaName);
-        throw new FocusInstructionException(exception);
-    }
-
     // 其他指令的一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode formulaNode = focusPhrase.getFirstNode();
-        Formula formula = getFormula(formulas, formulaNode.getValue());
+        Formula formula = CommonFunc.getFormula(formulas, formulaNode.getValue());
         return JSONObject.parseObject(formula.getInstruction().toJSONString());
     }
 
@@ -77,9 +66,7 @@ public class FormulaColumnInstruction {
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode formulaNode = focusPhrase.getFirstNode();
         List<AnnotationToken> tokens = new ArrayList<>();
-        Formula formula = getFormula(formulas, formulaNode.getValue());
-        JSONObject token = AnnotationToken.singleFormula(formulaNode, formula);
-        tokens.add(JSONObject.parseObject(token.toJSONString(), AnnotationToken.class));
+        tokens.add(AnnotationToken.singleFormula(formulaNode, formulas));
         return tokens;
     }
 }

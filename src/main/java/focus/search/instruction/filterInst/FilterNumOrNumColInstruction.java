@@ -30,7 +30,7 @@ public class FilterNumOrNumColInstruction {
     private static final Logger logger = Logger.getLogger(FilterNumOrNumColInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        logger.info("instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("instruction arg. focusPhrase:" + focusPhrase.toJSON());
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode param1 = focusNodes.get(0);
         FocusNode symbol = focusNodes.get(1).getChildren().getFirstNode();

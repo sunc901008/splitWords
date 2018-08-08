@@ -58,7 +58,7 @@ public class StddevFuncInstruction {
         expression.put("type", Constant.InstType.FUNCTION);
         expression.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
-        args.add(ColumnInstruction.arg(param.getChildren()));
+        args.add(ColumnInstruction.arg(param.getChildren(), formulas));
         expression.put("args", args);
 
         return expression;
@@ -82,7 +82,7 @@ public class StddevFuncInstruction {
         token2.end = focusPhrase.getFocusNodes().get(1).getEnd();
         tokens.add(token2);
 
-        tokens.add(AnnotationToken.singleCol(param.getChildren(), amb));
+        tokens.add(AnnotationToken.singleCol(param.getChildren(), amb, formulas));
 
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusPhrase.getFocusNodes().get(3).getValue();

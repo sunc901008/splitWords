@@ -47,7 +47,7 @@ public class CEndsWithInstruction {
         FocusPhrase stringPhrase = focusNodes.get(0).getChildren();
         FocusNode valueNode = focusNodes.get(2);
 
-        datas.addToken(AnnotationToken.singleCol(stringPhrase, amb));
+        datas.addToken(AnnotationToken.singleCol(stringPhrase, amb, formulas));
 
         FocusNode key = focusNodes.get(1);
         AnnotationToken token2 = new AnnotationToken();
@@ -64,7 +64,7 @@ public class CEndsWithInstruction {
         expression.put("name", "ends with");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
-        args.add(ColumnInstruction.arg(stringPhrase));
+        args.add(ColumnInstruction.arg(stringPhrase, formulas));
         args.addAll(ColumnValueInstruction.args(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);
@@ -114,13 +114,13 @@ public class CEndsWithInstruction {
         token3.end = key2.getEnd();
         datas.addToken(token3);
 
-        datas.addToken(AnnotationToken.singleCol(stringPhrase, amb));
+        datas.addToken(AnnotationToken.singleCol(stringPhrase, amb, formulas));
 
         JSONObject expression = new JSONObject();
         expression.put("name", "ends with");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
-        args.add(ColumnInstruction.arg(stringPhrase));
+        args.add(ColumnInstruction.arg(stringPhrase, formulas));
         args.addAll(ColumnValueInstruction.args(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);

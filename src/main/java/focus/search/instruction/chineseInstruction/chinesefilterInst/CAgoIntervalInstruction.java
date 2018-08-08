@@ -29,7 +29,7 @@ public class CAgoIntervalInstruction {
     private static final Logger logger = Logger.getLogger(CAgoIntervalInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("CAgoIntervalInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("CAgoIntervalInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         return AgoIntervalInstruction.build(focusPhrase, index, amb, formulas, dateColumns);
     }
 

@@ -10,8 +10,8 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.instruction.sourceInst.ColumnInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class CountFuncInstruction {
     private static final String example = "count ( %s )";
 
     // 完整指令 count
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -53,20 +53,18 @@ public class CountFuncInstruction {
     }
 
     // 其他指令一部分
-    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode param = focusPhrase.getFocusNodes().get(2);
         JSONObject expression = new JSONObject();
         expression.put("type", Constant.InstType.FUNCTION);
         expression.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
 
-        JSONObject arg1 = new JSONObject();
+        JSONObject arg1;
         if ("<number>".equals(param.getValue())) {
             arg1 = NumberArg.arg(param);
         } else {
-            JSONObject json = ColumnInstruction.build(param.getChildren());
-            arg1.put("type", Constant.InstType.COLUMN);
-            arg1.put("column", ((Column) json.get("column")).getColumnId());
+            arg1 = ColumnInstruction.arg(param.getChildren(), formulas);
         }
         args.add(arg1);
 
@@ -76,7 +74,7 @@ public class CountFuncInstruction {
     }
 
     // annotation tokens
-    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) {
+    public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         List<AnnotationToken> tokens = new ArrayList<>();
         FocusNode param = focusPhrase.getFocusNodes().get(2);
         AnnotationToken token1 = new AnnotationToken();
@@ -96,11 +94,8 @@ public class CountFuncInstruction {
         if ("<number>".equals(param.getValue())) {
             tokens.add(NumberArg.token(param));
         } else {
-            JSONObject json = ColumnInstruction.build(param.getChildren());
             FocusPhrase third = param.getChildren();
-            int begin = third.getFirstNode().getBegin();
-            int end = third.getLastNode().getEnd();
-            tokens.add(AnnotationToken.singleCol((Column) json.get("column"), third.size() == 2, begin, end, amb));
+            tokens.add(AnnotationToken.singleCol(third, amb, formulas));
         }
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusPhrase.getFocusNodes().get(3).getValue();

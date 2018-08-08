@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.filterInst.FilterStringColEqualInstruction;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
 //<all-string-column> = <column-value>
 public class CFilterStringColEqualInstruction {
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         return FilterStringColEqualInstruction.build(focusPhrase, index, amb, formulas);
     }
 

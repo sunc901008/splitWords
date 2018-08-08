@@ -30,7 +30,7 @@ public class FilterDateComplexInstruction {
 
     // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("FilterDateComplexInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("FilterDateComplexInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<before-after-filter>":

@@ -12,7 +12,6 @@ import focus.search.instruction.functionInst.BoolFuncColInstruction;
 import focus.search.instruction.nodeArgs.NoOrAndBoolFuncColInstruction;
 import focus.search.instruction.sourceInst.BoolColInstruction;
 import focus.search.instruction.sourceInst.ColumnInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -123,11 +122,7 @@ public class AndOrFuncInstruction {
         expression.put("name", symbol.getChildren().getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
 
-        JSONObject arg1 = new JSONObject();
-        JSONObject json = ColumnInstruction.build(param1.getChildren());
-        arg1.put("type", Constant.InstType.COLUMN);
-        arg1.put("column", ((Column) json.get("column")).getColumnId());
-        args.add(arg1);
+        args.add(ColumnInstruction.arg(param1.getChildren(), formulas));
 
         if ("<bool-function-column>".equals(param2.getValue())) {
             args.add(BoolFuncColInstruction.arg(param2.getChildren(), formulas));

@@ -6,7 +6,6 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.functionInst.OtherFuncInstruction;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
-import focus.search.instruction.sourceInst.FormulaColumnInstruction;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.AmbiguitiesException;
@@ -44,7 +43,7 @@ public class PhraseInstruction {
             case "<number-complex-phrase>":
                 return PhraseNumberComplexInstruction.build(fn.getChildren(), index, amb, formulas);
 //            case "<formula-column>":
-//                return FormulaColumnInstruction.build(fn.getChildren(), index, formulas);
+//                return FormulaColumnInstruction.arg(fn.getChildren(), index, formulas);
             case "<other-function-columns>":
                 return OtherFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             default:

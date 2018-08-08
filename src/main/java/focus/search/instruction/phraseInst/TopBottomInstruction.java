@@ -9,7 +9,6 @@ import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.NumberColInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -67,20 +66,9 @@ public class TopBottomInstruction {
         json1.put("n", n);
         json1.put("name", Base.InstName(param.getChildren()));
 
-        JSONObject expression = new JSONObject();
-        JSONObject json = NumberColInstruction.build(param.getChildren(), formulas);
-        String type = json.getString("type");
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            expression.put("type", "column");
-            Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            expression = json.getJSONObject(Constant.InstType.FUNCTION);
-        }
-
         datas.addTokens(NumberColInstruction.tokens(param.getChildren(), formulas, amb));
 
-        json1.put("expression", expression);
+        json1.put("expression", NumberColInstruction.arg(param.getChildren(), formulas));
         instructions.add(json1);
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);

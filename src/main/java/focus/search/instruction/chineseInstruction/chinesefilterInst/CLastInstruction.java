@@ -36,7 +36,7 @@ public class CLastInstruction {
     private static final Logger logger = Logger.getLogger(CLastInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("CLastInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("CLastInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<last-days-filter>":
@@ -67,7 +67,7 @@ public class CLastInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         if (Objects.equals("<all-date-column>", first.getValue())) {
-            return buildStartsWithCol(focusPhrase, index, amb, key);
+            return buildStartsWithCol(focusPhrase, index, amb, formulas, key);
         } else {
             return buildNoCol(focusPhrase, index, amb, formulas, dateColumns, key);
         }
@@ -76,7 +76,7 @@ public class CLastInstruction {
 
     //<all-date-column> <last-chinese> <integer> <last-days-chinese>;
     //<all-date-column> <last-day-filter>
-    private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+    private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -89,7 +89,7 @@ public class CLastInstruction {
         FocusPhrase datePhrase = focusNodes.get(0).getChildren();
         Column dateCol = datePhrase.getLastNode().getColumn();
 
-        datas.addToken(AnnotationToken.singleCol(datePhrase, amb));
+        datas.addToken(AnnotationToken.singleCol(datePhrase, amb, formulas));
         FocusNode last = focusNodes.get(1).getChildren().getFirstNode();
         AnnotationToken token2 = new AnnotationToken();
         token2.addToken(last.getValue());

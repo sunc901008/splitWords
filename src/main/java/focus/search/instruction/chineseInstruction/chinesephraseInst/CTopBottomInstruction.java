@@ -10,7 +10,6 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.instruction.sourceInst.NumberColInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -66,18 +65,10 @@ public class CTopBottomInstruction {
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, key);
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode first = focusNodes.get(0);
-        JSONObject expression = new JSONObject();
+        JSONObject expression;
         if ("<number-columns>".equals(first.getValue())) {//<number-columns> <top-1-chinese>
             json1.put("name", Base.InstName(first.getChildren()));
-            JSONObject json = NumberColInstruction.build(first.getChildren(), formulas);
-            String type = json.getString("type");
-            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-                expression.put("type", "column");
-                Column column = (Column) json.get("column");
-                expression.put("value", column.getColumnId());
-            } else if (Constant.InstType.FUNCTION.equals(type)) {
-                expression = json.getJSONObject(Constant.InstType.FUNCTION);
-            }
+            expression = NumberColInstruction.arg(first.getChildren(), formulas);
 
             datas.addTokens(NumberColInstruction.tokens(first.getChildren(), formulas, amb));
 
@@ -92,15 +83,7 @@ public class CTopBottomInstruction {
         } else {//<top-1-chinese> <number-columns>
             FocusNode param = focusNodes.get(1);
             json1.put("name", Base.InstName(param.getChildren()));
-            JSONObject json = NumberColInstruction.build(param.getChildren(), formulas);
-            String type = json.getString("type");
-            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-                expression.put("type", "column");
-                Column column = (Column) json.get("column");
-                expression.put("value", column.getColumnId());
-            } else if (Constant.InstType.FUNCTION.equals(type)) {
-                expression = json.getJSONObject(Constant.InstType.FUNCTION);
-            }
+            expression = NumberColInstruction.arg(param.getChildren(), formulas);
 
             first = first.getChildren().getFirstNode();
             AnnotationToken token1 = new AnnotationToken();
@@ -140,20 +123,10 @@ public class CTopBottomInstruction {
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, key);
 
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
-        JSONObject expression = new JSONObject();
         FocusPhrase numberCol = focusNodes.get(0).getChildren();
         json1.put("name", Base.InstName(numberCol));
-        JSONObject json = NumberColInstruction.build(numberCol, formulas);
-        String type = json.getString("type");
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            expression.put("type", "column");
-            Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            expression = json.getJSONObject(Constant.InstType.FUNCTION);
-        }
         datas.addTokens(NumberColInstruction.tokens(numberCol, formulas, amb));
-        json1.put("expression", expression);
+        json1.put("expression", NumberColInstruction.arg(numberCol, formulas));
 
         FocusNode keyword = focusNodes.get(1).getChildren().getFirstNode();
         AnnotationToken token2 = new AnnotationToken();
@@ -224,20 +197,10 @@ public class CTopBottomInstruction {
         token3.end = measureWord.getEnd();
         datas.addToken(token3);
 
-        JSONObject expression = new JSONObject();
         FocusPhrase numberCol = focusNodes.get(3).getChildren();
         json1.put("name", Base.InstName(numberCol));
-        JSONObject json = NumberColInstruction.build(numberCol, formulas);
-        String type = json.getString("type");
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            expression.put("type", "column");
-            Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            expression = json.getJSONObject(Constant.InstType.FUNCTION);
-        }
         datas.addTokens(NumberColInstruction.tokens(numberCol, formulas, amb));
-        json1.put("expression", expression);
+        json1.put("expression", NumberColInstruction.arg(numberCol, formulas));
 
         instructions.add(json1);
         JSONObject json2 = new JSONObject();

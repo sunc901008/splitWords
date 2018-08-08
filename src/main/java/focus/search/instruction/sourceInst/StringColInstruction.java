@@ -11,7 +11,6 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
 import focus.search.instruction.functionInst.StringFuncInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -27,12 +26,14 @@ import java.util.List;
 
 //<string-columns> := <all-string-column> |
 //        <string-function-column> |
-//        <string-formula-column> |
 //        ( <string-function-column> );
 public class StringColInstruction {
 
     // 完整指令 columns
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
+        if (Constant.FNDType.FORMULA.equals(focusPhrase.getLastNode().getType())) {
+            return FormulaColumnInstruction.build(focusPhrase, index, formulas);
+        }
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -64,47 +65,19 @@ public class StringColInstruction {
 
     // 其他指令的一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        JSONObject json = build(focusPhrase, formulas);
-        String type = json.getString("type");
-        JSONObject expression = new JSONObject();
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            expression.put("type", "column");
-            Column column = (Column) json.get("column");
-            expression.put("value", column.getColumnId());
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            expression = json.getJSONObject(Constant.InstType.FUNCTION);
-        } else if (Constant.InstType.FORMULA.equals(type)) {
-            expression = json.getJSONObject(Constant.InstType.FUNCTION);
-        }
-        return expression;
-    }
-
-    // 其他指令的一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
         JSONObject res = new JSONObject();
         switch (node.getValue()) {
             case "<all-string-column>":
-                JSONObject json = ColumnInstruction.build(node.getChildren());
-                if (json.getBoolean("hasTable")) {
-                    res.put("type", Constant.InstType.TABLE_COLUMN);
-                } else {
-                    res.put("type", Constant.InstType.COLUMN);
-                }
-                res.put("column", json.get("column"));
-                return res;
+                return ColumnInstruction.arg(node.getChildren(), formulas);
             case "<string-function-column>":
-                res.put("type", Constant.InstType.FUNCTION);
-                res.put("function", StringFuncInstruction.arg(node.getChildren(), formulas));
-                return res;
+                return StringFuncInstruction.arg(node.getChildren(), formulas);
             case FormulaAnalysis.LEFT_BRACKET:
-                res.put("type", Constant.InstType.FUNCTION);
-                res.put("function", NumberFuncInstruction.arg(focusPhrase.getFocusNodes().get(1).getChildren(), formulas));
-                return res;
-            case "<string-formula-column>":
-                res.put("type", Constant.InstType.FORMULA);
-                res.put("function", FormulaColumnInstruction.build(node.getChildren(), formulas));
-                return res;
+                return NumberFuncInstruction.arg(focusPhrase.getFocusNodes().get(1).getChildren(), formulas);
+//            case "<string-formula-column>":
+//                res.put("type", Constant.InstType.FORMULA);
+//                res.put("function", FormulaColumnInstruction.arg(node.getChildren(), formulas));
+//                return res;
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -116,7 +89,7 @@ public class StringColInstruction {
         List<AnnotationToken> tokens = new ArrayList<>();
         switch (node.getValue()) {
             case "<all-string-column>":
-                tokens.add(AnnotationToken.singleCol(node.getChildren(), amb));
+                tokens.add(AnnotationToken.singleCol(node.getChildren(), amb, formulas));
                 return tokens;
             case FormulaAnalysis.LEFT_BRACKET:
                 AnnotationToken token1 = new AnnotationToken();
@@ -138,8 +111,8 @@ public class StringColInstruction {
                 return tokens;
             case "<string-function-column>":
                 return StringFuncInstruction.tokens(node.getChildren(), formulas, amb);
-            case "<string-formula-column>":
-                return FormulaColumnInstruction.tokens(node.getChildren(), formulas);
+//            case "<string-formula-column>":
+//                return FormulaColumnInstruction.tokens(node.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

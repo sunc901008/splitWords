@@ -39,7 +39,7 @@ public class CBetweenAndInstruction {
     private static final Logger logger = Logger.getLogger(CBetweenAndInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("CBetweenAndInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("CBetweenAndInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         if (Objects.equals("<all-date-column>", first.getValue())) {
             return build1(focusPhrase, index, amb, formulas);
@@ -65,7 +65,7 @@ public class CBetweenAndInstruction {
 
         FocusPhrase datePhrase = focusNodes.get(0).getChildren();
         Column dateCol = datePhrase.getLastNode().getColumn();
-        datas.addToken(AnnotationToken.singleCol(datePhrase, amb));
+        datas.addToken(AnnotationToken.singleCol(datePhrase, amb, formulas));
 
         FocusNode keyword1 = focusNodes.get(1);
         AnnotationToken token2 = new AnnotationToken();
@@ -324,14 +324,10 @@ public class CBetweenAndInstruction {
         } else {
             numberPhrase = first.getChildren();
         }
-        JSONObject json = NumberColInstruction.build(numberPhrase, formulas);
-        Column column = (Column) json.get("column");
-        int begin = numberPhrase.getFirstNode().getBegin();
-        int end = numberPhrase.getLastNode().getEnd();
         if (atLast) {
-            datas.addToken(AnnotationToken.singleCol(column, numberPhrase.size() == 2, begin, end, amb));
+            datas.addToken(AnnotationToken.singleCol(numberPhrase, amb, formulas));
         } else {
-            datas.addToken(0, AnnotationToken.singleCol(column, numberPhrase.size() == 2, begin, end, amb));
+            datas.addToken(0, AnnotationToken.singleCol(numberPhrase, amb, formulas));
         }
         JSONArray res = BetweenAndInstruction.sort(arg1, arg2);
 
@@ -339,10 +335,7 @@ public class CBetweenAndInstruction {
         expressionStart.put("name", ">=");
         expressionStart.put("type", Constant.InstType.FUNCTION);
         JSONArray argStarts = new JSONArray();
-        JSONObject argStart1 = new JSONObject();
-        argStart1.put("type", Constant.InstType.COLUMN);
-        argStart1.put("value", column.getColumnId());
-        argStarts.add(argStart1);
+        argStarts.add(NumberColInstruction.arg(numberPhrase, formulas));
         JSONObject argStart2 = new JSONObject();
         argStart2.put("type", Constant.InstType.NUMBER);
         argStart2.put("value", res.get(0));
@@ -353,10 +346,7 @@ public class CBetweenAndInstruction {
         expressionEnd.put("name", "<");
         expressionEnd.put("type", Constant.InstType.FUNCTION);
         JSONArray argEnds = new JSONArray();
-        JSONObject argEnd1 = new JSONObject();
-        argEnd1.put("type", Constant.InstType.COLUMN);
-        argEnd1.put("value", column.getColumnId());
-        argEnds.add(argEnd1);
+        argEnds.add(NumberColInstruction.arg(numberPhrase, formulas));
         JSONObject argEnd2 = new JSONObject();
         argEnd2.put("type", Constant.InstType.NUMBER);
         argEnd2.put("value", res.get(1));
@@ -398,7 +388,7 @@ public class CBetweenAndInstruction {
 
         json1.put("name", Base.InstName(numberSourcePhrase));
 
-        json1.put("expression", ColumnInstruction.arg(numberSourcePhrase));
+        json1.put("expression", ColumnInstruction.arg(numberSourcePhrase, formulas));
         instructions.add(json1);
         logger.debug(instructions);
 
@@ -415,7 +405,7 @@ public class CBetweenAndInstruction {
             datas.category = Constant.AnnotationCategory.MEASURE_COLUMN;
         }
 
-        datas.addToken(AnnotationToken.singleCol(numberSourcePhrase, amb));
+        datas.addToken(AnnotationToken.singleCol(numberSourcePhrase, amb, formulas));
         json2.put("content", datas);
 
         instructions.add(json2);

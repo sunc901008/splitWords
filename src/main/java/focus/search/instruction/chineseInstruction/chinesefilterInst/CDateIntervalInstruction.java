@@ -36,7 +36,7 @@ public class CDateIntervalInstruction {
     private static final Logger logger = Logger.getLogger(CDateIntervalInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("CDateIntervalInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("CDateIntervalInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         String key;
         switch (fn.getValue()) {
@@ -73,7 +73,7 @@ public class CDateIntervalInstruction {
     }
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("CDateIntervalInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("CDateIntervalInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFirstNode();
 
         JSONArray instructions = new JSONArray();

@@ -175,12 +175,12 @@ public class Base {
         if (Common.isEmpty(search.trim())) {
             SuggestionResponse response = SuggestionUtils.suggestionsNull(fp, user, search, search.length());
             Common.send(session, response.response());
-            logger.info("提示:\n\t" + response.response() + "\n");
+            logger.debug("提示:\n\t" + response.response() + "\n");
             return;
         }
         JSONObject amb = user.getJSONObject("ambiguities");
 
-        logger.info("current ambiguities:" + amb);
+        logger.debug("current ambiguities:" + amb);
 
         String ambiguityTitle = LanguageUtils.getMsg(language, LanguageUtils.Ambiguity_title);
         String ambiguityItem = LanguageUtils.getMsg(language, LanguageUtils.Ambiguity_item);
@@ -203,14 +203,14 @@ public class Base {
             e.ars.forEach(a -> datas.possibleMenus.add(a.possibleValue));
             response.setDatas(datas);
             Common.send(session, response.response());
-            logger.info(response.response());
+            logger.debug(response.response());
 
             Common.send(session, SearchFinishedResponse.response(search, received));
             return;
         }
-        logger.info("split words:" + JSON.toJSONString(tokens));
+        logger.debug("split words:" + JSON.toJSONString(tokens));
 
-        logger.info("lastParams ambiguities:" + ambiguities);
+        logger.debug("lastParams ambiguities:" + ambiguities);
         @SuppressWarnings("unchecked")
         List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
         if (ambiguities != null) {
@@ -271,12 +271,14 @@ public class Base {
                 focusInst = fp.parseFormula(tokens, amb, language, srs);
             }
 
-//            logger.info(focusInst.toJSON().toJSONString());
+            logger.debug(focusInst.toJSON().toJSONString());
 
             if (focusInst.position < 0) {// 未出错
 
                 if (!focusInst.isInstruction) {// 出入不完整
+                    logger.debug("start getting suggestions.");
                     SuggestionResponse response = SuggestionUtils.suggestionsNotCompleted(fp, search, focusInst, user, tokens, search.length());
+                    logger.debug("finish getting suggestions.");
 
                     // search suggestions
                     if (response != null)
@@ -329,7 +331,7 @@ public class Base {
                     json.put("source", Constant.SearchOrPinboard.SEARCH_USER); // 区分是search框还是pinboard
                     json.put("sourceToken", user.getString("sourceToken"));
 
-                    logger.info("指令:\n\t" + json + "\n");
+                    logger.debug("指令:\n\t" + json + "\n");
                     // Annotations
                     AnnotationResponse annotationResponse = new AnnotationResponse(search);
                     annotationResponse.datas.addAll(getAnnotationDatas(instructions));
@@ -355,7 +357,7 @@ public class Base {
                     Common.send(session, response.response());
 
                     if (checkQuery(session, json, search)) {
-                        logger.debug("precheck fail.");
+                        logger.warn("precheck fail.");
                         return;
                     }
 
@@ -421,7 +423,7 @@ public class Base {
                     datas.reason = String.format(reason, sb.toString());
                     response.setDatas(datas);
                     Common.send(session, response.response());
-                    logger.info(response.response());
+                    logger.debug(response.response());
                 } else {
                     int errorTokenIndex = focusInst.position;
                     int beginPos = tokens.get(errorTokenIndex).getStart();
@@ -435,7 +437,7 @@ public class Base {
                         datas.reason = String.format(reason, sb.toString());
                         response.setDatas(datas);
                         Common.send(session, response.response());
-                        logger.info(response.response());
+                        logger.debug(response.response());
                     }
                 }
             }
@@ -476,7 +478,7 @@ public class Base {
             });
             response.setDatas(datas);
             Common.send(session, response.response());
-            logger.info(response.response());
+            logger.debug(response.response());
 
             Common.send(session, SearchFinishedResponse.response(search, received));
 
@@ -623,7 +625,7 @@ public class Base {
             return;
         }
         String accessToken = session.getAttributes().get("accessToken").toString();
-        logger.info("current accessToken:" + accessToken);
+        logger.debug("current accessToken:" + accessToken);
         JSONObject user;
         try {
             // 获取用户信息

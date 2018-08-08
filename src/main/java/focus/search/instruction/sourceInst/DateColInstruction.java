@@ -10,7 +10,6 @@ import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.DateFuncInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -25,13 +24,15 @@ import java.util.List;
  */
 
 //<date-columns> := <all-date-column> |
-//                  <date-formula-column> |
 //        <date-function-column> |
 //        ( <date-function-column> );
 public class DateColInstruction {
 
     // 完整指令 columns
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
+        if (Constant.FNDType.FORMULA.equals(focusPhrase.getLastNode().getType())) {
+            return FormulaColumnInstruction.build(focusPhrase, index, formulas);
+        }
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -64,45 +65,16 @@ public class DateColInstruction {
 
     // 其他指令的一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        JSONObject json = build(focusPhrase, formulas);
-        String type = json.getString("type");
-        JSONObject arg = new JSONObject();
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            arg.put("type", "column");
-            arg.put("value", ((Column) json.get("column")).getColumnId());
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            arg = json.getJSONObject(Constant.InstType.FUNCTION);
-        } else if (Constant.InstType.FORMULA.equals(type)) {
-            return json.getJSONObject(Constant.InstType.FUNCTION);
-        }
-        return arg;
-    }
-
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
-        JSONObject res = new JSONObject();
         switch (node.getValue()) {
             case "<all-date-column>":
-                JSONObject json = ColumnInstruction.build(node.getChildren());
-                if (json.getBoolean("hasTable")) {
-                    res.put("type", Constant.InstType.TABLE_COLUMN);
-                } else {
-                    res.put("type", Constant.InstType.COLUMN);
-                }
-                res.put("column", json.get("column"));
-                return res;
+                return ColumnInstruction.arg(node.getChildren(), formulas);
             case "<date-function-column>":
-                res.put("type", Constant.InstType.FUNCTION);
-                res.put("function", DateFuncInstruction.arg(node.getChildren(), formulas));
-                return res;
+                return DateFuncInstruction.arg(node.getChildren(), formulas);
             case FormulaAnalysis.LEFT_BRACKET:
-                res.put("type", Constant.InstType.FUNCTION);
-                res.put("function", DateFuncInstruction.arg(focusPhrase.getFocusNodes().get(1).getChildren(), formulas));
-                return res;
-            case "<date-formula-column>":
-                res.put("type", Constant.InstType.FORMULA);
-                res.put("function", FormulaColumnInstruction.build(node.getChildren(), formulas));
-                return res;
+                return DateFuncInstruction.arg(focusPhrase.getFocusNodes().get(1).getChildren(), formulas);
+//            case "<date-formula-column>":
+//                return FormulaColumnInstruction.arg(node.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }
@@ -114,7 +86,7 @@ public class DateColInstruction {
         List<AnnotationToken> tokens = new ArrayList<>();
         switch (node.getValue()) {
             case "<all-date-column>":
-                tokens.add(AnnotationToken.singleCol(node.getChildren(), amb));
+                tokens.add(AnnotationToken.singleCol(node.getChildren(), amb, formulas));
                 return tokens;
             case FormulaAnalysis.LEFT_BRACKET:
                 AnnotationToken token1 = new AnnotationToken();
@@ -136,8 +108,8 @@ public class DateColInstruction {
                 return tokens;
             case "<date-function-column>":
                 return DateFuncInstruction.tokens(node.getChildren(), formulas, amb);
-            case "<date-formula-column>":
-                return FormulaColumnInstruction.tokens(node.getChildren(), formulas);
+//            case "<date-formula-column>":
+//                return FormulaColumnInstruction.tokens(node.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

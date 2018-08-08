@@ -33,7 +33,7 @@ public class BoolFuncColInstruction {
 
     // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        logger.info("BoolFunctionColumn instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("BoolFunctionColumn instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_bool-function>":

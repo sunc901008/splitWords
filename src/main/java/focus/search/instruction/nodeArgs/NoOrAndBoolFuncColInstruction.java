@@ -55,7 +55,7 @@ public class NoOrAndBoolFuncColInstruction {
             case "<is-weekend-function>":
                 return DaysFuncInstruction.arg(node.getChildren(), formulas);
             case "<bool-columns>":
-                return ColumnInstruction.arg(node.getChildren());
+                return ColumnInstruction.arg(node.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

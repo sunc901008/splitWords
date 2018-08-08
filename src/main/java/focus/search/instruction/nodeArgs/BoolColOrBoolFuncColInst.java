@@ -1,12 +1,10 @@
 package focus.search.instruction.nodeArgs;
 
 import com.alibaba.fastjson.JSONObject;
-import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.BoolFuncColInstruction;
 import focus.search.instruction.sourceInst.BoolColInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -23,14 +21,7 @@ public class BoolColOrBoolFuncColInst {
     public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         switch (focusNode.getValue()) {
             case "<bool-columns>":
-                JSONObject arg = new JSONObject();
-                JSONObject json = BoolColInstruction.build(focusNode.getChildren(), formulas);
-                String type = json.getString("type");
-                if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-                    arg.put("type", "column");
-                    arg.put("value", ((Column) json.get("column")).getColumnId());
-                }
-                return arg;
+                return BoolColInstruction.arg(focusNode.getChildren(), formulas);
             case "<no-or-and-bool-function-column>":
                 return NoOrAndBoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
             case "<bool-function-column>":

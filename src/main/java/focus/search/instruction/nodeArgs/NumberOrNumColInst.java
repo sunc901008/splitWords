@@ -1,12 +1,10 @@
 package focus.search.instruction.nodeArgs;
 
 import com.alibaba.fastjson.JSONObject;
-import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.NumberColInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -22,21 +20,12 @@ import java.util.List;
 public class NumberOrNumColInst {
 
     public static JSONObject arg(FocusNode focusNode, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        JSONObject arg = new JSONObject();
         if ("<number-columns>".equals(focusNode.getValue())) {
-            JSONObject json = NumberColInstruction.build(focusNode.getChildren(), formulas);
-            String type = json.getString("type");
-            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-                arg.put("type", Constant.InstType.COLUMN);
-                arg.put("value", ((Column) json.get("column")).getColumnId());
-            } else if (Constant.InstType.FUNCTION.equals(type)) {
-                arg = json.getJSONObject(Constant.InstType.FUNCTION);
-            }
-            return arg;
+            return NumberColInstruction.arg(focusNode.getChildren(), formulas);
         } else if ("<number>".equals(focusNode.getValue())) {
             return NumberArg.arg(focusNode);
         } else if ("<number-source-column>".equals(focusNode.getValue())) {
-            return ColumnInstruction.arg(focusNode.getChildren());
+            return ColumnInstruction.arg(focusNode.getChildren(), formulas);
         }
         throw new FocusInstructionException(focusNode.toJSON());
     }
@@ -50,7 +39,7 @@ public class NumberOrNumColInst {
             tokens.add(NumberArg.token(focusNode));
             return tokens;
         } else if ("<number-source-column>".equals(focusNode.getValue())) {
-            tokens.add(AnnotationToken.singleCol(focusNode.getChildren(), amb));
+            tokens.add(AnnotationToken.singleCol(focusNode.getChildren(), amb, formulas));
             return tokens;
         }
         throw new FocusInstructionException(focusNode.toJSON());

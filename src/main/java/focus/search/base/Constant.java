@@ -141,9 +141,6 @@ public class Constant {
         FocusParser chineseParser = Base.chineseParser.deepClone();
         all(initChineseKeywordRedis, chineseParser.getAllRules(), "<question>");
         for (String keyword : initChineseKeywordRedis) {
-            if (initEnglishKeywordRedis.contains(keyword)) {
-                continue;
-            }
             initKeyword(chineseParser, keyword, Language.CHINESE);
         }
         List<String> chineseColNames = getInitSource(chineseParser, Language.CHINESE);
@@ -364,7 +361,7 @@ public class Constant {
         public static final String BOOLEAN = "boolean";
     }
 
-    // build instruction type
+    // arg instruction type
     public static final class InstType {
         public static final String TABLE_COLUMN = "tblColumn";
         public static final String COLUMN = "column";
@@ -502,6 +499,7 @@ public class Constant {
         public static final String HISTORY = "history";
         public static final String PHRASE = "phrase";
         public static final String COLUMN = "column";
+        public static final String FORMULA = "formulaName";
         public static final String NUMBER = "number";
         public static final String COLUMN_VALUE = "columnValue";
         public static final String DATE_VALUE = "dateValue";

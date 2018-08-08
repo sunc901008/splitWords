@@ -54,20 +54,9 @@ public class CSortByInstruction {
         FocusNode param = focusNodes.get(1);
         json1.put("name", Base.InstName(param.getChildren()));
 
-        JSONObject json = AllColumnsInstruction.build(param.getChildren(), formulas);
-        String type = json.getString("type");
-        JSONObject arg = new JSONObject();
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            arg.put("type", "column");
-            Column column = (Column) json.get("column");
-            arg.put("value", column.getColumnId());
-        } else if (Constant.InstType.FUNCTION.equals(type)) {
-            arg = json.getJSONObject(Constant.InstType.FUNCTION);
-        }
-
         datas.addTokens(AllColumnsInstruction.tokens(param.getChildren(), formulas, amb));
 
-        json1.put("expression", arg);
+        json1.put("expression",  AllColumnsInstruction.arg(param.getChildren(), formulas));
         FocusNode sortOrder = focusNodes.get(2);
         FocusNode order = sortOrder.getChildren().getFirstNode();
         AnnotationToken token3 = new AnnotationToken();

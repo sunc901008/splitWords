@@ -155,8 +155,6 @@
                      <number-source-column> <math-symbol> <number> |
                      <no-number-function-column> <math-symbol> <number-columns> |
                      <no-number-function-column> <math-symbol> <number> |
-                     <number-formula-column> <math-symbol> <number-columns> |
-                     <number-formula-column> <math-symbol> <number> |
                      <number>;
 
 <stddev-function> := stddev ( <number-source-column> );

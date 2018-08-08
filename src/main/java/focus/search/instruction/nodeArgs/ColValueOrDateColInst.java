@@ -28,7 +28,7 @@ public class ColValueOrDateColInst {
         if (focusNode.getValue().equals("<date-columns>")) {
             return DateColInstruction.arg(focusNode.getChildren(), formulas);
         } else if (focusNode.getValue().equals("<all-date-column>")) {
-            return ColumnInstruction.arg(focusNode.getChildren());
+            return ColumnInstruction.arg(focusNode.getChildren(), formulas);
         }
         // 列中值
         JSONObject json = ColumnValueInstruction.arg(focusNode);
@@ -52,7 +52,7 @@ public class ColValueOrDateColInst {
         if (focusNode.getValue().equals("<date-columns>")) {
             return DateColInstruction.tokens(focusNode.getChildren(), formulas, amb);
         } else if (focusNode.getValue().equals("<all-date-column>")) {
-            tokens.add(AnnotationToken.singleCol(focusNode.getChildren(), amb));
+            tokens.add(AnnotationToken.singleCol(focusNode.getChildren(), amb, formulas));
             return tokens;
         }
         AnnotationToken token = ColumnValueInstruction.tokens(focusNode).get(0);

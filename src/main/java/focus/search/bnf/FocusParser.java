@@ -399,7 +399,7 @@ public class FocusParser implements Serializable {
             if (fsiCheck != null)
                 return fsiCheck;
 
-            logger.info("Adaptation parse bnf size:" + focusPhrases.size());
+            logger.debug("Adaptation parse bnf size:" + focusPhrases.size());
 
             // 去除重复
             distinct(focusPhrases);
@@ -474,13 +474,13 @@ public class FocusParser implements Serializable {
                 StringBuilder sb = new StringBuilder();
                 focusPhrases.forEach(f -> sb.append(f.toJSON()).append(","));
                 String log = "Before replace. FocusPhrases: " + sb.toString();
-                logger.info(ft.toJson());
-                logger.info(log);
+                logger.debug(ft.toJson());
+                logger.debug(log);
                 replace(rules, focusPhrases, ft, i, amb);
                 sb.delete(0, sb.length());
                 focusPhrases.forEach(f -> sb.append(f.toJSON()).append(","));
                 log = "After replace. FocusPhrases: " + sb.toString();
-                logger.info(log);
+                logger.debug(log);
             } catch (FocusParserException e) {
                 logger.warn(Common.printStacktrace(e));
             }
@@ -493,6 +493,10 @@ public class FocusParser implements Serializable {
 //            // 歧义检测
 //            ambiguitiesCheck(ft, focusPhrases, i, amb);
         }
+
+        StringBuilder sb = new StringBuilder();
+        focusPhrases.forEach(f -> sb.append(f.toJSON()).append(","));
+        logger.debug("focusPhrases:" + sb.toString());
 
         FocusSubInst fsi = new FocusSubInst();
         List<FocusPhrase> sug = new ArrayList<>();
@@ -867,7 +871,7 @@ public class FocusParser implements Serializable {
             }
         }
 
-        logger.info("adaptation " + ft.toJson() + " rules size:" + res.size());
+        logger.debug("adaptation " + ft.toJson() + " rules size:" + res.size());
         return res;
     }
 

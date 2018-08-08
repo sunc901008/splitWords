@@ -1,38 +1,37 @@
 package focus.search.instruction.sourceInst;
 
 import com.alibaba.fastjson.JSONObject;
+import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
-import focus.search.meta.Column;
+import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 import org.apache.log4j.Logger;
+
+import java.util.List;
 
 /**
  * creator: sunc
  * date: 2018/4/18
  * description:
  */
+//<all-*-column> := <*-column> |
+//        <table-*-column> |
+//        <*-formula-column>;
 public class ColumnInstruction {
     private static final Logger logger = Logger.getLogger(ColumnInstruction.class);
 
-    public static JSONObject build(FocusPhrase focusPhrase) {
-        logger.info("ColumnInstruction build. focusPhrase:" + focusPhrase.toJSON());
-        JSONObject json = new JSONObject();
-        json.put("hasTable", false);
-        if (focusPhrase.size() > 1) {
-            logger.info("size here");
-            json.put("hasTable", true);
-        }
-        FocusNode fn = focusPhrase.getLastNode();
-        logger.info(fn.toJSON());
-        json.put("column", fn.getColumn());
-        return json;
-    }
-
-    public static JSONObject arg(FocusPhrase focusPhrase) {
-        JSONObject json = build(focusPhrase);
+    // table column | column | formula
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+        logger.debug("ColumnInstruction arg. focusPhrase:" + focusPhrase.toJSON());
         JSONObject expression = new JSONObject();
-        expression.put("type", "column");
-        expression.put("value", ((Column) json.get("column")).getColumnId());
+        FocusNode first = focusPhrase.getFocusNodes().get(0);
+        if (first.getValue().endsWith("-formula-column>")) {// formula
+            return FormulaColumnInstruction.arg(first.getChildren(), formulas);
+        } else {
+            expression.put("type", Constant.FNDType.COLUMN);
+            expression.put("value", focusPhrase.getLastNode().getColumn().getColumnId());
+        }
         return expression;
     }
 

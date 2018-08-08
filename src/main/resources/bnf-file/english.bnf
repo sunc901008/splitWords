@@ -260,20 +260,16 @@
 
 <number-columns> := <all-int-column> |
                     <all-double-column> |
-                    <number-formula-column> |
                     <number-function-column> |
                     ( <number-function-column> );
 
 <string-columns> := <all-string-column> |
-                    <string-formula-column> |
                     <string-function-column> |
                     ( <string-function-column> );
 
-<bool-columns> := <all-bool-column> |
-                  <bool-formula-column>;
+<bool-columns> := <all-bool-column>;
 
 <date-columns> := <all-date-column> |
-                  <date-formula-column> |
                   <date-function-column> |
                   ( <date-function-column> );
 
@@ -281,16 +277,20 @@
                     <table-int-column>;
 
 <all-double-column> := <double-column> |
-                       <table-double-column>;
+                       <table-double-column> |
+                       <number-formula-column>;
 
 <all-string-column> := <string-column> |
-                       <table-string-column>;
+                       <table-string-column> |
+                       <string-formula-column>;
 
 <all-bool-column> := <boolean-column> |
-                     <table-boolean-column>;
+                     <table-boolean-column> |
+                     <bool-formula-column>;
 
 <all-date-column> := <timestamp-column> |
-                     <table-timestamp-column>;
+                     <table-timestamp-column> |
+                     <date-formula-column>;
 
 <all-source-column> := <not-number-source-column> |
                        <number-source-column>;
@@ -300,7 +300,8 @@
                               <all-date-column>;
 
 <number-source-column> := <all-int-column> |
-                          <all-double-column>;
+                          <all-double-column> |
+                          <number-formula-column>;
 
 <bool-symbol> := > | < | >= | <= | = | !=;
 <math-symbol> := + | - | * | / | ^;

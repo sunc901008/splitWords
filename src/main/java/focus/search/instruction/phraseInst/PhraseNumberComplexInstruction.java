@@ -29,7 +29,7 @@ public class PhraseNumberComplexInstruction {
 
     // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        logger.info("FilterNumberComplexInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("FilterNumberComplexInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<average-phrase>":

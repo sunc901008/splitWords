@@ -28,8 +28,6 @@ import java.util.List;
 //        <number-source-column> <math-symbol> <number> |
 //        <no-number-function-column> <math-symbol> <number-columns> |
 //        <no-number-function-column> <math-symbol> <number> |
-//         <number-formula-column> <math-symbol> <number-columns> |
-//         <number-formula-column> <math-symbol> <number> |
 //        <number>;
 public class BaseNumberFuncInstruction {
 
@@ -101,13 +99,15 @@ public class BaseNumberFuncInstruction {
             tokens.add(NumberArg.token(param1));
         } else if ("<number-source-column>".equals(param1.getValue())) {
             FocusPhrase fp = param1.getChildren();
-            int begin = fp.getFirstNode().getBegin();
-            int end = fp.getLastNode().getEnd();
-            tokens.add(AnnotationToken.singleCol(fp.getLastNode().getColumn(), fp.size() == 2, begin, end, amb));
+            if ("<number-formula-column>".equals(fp.getFocusNodes().get(0).getValue())) {
+                tokens.addAll(FormulaColumnInstruction.tokens(fp.getFocusNodes().get(0).getChildren(), formulas));
+            } else {
+                int begin = fp.getFirstNode().getBegin();
+                int end = fp.getLastNode().getEnd();
+                tokens.add(AnnotationToken.singleCol(fp.getLastNode().getColumn(), fp.size() == 2, begin, end, amb));
+            }
         } else if ("<no-number-function-column>".equals(param1.getValue())) {
             tokens.addAll(NumberFuncInstruction.tokens(param1.getChildren(), formulas, amb));
-        } else if ("<number-formula-column>".equals(param1.getValue())) {
-            tokens.addAll(FormulaColumnInstruction.tokens(param1.getChildren(), formulas));
         }
 
         AnnotationToken token2 = new AnnotationToken();

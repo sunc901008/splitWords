@@ -10,7 +10,6 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberOrNumColInst;
 import focus.search.instruction.sourceInst.ColumnInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -67,11 +66,7 @@ public class MaxMinFuncInstruction {
         JSONArray args = new JSONArray();
 
         if ("<all-date-column>".equals(param.getValue())) {
-            JSONObject arg1 = new JSONObject();
-            JSONObject json = ColumnInstruction.build(param.getChildren());
-            arg1.put("type", Constant.InstType.COLUMN);
-            arg1.put("column", ((Column) json.get("column")).getColumnId());
-            args.add(arg1);
+            args.add(ColumnInstruction.arg(param.getChildren(), formulas));
         } else {
             args.add(NumberOrNumColInst.arg(param, formulas));
         }
@@ -100,11 +95,8 @@ public class MaxMinFuncInstruction {
         tokens.add(token2);
 
         if ("<all-date-column>".equals(param.getValue())) {
-            JSONObject json = ColumnInstruction.build(param.getChildren());
             FocusPhrase third = param.getChildren();
-            int begin = third.getFirstNode().getBegin();
-            int end = third.getLastNode().getEnd();
-            tokens.add(AnnotationToken.singleCol((Column) json.get("column"), third.size() == 2, begin, end, amb));
+            tokens.add(AnnotationToken.singleCol(third, amb, formulas));
         } else {
             tokens.addAll(NumberOrNumColInst.tokens(param, formulas, amb));
         }

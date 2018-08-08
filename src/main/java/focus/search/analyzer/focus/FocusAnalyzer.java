@@ -241,13 +241,19 @@ public class FocusAnalyzer implements Serializable {
         merge.addAll(tokens.subList(0, size - 2));
         String word = lastSecond.getWord() + last.getWord();
         List<String> allWords = Dictionary.allWords();
+        boolean mergeWords = false;
         for (String keyword : allWords) {
             if (keyword.startsWith(word)) {
                 last.setWord(word);
                 last.setStart(lastSecond.getStart());
                 merge.add(last);
+                mergeWords = true;
                 break;
             }
+        }
+        if (!mergeWords) {
+            merge.add(lastSecond);
+            merge.add(last);
         }
         return merge;
     }

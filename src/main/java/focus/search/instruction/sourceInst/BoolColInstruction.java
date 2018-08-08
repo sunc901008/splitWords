@@ -8,7 +8,6 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 
@@ -20,21 +19,14 @@ import java.util.List;
  * date: 2018/4/17
  * description:
  */
-//<bool-columns> := <all-bool-column> |
-//                  <bool-formula-column>;
+//<bool-columns> := <all-bool-column>;
 public class BoolColInstruction {
 
     // 完整指令 bool-columns
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
-        FocusNode node = focusPhrase.getFocusNodes().get(0);
-        if ("<all-bool-column>".equals(node.getValue())) {
-            return buildColumn(focusPhrase, index, amb, formulas);
-        } else {
+        if (Constant.FNDType.FORMULA.equals(focusPhrase.getLastNode().getType())) {
             return FormulaColumnInstruction.build(focusPhrase, index, formulas);
         }
-    }
-
-    private static JSONArray buildColumn(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
@@ -44,26 +36,16 @@ public class BoolColInstruction {
         json1.put("category", Constant.AnnotationCategory.EXPRESSION);
         AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.ATTRIBUTE_COLUMN);
 
-        JSONObject expression = new JSONObject();
-        JSONObject json = build(focusPhrase, formulas);
-        String type = json.getString("type");
-        if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-            Column column = (Column) json.get("column");
-            expression.put("type", Constant.InstType.COLUMN);
-            expression.put("value", column.getColumnId());
-            int begin = focusPhrase.getFirstNode().getBegin();
-            int end = focusPhrase.getLastNode().getEnd();
-            datas.addToken(AnnotationToken.singleCol(column, Constant.InstType.TABLE_COLUMN.equals(type), begin, end, amb));
-            json1.put("type", column.getColumnType());
-            json1.put("name", Base.InstName(focusPhrase));
-//            json1.put("aggregation", column.getAggregation());
-        }
-        json1.put("expression", expression);
+        json1.put("type", Constant.ColumnType.ATTRIBUTE);
+        json1.put("name", Base.InstName(focusPhrase));
+        json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);
         json2.put("instId", Constant.InstIdType.ANNOTATION);
+
+        datas.addToken(AnnotationToken.singleCol(focusPhrase, amb, formulas));
 
         // annotation content
         json2.put("content", datas);
@@ -74,20 +56,12 @@ public class BoolColInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
-        JSONObject res = new JSONObject();
         if ("<all-bool-column>".equals(node.getValue())) {
-            JSONObject json = ColumnInstruction.build(node.getChildren());
-            if (json.getBoolean("hasTable")) {
-                res.put("type", Constant.InstType.TABLE_COLUMN);
-            } else {
-                res.put("type", Constant.InstType.COLUMN);
-            }
-            res.put("column", json.get("column"));
-            return res;
+            return ColumnInstruction.arg(node.getChildren(), formulas);
         } else {
-            return FormulaColumnInstruction.build(node.getChildren(), formulas);
+            return FormulaColumnInstruction.arg(node.getChildren(), formulas);
         }
     }
 

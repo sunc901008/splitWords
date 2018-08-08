@@ -36,7 +36,7 @@ public class ContainsInstruction {
         FocusPhrase stringPhrase = focusNodes.get(0).getChildren();
         FocusNode valueNode = focusNodes.get(2);
 
-        datas.addToken(AnnotationToken.singleCol(stringPhrase, amb));
+        datas.addToken(AnnotationToken.singleCol(stringPhrase, amb, formulas));
 
         FocusNode contains = focusNodes.get(1);
         AnnotationToken token2 = new AnnotationToken();
@@ -53,7 +53,7 @@ public class ContainsInstruction {
         expression.put("name", "contains");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
-        args.add(ColumnInstruction.arg(stringPhrase));
+        args.add(ColumnInstruction.arg(stringPhrase, formulas));
         args.addAll(ColumnValueInstruction.args(valueNode));
         expression.put("args", args);
         json1.put("expression", expression);

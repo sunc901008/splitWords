@@ -10,6 +10,7 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.ColumnInstruction;
 import focus.search.instruction.sourceInst.ColumnValueInstruction;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 
 import java.util.List;
 
@@ -20,9 +21,10 @@ import java.util.List;
  */
 
 //<all-string-column> = <column-value>
+//<string-formula-column> = <column-value>
 public class FilterStringColEqualInstruction {
 
-    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) {
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode param1 = focusNodes.get(0);
         FocusNode symbol = focusNodes.get(1);
@@ -44,9 +46,9 @@ public class FilterStringColEqualInstruction {
 
         expression.put("name", "equals");
 
-        args.add(ColumnInstruction.arg(param1.getChildren()));
+        args.add(ColumnInstruction.arg(param1.getChildren(), formulas));
 
-        datas.addToken(AnnotationToken.singleCol(param1.getChildren(), amb));
+        datas.addToken(AnnotationToken.singleCol(param1.getChildren(), amb, formulas));
 
         AnnotationToken token2 = new AnnotationToken();
         token2.value = symbol.getValue();

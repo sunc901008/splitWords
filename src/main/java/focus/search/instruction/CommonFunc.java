@@ -9,9 +9,11 @@ import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
+import focus.search.meta.Formula;
 import focus.search.metaReceived.ColumnReceived;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.AmbiguitiesException;
+import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
 import focus.search.response.search.AmbiguityDatas;
 import focus.search.response.search.IllegalDatas;
@@ -271,6 +273,18 @@ public class CommonFunc {
                 return Common.biTimeFormat(current);
         }
         return Common.biTimeFormat(current);
+    }
+
+    public static Formula getFormula(List<Formula> formulas, String formulaName) throws FocusInstructionException {
+        for (Formula f : formulas) {
+            if (f.getName().equalsIgnoreCase(formulaName)) {
+                return f;
+            }
+        }
+        JSONObject exception = new JSONObject();
+        exception.put("formulas", formulas);
+        exception.put("formulaName", formulaName);
+        throw new FocusInstructionException(exception);
     }
 
 }
