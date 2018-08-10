@@ -7,6 +7,8 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.StringFunc.*;
 import focus.search.instruction.functionInst.numberFunc.DaysFuncInstruction;
+import focus.search.instruction.functionInst.otherFunc.IfNullFuncInstruction;
+import focus.search.instruction.functionInst.otherFunc.IfThenElseFuncInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -41,9 +43,9 @@ public class StringFuncInstruction {
             case "<substr-function>":
                 return SubstrFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<if-then-else-string-function>":
-                return IfThenElseStringColFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IfThenElseFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<ifnull-string-function>":
-                return IfNullStringColFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IfNullFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<day-of-week-function>":
             case "<time-function>":
                 return DaysFuncInstruction.build(focusPhrase, index, amb, formulas);
@@ -64,9 +66,9 @@ public class StringFuncInstruction {
             case "<substr-function>":
                 return SubstrFuncInstruction.arg(fn.getChildren(), formulas);
             case "<if-then-else-string-function>":
-                return IfThenElseStringColFuncInstruction.arg(fn.getChildren(), formulas);
+                return IfThenElseFuncInstruction.arg(fn.getChildren(), formulas);
             case "<ifnull-string-function>":
-                return IfNullStringColFuncInstruction.arg(fn.getChildren(), formulas);
+                return IfNullFuncInstruction.arg(fn.getChildren(), formulas);
             case "<day-of-week-function>":
             case "<time-function>":
                 return DaysFuncInstruction.arg(fn.getChildren(), formulas);
@@ -88,9 +90,9 @@ public class StringFuncInstruction {
             case "<substr-function>":
                 return SubstrFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<if-then-else-string-function>":
-                return IfThenElseStringColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+                return IfThenElseFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<ifnull-string-function>":
-                return IfNullStringColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+                return IfNullFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<day-of-week-function>":
             case "<time-function>":
                 return DaysFuncInstruction.tokens(fn.getChildren(), formulas, amb);

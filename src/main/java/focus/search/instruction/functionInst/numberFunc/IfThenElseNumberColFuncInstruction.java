@@ -21,10 +21,10 @@ import java.util.List;
  * date: 2018/4/20
  * description:
  */
-//<if-then-else-number-function> := if <bool-columns> then <number> else <number> |
-//        if <bool-function-column> then <number> else <number> |
-//        if <bool-columns> then <number-columns> else <number-columns> |
-//        if <bool-function-column> then <number-columns> else <number-columns>;
+//<if-then-else-number-function> := if <if-then-else-bool-filter> then <number-source-column> else <number> |
+//                           if <if-then-else-bool-filter> then <number-source-column> else <number-source-column> |
+//                           if <if-then-else-bool-filter> then <number> else <number> |
+//                           if <if-then-else-bool-filter> then <number> else <number-source-column>;
 public class IfThenElseNumberColFuncInstruction {
 
     // 完整指令 if-expression

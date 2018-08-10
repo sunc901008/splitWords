@@ -43,9 +43,9 @@ public class BoolFuncColInstruction {
             case "<and-function>":
             case "<or-function>":
                 return AndOrFuncInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "<if-then-else-bool-column-function>":
+            case "<if-then-else-bool-function>":
                 return IfThenElseBoolColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "<ifnull-bool-column-function>":
+            case "<ifnull-bool-function>":
                 return IfNullBoolColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<isnull-function>":
                 return IsNullFuncInstruction.build(fn.getChildren(), index, amb, formulas);

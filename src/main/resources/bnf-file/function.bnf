@@ -2,3 +2,11 @@
 
 <attribute-list-params> := <not-number-source-column> |
                            <not-number-source-column> , <attribute-list-params>;
+
+<if-then-else-bool-filter-function> := <number> <function-bool-symbol> <number-source-column> |
+                                       <number-source-column> <function-bool-symbol> <number> |
+                                       <number-source-column> <function-bool-symbol> <number-source-column>;
+
+<if-then-else-bool-filter> := <bool-columns> |
+                              <if-then-else-bool-filter-function> |
+                              <string-simple-filter>;

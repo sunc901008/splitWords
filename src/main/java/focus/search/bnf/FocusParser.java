@@ -67,7 +67,7 @@ public class FocusParser implements Serializable {
         initBnf("bnf-file/function-bool.bnf");
         initBnf("bnf-file/function-date.bnf");
         initBnf("bnf-file/function-number.bnf");
-        initBnf("bnf-file/function-other.bnf");
+//        initBnf("bnf-file/function-other.bnf");
         initBnf("bnf-file/function-string.bnf");
     }
 
@@ -440,12 +440,8 @@ public class FocusParser implements Serializable {
                     } else if (DateValueTerminalToken.DATE_VALUE.equals(tmpNode.getValue())) {
                         String dateValue = ft.getWord();
                         dateValue = Common.dateFormat(dateValue);
-                        if (Common.isEmpty(dateValue)) {//非法日期格式
-                            FocusSubInst fsi = new FocusSubInst();
-                            fsi.setIndex(i);
-                            fsi.setFps(tmp);
-                            fsi.setError();
-                            return fsi;
+                        if (Common.isEmpty(dateValue)) {//非法日期格式,过滤掉该规则
+                            continue;
                         }
                         tmpNode.setValue(ft.getWord());
                         tmpNode.setBegin(ft.getStart());
@@ -685,6 +681,9 @@ public class FocusParser implements Serializable {
     // 07/24 modified first time
     private void replace(List<BnfRule> rules, List<FocusPhrase> focusPhrases, FocusToken focusToken, int position, JSONObject amb) throws AmbiguitiesException {
         long start = Calendar.getInstance().getTimeInMillis();
+
+        Common.info(focusToken.toJson() + " . focusPhrases.size :" + focusPhrases.size());
+
         int max_rule = 1;
         String value = focusToken.getWord();
         List<FocusPhrase> noNeedReplace = new ArrayList<>();
@@ -784,7 +783,7 @@ public class FocusParser implements Serializable {
 
         long end = Calendar.getInstance().getTimeInMillis();
 
-        Common.info(focusToken.toJson() + " . COST :" + (end - start));
+        Common.info(focusToken.toJson() + " . REPLACE COST :" + (end - start));
 
     }
 

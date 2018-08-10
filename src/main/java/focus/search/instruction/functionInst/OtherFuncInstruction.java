@@ -10,13 +10,13 @@ import focus.search.instruction.functionInst.otherFunc.IfNullFuncInstruction;
 import focus.search.instruction.functionInst.otherFunc.IfThenElseFuncInstruction;
 import focus.search.instruction.nodeArgs.ColValueOrDateColInst;
 import focus.search.instruction.nodeArgs.NumberArg;
-import focus.search.instruction.sourceInst.ColumnInstruction;
-import focus.search.instruction.sourceInst.ColumnValueInstruction;
+import focus.search.instruction.sourceInst.*;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,11 +71,14 @@ public class OtherFuncInstruction {
 
     public static JSONObject arg(FocusNode param, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         switch (param.getValue()) {
-            case "<number-source-column>":
-            case "<all-date-column>":
-            case "<all-bool-column>":
-            case "<all-string-column>":
-                return ColumnInstruction.arg(param.getChildren(), formulas);
+            case "<bool-columns>":
+                return BoolColInstruction.arg(param.getChildren(), formulas);
+            case "<date-columns>":
+                return DateColInstruction.arg(param.getChildren(), formulas);
+            case "<number-columns>":
+                return NumberColInstruction.arg(param.getChildren(), formulas);
+            case "<string-columns>":
+                return StringColInstruction.arg(param.getChildren(), formulas);
             case "<single-column-value>":
                 return ColumnValueInstruction.arg(param);
             case "<number>":
@@ -87,21 +90,27 @@ public class OtherFuncInstruction {
         }
     }
 
-    public static AnnotationToken token(FocusNode param, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+    public static List<AnnotationToken> tokens(FocusNode param, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+        List<AnnotationToken> tokens = new ArrayList<>();
         switch (param.getValue()) {
-            case "<number-source-column>":
-            case "<all-date-column>":
-            case "<all-bool-column>":
-            case "<all-string-column>":
-                return AnnotationToken.singleCol(param.getChildren(), amb, formulas);
+            case "<bool-columns>":
+                return BoolColInstruction.tokens(param, formulas, amb);
+            case "<date-columns>":
+                return DateColInstruction.tokens(param.getChildren(), formulas, amb);
+            case "<number-columns>":
+                return NumberColInstruction.tokens(param.getChildren(), formulas, amb);
+            case "<string-columns>":
+                return StringColInstruction.tokens(param.getChildren(), formulas, amb);
             case "<single-column-value>":
-                return ColumnValueInstruction.tokens(param).get(0);
+                return ColumnValueInstruction.tokens(param);
             case "<number>":
-                return NumberArg.token(param);
+                tokens.add(NumberArg.token(param));
+                return tokens;
             case "<date-string-value>":
                 AnnotationToken token = ColumnValueInstruction.tokens(param).get(0);
                 token.type = Constant.InstType.DATE;
-                return token;
+                tokens.add(token);
+                return tokens;
             default:
                 throw new FocusInstructionException(param.toJSON());
         }

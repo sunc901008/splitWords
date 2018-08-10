@@ -58,30 +58,14 @@ public class BoolColInstruction {
     // 其他指令的一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode node = focusPhrase.getFocusNodes().get(0);
-        if ("<all-bool-column>".equals(node.getValue())) {
-            return ColumnInstruction.arg(node.getChildren(), formulas);
-        } else {
-            return FormulaColumnInstruction.arg(node.getChildren(), formulas);
-        }
+        return ColumnInstruction.arg(node.getChildren(), formulas);
     }
 
     // annotation tokens
     public static List<AnnotationToken> tokens(FocusNode focusNode, List<Formula> formulas, JSONObject amb) throws FocusInstructionException {
         FocusPhrase focusPhrase = focusNode.getChildren();
-        FocusNode node = focusPhrase.getFocusNodes().get(0);
-        if ("<all-bool-column>".equals(node.getValue())) {
-            return tokensColumn(focusNode, amb);
-        } else {
-            return FormulaColumnInstruction.tokens(focusPhrase, formulas);
-        }
-    }
-
-    private static List<AnnotationToken> tokensColumn(FocusNode focusNode, JSONObject amb) {
         List<AnnotationToken> tokens = new ArrayList<>();
-        FocusPhrase fp = focusNode.getChildren();
-        int begin = fp.getFirstNode().getBegin();
-        int end = fp.getLastNode().getEnd();
-        tokens.add(AnnotationToken.singleCol(fp.getLastNode().getColumn(), fp.size() == 2, begin, end, amb));
+        tokens.add(AnnotationToken.singleCol(focusPhrase, amb, formulas));
         return tokens;
     }
 

@@ -26,6 +26,7 @@ public class BoolColOrBoolFuncColInst {
                 return NoOrAndBoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
             case "<bool-function-column>":
                 return BoolFuncColInstruction.arg(focusNode.getChildren(), formulas);
+            case "<if-then-else-bool-filter>":
             case "<bool-function>":
                 return BaseBoolFuncInstruction.arg(focusNode.getChildren(), formulas);
             default:

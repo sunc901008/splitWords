@@ -44,9 +44,9 @@ public class NoOrAndBoolFuncColInstruction {
                 return BracketBaseBoolFuncInstruction.arg(focusPhrase, formulas);
             case "<bool-function>":
                 return BaseBoolFuncInstruction.arg(node.getChildren(), formulas);
-            case "<if-then-else-bool-column-function>":
+            case "<if-then-else-bool-function>":
                 return ToBoolFuncInstruction.arg(node.getChildren(), formulas);
-            case "<ifnull-bool-column-function>":
+            case "<ifnull-bool-function>":
                 return ToBoolFuncInstruction.arg(node.getChildren(), formulas);
             case "<isnull-function>":
                 return IsNullFuncInstruction.arg(node.getChildren(), formulas);

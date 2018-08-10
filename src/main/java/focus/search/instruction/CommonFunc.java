@@ -275,6 +275,7 @@ public class CommonFunc {
         return Common.biTimeFormat(current);
     }
 
+    // 根据公式名获取公式
     public static Formula getFormula(List<Formula> formulas, String formulaName) throws FocusInstructionException {
         for (Formula f : formulas) {
             if (f.getName().equalsIgnoreCase(formulaName)) {

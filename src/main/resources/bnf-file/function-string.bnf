@@ -3,7 +3,9 @@
                             <concat-function> |
                             <substr-function> |
                             <day-of-week-function> |
-                            <time-function>;
+                            <time-function> |
+                            <if-then-else-string-function> |
+                            <ifnull-string-function>;
 
 # string
 <to_string-function> := to_string ( <all-columns> ) |
@@ -29,4 +31,10 @@
 <time-function> := time ( <all-date-column> ) |
                    time ( <date-string-value> );
 
+<if-then-else-string-function> := if <if-then-else-bool-filter> then <string-columns> else <single-column-value> |
+                                 if <if-then-else-bool-filter> then <string-columns> else <string-columns> |
+                                 if <if-then-else-bool-filter> then <single-column-value> else <single-column-value> |
+                                 if <if-then-else-bool-filter> then <single-column-value> else <string-columns>;
 
+<ifnull-string-function> := ifnull ( <string-columns> , <single-column-value> ) |
+                            ifnull ( <string-columns> , <string-columns> );

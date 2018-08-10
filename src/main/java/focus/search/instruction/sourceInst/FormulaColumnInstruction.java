@@ -62,7 +62,7 @@ public class FormulaColumnInstruction {
         return JSONObject.parseObject(formula.getInstruction().toJSONString());
     }
 
-    // token
+    // tokens
     public static List<AnnotationToken> tokens(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException {
         FocusNode formulaNode = focusPhrase.getFirstNode();
         List<AnnotationToken> tokens = new ArrayList<>();
