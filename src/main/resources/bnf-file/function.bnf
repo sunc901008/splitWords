@@ -8,5 +8,5 @@
                                        <number-source-column> <function-bool-symbol> <number-source-column>;
 
 <if-then-else-bool-filter> := <bool-columns> |
-                              <if-then-else-bool-filter-function> |
+                              <bool-function> |
                               <string-simple-filter>;
