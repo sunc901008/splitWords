@@ -1,8 +1,5 @@
 <other-function-columns> := <if-then-else-function> |
                             <ifnull-function>;
-
-<if-then-else-bool-filter> := <bool-columns> |
-                              <bool-function>;
 # other
 <if-then-else-function> := if <if-then-else-bool-filter> then <all-string-column> else <single-column-value> |
                            if <if-then-else-bool-filter> then <all-string-column> else <all-string-column> |

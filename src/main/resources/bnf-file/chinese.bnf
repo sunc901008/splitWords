@@ -13,7 +13,8 @@
             <sort-by> |
             <growth-of> |
             <all-columns> |
-            <number-complex-phrase>;
+            <number-complex-phrase> |
+            <other-function-columns>;
 
 <number-simple-filter> := <number-columns> <bool-symbol> <number> |
                           <number> <bool-symbol> <number-columns> |

@@ -29,10 +29,10 @@
 <start-of-year-function> := start_of_year ( <all-date-column> ) |
                             start_of_year ( <date-string-value> );
 
-<if-then-else-date-function> := if <if-then-else-bool-filter> then <date-columns> else <date-string-value> |
-                               if <if-then-else-bool-filter> then <date-columns> else <date-columns> |
-                               if <if-then-else-bool-filter> then <date-string-value> else <date-string-value> |
-                               if <if-then-else-bool-filter> then <date-string-value> else <date-columns>;
+#<if-then-else-date-function> := if <if-then-else-bool-filter> then <date-columns> else <date-string-value> |
+#                               if <if-then-else-bool-filter> then <date-columns> else <date-columns> |
+#                               if <if-then-else-bool-filter> then <date-string-value> else <date-string-value> |
+#                               if <if-then-else-bool-filter> then <date-string-value> else <date-columns>;
 
-<ifnull-date-function> := ifnull ( <date-columns> , <date-columns> ) |
-                          ifnull ( <date-columns> , <date-string-value> );
+#<ifnull-date-function> := ifnull ( <date-columns> , <date-columns> ) |
+#                          ifnull ( <date-columns> , <date-string-value> );
