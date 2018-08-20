@@ -23,10 +23,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import java.io.FileInputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * creator: sunc
@@ -684,6 +681,7 @@ public class FocusParser implements Serializable {
 
             max_rule++;
             int loop = focusPhrases.size();
+            Map<String, List<FocusPhrase>> map = new HashMap<>();
             while (loop > 0 && !focusPhrases.isEmpty()) {
                 FocusPhrase focusPhrase = focusPhrases.remove(0);
                 if (focusPhrase.size() <= position) {
@@ -710,42 +708,48 @@ public class FocusParser implements Serializable {
                         }
                     } else {
                         String brName = fn.getValue();
-                        BnfRule br;
-                        try {
-                            br = findRule(rules, brName);
-                        } catch (FocusParserException e) {
-                            loop--;
-                            continue;
-                        }
-                        List<FocusPhrase> tmp = new ArrayList<>();
-                        for (TokenString ts : br.getAlternatives()) {
-                            FocusPhrase newFp = new FocusPhrase(brName);
-                            Token first = ts.getFirst();
-                            FocusNode firstNode = new FocusNode(first.getName());
-                            firstNode.setBegin(focusToken.getStart());
-                            firstNode.setEnd(focusToken.getEnd());
-                            if (first instanceof TerminalToken) {
-                                firstNode.setValue(first.getName());
-                                firstNode.setType(((TerminalToken) first).getType());
-                                if (parser.isTerminal(firstNode.getType())) {
-                                    firstNode.setValue(value);
-                                }
-                                firstNode.setColumn(((TerminalToken) first).getColumn());
-                                firstNode.setTerminal();
+                        List<FocusPhrase> tmp;
+                        if (map.containsKey(brName)) {
+                            tmp = map.get(brName);
+                        } else {
+                            BnfRule br;
+                            try {
+                                br = findRule(rules, brName);
+                            } catch (FocusParserException e) {
+                                loop--;
+                                continue;
                             }
-                            newFp.addPn(firstNode);
-                            for (int i = 1; i < ts.size(); i++) {
-                                Token token = ts.get(i);
-                                FocusNode newFn = new FocusNode(token.getName());
-                                if (token instanceof TerminalToken) {
-                                    newFn.setValue(token.getName());
-                                    newFn.setType(((TerminalToken) token).getType());
-                                    newFn.setColumn(((TerminalToken) token).getColumn());
-                                    newFn.setTerminal();
+                            tmp = new ArrayList<>();
+                            for (TokenString ts : br.getAlternatives()) {
+                                FocusPhrase newFp = new FocusPhrase(brName);
+                                Token first = ts.getFirst();
+                                FocusNode firstNode = new FocusNode(first.getName());
+                                firstNode.setBegin(focusToken.getStart());
+                                firstNode.setEnd(focusToken.getEnd());
+                                if (first instanceof TerminalToken) {
+                                    firstNode.setValue(first.getName());
+                                    firstNode.setType(((TerminalToken) first).getType());
+                                    if (parser.isTerminal(firstNode.getType())) {
+                                        firstNode.setValue(value);
+                                    }
+                                    firstNode.setColumn(((TerminalToken) first).getColumn());
+                                    firstNode.setTerminal();
                                 }
-                                newFp.addPn(newFn);
+                                newFp.addPn(firstNode);
+                                for (int i = 1; i < ts.size(); i++) {
+                                    Token token = ts.get(i);
+                                    FocusNode newFn = new FocusNode(token.getName());
+                                    if (token instanceof TerminalToken) {
+                                        newFn.setValue(token.getName());
+                                        newFn.setType(((TerminalToken) token).getType());
+                                        newFn.setColumn(((TerminalToken) token).getColumn());
+                                        newFn.setTerminal();
+                                    }
+                                    newFp.addPn(newFn);
+                                }
+                                tmp.add(newFp);
                             }
-                            tmp.add(newFp);
+                            map.put(brName, tmp);
                         }
                         for (FocusPhrase newFp : tmp) {
                             FocusPhrase focusPhraseNew = JSONObject.parseObject(focusPhrase.toJSON().toJSONString(), FocusPhrase.class);
