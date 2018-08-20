@@ -4,9 +4,9 @@
                           <start-of-month-function> |
                           <start-of-quarter-function> |
                           <start-of-week-function> |
-                          <start-of-year-function> |
-                          <if-then-else-date-function> |
-                          <ifnull-date-function>;
+                          <start-of-year-function>;
+                          #<if-then-else-date-function> |
+                          #<ifnull-date-function>;
 
 <to_date-function> := to_date ( <number-columns> ) |
                       to_date ( <number> );

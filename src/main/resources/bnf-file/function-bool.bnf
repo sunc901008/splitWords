@@ -4,9 +4,9 @@
                           <or-function> |
                           <isnull-function> |
                           <not-function> |
-                          <is-weekend-function> |
-                          <if-then-else-bool-function> |
-                          <ifnull-bool-function>;
+                          <is-weekend-function>;
+                          #<if-then-else-bool-function> |
+                          #<ifnull-bool-function>;
 
 # bool
 <to_bool-function> := to_bool ( <number-columns> ) |

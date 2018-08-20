@@ -48,9 +48,9 @@
                             <round-function> |
                             <safe-divide-function> |
                             <random-function> |
-                            <strpos-function> |
-                            <if-then-else-number-function> |
-                            <ifnull-number-function>;
+                            <strpos-function>;
+                            #<if-then-else-number-function> |
+                            #<ifnull-number-function>;
 # number
 <average-function> := average ( <number-columns> ) |
                       average ( <number> );
@@ -147,9 +147,9 @@
                                <round-function> |
                                <safe-divide-function> |
                                <random-function> |
-                               <strpos-function> |
-                               <if-then-else-number-function> |
-                               <ifnull-number-function>;
+                               <strpos-function>;
+                               #<if-then-else-number-function> |
+                               #<ifnull-number-function>;
 
 # number # todo base
 <number-function> := <number> <math-symbol> <number-columns> |

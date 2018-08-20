@@ -3,9 +3,9 @@
                             <concat-function> |
                             <substr-function> |
                             <day-of-week-function> |
-                            <time-function> |
-                            <if-then-else-string-function> |
-                            <ifnull-string-function>;
+                            <time-function>;
+                            #<if-then-else-string-function> |
+                            #<ifnull-string-function>;
 
 # string
 <to_string-function> := to_string ( <all-columns> ) |
