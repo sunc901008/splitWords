@@ -8,6 +8,7 @@ import focus.search.bnf.FocusPhrase;
 import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.filterInst.FilterStringColEqualInstruction;
 import focus.search.instruction.functionInst.OtherFuncInstruction;
 import focus.search.instruction.nodeArgs.BaseBoolFuncInstruction;
 import focus.search.instruction.nodeArgs.BoolColOrBoolFuncColInst;
@@ -24,20 +25,21 @@ import java.util.List;
  * description:
  */
 //<if-then-else-bool-filter> := <bool-columns> |
-//        <bool-function>;
-//<if-then-else-function> := if <if-then-else-bool-filter> then <all-string-column> else <single-column-value> |
-//        if <if-then-else-bool-filter> then <all-string-column> else <all-string-column> |
+//        <bool-function> |
+//        <string-simple-filter>;
+//<if-then-else-function> := if <if-then-else-bool-filter> then <string-columns> else <single-column-value> |
+//        if <if-then-else-bool-filter> then <string-columns> else <string-columns> |
 //        if <if-then-else-bool-filter> then <single-column-value> else <single-column-value> |
-//        if <if-then-else-bool-filter> then <single-column-value> else <all-string-column> |
-//        if <if-then-else-bool-filter> then <number-source-column> else <number> |
-//        if <if-then-else-bool-filter> then <number-source-column> else <number-source-column> |
+//        if <if-then-else-bool-filter> then <single-column-value> else <string-columns> |
+//        if <if-then-else-bool-filter> then <number-columns> else <number> |
+//        if <if-then-else-bool-filter> then <number-columns> else <number-columns> |
 //        if <if-then-else-bool-filter> then <number> else <number> |
-//        if <if-then-else-bool-filter> then <number> else <number-source-column> |
-//        if <if-then-else-bool-filter> then <all-bool-column> else <all-bool-column> |
-//        if <if-then-else-bool-filter> then <all-date-column> else <date-string-value> |
-//        if <if-then-else-bool-filter> then <all-date-column> else <all-date-column> |
+//        if <if-then-else-bool-filter> then <number> else <number-columns> |
+//        if <if-then-else-bool-filter> then <bool-columns> else <bool-columns> |
+//        if <if-then-else-bool-filter> then <date-columns> else <date-string-value> |
+//        if <if-then-else-bool-filter> then <date-columns> else <date-columns> |
 //        if <if-then-else-bool-filter> then <date-string-value> else <date-string-value> |
-//        if <if-then-else-bool-filter> then <date-string-value> else <all-date-column>;
+//        if <if-then-else-bool-filter> then <date-string-value> else <date-columns>;
 public class IfThenElseFuncInstruction {
 
     // 完整指令 if-expression
@@ -79,6 +81,8 @@ public class IfThenElseFuncInstruction {
         JSONArray args = new JSONArray();
         if ("<bool-columns>".equals(param1.getValue())) {
             args.add(BoolColOrBoolFuncColInst.arg(param1, formulas));
+        } else if ("<string-simple-filter>".equals(param1.getValue())) {
+            args.add(FilterStringColEqualInstruction.arg(param1.getChildren(), formulas));
         } else {
             args.add(BaseBoolFuncInstruction.arg(param1.getChildren(), formulas));
         }
@@ -107,6 +111,8 @@ public class IfThenElseFuncInstruction {
 
         if ("<bool-columns>".equals(param1.getValue())) {
             tokens.addAll(BoolColOrBoolFuncColInst.tokens(param1, formulas, amb));
+        } else if ("<string-simple-filter>".equals(param1.getValue())) {
+            tokens.addAll(FilterStringColEqualInstruction.tokens(param1.getChildren(), formulas, amb));
         } else {
             tokens.addAll(BaseBoolFuncInstruction.tokens(param1.getChildren(), formulas, amb));
         }
@@ -118,7 +124,7 @@ public class IfThenElseFuncInstruction {
         token2.end = focusNodes.get(2).getEnd();
         tokens.add(token2);
 
-        tokens.add(OtherFuncInstruction.token(param2, amb));
+        tokens.addAll(OtherFuncInstruction.tokens(param2, amb, formulas));
 
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusNodes.get(4).getValue();
@@ -127,9 +133,8 @@ public class IfThenElseFuncInstruction {
         token4.end = focusNodes.get(4).getEnd();
         tokens.add(token4);
 
-        tokens.add(OtherFuncInstruction.token(param3, amb));
+        tokens.addAll(OtherFuncInstruction.tokens(param3, amb, formulas));
         return tokens;
     }
-
 
 }

@@ -33,7 +33,7 @@ public class BoolFuncColInstruction {
 
     // 完整指令
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-        logger.info("BoolFunctionColumn instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("BoolFunctionColumn instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<to_bool-function>":
@@ -43,16 +43,16 @@ public class BoolFuncColInstruction {
             case "<and-function>":
             case "<or-function>":
                 return AndOrFuncInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "<if-then-else-bool-column-function>":
+            case "<if-then-else-bool-function>":
                 return IfThenElseBoolColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "<ifnull-bool-column-function>":
+            case "<ifnull-bool-function>":
                 return IfNullBoolColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<isnull-function>":
                 return IsNullFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<not-function>":
                 return NotFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<is-weekend-function>":
-                return DaysFuncInstruction.build(fn.getChildren(), index, amb, formulas);
+                return DaysFuncInstruction.build(fn.getChildren(), index, amb, formulas, true);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

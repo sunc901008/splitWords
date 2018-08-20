@@ -32,7 +32,7 @@ public class FilterInstruction {
     private static final Logger logger = Logger.getLogger(FilterInstruction.class);
 
     public static JSONArray build(FocusPhrase prePhrase, FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("Filter instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("Filter instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<number-simple-filter>":

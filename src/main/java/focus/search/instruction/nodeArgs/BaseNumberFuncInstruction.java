@@ -9,6 +9,7 @@ import focus.search.controller.common.FormulaAnalysis;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.NumberFuncInstruction;
+import focus.search.instruction.sourceInst.FormulaColumnInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -59,37 +60,20 @@ public class BaseNumberFuncInstruction {
 
     // 其他指令的一部分
     public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
-//        FocusNode param1 = focusPhrase.getFocusNodes().get(0);
-//        FocusNode param2 = focusPhrase.getFocusNodes().get(2);
-//        FocusNode symbol = focusPhrase.getFocusNodes().get(1);
-
         if (focusPhrase.getFocusNodes().size() == 1) {//<number>
             JSONObject expression = new JSONObject();
             expression.put("type", "number");
-            expression.put("name", focusPhrase.getFirstNode().getValue());
+            expression.put("value", focusPhrase.getFirstNode().getValue());
             return expression;
         }
 
-        FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.numberAnalysis(focusPhrase);
+        FormulaAnalysis.FormulaObj formulaObj = FormulaAnalysis.numberAnalysis(focusPhrase, formulas);
 
         JSONObject expression = new JSONObject();
         expression.put("type", formulaObj.type);
         expression.put("name", formulaObj.name);
         JSONArray args = new JSONArray();
         args.addAll(formulaObj.args);
-
-//        if ("<number>".equals(param1.getValue())) {
-//            args.add(NumberArg.arg(param1));
-//        } else if ("<number-source-column>".equals(param1.getValue())) {
-//            JSONObject arg1 = new JSONObject();
-//            JSONObject json = ColumnInstruction.build(param1.getChildren());
-//            arg1.put("type", Constant.InstType.COLUMN);
-//            arg1.put("column", ((Column) json.get("column")).getColumnId());
-//            args.add(arg1);
-//        } else if ("<no-number-function-column>".equals(param1.getValue())) {
-//            args.add(NumberFuncInstruction.arg(param1.getChildren(), formulas));
-//        }
-//        args.add(NumberOrNumColInst.arg(param2, formulas));
 
         expression.put("args", args);
         return expression;
@@ -115,9 +99,13 @@ public class BaseNumberFuncInstruction {
             tokens.add(NumberArg.token(param1));
         } else if ("<number-source-column>".equals(param1.getValue())) {
             FocusPhrase fp = param1.getChildren();
-            int begin = fp.getFirstNode().getBegin();
-            int end = fp.getLastNode().getEnd();
-            tokens.add(AnnotationToken.singleCol(fp.getLastNode().getColumn(), fp.size() == 2, begin, end, amb));
+            if ("<number-formula-column>".equals(fp.getFocusNodes().get(0).getValue())) {
+                tokens.addAll(FormulaColumnInstruction.tokens(fp.getFocusNodes().get(0).getChildren(), formulas));
+            } else {
+                int begin = fp.getFirstNode().getBegin();
+                int end = fp.getLastNode().getEnd();
+                tokens.add(AnnotationToken.singleCol(fp.getLastNode().getColumn(), fp.size() == 2, begin, end, amb));
+            }
         } else if ("<no-number-function-column>".equals(param1.getValue())) {
             tokens.addAll(NumberFuncInstruction.tokens(param1.getChildren(), formulas, amb));
         }

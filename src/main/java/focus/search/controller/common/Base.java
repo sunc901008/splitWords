@@ -175,12 +175,12 @@ public class Base {
         if (Common.isEmpty(search.trim())) {
             SuggestionResponse response = SuggestionUtils.suggestionsNull(fp, user, search, search.length());
             Common.send(session, response.response());
-            logger.info("提示:\n\t" + response.response() + "\n");
+            logger.debug("提示:\n\t" + response.response() + "\n");
             return;
         }
         JSONObject amb = user.getJSONObject("ambiguities");
 
-        logger.info("current ambiguities:" + amb);
+        logger.debug("current ambiguities:" + amb);
 
         String ambiguityTitle = LanguageUtils.getMsg(language, LanguageUtils.Ambiguity_title);
         String ambiguityItem = LanguageUtils.getMsg(language, LanguageUtils.Ambiguity_item);
@@ -203,14 +203,14 @@ public class Base {
             e.ars.forEach(a -> datas.possibleMenus.add(a.possibleValue));
             response.setDatas(datas);
             Common.send(session, response.response());
-            logger.info(response.response());
+            logger.debug(response.response());
 
             Common.send(session, SearchFinishedResponse.response(search, received));
             return;
         }
-        logger.info("split words:" + JSON.toJSONString(tokens));
+        logger.debug("split words:" + JSON.toJSONString(tokens));
 
-        logger.info("lastParams ambiguities:" + ambiguities);
+        logger.debug("lastParams ambiguities:" + ambiguities);
         @SuppressWarnings("unchecked")
         List<SourceReceived> srs = (List<SourceReceived>) user.get("sources");
         if (ambiguities != null) {
@@ -276,7 +276,9 @@ public class Base {
             if (focusInst.position < 0) {// 未出错
 
                 if (!focusInst.isInstruction) {// 出入不完整
+                    logger.debug("start getting suggestions.");
                     SuggestionResponse response = SuggestionUtils.suggestionsNotCompleted(fp, search, focusInst, user, tokens, search.length());
+                    logger.debug("finish getting suggestions.");
 
                     // search suggestions
                     if (response != null)
@@ -329,7 +331,7 @@ public class Base {
                     json.put("source", Constant.SearchOrPinboard.SEARCH_USER); // 区分是search框还是pinboard
                     json.put("sourceToken", user.getString("sourceToken"));
 
-                    logger.info("指令:\n\t" + json + "\n");
+                    logger.debug("指令:\n\t" + json + "\n");
                     // Annotations
                     AnnotationResponse annotationResponse = new AnnotationResponse(search);
                     annotationResponse.datas.addAll(getAnnotationDatas(instructions));
@@ -354,8 +356,8 @@ public class Base {
                     response.setDatas("precheck");
                     Common.send(session, response.response());
 
-                    if (checkQuery(session, json, search, user.getString("accessToken"))) {
-                        logger.debug("precheck fail.");
+                    if (checkQuery(session, json, search)) {
+                        logger.warn("precheck fail.");
                         return;
                     }
 
@@ -367,7 +369,7 @@ public class Base {
                     response.setDatas("executeQuery");
                     Common.send(session, response.response());
 
-                    JSONObject res = Clients.WebServer.query(json.toJSONString(), user.getString("accessToken"));
+                    JSONObject res = Clients.Bi.query(json.toJSONString());
                     logger.debug("executeQuery result:" + res);
                     String taskId = res.getString("taskId");
                     session.getAttributes().put("taskId", taskId);
@@ -421,7 +423,7 @@ public class Base {
                     datas.reason = String.format(reason, sb.toString());
                     response.setDatas(datas);
                     Common.send(session, response.response());
-                    logger.info(response.response());
+                    logger.debug(response.response());
                 } else {
                     int errorTokenIndex = focusInst.position;
                     int beginPos = tokens.get(errorTokenIndex).getStart();
@@ -435,7 +437,7 @@ public class Base {
                         datas.reason = String.format(reason, sb.toString());
                         response.setDatas(datas);
                         Common.send(session, response.response());
-                        logger.info(response.response());
+                        logger.debug(response.response());
                     }
                 }
             }
@@ -476,7 +478,7 @@ public class Base {
             });
             response.setDatas(datas);
             Common.send(session, response.response());
-            logger.info(response.response());
+            logger.debug(response.response());
 
             Common.send(session, SearchFinishedResponse.response(search, received));
 
@@ -546,10 +548,10 @@ public class Base {
      * @return 是否停止执行
      * @throws IOException sendMessage 异常
      */
-    public static boolean checkQuery(WebSocketSession session, JSONObject json, String question, String accessToken) throws IOException {
+    public static boolean checkQuery(WebSocketSession session, JSONObject json, String question) throws IOException {
         JSONObject checkQuery = new JSONObject();
         try {
-            checkQuery = Clients.WebServer.checkQuery(json.toJSONString(), accessToken);
+            checkQuery = Clients.Bi.checkQuery(json.toJSONString());
             if (!checkQuery.getBooleanValue("success")) {
                 IllegalDatas datas = new IllegalDatas(0, question.length() - 1, checkQuery.getString("exception"));
                 IllegalResponse illegal = new IllegalResponse(question, datas);

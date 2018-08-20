@@ -6,6 +6,8 @@ import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.functionInst.numberFunc.*;
+import focus.search.instruction.functionInst.otherFunc.IfNullFuncInstruction;
+import focus.search.instruction.functionInst.otherFunc.IfThenElseFuncInstruction;
 import focus.search.instruction.nodeArgs.BaseNumberFuncInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
@@ -101,9 +103,9 @@ public class NumberFuncInstruction {
             case "<number-function>":
                 return BaseNumberFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<if-then-else-number-function>":
-                return IfThenElseNumberColFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IfThenElseFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<ifnull-number-function>":
-                return IfNullNumberColFuncInstruction.build(focusPhrase, index, amb, formulas);
+                return IfNullFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<stddev-function>":
                 return StddevFuncInstruction.build(focusPhrase, index, amb, formulas);
             case "<variance-function>":
@@ -191,9 +193,9 @@ public class NumberFuncInstruction {
             case "<number-function>":
                 return BaseNumberFuncInstruction.arg(fn.getChildren(), formulas);
             case "<if-then-else-number-function>":
-                return IfThenElseNumberColFuncInstruction.arg(fn.getChildren(), formulas);
+                return IfThenElseFuncInstruction.arg(fn.getChildren(), formulas);
             case "<ifnull-number-function>":
-                return IfNullNumberColFuncInstruction.arg(fn.getChildren(), formulas);
+                return IfNullFuncInstruction.arg(fn.getChildren(), formulas);
             case "<stddev-function>":
                 return StddevFuncInstruction.arg(fn.getChildren(), formulas);
             case "<variance-function>":
@@ -276,9 +278,9 @@ public class NumberFuncInstruction {
             case "<number-function>":
                 return BaseNumberFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<if-then-else-number-function>":
-                return IfThenElseNumberColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+                return IfThenElseFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<ifnull-number-function>":
-                return IfNullNumberColFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+                return IfNullFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<stddev-function>":
                 return StddevFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<variance-function>":

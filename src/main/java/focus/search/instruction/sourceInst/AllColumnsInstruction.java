@@ -40,17 +40,17 @@ public class AllColumnsInstruction {
     }
 
     // 其他指令的一部分
-    public static JSONObject build(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
+    public static JSONObject arg(FocusPhrase focusPhrase, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<bool-columns>":
-                return BoolColInstruction.build(fn.getChildren(), formulas);
+                return BoolColInstruction.arg(fn.getChildren(), formulas);
             case "<date-columns>":
-                return DateColInstruction.build(fn.getChildren(), formulas);
+                return DateColInstruction.arg(fn.getChildren(), formulas);
             case "<number-columns>":
-                return NumberColInstruction.build(fn.getChildren(), formulas);
+                return NumberColInstruction.arg(fn.getChildren(), formulas);
             case "<string-columns>":
-                return StringColInstruction.build(fn.getChildren(), formulas);
+                return StringColInstruction.arg(fn.getChildren(), formulas);
             default:
                 throw new FocusInstructionException(focusPhrase.toJSON());
         }

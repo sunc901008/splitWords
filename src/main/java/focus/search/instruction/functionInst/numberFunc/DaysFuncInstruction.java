@@ -36,12 +36,22 @@ public class DaysFuncInstruction {
 
     // 完整指令 days*
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
+        return build(focusPhrase, index, amb, formulas, false);
+    }
+
+    public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, boolean isBool) throws FocusInstructionException, IllegalException {
+        String instId = Constant.InstIdType.ADD_EXPRESSION;
+        String annotationType = Constant.AnnotationType.PHRASE;
+        if (isBool) {
+            instId = Constant.InstIdType.ADD_LOGICAL_FILTER;
+            annotationType = Constant.AnnotationType.FILTER;
+        }
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
-        json1.put("instId", Constant.InstIdType.ADD_EXPRESSION);
+        json1.put("instId", instId);
 
         json1.put("expression", arg(focusPhrase, formulas));
         instructions.add(json1);
@@ -51,7 +61,7 @@ public class DaysFuncInstruction {
         json2.put("instId", Constant.InstIdType.ANNOTATION);
 
         // annotation content
-        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, annotationType, Constant.AnnotationCategory.EXPRESSION);
         datas.addTokens(tokens(focusPhrase, formulas, amb));
         json2.put("content", datas);
 

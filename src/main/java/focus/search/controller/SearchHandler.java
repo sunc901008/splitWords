@@ -20,17 +20,13 @@ import focus.search.meta.Formula;
 import focus.search.metaReceived.*;
 import focus.search.response.exception.*;
 import focus.search.response.search.*;
-import focus.search.suggestions.HistoryUtils;
 import focus.search.suggestions.SourcesUtils;
 import focus.search.suggestions.SuggestionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * creator: sunc
@@ -166,9 +162,6 @@ class SearchHandler {
             JSONArray sourceList = new JSONArray();
             srs.forEach(sr -> sourceList.add(sr.tableId));
             user.put("sourceList", sourceList.toJSONString());
-
-            // 初始化历史问题
-            user.put("historyQuestions", HistoryUtils.initHistory(user));
 
             // 歧义记录
             JSONObject ambiguities = new JSONObject();
@@ -435,6 +428,7 @@ class SearchHandler {
                 if (formulaReceived.id.equalsIgnoreCase(formula.getId())) {
 
                     formulas.remove(formula);
+                    ModelBuild.deleteFormulas(fp, Collections.singletonList(formula.getName()));
 
                     json.put("formulaObj", null);
                     json.put("message", null);
@@ -454,6 +448,7 @@ class SearchHandler {
                         formula.setInstruction(formulaObj.toJSON());
 
                         formulas.add(formula);
+                        ModelBuild.buildFormulas(fp, Collections.singletonList(formula));
 
                         json.put("formulaObj", formula.toJSON());
                         json.put("message", "done");

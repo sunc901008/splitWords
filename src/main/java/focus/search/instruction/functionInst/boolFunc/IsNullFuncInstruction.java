@@ -11,7 +11,6 @@ import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.nodeArgs.NumberArg;
 import focus.search.instruction.sourceInst.AllColumnsInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -33,7 +32,7 @@ public class IsNullFuncInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
-        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.PHRASE, Constant.AnnotationCategory.EXPRESSION);
+        AnnotationDatas datas = new AnnotationDatas(focusPhrase, index, Constant.AnnotationType.FILTER, Constant.AnnotationCategory.EXPRESSION);
         annotationId.add(index);
         JSONObject json1 = new JSONObject();
         json1.put("annotationId", annotationId);
@@ -66,16 +65,7 @@ public class IsNullFuncInstruction {
         JSONArray args = new JSONArray();
 
         if ("<all-columns>".equals(param.getValue())) {
-            JSONObject json = AllColumnsInstruction.build(param.getChildren(), formulas);
-            String type = json.getString("type");
-            JSONObject arg1 = new JSONObject();
-            if (Constant.InstType.TABLE_COLUMN.equals(type) || Constant.InstType.COLUMN.equals(type)) {
-                arg1.put("type", "column");
-                arg1.put("value", ((Column) json.get("column")).getColumnId());
-            } else if (Constant.InstType.FUNCTION.equals(type)) {
-                arg1 = json.getJSONObject(Constant.InstType.FUNCTION);
-            }
-            args.add(arg1);
+            args.add(AllColumnsInstruction.arg(param.getChildren(), formulas));
         } else if ("<number>".equals(param.getValue())) {
             args.add(NumberArg.arg(param));
         }

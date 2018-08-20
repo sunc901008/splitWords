@@ -67,7 +67,7 @@ public class ModelBuild {
         }
     }
 
-    private static final Map<String, String> tokenNames = new HashMap<>();
+    public static final Map<String, String> tokenNames = new HashMap<>();
 
     static {
         tokenNames.put(FormulaAnalysis.BOOLEAN, "<bool-formula-column>");

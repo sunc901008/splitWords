@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.base.Constant;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
+import focus.search.instruction.CommonFunc;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
+import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.search.AmbiguityDatas;
 import org.apache.log4j.Logger;
 
@@ -63,7 +65,12 @@ public class AnnotationToken {
         return json;
     }
 
-    public static AnnotationToken singleCol(FocusPhrase fp, JSONObject amb) {
+    // column or formula column
+    public static AnnotationToken singleCol(FocusPhrase fp, JSONObject amb, List<Formula> formulas) throws FocusInstructionException {
+        FocusNode formulaNode = fp.getFirstNode();
+        if (Constant.FNDType.FORMULA.equals(formulaNode.getType())) {
+            return singleFormula(formulaNode, formulas);
+        }
         int begin = fp.getFirstNode().getBegin();
         int end = fp.getLastNode().getEnd();
         Column column = fp.getLastNode().getColumn();
@@ -84,17 +91,18 @@ public class AnnotationToken {
         if (hasTable) {
             token.addToken(column.getSourceName());
         } else {
-            logger.info("current all ambiguities:" + amb);
+            logger.debug("current all ambiguities:" + amb);
             token.ambiguity = getAmbiguityDatas(amb, token.value.toString(), token.begin, token.end);
         }
         token.addToken(column.getColumnDisplayName());
-        logger.info("TEST: tokens:" + token.toJSON());
+        logger.debug("TEST: tokens:" + token.toJSON());
         return token;
     }
 
-    public static JSONObject singleFormula(FocusNode node, Formula formula) {
+    public static AnnotationToken singleFormula(FocusNode node, List<Formula> formulas) throws FocusInstructionException {
+        Formula formula = CommonFunc.getFormula(formulas, node.getValue());
         JSONObject json = new JSONObject();
-        json.put("description", "formula " + formula.getName() + ":" + formula.getFormula());
+        json.put("description", formula.getName() + ":" + formula.getFormula());
         json.put("formula", formula.toJSON());
         json.put("type", Constant.FNDType.FORMULA);
         json.put("detailType", Constant.FNDType.FORMULA);
@@ -104,7 +112,7 @@ public class AnnotationToken {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(formula.getName());
         json.put("tokens", jsonArray);
-        return json;
+        return JSONObject.parseObject(json.toJSONString(), AnnotationToken.class);
 
     }
 

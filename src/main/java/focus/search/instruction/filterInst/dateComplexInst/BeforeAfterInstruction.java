@@ -32,7 +32,7 @@ public class BeforeAfterInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws
             FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("BeforeAfterInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("BeforeAfterInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<before-filter>":
@@ -63,7 +63,7 @@ public class BeforeAfterInstruction {
             dateCol = fp.getLastNode().getColumn();
             param = focusNodes.get(2);
 
-            datas.addToken(AnnotationToken.singleCol(fp, amb));
+            datas.addToken(AnnotationToken.singleCol(fp, amb, formulas));
 
             AnnotationToken token2 = new AnnotationToken();
             token2.addToken(key);

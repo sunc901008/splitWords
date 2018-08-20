@@ -79,10 +79,10 @@ public class MovingFuncInstruction {
         expression.put("type", Constant.InstType.FUNCTION);
         expression.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
-        args.add(ColumnInstruction.arg(param1.getChildren()));
+        args.add(ColumnInstruction.arg(param1.getChildren(), formulas));
         args.add(NumberArg.arg(int1));
         args.add(NumberArg.arg(int2));
-        args.addAll(BaseFunc.attributeListArgs(param2.getChildren()));
+        args.addAll(BaseFunc.attributeListArgs(param2.getChildren(), formulas));
         expression.put("args", args);
 
         return expression;
@@ -115,7 +115,7 @@ public class MovingFuncInstruction {
         token2.end = focusNodes.get(1).getEnd();
         tokens.add(token2);
 
-        tokens.add(AnnotationToken.singleCol(param1.getChildren(), amb));
+        tokens.add(AnnotationToken.singleCol(param1.getChildren(), amb, formulas));
 
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusNodes.get(3).getValue();
@@ -142,7 +142,7 @@ public class MovingFuncInstruction {
         token8.end = focusNodes.get(7).getEnd();
         tokens.add(token8);
 
-        tokens.addAll(BaseFunc.attributeListTokens(param2.getChildren(), amb));
+        tokens.addAll(BaseFunc.attributeListTokens(param2.getChildren(), amb, formulas));
 
         AnnotationToken token10 = new AnnotationToken();
         token10.value = focusNodes.get(9).getValue();

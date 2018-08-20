@@ -24,7 +24,7 @@ public class ColValueOrStringColInst {
         if (focusNode.getValue().equals("<string-columns>")) {
             return StringColInstruction.arg(focusNode.getChildren(), formulas);
         } else if (focusNode.getValue().equals("<all-string-column>")) {
-            return ColumnInstruction.arg(focusNode.getChildren());
+            return ColumnInstruction.arg(focusNode.getChildren(), formulas);
         }
         // 列中值
         return ColumnValueInstruction.arg(focusNode);
@@ -36,7 +36,7 @@ public class ColValueOrStringColInst {
         if (focusNode.getValue().equals("<string-columns>")) {
             return StringColInstruction.tokens(focusNode.getChildren(), formulas, amb);
         } else if (focusNode.getValue().equals("<all-string-column>")) {
-            tokens.add(AnnotationToken.singleCol(focusNode.getChildren(), amb));
+            tokens.add(AnnotationToken.singleCol(focusNode.getChildren(), amb, formulas));
             return tokens;
         }
         // 列中值

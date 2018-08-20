@@ -30,7 +30,7 @@ public class BetweenAndInstruction {
     private static final Logger logger = Logger.getLogger(BetweenAndInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("BetweenAndInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("BetweenAndInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         if ("<all-date-column>".equals(first.getValue())) {
             return build1(focusPhrase, index, amb, formulas);
@@ -51,7 +51,7 @@ public class BetweenAndInstruction {
 
         FocusPhrase datePhrase = focusNodes.get(0).getChildren();
         Column dateCol = datePhrase.getLastNode().getColumn();
-        datas.addToken(AnnotationToken.singleCol(datePhrase, amb));
+        datas.addToken(AnnotationToken.singleCol(datePhrase, amb, formulas));
 
         AnnotationToken token2 = new AnnotationToken();
         token2.addToken("between");
@@ -137,11 +137,7 @@ public class BetweenAndInstruction {
         jsonStart.put("instId", Constant.InstIdType.ADD_LOGICAL_FILTER);
 
         FocusPhrase numberPhrase = focusNodes.get(0).getChildren();
-        JSONObject json = NumberColInstruction.build(numberPhrase, formulas);
-        Column column = (Column) json.get("column");
-        int begin = numberPhrase.getFirstNode().getBegin();
-        int end = numberPhrase.getLastNode().getEnd();
-        datas.addToken(AnnotationToken.singleCol(column, numberPhrase.size() == 2, begin, end, amb));
+        datas.addToken(AnnotationToken.singleCol(numberPhrase, amb, formulas));
 
         FocusNode between = focusNodes.get(1);
         AnnotationToken token2 = new AnnotationToken();
@@ -175,10 +171,7 @@ public class BetweenAndInstruction {
         expressionStart.put("name", ">=");
         expressionStart.put("type", Constant.InstType.FUNCTION);
         JSONArray argStarts = new JSONArray();
-        JSONObject argStart1 = new JSONObject();
-        argStart1.put("type", Constant.InstType.COLUMN);
-        argStart1.put("value", column.getColumnId());
-        argStarts.add(argStart1);
+        argStarts.add(NumberColInstruction.arg(numberPhrase, formulas));
         JSONObject argStart2 = new JSONObject();
         argStart2.put("type", Constant.InstType.NUMBER);
         argStart2.put("value", res.get(0));
@@ -189,10 +182,7 @@ public class BetweenAndInstruction {
         expressionEnd.put("name", "<");
         expressionEnd.put("type", Constant.InstType.FUNCTION);
         JSONArray argEnds = new JSONArray();
-        JSONObject argEnd1 = new JSONObject();
-        argEnd1.put("type", Constant.InstType.COLUMN);
-        argEnd1.put("value", column.getColumnId());
-        argEnds.add(argEnd1);
+        argEnds.add(NumberColInstruction.arg(numberPhrase, formulas));
         JSONObject argEnd2 = new JSONObject();
         argEnd2.put("type", Constant.InstType.NUMBER);
         argEnd2.put("value", res.get(1));

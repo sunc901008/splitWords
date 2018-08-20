@@ -12,7 +12,6 @@ import focus.search.bnf.tokens.*;
 import focus.search.controller.common.Base;
 import focus.search.controller.common.FormulaAnalysis;
 import focus.search.meta.Column;
-import focus.search.meta.Formula;
 import focus.search.meta.HistoryQuestion;
 import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.AmbiguitiesException;
@@ -185,6 +184,7 @@ public class SuggestionUtils {
 
     private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed, String language) throws IllegalException {
         String columnDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_column);
+        String formulaDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_formula);
 
         int index = tokens.size() - 1;
         int last = tokens.size() - 1;
@@ -293,17 +293,18 @@ public class SuggestionUtils {
                                 sss.add(ss);
                                 while (!terminalTokens.isEmpty()) {
                                     TerminalToken tmp = terminalTokens.remove(0);
+                                    logger.debug(JSONObject.toJSONString(tmp));
                                     if (suggestions.contains(tmp.getName())) {
                                         continue;
                                     }
                                     suggestions.add(tmp.getName());
-                                    Column columnTmp = tmp.getColumn();
+                                    boolean isFormula = Constant.FNDType.FORMULA.equals(tmp.getType());
                                     SuggestionSuggestion ssTmp = new SuggestionSuggestion();
                                     ssTmp.beginPos = position;
                                     ssTmp.endPos = position;
                                     ssTmp.suggestion = addSpace ? " " + tmp.getName() : tmp.getName();
-                                    ssTmp.suggestionType = Constant.SuggestionType.COLUMN;
-                                    ssTmp.description = String.format(columnDescription, columnTmp.getColumnDisplayName());
+                                    ssTmp.suggestionType = isFormula ? Constant.SuggestionType.FORMULA : Constant.SuggestionType.COLUMN;
+                                    ssTmp.description = isFormula ? formulaDescription : String.format(columnDescription, tmp.getColumn().getColumnDisplayName());
                                     sss.add(ssTmp);
                                 }
                             } else {

@@ -6,6 +6,7 @@ import focus.search.analyzer.focus.FocusToken;
 import focus.search.bnf.BnfRule;
 import focus.search.bnf.FocusParser;
 import focus.search.bnf.FocusPhrase;
+import focus.search.bnf.ModelBuild;
 import focus.search.bnf.tokens.NonTerminalToken;
 import focus.search.bnf.tokens.TerminalToken;
 import focus.search.bnf.tokens.Token;
@@ -40,6 +41,7 @@ public class Constant {
     public static final String REDIS_COLUMN_PREFIX = "%s_focus_column_%s";// 根据data type区分 language_focus_column_int
     private static final String tableName = "focus";
     public static final String REDIS_RULE_PREFIX = "%s_focus_rule_%s";
+    public static final String REDIS_FORMULA_PREFIX = "%s_focus_formula_%s";// 根据data type区分 language_focus_formula_int
     public static SerializerFeature[] features = new SerializerFeature[]{SerializerFeature.WriteClassName};
 
     public static final List<String> START_QUOTES = Arrays.asList("\"", "“", "'", "‘");
@@ -134,18 +136,17 @@ public class Constant {
         List<String> englishColNames = getInitSource(englishParser, Language.ENGLISH);
         initSource(englishParser, tableName, Language.ENGLISH);
         initSource(englishParser, englishColNames, Language.ENGLISH);
+        initFormula(englishParser, Language.ENGLISH);
         final Set<String> initChineseKeywordRedis = new HashSet<>();
         FocusParser chineseParser = Base.chineseParser.deepClone();
         all(initChineseKeywordRedis, chineseParser.getAllRules(), "<question>");
         for (String keyword : initChineseKeywordRedis) {
-            if (initEnglishKeywordRedis.contains(keyword)) {
-                continue;
-            }
             initKeyword(chineseParser, keyword, Language.CHINESE);
         }
         List<String> chineseColNames = getInitSource(chineseParser, Language.CHINESE);
         initSource(chineseParser, tableName, Language.CHINESE);
         initSource(chineseParser, chineseColNames, Language.ENGLISH);
+        initFormula(chineseParser, Language.CHINESE);
         long end = Common.getNow().getTimeInMillis();
         logger.info("init focus phrase and focus rule success. cost:" + (end - start));
     }
@@ -272,6 +273,40 @@ public class Constant {
         }
     }
 
+    private static void initFormula(FocusParser parser, String language) {
+        for (String formulaName : formulaNames(parser, language)) {
+            try {
+                FocusToken focusToken = new FocusToken(formulaName, FNDType.FORMULA, 0, formulaName.length());
+
+                List<FocusPhrase> focusPhrases = parser.focusPhrases(focusToken, null, language);
+                JSONArray jsonArray = new JSONArray();
+                focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
+
+                RedisUtils.set(formulaName, jsonArray.toJSONString());
+            } catch (FocusParserException | AmbiguitiesException e) {
+                logger.warn(Common.printStacktrace(e));
+            }
+        }
+    }
+
+    private static List<String> formulaNames(FocusParser parser, String language) {
+        List<String> formulaNames = new ArrayList<>();
+        for (String dataType : ModelBuild.tokenNames.keySet()) {
+            String formulaName = String.format(REDIS_FORMULA_PREFIX, language, dataType);
+
+            BnfRule br = new BnfRule();
+            br.setLeftHandSide(new NonTerminalToken(ModelBuild.tokenNames.get(dataType)));
+            TokenString alternative_to_add = new TokenString();
+
+            alternative_to_add.add(new TerminalToken(formulaName, FNDType.FORMULA));
+            br.addAlternative(alternative_to_add);
+            parser.addRule(br);
+
+            formulaNames.add(formulaName);
+        }
+        return formulaNames;
+    }
+
     // response status
     public static final class Status {
         public static final String SUCCESS = "success";
@@ -326,7 +361,7 @@ public class Constant {
         public static final String BOOLEAN = "boolean";
     }
 
-    // build instruction type
+    // arg instruction type
     public static final class InstType {
         public static final String TABLE_COLUMN = "tblColumn";
         public static final String COLUMN = "column";
@@ -464,6 +499,7 @@ public class Constant {
         public static final String HISTORY = "history";
         public static final String PHRASE = "phrase";
         public static final String COLUMN = "column";
+        public static final String FORMULA = "formulaName";
         public static final String NUMBER = "number";
         public static final String COLUMN_VALUE = "columnValue";
         public static final String DATE_VALUE = "dateValue";

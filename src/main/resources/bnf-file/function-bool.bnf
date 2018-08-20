@@ -4,7 +4,9 @@
                           <or-function> |
                           <isnull-function> |
                           <not-function> |
-                          <is-weekend-function>;
+                          <is-weekend-function> |
+                          <if-then-else-bool-function> |
+                          <ifnull-bool-function>;
 
 # bool
 <to_bool-function> := to_bool ( <number-columns> ) |
@@ -54,11 +56,6 @@
 <is-weekend-function> := is_weekend ( <all-date-column> ) |
                          is_weekend ( <date-string-value> );
 
+#<if-then-else-bool-function> := if <if-then-else-bool-filter> then <bool-columns> else <bool-columns>;
 
-
-
-
-
-
-
-
+#<ifnull-bool-function> := ifnull ( <bool-columns> , <bool-columns> );

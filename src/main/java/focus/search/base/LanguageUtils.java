@@ -25,6 +25,7 @@ public class LanguageUtils {
     public static final String SuggestionUtils_string_guidance = "SuggestionUtils_string_guidance";
     public static final String SuggestionUtils_date_guidance = "SuggestionUtils_date_guidance";
     public static final String SuggestionUtils_suggestion_description_column = "SuggestionUtils_suggestion_description_column";
+    public static final String SuggestionUtils_suggestion_description_formula = "SuggestionUtils_suggestion_description_formula";
     public static final String SuggestionUtils_suggestion_description_history = "SuggestionUtils_suggestion_description_history";
     public static final String SuggestionUtils_suggestion_description_system = "SuggestionUtils_suggestion_description_system";
     public static final String SuggestionUtils_suggestion_description_number = "SuggestionUtils_suggestion_description_number";

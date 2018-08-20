@@ -34,7 +34,7 @@ public class AgoIntervalInstruction {
     private static final Logger logger = Logger.getLogger(AgoIntervalInstruction.class);
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("AgoIntervalInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("AgoIntervalInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         FocusNode fn = focusNodes.get(0);
 

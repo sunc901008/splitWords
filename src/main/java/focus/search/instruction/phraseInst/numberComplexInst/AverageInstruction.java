@@ -9,7 +9,6 @@ import focus.search.controller.common.Base;
 import focus.search.instruction.annotations.AnnotationDatas;
 import focus.search.instruction.annotations.AnnotationToken;
 import focus.search.instruction.sourceInst.NumberColInstruction;
-import focus.search.meta.Column;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -53,20 +52,14 @@ public class AverageInstruction {
         expression.put("type", "function");
         JSONArray args = new JSONArray();
 
-        JSONObject json = NumberColInstruction.build(numberPhrase, formulas);
-        JSONObject arg = new JSONObject();
-        arg.put("type", Constant.InstType.COLUMN);
-        Column column = (Column) json.get("column");
-        arg.put("value", column.getColumnId());
-
-        args.add(arg);
+        args.add(NumberColInstruction.arg(numberPhrase, formulas));
         expression.put("args", args);
         json1.put("expression", expression);
         instructions.add(json1);
 
         int begin = numberPhrase.getFirstNode().getBegin();
         int end = numberPhrase.getLastNode().getEnd();
-        datas.addToken(AnnotationToken.singleCol(column, numberPhrase.size() == 2, begin, end, amb));
+        datas.addToken(AnnotationToken.singleCol(numberPhrase, amb, formulas));
 
         JSONObject json2 = new JSONObject();
         json2.put("annotationId", annotationId);

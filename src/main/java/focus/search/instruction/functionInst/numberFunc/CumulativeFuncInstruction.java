@@ -76,8 +76,8 @@ public class CumulativeFuncInstruction {
         expression.put("type", Constant.InstType.FUNCTION);
         expression.put("name", focusPhrase.getNodeNew(0).getValue());
         JSONArray args = new JSONArray();
-        args.add(ColumnInstruction.arg(param1.getChildren()));
-        args.addAll(BaseFunc.attributeListArgs(param2.getChildren()));
+        args.add(ColumnInstruction.arg(param1.getChildren(), formulas));
+        args.addAll(BaseFunc.attributeListArgs(param2.getChildren(), formulas));
         expression.put("args", args);
 
         return expression;
@@ -108,7 +108,7 @@ public class CumulativeFuncInstruction {
         token2.end = focusNodes.get(1).getEnd();
         tokens.add(token2);
 
-        tokens.add(AnnotationToken.singleCol(param1.getChildren(), amb));
+        tokens.add(AnnotationToken.singleCol(param1.getChildren(), amb, formulas));
 
         AnnotationToken token4 = new AnnotationToken();
         token4.value = focusNodes.get(3).getValue();
@@ -117,7 +117,7 @@ public class CumulativeFuncInstruction {
         token4.end = focusNodes.get(3).getEnd();
         tokens.add(token4);
 
-        tokens.addAll(BaseFunc.attributeListTokens(param2.getChildren(), amb));
+        tokens.addAll(BaseFunc.attributeListTokens(param2.getChildren(), amb, formulas));
 
         AnnotationToken token6 = new AnnotationToken();
         token6.value = focusNodes.get(5).getValue();

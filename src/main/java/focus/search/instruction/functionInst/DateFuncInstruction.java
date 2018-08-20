@@ -37,9 +37,9 @@ public class DateFuncInstruction {
         switch (fn.getValue()) {
             case "<to_date-function>":
                 return ToDateFuncInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "<if-then-else-date-column-function>":
+            case "<if-then-else-date-function>":
                 return IfThenElseDateColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
-            case "<ifnull-date-column-function>":
+            case "<ifnull-date-function>":
                 return IfNullDateColFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<date-function>":
             case "<start-of-month-function>":

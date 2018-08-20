@@ -37,7 +37,7 @@ public class NextInstruction {
 
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns) throws
             FocusInstructionException, IllegalException, AmbiguitiesException {
-        logger.info("NextInstruction instruction build. focusPhrase:" + focusPhrase.toJSON());
+        logger.info("NextInstruction instruction arg. focusPhrase:" + focusPhrase.toJSON());
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
         switch (fn.getValue()) {
             case "<next-days-filter>":
@@ -66,7 +66,7 @@ public class NextInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, List<Column> dateColumns, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         FocusNode first = focusPhrase.getFocusNodes().get(0);
         if (Objects.equals("<all-date-column>", first.getValue())) {
-            return buildStartsWithCol(focusPhrase, index, amb, key);
+            return buildStartsWithCol(focusPhrase, index, amb, formulas, key);
         } else {
             return buildNoCol(focusPhrase, index, amb, dateColumns, key);
         }
@@ -75,7 +75,7 @@ public class NextInstruction {
 
     //<all-date-column> next day
     //<all-date-column> next <integer> days
-    private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
+    private static JSONArray buildStartsWithCol(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas, String key) throws FocusInstructionException, IllegalException, AmbiguitiesException {
         List<FocusNode> focusNodes = focusPhrase.getFocusNodes();
         JSONArray instructions = new JSONArray();
         JSONArray annotationId = new JSONArray();
@@ -89,7 +89,7 @@ public class NextInstruction {
         FocusNode last = focusNodes.get(1);
         Column dateCol = datePhrase.getLastNode().getColumn();
 
-        datas.addToken(AnnotationToken.singleCol(datePhrase, amb));
+        datas.addToken(AnnotationToken.singleCol(datePhrase, amb, formulas));
 
         AnnotationToken token2 = new AnnotationToken();
         token2.addToken(last.getValue());
