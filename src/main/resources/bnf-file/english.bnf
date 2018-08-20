@@ -50,11 +50,11 @@
                            <contains-filter> |
                            <not-contains-filter>;
 
-<top-n> := top <integer> <number-columns> |
-           top <number-columns>;
+<top-n> := top <integer> <number-source-column> |
+           top <number-source-column>;
 
-<bottom-n> := bottom <integer> <number-columns> |
-              bottom <number-columns>;
+<bottom-n> := bottom <integer> <number-source-column> |
+              bottom <number-source-column>;
 
 <sort-by> := sort by <all-columns> |
              sort by <all-columns> descending |

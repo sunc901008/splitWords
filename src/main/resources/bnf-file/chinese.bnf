@@ -60,16 +60,16 @@
                                        名的 |
                                        个的;
 
-<top-n> := <top-n-chinese> <integer> <top-bottom-n-measure-word-chinese> <number-columns> |
-           <number-columns> <top-n-chinese> <integer> <top-bottom-n-measure-word-chinese> |
+<top-n> := <top-n-chinese> <integer> <top-bottom-n-measure-word-chinese> <number-source-column> |
+           <number-source-column> <top-n-chinese> <integer> <top-bottom-n-measure-word-chinese> |
            <top-1>;
 
 <top-1-chinese> := 排名最前的 |
                    排最前的 |
                    最前的;
 
-<top-1> := <top-1-chinese> <number-columns> |
-           <number-columns> <top-1-chinese>;
+<top-1> := <top-1-chinese> <number-source-column> |
+           <number-source-column> <top-1-chinese>;
 
 <bottom-n-chinese> := 后 |
                       排后 |
@@ -77,16 +77,16 @@
                       倒数 |
                       倒数第;
 
-<bottom-n> := <bottom-n-chinese> <integer> <top-bottom-n-measure-word-chinese> <number-columns> |
-              <number-columns> <bottom-n-chinese> <integer> <top-bottom-n-measure-word-chinese> |
+<bottom-n> := <bottom-n-chinese> <integer> <top-bottom-n-measure-word-chinese> <number-source-column> |
+              <number-source-column> <bottom-n-chinese> <integer> <top-bottom-n-measure-word-chinese> |
               <bottom-1>;
 
 <bottom-1-chinese> := 排名最后的 |
                       排最后的 |
                       最后的;
 
-<bottom-1> := <bottom-1-chinese> <number-columns> |
-              <number-columns> <bottom-1-chinese>;
+<bottom-1> := <bottom-1-chinese> <number-source-column> |
+              <number-source-column> <bottom-1-chinese>;
 
 <sort-by> := 按 <all-columns> <sort-by-ascending> |
              按 <all-columns> <sort-by-descending> |
