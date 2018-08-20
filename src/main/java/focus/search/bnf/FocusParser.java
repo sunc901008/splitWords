@@ -51,7 +51,7 @@ public class FocusParser implements Serializable {
         initBnf("bnf-file/function-bool.bnf");
         initBnf("bnf-file/function-date.bnf");
         initBnf("bnf-file/function-number.bnf");
-//        initBnf("bnf-file/function-other.bnf");
+        initBnf("bnf-file/function-other.bnf");
         initBnf("bnf-file/function-string.bnf");
     }
 

@@ -356,8 +356,8 @@ public class Base {
                     response.setDatas("precheck");
                     Common.send(session, response.response());
 
-                    if (checkQuery(session, json, search)) {
-                        logger.warn("precheck fail.");
+                    if (checkQuery(session, json, search, user.getString("accessToken"))) {
+                        logger.debug("precheck fail.");
                         return;
                     }
 
@@ -369,7 +369,7 @@ public class Base {
                     response.setDatas("executeQuery");
                     Common.send(session, response.response());
 
-                    JSONObject res = Clients.Bi.query(json.toJSONString());
+                    JSONObject res = Clients.WebServer.query(json.toJSONString(), user.getString("accessToken"));
                     logger.debug("executeQuery result:" + res);
                     String taskId = res.getString("taskId");
                     session.getAttributes().put("taskId", taskId);
@@ -548,10 +548,10 @@ public class Base {
      * @return 是否停止执行
      * @throws IOException sendMessage 异常
      */
-    public static boolean checkQuery(WebSocketSession session, JSONObject json, String question) throws IOException {
+    public static boolean checkQuery(WebSocketSession session, JSONObject json, String question, String accessToken) throws IOException {
         JSONObject checkQuery = new JSONObject();
         try {
-            checkQuery = Clients.Bi.checkQuery(json.toJSONString());
+            checkQuery = Clients.WebServer.checkQuery(json.toJSONString(), accessToken);
             if (!checkQuery.getBooleanValue("success")) {
                 IllegalDatas datas = new IllegalDatas(0, question.length() - 1, checkQuery.getString("exception"));
                 IllegalResponse illegal = new IllegalResponse(question, datas);
