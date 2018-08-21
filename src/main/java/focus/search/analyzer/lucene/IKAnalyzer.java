@@ -48,8 +48,4 @@ public final class IKAnalyzer extends Analyzer implements Serializable {
         return new TokenStreamComponents(_IKTokenizer);
     }
 
-    public void loadSegmenters(String language) {
-        _IKTokenizer.loadSegmenters(language);
-    }
-
 }

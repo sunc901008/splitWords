@@ -51,20 +51,17 @@ public final class IKSegmenter {
 
         // 符号分词器
         segmenters.add(new PunctuationSegmenter());
-        return segmenters;
-    }
 
-    public void loadSegmenters(String language) {
         // 英文
         // 处理字母的子分词器
         segmenters.add(new LetterSegmenter());
-        if (!"english".equals(language)) {
-            // 中文
-            // 处理中文数量词的子分词器
-            segmenters.add(new CN_QuantifierSegmenter());
-            // 处理中文词的子分词器
-            segmenters.add(new CJKSegmenter());
-        }
+        // 中文
+        // 处理中文数量词的子分词器
+        segmenters.add(new CN_QuantifierSegmenter());
+        // 处理中文词的子分词器
+        segmenters.add(new CJKSegmenter());
+
+        return segmenters;
     }
 
     /**

@@ -1,5 +1,6 @@
 package focus.search.analyzer.focus;
 
+import focus.search.analyzer.core.CharacterUtil;
 import focus.search.analyzer.dic.Dictionary;
 import focus.search.analyzer.lucene.IKAnalyzer;
 import focus.search.base.Common;
@@ -72,12 +73,15 @@ public class FocusAnalyzer implements Serializable {
 
     public List<FocusToken> test(String str, String language) throws IOException, AmbiguitiesException {
         logger.info("start split question.question:" + str + " . language:" + language);
+        if (Constant.Language.ENGLISH.equals(language)) {
+            return test(str);
+        }
         if (analyzer == null) {
             init();
         }
 
         TokenStream ts = analyzer.tokenStream("focus", new StringReader(str));
-        analyzer.loadSegmenters(language);
+
         // 获取词元位置属性
         OffsetAttribute offset = ts.addAttribute(OffsetAttribute.class);
         // 获取词元文本属性
@@ -114,6 +118,72 @@ public class FocusAnalyzer implements Serializable {
         tokens = mergeQuoteValue(tokens, str);
         tokens = mergeMinus(tokens);
         return mergePrefixWord(tokens);
+    }
+
+    // 英文分词,除特别的符号之外('(',')',',','"','>'...),默认按照空格分词
+    public List<FocusToken> test(String str) throws IOException, AmbiguitiesException {
+        List<FocusToken> tokens = new LinkedList<>();
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            int type = CharacterUtil.identifyCharType(c);
+            if (CharacterUtil.QUOTE_CHAR == type || CharacterUtil.COMMA_CHAR == type || CharacterUtil.CHAR_PUNCTUATION == type) {
+                if (sb.length() > 0) {
+                    FocusToken ft = new FocusToken(sb.toString(), type(sb.toString()), i - sb.toString().length(), i);
+                    tokens.add(ft);
+                }
+                FocusToken ft = new FocusToken(String.valueOf(c), type(type), i, i + 1);
+                tokens.add(ft);
+                sb.delete(0, sb.length());
+            } else if (CharacterUtil.CHAR_USELESS == type) {
+                if (sb.length() > 0) {
+                    FocusToken ft = new FocusToken(sb.toString(), type(sb.toString()), i - sb.toString().length(), i);
+                    tokens.add(ft);
+                }
+                sb.delete(0, sb.length());
+            } else {
+                sb.append(c);
+            }
+        }
+
+        if (sb.length() > 0) {
+            FocusToken ft = new FocusToken(sb.toString(), type(sb.toString()), str.length() - sb.toString().length(), str.length());
+            tokens.add(ft);
+        }
+
+        tokens = mergeQuoteValue(tokens, str);
+        tokens = mergeMinus(tokens);
+        return mergePrefixWord(tokens);
+    }
+
+    private String type(String str) {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            Integer.parseInt(str);
+            return Constant.FNDType.INTEGER;
+        } catch (NumberFormatException ignored1) {
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                Double.parseDouble(str);
+                return Constant.FNDType.DOUBLE;
+            } catch (NumberFormatException ignored2) {
+            }
+        }
+        return "ENGLISH";
+    }
+
+    private String type(int type) {
+        switch (type) {
+            case CharacterUtil.QUOTE_CHAR:
+                return "TYPE_QUOTE";
+            case CharacterUtil.COMMA_CHAR:
+                return "TYPE_COMMA";
+            case CharacterUtil.CHAR_PUNCTUATION:
+                return Constant.FNDType.SYMBOL;
+            default:
+                return "TYPE_ERROR";
+        }
     }
 
     private List<FocusKWDict> makeTableDict(List<SourceReceived> sources) {

@@ -66,10 +66,6 @@ public final class IKTokenizer extends Tokenizer implements Serializable {
         _IKImplement = new IKSegmenter(input);
     }
 
-    public void loadSegmenters(String language) {
-        _IKImplement.loadSegmenters(language);
-    }
-
     /*
      * (non-Javadoc)
      * @see org.apache.lucene.analysis.TokenStream#incrementToken()

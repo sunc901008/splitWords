@@ -1,6 +1,6 @@
 package focus.search.analyzer.core;
 
-class CharacterUtil {
+public class CharacterUtil {
 
     public static final int CHAR_USELESS = 0;
 
@@ -25,7 +25,7 @@ class CharacterUtil {
      *
      * @return int CharacterUtil定义的字符类型常量
      */
-    static int identifyCharType(char input) {
+    public static int identifyCharType(char input) {
         if (input >= '0' && input <= '9' || PunctuationSegmenter.Num_Connector == input) {
             return CHAR_ARABIC;
 
