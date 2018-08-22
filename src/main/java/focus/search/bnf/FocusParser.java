@@ -471,16 +471,7 @@ public class FocusParser implements Serializable {
                 List<BnfRule> rules = parseRules(ft, language);
                 long l2 = Common.getNow().getTimeInMillis();
                 Common.info(String.format("Get rules.Size:%d.focusToken:%s.Cost:%s", rules.size(), ft.toJson(), (l2 - l1)));
-                StringBuilder sb = new StringBuilder();
-                focusPhrases.forEach(f -> sb.append(f.toJSON()).append(","));
-                String log = "Before replace. FocusPhrases: " + sb.toString();
-                logger.debug(ft.toJson());
-                logger.debug(log);
                 replace(rules, focusPhrases, ft, i, amb);
-                sb.delete(0, sb.length());
-                focusPhrases.forEach(f -> sb.append(f.toJSON()).append(","));
-                log = "After replace. FocusPhrases: " + sb.toString();
-                logger.debug(log);
             } catch (FocusParserException e) {
                 logger.warn(Common.printStacktrace(e));
             }
@@ -493,10 +484,6 @@ public class FocusParser implements Serializable {
 //            // 歧义检测
 //            ambiguitiesCheck(ft, focusPhrases, i, amb);
         }
-
-        StringBuilder sb = new StringBuilder();
-        focusPhrases.forEach(f -> sb.append(f.toJSON()).append(","));
-        logger.debug("focusPhrases:" + sb.toString());
 
         FocusSubInst fsi = new FocusSubInst();
         List<FocusPhrase> sug = new ArrayList<>();

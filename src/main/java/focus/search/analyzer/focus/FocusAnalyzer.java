@@ -115,8 +115,8 @@ public class FocusAnalyzer implements Serializable {
         // 关闭TokenStream（关闭StringReader）
         ts.close();
 
-        tokens = mergeQuoteValue(tokens, str);
-        tokens = mergeMinus(tokens);
+        tokens = mergeQuoteValue(tokens, str);// 合并列中值
+        tokens = mergeMinus(tokens);// 合并负号
         return mergePrefixWord(tokens);
     }
 

@@ -39,6 +39,16 @@ class CJKSegmenter implements ISegmenter {
     // 待处理的分词hit队列
     private List<Hit> tmpHits;
 
+    /*
+     * 列中值起始位置
+     */
+    private int start;
+
+    /*
+     * 列中值结束位置
+     */
+    private int end;
+
     CJKSegmenter() {
         this.tmpHits = new LinkedList<>();
     }
@@ -82,6 +92,12 @@ class CJKSegmenter implements ISegmenter {
                 newLexeme.setType(singleCharHit.dsType());
                 context.addLexeme(newLexeme);
 
+                if (this.start != -1) {
+                    Lexeme newLexeme1 = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_ERROR);
+                    context.addLexeme(newLexeme1);
+                    clear();
+                }
+
                 // 同时也是词前缀
                 if (singleCharHit.isPrefix()) {
                     // 前缀匹配则放入hit列表
@@ -90,22 +106,40 @@ class CJKSegmenter implements ISegmenter {
             } else if (singleCharHit.isPrefix()) {// 首字为词前缀
                 // 前缀匹配则放入hit列表
                 this.tmpHits.add(singleCharHit);
+
+                if (this.start != -1) {
+                    Lexeme newLexeme1 = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_ERROR);
+                    context.addLexeme(newLexeme1);
+                    clear();
+                }
+
+            } else { //未匹配上，可能为列中值或者错误
+                if (this.start == -1) {
+                    this.start = context.getCursor();
+                    this.end = this.start;
+                } else {
+                    this.end = context.getCursor();
+                }
             }
 
         } else {
             // 遇到CHAR_USELESS字符
             // 清空队列
-            this.tmpHits.clear();
+            if (this.start != -1) {
+                Lexeme newLexeme1 = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_ERROR);
+                context.addLexeme(newLexeme1);
+            }
+            reset();
         }
 
         // 判断缓冲区是否已经读完
         if (context.isBufferConsumed()) {
             // 清空队列
-            this.tmpHits.clear();
+            reset();
         }
 
         // 判断是否锁定缓冲区
-        if (this.tmpHits.size() == 0) {
+        if (this.tmpHits.size() == 0 && (this.start == -1 && this.end == -1)) {
             context.unlockBuffer(SEGMENTER_NAME);
         } else {
             context.lockBuffer(SEGMENTER_NAME);
@@ -119,6 +153,12 @@ class CJKSegmenter implements ISegmenter {
     public void reset() {
         // 清空队列
         this.tmpHits.clear();
+        clear();
+    }
+
+    private void clear(){
+        this.start = -1;
+        this.end = -1;
     }
 
 }
