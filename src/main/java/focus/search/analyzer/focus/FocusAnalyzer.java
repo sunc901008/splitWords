@@ -253,8 +253,7 @@ public class FocusAnalyzer implements Serializable {
         } else if (tokens.size() == 2) {
             FocusToken first = tokens.get(0);
             FocusToken second = tokens.get(1);
-            if (Constant.MINUS.equals(first.getWord())
-                    && Common.isNumber(second.getType())) {
+            if (Constant.MINUS.equals(first.getWord()) && Common.isNumber(second.getType())) {
                 merge.add(new FocusToken(first.getWord() + second.getWord(), second.getType(), first.getStart(), second.getEnd()));
                 return merge;
             }
@@ -264,24 +263,27 @@ public class FocusAnalyzer implements Serializable {
         int loop = tokens.size();
         merge.add(first);
         while (loop > 0) {
+            loop--;
             FocusToken current = tokens.remove(0);
             if (tokens.isEmpty()) {
                 merge.add(current);
                 break;
             }
             FocusToken next = tokens.get(0);
-            if (!Common.isNumber(first.getType())
-                    && Constant.MINUS.equals(current.getWord())
-                    && Common.isNumber(next.getType())) {
-                merge.add(new FocusToken(current.getWord() + next.getWord(), next.getType(), current.getStart(), next.getEnd()));
-                tokens.remove(0);
-                loop--;
-                first = next;
-            } else {
-                merge.add(current);
-                first = current;
+            if (Constant.MINUS.equals(current.getWord()) && Common.isNumber(next.getType())) {
+                if (first.getWord().length() == 1) {
+                    int type = CharacterUtil.identifyCharType(first.getWord().charAt(0));
+                    if (CharacterUtil.QUOTE_CHAR == type || CharacterUtil.COMMA_CHAR == type || CharacterUtil.CHAR_PUNCTUATION == type) {
+                        merge.add(new FocusToken(current.getWord() + next.getWord(), next.getType(), current.getStart(), next.getEnd()));
+                        tokens.remove(0);
+                        loop--;
+                        first = next;
+                        continue;
+                    }
+                }
             }
-            loop--;
+            merge.add(current);
+            first = current;
         }
         return merge;
     }

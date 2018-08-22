@@ -46,10 +46,11 @@ public class Clients {
 
     public static class Bi {
         private static String baseUrl = String.format("http://%s:%d%s/", Constant.biHost, Constant.biPort, Constant.biBaseUrl);
-        private static final String CHECK_QUERY = "checkQuery";
+        private static final String CHECK_RELATION_SOURCE = "checkRelationSource";
+        public static final int ERROR_CODE_11043 = 11043;
 
-        public static JSONObject checkQuery(String params) throws FocusHttpException {
-            return post(baseUrl + CHECK_QUERY, params, Collections.singletonList(baseHeader));
+        public static JSONObject checkRelationSource(String params) throws FocusHttpException {
+            return post(baseUrl + CHECK_RELATION_SOURCE, params, Collections.singletonList(baseHeader));
         }
 
     }
@@ -65,6 +66,7 @@ public class Clients {
             BasicHeader header = new BasicHeader("Access-Token", accessToken);
             return post(baseUrl + CHECK_QUERY, params, Arrays.asList(header, baseHeader));
         }
+
         public static JSONObject getSource(String sourceToken, String accessToken) throws FocusHttpException {
             BasicHeader header1 = new BasicHeader("sourceToken", sourceToken);
             BasicHeader header2 = new BasicHeader("Access-Token", accessToken);

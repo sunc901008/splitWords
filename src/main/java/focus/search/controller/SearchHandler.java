@@ -20,6 +20,7 @@ import focus.search.meta.Formula;
 import focus.search.metaReceived.*;
 import focus.search.response.exception.*;
 import focus.search.response.search.*;
+import focus.search.suggestions.HistoryUtils;
 import focus.search.suggestions.SourcesUtils;
 import focus.search.suggestions.SuggestionUtils;
 import org.apache.log4j.Logger;
@@ -44,6 +45,7 @@ class SearchHandler {
         logger.info("lastParams: " + params);
         Object object = session.getAttributes().get("user");
         JSONObject user = object == null ? new JSONObject() : (JSONObject) object;
+        user.put("historyQuestions", new JSONArray());
         String type = params.getString("type");
         String category = user.getString("category");
         JSONObject datas = new JSONObject();
@@ -162,6 +164,9 @@ class SearchHandler {
             JSONArray sourceList = new JSONArray();
             srs.forEach(sr -> sourceList.add(sr.tableId));
             user.put("sourceList", sourceList.toJSONString());
+
+            // 初始化历史问题
+            user.put("historyQuestions", HistoryUtils.initHistory(user));
 
             // 歧义记录
             JSONObject ambiguities = new JSONObject();

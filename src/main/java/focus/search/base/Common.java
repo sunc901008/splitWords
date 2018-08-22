@@ -248,7 +248,7 @@ public class Common {
             else if (currentMonth >= 4 && currentMonth <= 6)
                 today.set(Calendar.MONTH, 3);
             else if (currentMonth >= 7 && currentMonth <= 9)
-                today.set(Calendar.MONTH, 4);
+                today.set(Calendar.MONTH, 6);
             else if (currentMonth >= 10 && currentMonth <= 12)
                 today.set(Calendar.MONTH, 9);
         } catch (Exception e) {

@@ -50,7 +50,7 @@ public class UniqueCountInstruction {
         datas.addToken(token1);
 
         JSONObject expression = new JSONObject();
-        expression.put("name", "standard deviation");
+        expression.put("name", "unique count");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
 

@@ -258,7 +258,7 @@ public class SuggestionUtils {
                     }
                     if (!focusNode.isTerminal()) {
                         BnfRule br = fp.getRule(focusNode.getValue());
-                        if (suggestions.contains(br.getLeftHandSide().getName())) {
+                        if (br == null || suggestions.contains(br.getLeftHandSide().getName())) {
                             continue;
                         }
                         suggestions.add(br.getLeftHandSide().getName());

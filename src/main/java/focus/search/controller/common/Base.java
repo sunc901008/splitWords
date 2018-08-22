@@ -8,11 +8,10 @@ import focus.search.base.Clients;
 import focus.search.base.Common;
 import focus.search.base.Constant;
 import focus.search.base.LanguageUtils;
-import focus.search.bnf.FocusInst;
-import focus.search.bnf.FocusNode;
-import focus.search.bnf.FocusParser;
-import focus.search.bnf.FocusPhrase;
+import focus.search.bnf.*;
 import focus.search.bnf.tokens.TerminalToken;
+import focus.search.bnf.tokens.Token;
+import focus.search.bnf.tokens.TokenString;
 import focus.search.controller.WebsocketSearch;
 import focus.search.instruction.CommonFunc;
 import focus.search.instruction.InstructionBuild;
@@ -222,18 +221,32 @@ public class Base {
             FocusToken input = tokens.get(0);
             if (!Constant.FNDType.INTEGER.equals(input.getType()) && !Constant.FNDType.DOUBLE.equals(input.getType()) && !fp.isKeyword(input.getWord())) {
                 // 出错或者不完整的keyword
-                List<TerminalToken> terminalTokens = fp.getTerminalTokens();
+                List<BnfRule> rules = fp.parseRules(input, language);
                 List<SuggestionSuggestion> sss = new ArrayList<>();
-                for (TerminalToken t : terminalTokens) {
-                    if (t.getName().startsWith(input.getWord())) {
-                        SuggestionSuggestion ss = new SuggestionSuggestion();
-                        ss.beginPos = 0;
-                        ss.endPos = position;
-                        ss.suggestion = t.getName();
-                        ss.suggestionType = t.getType();
-                        sss.add(ss);
+                List<String> ruleNames = new ArrayList<>();
+                for (BnfRule br : rules) {
+                    String ruleName = br.getLeftHandSide().getName();
+                    if (!ruleNames.contains(ruleName)) {
+                        for (TokenString ts : br.getAlternatives()) {
+                            Token token = ts.getFirst();
+                            if (token instanceof TerminalToken) {
+                                if (token.getName().startsWith(input.getWord())) {
+                                    ruleNames.add(ruleName);
+                                    SuggestionSuggestion ss = new SuggestionSuggestion();
+                                    ss.beginPos = 0;
+                                    ss.endPos = position;
+                                    ss.suggestion = token.getName();
+                                    ss.suggestionType = ((TerminalToken) token).getType();
+                                    sss.add(ss);
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
                     }
                 }
+
                 if (sss.isEmpty()) {
                     IllegalResponse response = new IllegalResponse(search);
                     IllegalDatas datas = new IllegalDatas();
@@ -264,9 +277,13 @@ public class Base {
         try {
             // 解析结果
             FocusInst focusInst;
-            logger.info(String.format("isQuestion:%s tokens:%s ambiguities:%s language:%s", isQuestion, JSON.toJSONString(tokens), amb, language));
+            logger.debug(String.format("isQuestion:%s tokens:%s ambiguities:%s language:%s", isQuestion, JSON.toJSONString(tokens), amb, language));
             if (isQuestion) {
                 focusInst = fp.parseQuestion(tokens, amb, language, srs, formulas);
+                boolean goOn = selectSource(session, focusInst, formulas, tokens.size(), JSONArray.parseArray(user.getString("sourceList")));
+                if (!goOn) {
+                    return;
+                }
             } else {
                 focusInst = fp.parseFormula(tokens, amb, language, srs);
             }
@@ -641,6 +658,70 @@ public class Base {
         session.getAttributes().put("user", user);
         logger.info(user.getString("name") + " connected to server.");
         users.add(session);
+    }
+
+    private static boolean selectSource(WebSocketSession session, FocusInst focusInst, List<Formula> formulas, int size, JSONArray sourceIdList) throws IOException {
+        JSONObject params = new JSONObject();
+        params.put("all", sourceIdList);
+        JSONArray selected = new JSONArray();
+        int index = 0;
+        for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
+            for (int i = 0; i < focusPhrase.size(); i++) {
+                index++;
+                FocusNode node = focusPhrase.getNodeNew(i);
+                if (Constant.FNDType.COLUMN.equals(node.getType())) {
+                    selected.add(node.getColumn().getTableId());
+                } else if (Constant.FNDType.FORMULA.equals(node.getType())) {
+                    try {
+                        Formula formula = CommonFunc.getFormula(formulas, node.getValue());
+                        JSONObject expression = formula.getInstruction().getJSONObject("expression");
+                        selected.addAll(selectSource(expression));
+                    } catch (FocusInstructionException e) {
+                        logger.error(Common.printStacktrace(e));
+                    }
+                }
+                if (index >= size) {
+                    break;
+                }
+            }
+            if (index >= size) {
+                break;
+            }
+        }
+        if (selected.isEmpty()) {
+            return true;
+        }
+        params.put("selected", selected);
+        try {
+            JSONObject res = Clients.Bi.checkRelationSource(params.toJSONString());
+            SelectSourceResponse response = new SelectSourceResponse();
+            if (res.getBooleanValue("success")) {
+                response.datas = JSONArray.parseArray(res.getString("tables"), SelectSourceData.class);
+                Common.send(session, response.response());
+                return true;
+            } else if (res.getInteger("errCode") == Clients.Bi.ERROR_CODE_11043) {// 无关联关系
+                String error = ErrorResponse.response(Constant.ErrorType.ERROR, res.getString("exception")).toJSONString();
+                Common.send(session, error);
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error(Common.printStacktrace(e));
+        }
+        return true;
+    }
+
+    private static JSONArray selectSource(JSONObject expression) {
+        JSONArray selected = new JSONArray();
+        String type = expression.getString("type");
+        if (Constant.InstType.FUNCTION.equals(type)) {
+            JSONArray args = expression.getJSONArray("args");
+            for (int i = 0; i < args.size(); i++) {
+                selected.addAll(selectSource(args.getJSONObject(i)));
+            }
+        } else if (Constant.InstType.COLUMN.equals(type)) {
+            selected.add(expression.getInteger("value"));
+        }
+        return selected;
     }
 
 }

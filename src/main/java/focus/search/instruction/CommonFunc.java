@@ -217,22 +217,22 @@ public class CommonFunc {
                 return params;
             case "week":
                 current = Common.getStartWeek();
-                current.add(Calendar.WEEK_OF_YEAR, -1);
+//                current.add(Calendar.WEEK_OF_YEAR, -1);
                 params.add(0, Common.biTimeFormat(current));
                 return params;
             case "month":
                 current = Common.getStartMonth();
-                current.add(Calendar.MONTH, -1);
+//                current.add(Calendar.MONTH, -1);
                 params.add(0, Common.biTimeFormat(current));
                 return params;
             case "quarter":
                 current = Common.getStartQuarter();
-                current.add(Calendar.MONTH, -3);
+//                current.add(Calendar.MONTH, -3);
                 params.add(0, Common.biTimeFormat(current));
                 return params;
             case "year":
                 current = Common.getStartYear();
-                current.add(Calendar.YEAR, -1);
+//                current.add(Calendar.YEAR, -1);
                 params.add(0, Common.biTimeFormat(current));
                 return params;
         }

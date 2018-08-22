@@ -226,12 +226,15 @@ public class FocusParser implements Serializable {
         SourceReceived sourceReceived = null;
         boolean isFormulaName = false;
         boolean isTableName = false;
+        boolean isNumber = false;
         switch (focusToken.getType()) {
             case "integer":
                 key = Constant.REDIS_INTEGER_PREFIX;
+                isNumber = true;
                 break;
             case "double":
                 key = Constant.REDIS_DOUBLE_PREFIX;
+                isNumber = true;
                 break;
             case "formulaName":
                 String dataType = FormulaAnalysis.STRING;
@@ -360,13 +363,26 @@ public class FocusParser implements Serializable {
                     }
                 }
 
-            } else {// keyword
+            } else if (isNumber) {// 数字
                 for (FocusPhrase fp : focusPhrases) {
                     FocusNode node = fp.getFirstNode();
                     node.setBegin(focusToken.getStart());
                     node.setEnd(focusToken.getEnd());
                     node.setValue(word);
                     fp.replaceNode(0, node);
+                }
+            } else {// 其他keyword
+                int loop = focusPhrases.size();
+                while (loop > 0) {
+                    loop--;
+                    FocusPhrase fp = focusPhrases.remove(0);
+                    FocusNode node = fp.getFirstNode();
+                    if (node.getValue().equals(word)) {
+                        node.setBegin(focusToken.getStart());
+                        node.setEnd(focusToken.getEnd());
+                        fp.replaceNode(0, node);
+                        focusPhrases.add(fp);
+                    }
                 }
             }
 

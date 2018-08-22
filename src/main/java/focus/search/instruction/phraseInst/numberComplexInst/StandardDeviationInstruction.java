@@ -50,7 +50,7 @@ public class StandardDeviationInstruction {
         datas.addToken(token1);
 
         JSONObject expression = new JSONObject();
-        expression.put("name", "standard deviation");
+        expression.put("name", "stddev");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
 

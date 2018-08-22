@@ -39,7 +39,7 @@ public class CTopBottomInstruction {
     public static JSONArray build(FocusPhrase focusPhrase, int index, JSONObject amb, List<Formula> formulas) throws FocusInstructionException, IllegalException {
         String key = "<top-n>".equals(focusPhrase.getInstName()) ? "top" : "bottom";
         FocusNode fn = focusPhrase.getFocusNodes().get(0);
-        if ("<top-1>".equals(fn.getValue())) {
+        if ("<top-1>".equals(fn.getValue()) || "<bottom-1>".equals(fn.getValue())) {
             return build1(fn.getChildren(), index, amb, formulas, key);
         }
         if ("<number-columns>".equals(fn.getValue())) {

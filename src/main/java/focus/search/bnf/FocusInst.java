@@ -53,6 +53,7 @@ public class FocusInst {
         focusPhrases.forEach(f -> jsonArray.add(f.toJSON()));
         json.put("focusPhrases", jsonArray);
         json.put("position", position);
+        json.put("isInstruction", isInstruction);
         return json;
     }
 

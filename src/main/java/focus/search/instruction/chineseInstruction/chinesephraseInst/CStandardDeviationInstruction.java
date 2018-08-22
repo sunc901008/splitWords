@@ -42,7 +42,7 @@ public class CStandardDeviationInstruction {
         FocusPhrase numberPhrase = focusNodes.get(0).getChildren();
 
         JSONObject expression = new JSONObject();
-        expression.put("name", "standard deviation");
+        expression.put("name", "stddev");
         expression.put("type", "function");
         JSONArray args = new JSONArray();
 
@@ -51,8 +51,6 @@ public class CStandardDeviationInstruction {
         json1.put("expression", expression);
         instructions.add(json1);
 
-        int begin = numberPhrase.getFirstNode().getBegin();
-        int end = numberPhrase.getLastNode().getEnd();
         datas.addToken(AnnotationToken.singleCol(numberPhrase, amb, formulas));
 
         FocusNode keywordNode = focusNodes.get(1);
