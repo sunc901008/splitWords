@@ -300,8 +300,7 @@
                               <all-date-column>;
 
 <number-source-column> := <all-int-column> |
-                          <all-double-column> |
-                          <number-formula-column>;
+                          <all-double-column>;
 
 <bool-symbol> := > | < | >= | <= | = | !=;
 <math-symbol> := + | - | * | / | ^;

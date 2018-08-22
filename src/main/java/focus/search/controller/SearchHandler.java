@@ -17,7 +17,10 @@ import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
-import focus.search.metaReceived.*;
+import focus.search.metaReceived.Ambiguities;
+import focus.search.metaReceived.ColumnReceived;
+import focus.search.metaReceived.FormulaReceived;
+import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.*;
 import focus.search.response.search.*;
 import focus.search.suggestions.HistoryUtils;
@@ -157,13 +160,21 @@ class SearchHandler {
             init.setStatus("success");
             init.setMessage("get sources from webserver success.");
             List<SourceReceived> srs = JSONArray.parseArray(getSource.getJSONArray("sources").toJSONString(), SourceReceived.class);
-            List<RelationReceived> rrs = JSONArray.parseArray(JSONArray.toJSONString(getSource.getJSONArray("sources"),
-                    new Common.JSONFilter()), RelationReceived.class);
 
             user.put("sources", srs);
             JSONArray sourceList = new JSONArray();
-            srs.forEach(sr -> sourceList.add(sr.tableId));
+            JSONArray sourceInfoList = new JSONArray();
+            srs.forEach(sr -> {
+                sourceList.add(sr.tableId);
+                JSONObject s = new JSONObject();
+                JSONArray c = new JSONArray();
+                sr.columns.forEach(id -> c.add(id.columnId));
+                s.put(String.valueOf(sr.tableId), c);
+                sourceInfoList.add(s);
+            });
+
             user.put("sourceList", sourceList.toJSONString());
+            user.put("sourceInfoList", sourceInfoList.toJSONString());
 
             // 初始化历史问题
             user.put("historyQuestions", HistoryUtils.initHistory(user));

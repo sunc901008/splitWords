@@ -280,7 +280,7 @@ public class Base {
             logger.debug(String.format("isQuestion:%s tokens:%s ambiguities:%s language:%s", isQuestion, JSON.toJSONString(tokens), amb, language));
             if (isQuestion) {
                 focusInst = fp.parseQuestion(tokens, amb, language, srs, formulas);
-                boolean goOn = selectSource(session, focusInst, formulas, tokens.size(), JSONArray.parseArray(user.getString("sourceList")));
+                boolean goOn = selectSource(session, focusInst, formulas, tokens.size(), user);
                 if (!goOn) {
                     return;
                 }
@@ -660,9 +660,9 @@ public class Base {
         users.add(session);
     }
 
-    private static boolean selectSource(WebSocketSession session, FocusInst focusInst, List<Formula> formulas, int size, JSONArray sourceIdList) throws IOException {
+    private static boolean selectSource(WebSocketSession session, FocusInst focusInst, List<Formula> formulas, int size, JSONObject user) throws IOException {
         JSONObject params = new JSONObject();
-        params.put("all", sourceIdList);
+        params.put("all", JSONArray.parseArray(user.getString("sourceIdList")));
         JSONArray selected = new JSONArray();
         int index = 0;
         for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
@@ -674,8 +674,23 @@ public class Base {
                 } else if (Constant.FNDType.FORMULA.equals(node.getType())) {
                     try {
                         Formula formula = CommonFunc.getFormula(formulas, node.getValue());
-                        JSONObject expression = formula.getInstruction().getJSONObject("expression");
-                        selected.addAll(selectSource(expression));
+                        JSONObject expression = formula.getInstruction();
+                        logger.info(formula.toJSON());
+                        logger.info(expression);
+                        JSONArray columnIdList = selectSource(expression);
+                        JSONArray sourceInfoList = JSONArray.parseArray(user.getString("sourceInfoList"));
+                        for (int j = 0; j < sourceInfoList.size(); j++) {
+                            JSONObject source = sourceInfoList.getJSONObject(j);
+                            String key = source.keySet().iterator().next();
+                            int before = columnIdList.size();
+                            columnIdList.removeAll(source.getJSONArray(key));
+                            if (before > columnIdList.size()) {
+                                selected.add(Integer.parseInt(key));
+                            }
+                            if (columnIdList.isEmpty()) {
+                                break;
+                            }
+                        }
                     } catch (FocusInstructionException e) {
                         logger.error(Common.printStacktrace(e));
                     }

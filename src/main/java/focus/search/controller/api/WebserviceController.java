@@ -32,6 +32,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 import javax.servlet.ServletRequest;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -74,6 +76,8 @@ public class WebserviceController {
         long startTime = Calendar.getInstance().getTimeInMillis();
         String sourceToken = request.getParameter("sourceToken");
         String question = request.getParameter("question");
+        question = URLDecoder.decode(URLEncoder.encode(question, "ISO-8859-1"), "UTF-8");
+        logger.info(String.format("Params:{sourceToken:%s,question:%s}", sourceToken, question));
         return WebsocketSearch.getInsts(sourceToken, question, startTime);
     }
 

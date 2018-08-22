@@ -662,8 +662,7 @@
                               <all-date-column>;
 
 <number-source-column> := <all-int-column> |
-                          <all-double-column> |
-                          <number-formula-column>;
+                          <all-double-column>;
 
 <bool-symbol> := 大于 | 小于 | 不小于 | 大于等于 | 不大于 | 小于等于 | 等于 | 不等于 | > | < | >= | <= | = | !=;
 <math-symbol> := + | - | * | / | ^;

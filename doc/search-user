@@ -12,6 +12,7 @@
 "historyQuestions":JSONArray,
 "sources":[],
 "sourceList":"sourceList",
+"sourceInfoList":"sourceInfoList",
 "formulas":[],
 "ambiguities":JSONObject,
 "parser": FocusParser,
@@ -31,6 +32,7 @@ curSearchToken      curSearchToken
 historyQuestions    历史问题记录 JSONArray HistoryQuestion
 sources             数据源 List<SourceReceived>
 sourceList          数据源 id 列表 JSONArray string
+sourceInfoList      数据源 {id:[columnId]} 列表 JSONArray string
 formulas            用户保存的公式 List<Formula>
 ambiguities         当前连接的歧义保存 JSONObject
 parser              当前连接的解析实例
