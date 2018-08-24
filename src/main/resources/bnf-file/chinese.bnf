@@ -112,9 +112,13 @@
                         降序排序的;
 
 <growth-of> := 按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval> |
+               按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval> <year-over-year> |
                <year-over-year> 按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval>;
 
-<year-over-year> := 与往年同期相比;
+<year-over-year> := 与往年同期相比 |
+                    同比去年 |
+                    同比上一年 |
+                    同比;
 <growth-of-measure> := <number-source-column> |
                        <number-source-column> <growth-of-measure-operation>;
 <growth-of-measure-operation> := <growth-of-measure-sum-operation> |
@@ -127,8 +131,10 @@
                                  <growth-of-measure-variance-operation>;
 <growth-of-measure-sum-operation> := 的总和 |
                                      的总量 |
-                                     的总数;
-<growth-of-measure-average-operation> := 的平均值;
+                                     的总数 |
+                                     的和;
+<growth-of-measure-average-operation> := 的平均值 |
+                                         的均值;
 <growth-of-measure-count-operation> := 的数量 |
                                        的计数;
 <growth-of-measure-max-operation> := 的最大值;
@@ -199,7 +205,8 @@
                       <year-to-date-interval>;
 
 <today-interval> := 今天 |
-                    今日;
+                    今日 |
+                    本日;
 
 <week-to-date-interval> := 本周截至目前 |
                              本周截至目前的 |
@@ -218,7 +225,8 @@
                              当周截止目前为止 |
                              当周截止目前为止的 |
                              本周 |
-                             当周;
+                             当周 |
+                             这周;
 
 <month-to-date-interval> := 本月截至目前 |
                              本月截至目前的 |
@@ -237,7 +245,8 @@
                              当月截止目前为止 |
                              当月截止目前为止的 |
                              本月 |
-                             当月;
+                             当月 |
+                             这个月;
 
 <quarter-to-date-interval> := 本季度截至目前 |
                              本季度截至目前的 |
@@ -274,7 +283,8 @@
                              当季截止目前为止 |
                              当季截止目前为止的 |
                              本季 |
-                             当季;
+                             当季 |
+                             这个季度;
 
 <year-to-date-interval> := 本年截至目前 |
                            本年截至目前的 |
@@ -425,10 +435,13 @@
 <last-chinese> := 过去 |
                   前 |
                   最近 |
-                  近;
+                  近 |
+                  过去的;
 
 <days-chinese> := 天 |
-                       天的;
+                  天的 |
+                  日|
+                  日的;
 <last-days-filter> := <last-chinese> <integer> <days-chinese> |
                       <all-date-column> <last-chinese> <integer> <days-chinese> |
                       <all-date-column> <last-day-filter> |
@@ -442,7 +455,9 @@
                     星期 |
                     星期的 |
                     个星期 |
-                    个星期的;
+                    个星期的 |
+                    礼拜 |
+                    礼拜的;
 <last-weeks-filter> := <last-chinese> <integer> <weeks-chinese> |
                        <all-date-column> <last-chinese> <integer> <weeks-chinese> |
                        <all-date-column> <last-week-filter> |
@@ -542,7 +557,8 @@
                        <next-week-filter>;
 <next-week-filter> := 下周 |
                       下个星期 |
-                      下一周;
+                      下一周 |
+                      下个礼拜;
 
 <next-months-filter> := <next-chinese> <integer> <months-chinese> |
                         <all-date-column> <next-chinese> <integer> <months-chinese> |

@@ -49,14 +49,10 @@ public class CAverageInstruction {
 
         FocusPhrase numberPhrase = focusNodes.get(0).getChildren();
 
-        JSONObject expression = new JSONObject();
-        expression.put("name", "average");
-        expression.put("type", "function");
-        JSONArray args = new JSONArray();
 
-        args.add(NumberColInstruction.arg(numberPhrase, formulas));
-        expression.put("args", args);
-        json1.put("expression", expression);
+        json1.put("aggregation", Constant.AggregationType.AVERAGE);
+
+        json1.put("expression", NumberColInstruction.arg(numberPhrase, formulas));
         instructions.add(json1);
 
         datas.addToken(AnnotationToken.singleCol(numberPhrase, amb, formulas));
@@ -105,14 +101,9 @@ public class CAverageInstruction {
         token1.end = averageNode.getEnd();
         datas.addToken(token1);
 
-        JSONObject expression = new JSONObject();
-        expression.put("name", "average");
-        expression.put("type", "function");
-        JSONArray args = new JSONArray();
+        json1.put("aggregation", Constant.AggregationType.AVERAGE);
 
-        args.add(NumberColInstruction.arg(numberPhrase, formulas));
-        expression.put("args", args);
-        json1.put("expression", expression);
+        json1.put("expression", NumberColInstruction.arg(numberPhrase, formulas));
         instructions.add(json1);
 
         datas.addToken(AnnotationToken.singleCol(numberPhrase, amb, formulas));

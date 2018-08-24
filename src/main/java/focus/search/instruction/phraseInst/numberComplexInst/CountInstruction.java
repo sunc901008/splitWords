@@ -47,18 +47,11 @@ public class CountInstruction {
         token1.end = sumNode.getEnd();
         datas.addToken(token1);
 
-        JSONObject expression = new JSONObject();
-        expression.put("name", "count");
-        expression.put("type", "function");
-        JSONArray args = new JSONArray();
+        json1.put("aggregation", Constant.AggregationType.COUNT);
 
-        args.add(NumberColInstruction.arg(numberPhrase, formulas));
-        expression.put("args", args);
-        json1.put("expression", expression);
+        json1.put("expression", NumberColInstruction.arg(numberPhrase, formulas));
         instructions.add(json1);
 
-        int begin = numberPhrase.getFirstNode().getBegin();
-        int end = numberPhrase.getLastNode().getEnd();
         datas.addToken(AnnotationToken.singleCol(numberPhrase, amb, formulas));
 
         JSONObject json2 = new JSONObject();

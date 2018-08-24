@@ -10,8 +10,6 @@ import focus.search.meta.AmbiguitiesRecord;
 import focus.search.meta.AmbiguitiesResolve;
 import focus.search.meta.Column;
 import focus.search.meta.Formula;
-import focus.search.metaReceived.ColumnReceived;
-import focus.search.metaReceived.SourceReceived;
 import focus.search.response.exception.AmbiguitiesException;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -28,23 +26,6 @@ import java.util.List;
  * description:
  */
 public class CommonFunc {
-
-    public static List<Column> getColumns(String colName, List<SourceReceived> srs) {
-        List<Column> columns = new ArrayList<>();
-        for (SourceReceived sourceReceived : srs) {
-            for (ColumnReceived column : sourceReceived.columns) {
-                if (column.columnDisplayName.equalsIgnoreCase(colName)) {
-                    Column col = column.transfer();
-                    col.setTableId(sourceReceived.tableId);
-                    col.setSourceName(sourceReceived.sourceName);
-                    col.setTbPhysicalName(sourceReceived.physicalName);
-                    col.setDbName(sourceReceived.parentDB);
-                    columns.add(col);
-                }
-            }
-        }
-        return columns;
-    }
 
     public static JSONObject checkAmb(FocusPhrase focusPhrase, FocusNode fn, List<Column> dateColumns, JSONObject amb, String ambValue) throws IllegalException, AmbiguitiesException {
         Column dateCol;

@@ -84,6 +84,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
     private static void init(WebSocketSession session, JSONArray answers) throws IOException {
         Object object = session.getAttributes().get("user");
         JSONObject user = object == null ? new JSONObject() : (JSONObject) object;
+        String accessToken = user.getString("accessToken");
         JSONArray parsers = new JSONArray();
         for (int i = 0; i < answers.size(); i++) {
             JSONObject pinboard = new JSONObject();
@@ -92,7 +93,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             pinboard.put("sourceToken", sourceToken);
             JSONObject getSource;
             try {
-                getSource = Clients.WebServer.getSource(sourceToken, user.getString("accessToken"));
+                getSource = Clients.WebServer.getSource(sourceToken, accessToken);
             } catch (Exception e) {
                 Common.send(session, ErrorResponse.response(Constant.ErrorType.ERROR, e.getMessage()).toJSONString());
                 continue;
@@ -126,6 +127,7 @@ public class WebsocketPinboard extends TextWebSocketHandler {
             pinboard.put("language", language);
             ModelBuild.buildTable(fp, srs);
             pinboard.put("parser", fp);
+            pinboard.put("accessToken", accessToken);
             parsers.add(pinboard);
             InitStateResponse response = new InitStateResponse(sourceToken);
             Common.send(session, response.response());

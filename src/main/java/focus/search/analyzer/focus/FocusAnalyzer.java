@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -115,6 +116,7 @@ public class FocusAnalyzer implements Serializable {
         // 关闭TokenStream（关闭StringReader）
         ts.close();
 
+        tokens = reset(tokens, str);
         tokens = mergeQuoteValue(tokens, str);// 合并列中值
         tokens = mergeMinus(tokens);// 合并负号
         return mergePrefixWord(tokens);
@@ -152,8 +154,10 @@ public class FocusAnalyzer implements Serializable {
             tokens.add(ft);
         }
 
+        tokens = reset(tokens, str);
         tokens = mergeQuoteValue(tokens, str);
         tokens = mergeMinus(tokens);
+        tokens = mergeBoolSymbol(tokens);
         return mergePrefixWord(tokens);
     }
 
@@ -203,6 +207,17 @@ public class FocusAnalyzer implements Serializable {
             list.add(new FocusKWDict(formula.getName(), "formulaName"));
         }
         return list;
+    }
+
+    // 替换成原字符(因为analyzer中都是小写)
+    private static List<FocusToken> reset(List<FocusToken> tokens, String search) {
+        List<FocusToken> merge = new ArrayList<>();
+        while (!tokens.isEmpty()) {
+            FocusToken tmp = tokens.remove(0);
+            tmp.setWord(search.substring(tmp.getStart(), tmp.getEnd()));
+            merge.add(tmp);
+        }
+        return merge;
     }
 
     // 合并引号包含的列中值
@@ -284,6 +299,39 @@ public class FocusAnalyzer implements Serializable {
             }
             merge.add(current);
             first = current;
+        }
+        return merge;
+    }
+
+    /**
+     * 英文分词: 合并 '>' '=' -> '>=' 等
+     *
+     * @param tokens 分词列表
+     * @return 合并后的分词列表
+     */
+    private static List<FocusToken> mergeBoolSymbol(List<FocusToken> tokens) {
+        if (tokens.size() < 2) {
+            return tokens;
+        }
+        List<String> symbols = Arrays.asList(">", "<", "!");
+        List<FocusToken> merge = new ArrayList<>();
+        FocusToken current = tokens.remove(0);
+        while (!tokens.isEmpty()) {
+            FocusToken next = tokens.remove(0);
+            if ("=".equals(next.getWord()) && symbols.contains(current.getWord())) {
+                merge.add(new FocusToken(current.getWord() + next.getWord(), Constant.FNDType.SYMBOL, current.getStart(), next.getEnd()));
+                if (!tokens.isEmpty()) {
+                    current = tokens.remove(0);
+                } else {
+                    break;
+                }
+            } else {
+                merge.add(current);
+                current = next;
+            }
+            if (tokens.isEmpty()) {
+                merge.add(current);
+            }
         }
         return merge;
     }

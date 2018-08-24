@@ -57,7 +57,7 @@ public class SuggestionUtils {
      * @param tokens    分词结果
      * @return SuggestionResponse
      */
-    public static SuggestionResponse suggestionsCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) throws IllegalException, IOException, AmbiguitiesException {
+    public static SuggestionResponse suggestionsCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position, JSONArray columnIdList) throws IllegalException, IOException, AmbiguitiesException {
         String language = user.getString("language");
         if (tokens.get(tokens.size() - 1).getEnd() > position) {//光标在search中间
             return middlePosition(fp, search, user, tokens, position);
@@ -96,32 +96,33 @@ public class SuggestionUtils {
                 }
             }
         }
-        completed(fp, datas, focusInst, tokens, position, addSpace, language);
+        completed(fp, datas, focusInst, tokens, position, addSpace, language, columnIdList);
 
-        String systemDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_system);
-
-        for (List<String> bnfName : bnfList) {
-            for (String ruleName : bnfName) {
-                BnfRule br = fp.getRule(ruleName);
-                String suggestion = bnfRuleSug(fp, br).trim();
-                if (suggestion.isEmpty())
-                    continue;
-                suggestion = addSpace ? " " + suggestion : suggestion;
-                SuggestionSuggestion ss = new SuggestionSuggestion();
-                ss.beginPos = position;
-                ss.endPos = position;
-                ss.suggestion = suggestion;
-                ss.suggestionType = Constant.SuggestionType.PHRASE;
-                ss.description = systemDescription;
-                datas.addSug(ss);
+        if (isQuestion) {
+            String systemDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_system);
+            for (List<String> bnfName : bnfList) {
+                for (String ruleName : bnfName) {
+                    BnfRule br = fp.getRule(ruleName);
+                    String suggestion = bnfRuleSug(fp, br, columnIdList).trim();
+                    if (suggestion.isEmpty())
+                        continue;
+                    suggestion = addSpace ? " " + suggestion : suggestion;
+                    SuggestionSuggestion ss = new SuggestionSuggestion();
+                    ss.beginPos = position;
+                    ss.endPos = position;
+                    ss.suggestion = suggestion;
+                    ss.suggestionType = Constant.SuggestionType.PHRASE;
+                    ss.description = systemDescription;
+                    datas.addSug(ss);
+                }
             }
         }
         response.setDatas(datas);
         return response;
     }
 
-    private static void completed(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, String language) throws IllegalException {
-        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, true, language);
+    private static void completed(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, String language, JSONArray columnIdList) throws IllegalException {
+        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, true, language, columnIdList);
     }
 
     /**
@@ -136,7 +137,8 @@ public class SuggestionUtils {
      * @param tokens    分词结果
      * @return SuggestionResponse
      */
-    public static SuggestionResponse suggestionsNotCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position) throws IllegalException, IOException, AmbiguitiesException {
+    public static SuggestionResponse suggestionsNotCompleted(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, int position, JSONArray columnIdList) throws IllegalException, IOException,
+            AmbiguitiesException {
         String language = user.getString("language");
         if (tokens.get(tokens.size() - 1).getEnd() > position) {//光标在search中间
             return middlePosition(fp, search, user, tokens, position);
@@ -172,17 +174,13 @@ public class SuggestionUtils {
                 }
             }
         }
-        notCompleted(fp, datas, focusInst, tokens, position, addSpace, language);
+        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, false, language, columnIdList);
 
         response.setDatas(datas);
         return response;
     }
 
-    private static void notCompleted(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, String language) throws IllegalException {
-        completedOrNot(fp, datas, focusInst, tokens, position, addSpace, false, language);
-    }
-
-    private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed, String language) throws IllegalException {
+    private static void completedOrNot(final FocusParser fp, SuggestionDatas datas, FocusInst focusInst, List<FocusToken> tokens, int position, boolean addSpace, boolean completed, String language, JSONArray columnIdList) throws IllegalException {
         String columnDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_column);
         String formulaDescription = LanguageUtils.getMsg(language, LanguageUtils.SuggestionUtils_suggestion_description_formula);
 
@@ -262,15 +260,15 @@ public class SuggestionUtils {
                             continue;
                         }
                         List<TerminalToken> terminalTokens = terminalToken(fp, br);
-                        if (terminalTokens.size() > 0) {
+                        while (!terminalTokens.isEmpty()) {
                             TerminalToken token = terminalTokens.remove(0);
-                            if (suggestions.contains(token.getName())) {
+                            String value = token.getName();
+                            String type = token.getType();
+                            if (suggestions.contains(value) && !Constant.FNDType.COLUMN.equals(type)) {
                                 continue;
                             }
                             suggestions.add(br.getLeftHandSide().getName());
-                            suggestions.add(token.getName());
-                            String value = token.getName();
-                            String type = token.getType();
+                            suggestions.add(value);
                             if (Constant.FNDType.INTEGER.equals(type) || Constant.FNDType.DOUBLE.equals(type)) {
                                 value = SourcesUtils.decimalSug(true);
                                 String suggestion = addSpace ? " " + value : value;
@@ -283,6 +281,9 @@ public class SuggestionUtils {
                                 sss.add(ss);
                             } else if (Constant.FNDType.COLUMN.equals(type)) {
                                 Column column = token.getColumn();
+                                if (!columnIdList.contains(column.getColumnId())) {
+                                    continue;
+                                }
                                 String suggestion = addSpace ? " " + value : value;
                                 SuggestionSuggestion ss = new SuggestionSuggestion();
                                 ss.beginPos = position;
@@ -291,22 +292,14 @@ public class SuggestionUtils {
                                 ss.suggestionType = Constant.SuggestionType.COLUMN;
                                 ss.description = String.format(columnDescription, column.getSourceName());
                                 sss.add(ss);
-                                while (!terminalTokens.isEmpty()) {
-                                    TerminalToken tmp = terminalTokens.remove(0);
-                                    logger.debug(JSONObject.toJSONString(tmp));
-                                    if (suggestions.contains(tmp.getName())) {
-                                        continue;
-                                    }
-                                    suggestions.add(tmp.getName());
-                                    boolean isFormula = Constant.FNDType.FORMULA.equals(tmp.getType());
-                                    SuggestionSuggestion ssTmp = new SuggestionSuggestion();
-                                    ssTmp.beginPos = position;
-                                    ssTmp.endPos = position;
-                                    ssTmp.suggestion = addSpace ? " " + tmp.getName() : tmp.getName();
-                                    ssTmp.suggestionType = isFormula ? Constant.SuggestionType.FORMULA : Constant.SuggestionType.COLUMN;
-                                    ssTmp.description = isFormula ? formulaDescription : String.format(columnDescription, tmp.getColumn().getColumnDisplayName());
-                                    sss.add(ssTmp);
-                                }
+                            } else if (Constant.FNDType.FORMULA.equals(type)) {
+                                SuggestionSuggestion ssTmp = new SuggestionSuggestion();
+                                ssTmp.beginPos = position;
+                                ssTmp.endPos = position;
+                                ssTmp.suggestion = addSpace ? " " + value : value;
+                                ssTmp.suggestionType = Constant.SuggestionType.FORMULA;
+                                ssTmp.description = formulaDescription;
+                                sss.add(ssTmp);
                             } else {
                                 String suggestion = addSpace ? " " + value : value;
                                 SuggestionSuggestion ss = new SuggestionSuggestion();
@@ -412,7 +405,7 @@ public class SuggestionUtils {
      * @param user      websocket用户信息
      * @param tokens    分词结果
      */
-    public static List<SuggestionSuggestion> suggestionsMiddleError(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens) throws IllegalException, IOException, AmbiguitiesException {
+    public static List<SuggestionSuggestion> suggestionsMiddleError(final FocusParser fp, String search, FocusInst focusInst, JSONObject user, List<FocusToken> tokens, JSONArray columnIdList) throws IllegalException, IOException, AmbiguitiesException {
         String language = user.getString("language");
         int errorTokenIndex = focusInst.position;
         int beginPos = tokens.get(errorTokenIndex).getStart();
@@ -491,6 +484,9 @@ public class SuggestionUtils {
 
                         if (Constant.FNDType.COLUMN.equals(type)) {
                             Column column = token.getColumn();
+                            if (!columnIdList.contains(column.getColumnId())) {
+                                continue;
+                            }
                             description = String.format(columnDescription, column.getColumnDisplayName());
                         }
 
@@ -651,8 +647,14 @@ public class SuggestionUtils {
         } else {
             focusInst = fp.parseFormula(tokens, amb, language, srs);
         }
+        JSONObject filter = Base.selectSource(focusInst, new ArrayList<>(), tokens.size(), user);
+        JSONArray sourceList = filter.getJSONArray("sourceList");
+        JSONArray columnIdList = new JSONArray();
+        if (sourceList != null && !sourceList.isEmpty()) {
+            columnIdList = SourcesUtils.getColumnIdList(sourceList, srs);
+        }
         if (!focusInst.isInstruction) {
-            SuggestionResponse response = suggestionsNotCompleted(fp, search, focusInst, user, tokens, position);
+            SuggestionResponse response = suggestionsNotCompleted(fp, search, focusInst, user, tokens, position, columnIdList);
             int endPos = position;
             for (int i = 0; i < originTokens.size(); i++) {
                 FocusToken token = originTokens.get(i);
@@ -672,7 +674,7 @@ public class SuggestionUtils {
             }
             return response;
         } else {
-            return suggestionsCompleted(fp, search, focusInst, user, tokens, position);
+            return suggestionsCompleted(fp, search, focusInst, user, tokens, position, columnIdList);
         }
     }
 
@@ -701,6 +703,11 @@ public class SuggestionUtils {
 
     // 根据bnf规则名字给出一条完整的提示
     private static String bnfRuleSug(FocusParser parser, BnfRule br) {
+        return bnfRuleSug(parser, br, new JSONArray());
+    }
+
+    // 根据bnf规则名字给出一条完整的提示(过滤部分列)
+    private static String bnfRuleSug(FocusParser parser, BnfRule br, JSONArray columnIdList) {
         String sug = "";
         if (br != null) {
             for (TokenString ts : br.getAlternatives()) {
@@ -712,6 +719,12 @@ public class SuggestionUtils {
                         if (!type.equals(Constant.FNDType.TABLE)) {
                             if (Constant.FNDType.INTEGER.equals(type) || Constant.FNDType.DOUBLE.equals(type)) {
                                 sug = sug + SourcesUtils.decimalSug(true) + " ";
+                            } else if (Constant.FNDType.COLUMN.equals(type)) {
+                                if (!columnIdList.isEmpty() && !columnIdList.contains(((TerminalToken) token).getColumn().getColumnId())) {
+                                    nextAlt = true;
+                                    break;
+                                }
+                                sug = sug + token.getName() + " ";
                             } else {
                                 sug = sug + token.getName() + " ";
                             }
@@ -722,7 +735,7 @@ public class SuggestionUtils {
                             nextAlt = true;
                             break;
                         }
-                        String sugNext = bnfRuleSug(parser, brNext);
+                        String sugNext = bnfRuleSug(parser, brNext, columnIdList);
                         if (sugNext.isEmpty()) {
                             nextAlt = true;
                             break;

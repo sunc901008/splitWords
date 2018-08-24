@@ -142,7 +142,6 @@ public class CumulativeFuncInstruction {
             cases.add(String.format(example, value1, value2));
         }
 
-        cases.addAll(FormulaCase.buildCaseNumberCol(example, user));
         return cases;
     }
 }

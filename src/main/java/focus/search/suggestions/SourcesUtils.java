@@ -17,6 +17,39 @@ import java.util.*;
 public class SourcesUtils {
     private static final List<String> randomString = Arrays.asList("hello", "world", "focus", "example");
 
+    // 根据表id获取所有列id
+    public static JSONArray getColumnIdList(JSONArray sourceList, List<SourceReceived> srs) {
+        JSONArray columnIdList = new JSONArray();
+        for (SourceReceived s : srs) {
+            if (sourceList.isEmpty()) {
+                break;
+            }
+            if (sourceList.contains(s.tableId)) {
+                sourceList.remove(s.tableId);
+                s.columns.forEach(c -> columnIdList.add(c.columnId));
+            }
+        }
+        return columnIdList;
+    }
+
+    // 根据列名获取列
+    public static List<Column> getColumns(String colName, List<SourceReceived> srs) {
+        List<Column> columns = new ArrayList<>();
+        for (SourceReceived sourceReceived : srs) {
+            for (ColumnReceived column : sourceReceived.columns) {
+                if (column.columnDisplayName.equalsIgnoreCase(colName)) {
+                    Column col = column.transfer();
+                    col.setTableId(sourceReceived.tableId);
+                    col.setSourceName(sourceReceived.sourceName);
+                    col.setTbPhysicalName(sourceReceived.physicalName);
+                    col.setDbName(sourceReceived.parentDB);
+                    columns.add(col);
+                }
+            }
+        }
+        return columns;
+    }
+
     // 获取当前所有列信息
     public static List<Column> colRandomSuggestions(JSONObject user) {
         return colRandomSuggestions(user, new ArrayList<>());

@@ -5,8 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import focus.search.bnf.FocusNode;
 import focus.search.bnf.FocusPhrase;
 import focus.search.instruction.annotations.AnnotationToken;
+import focus.search.instruction.filterInst.FilterNumOrNumColInstruction;
 import focus.search.instruction.functionInst.boolFunc.*;
 import focus.search.instruction.functionInst.numberFunc.DaysFuncInstruction;
+import focus.search.instruction.nodeArgs.BaseBoolFuncInstruction;
 import focus.search.meta.Formula;
 import focus.search.response.exception.FocusInstructionException;
 import focus.search.response.exception.IllegalException;
@@ -38,6 +40,8 @@ public class BoolFuncColInstruction {
         switch (fn.getValue()) {
             case "<to_bool-function>":
                 return ToBoolFuncInstruction.build(fn.getChildren(), index, amb, formulas);
+            case "<bool-function>":
+                return FilterNumOrNumColInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<contains-function>":
                 return ContainsFuncInstruction.build(fn.getChildren(), index, amb, formulas);
             case "<and-function>":
@@ -64,6 +68,8 @@ public class BoolFuncColInstruction {
         switch (fn.getValue()) {
             case "<to_bool-function>":
                 return ToBoolFuncInstruction.arg(fn.getChildren(), formulas);
+            case "<bool-function>":
+                return BaseBoolFuncInstruction.arg(fn.getChildren(), formulas);
             case "<contains-function>":
                 return ContainsFuncInstruction.arg(focusPhrase, formulas);
             case "<and-function>":
@@ -90,6 +96,8 @@ public class BoolFuncColInstruction {
         switch (fn.getValue()) {
             case "<to_bool-function>":
                 return ToBoolFuncInstruction.tokens(fn.getChildren(), formulas, amb);
+            case "<bool-function>":
+                return BaseBoolFuncInstruction.tokens(fn.getChildren(), formulas, amb);
             case "<contains-function>":
                 return ContainsFuncInstruction.tokens(focusPhrase, formulas, amb);
             case "<and-function>":

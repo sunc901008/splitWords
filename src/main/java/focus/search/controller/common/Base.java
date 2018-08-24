@@ -28,10 +28,7 @@ import org.apache.log4j.Logger;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * creator: sunc
@@ -72,7 +69,7 @@ public class Base {
                 ar.value = record.realValue;
                 ar.isResolved = true;
 
-                List<Column> columns = CommonFunc.getColumns(record.realValue, srs);
+                List<Column> columns = SourcesUtils.getColumns(record.realValue, srs);
                 ar.ars.addAll(getRecords(columns));
                 ar.addRecord(record);
                 for (AmbiguitiesRecord a : ar.ars) {
@@ -112,7 +109,7 @@ public class Base {
                 ar.value = columnName;
                 ar.isResolved = true;
 
-                List<Column> columns = CommonFunc.getColumns(columnName, srs);
+                List<Column> columns = SourcesUtils.getColumns(columnName, srs);
                 ar.ars.addAll(getRecords(columns));
                 for (AmbiguitiesRecord a : ar.ars) {
                     if (a.columnId == columnId) {
@@ -175,6 +172,10 @@ public class Base {
             SuggestionResponse response = SuggestionUtils.suggestionsNull(fp, user, search, search.length());
             Common.send(session, response.response());
             logger.debug("提示:\n\t" + response.response() + "\n");
+            SelectSourceResponse selectSourceResponse = new SelectSourceResponse();
+            List<SourceReceived> srs = JSONArray.parseArray(user.getJSONArray("sources").toJSONString(), SourceReceived.class);
+            srs.forEach(s -> selectSourceResponse.datas.add(new SelectSourceData(s.tableId, s.sourceName)));
+            Common.send(session, selectSourceResponse.response());
             return;
         }
         JSONObject amb = user.getJSONObject("ambiguities");
@@ -224,18 +225,21 @@ public class Base {
                 List<BnfRule> rules = fp.parseRules(input, language);
                 List<SuggestionSuggestion> sss = new ArrayList<>();
                 List<String> ruleNames = new ArrayList<>();
+                List<String> suggestions = new ArrayList<>();
                 for (BnfRule br : rules) {
                     String ruleName = br.getLeftHandSide().getName();
                     if (!ruleNames.contains(ruleName)) {
                         for (TokenString ts : br.getAlternatives()) {
                             Token token = ts.getFirst();
                             if (token instanceof TerminalToken) {
-                                if (token.getName().startsWith(input.getWord())) {
+                                String sug = token.getName();
+                                if (token.getName().startsWith(input.getWord()) && !suggestions.contains(sug)) {
                                     ruleNames.add(ruleName);
+                                    suggestions.add(sug);
                                     SuggestionSuggestion ss = new SuggestionSuggestion();
                                     ss.beginPos = 0;
                                     ss.endPos = position;
-                                    ss.suggestion = token.getName();
+                                    ss.suggestion = sug;
                                     ss.suggestionType = ((TerminalToken) token).getType();
                                     sss.add(ss);
                                     break;
@@ -280,21 +284,33 @@ public class Base {
             logger.debug(String.format("isQuestion:%s tokens:%s ambiguities:%s language:%s", isQuestion, JSON.toJSONString(tokens), amb, language));
             if (isQuestion) {
                 focusInst = fp.parseQuestion(tokens, amb, language, srs, formulas);
-                boolean goOn = selectSource(session, focusInst, formulas, tokens.size(), user);
-                if (!goOn) {
-                    return;
-                }
             } else {
                 focusInst = fp.parseFormula(tokens, amb, language, srs);
             }
-
-//            logger.info(focusInst.toJSON().toJSONString());
+            int size = 0;
+            if (focusInst.position < 0) {
+                size = tokens.size();
+            } else if (focusInst.position > 0) {
+                size = focusInst.position;
+            }
+            JSONArray sourceList;
+            if (size > 0) {
+                JSONObject filter = selectSource(focusInst, formulas, size, user);
+                Common.send(session, filter.getString("sessionMsg"));
+                sourceList = filter.getJSONArray("sourceList");
+            } else {
+                sourceList = JSONArray.parseArray(user.getString("sourceList"));
+            }
+            if (sourceList == null || sourceList.isEmpty()) {
+                return;
+            }
+            JSONArray columnIdList = SourcesUtils.getColumnIdList(sourceList, srs);
 
             if (focusInst.position < 0) {// 未出错
 
                 if (!focusInst.isInstruction) {// 出入不完整
                     logger.debug("start getting suggestions.");
-                    SuggestionResponse response = SuggestionUtils.suggestionsNotCompleted(fp, search, focusInst, user, tokens, search.length());
+                    SuggestionResponse response = SuggestionUtils.suggestionsNotCompleted(fp, search, focusInst, user, tokens, search.length(), columnIdList);
                     logger.debug("finish getting suggestions.");
 
                     // search suggestions
@@ -306,7 +322,7 @@ public class Base {
                 } else {//  输入完整
                     if (!isQuestion) {// formula
                         // 生成suggestion
-                        SuggestionResponse sug = SuggestionUtils.suggestionsCompleted(fp, search, focusInst, user, tokens, position);
+                        SuggestionResponse sug = SuggestionUtils.suggestionsCompleted(fp, search, focusInst, user, tokens, position, columnIdList);
                         if (sug != null)
                             Common.send(session, sug.response());
                         FormulaResponse response = new FormulaResponse(search);
@@ -355,7 +371,7 @@ public class Base {
                     Common.send(session, annotationResponse.response());
 
                     // 生成suggestion
-                    SuggestionResponse sug = SuggestionUtils.suggestionsCompleted(fp, search, focusInst, user, tokens, position);
+                    SuggestionResponse sug = SuggestionUtils.suggestionsCompleted(fp, search, focusInst, user, tokens, position, columnIdList);
                     if (sug != null)
                         Common.send(session, sug.response());
 
@@ -448,7 +464,7 @@ public class Base {
                         SuggestionResponse suggestionResponse = SuggestionUtils.suggestionsMiddleError(fp, search, user, tokens, position);
                         Common.send(session, suggestionResponse.response());
                     } else {
-                        List<SuggestionSuggestion> sss = SuggestionUtils.suggestionsMiddleError(fp, search, focusInst, user, tokens);
+                        List<SuggestionSuggestion> sss = SuggestionUtils.suggestionsMiddleError(fp, search, focusInst, user, tokens, columnIdList);
                         StringBuilder sb = new StringBuilder();
                         sss.forEach(s -> sb.append(String.format(reasonItem, s.suggestion)));
                         datas.reason = String.format(reason, sb.toString());
@@ -660,10 +676,9 @@ public class Base {
         users.add(session);
     }
 
-    private static boolean selectSource(WebSocketSession session, FocusInst focusInst, List<Formula> formulas, int size, JSONObject user) throws IOException {
-        JSONObject params = new JSONObject();
-        params.put("all", JSONArray.parseArray(user.getString("sourceIdList")));
-        JSONArray selected = new JSONArray();
+    public static JSONObject selectSource(FocusInst focusInst, List<Formula> formulas, int size, JSONObject user) throws IOException {
+        JSONArray sourceList = JSONArray.parseArray(user.getString("sourceList"));
+        Set<Integer> selected = new HashSet<>();
         int index = 0;
         for (FocusPhrase focusPhrase : focusInst.getFocusPhrases()) {
             for (int i = 0; i < focusPhrase.size(); i++) {
@@ -703,26 +718,50 @@ public class Base {
                 break;
             }
         }
+
+        JSONObject json = new JSONObject();
+        json.put("sessionMsg", "");
+        json.put("sourceList", sourceList);
+
         if (selected.isEmpty()) {
-            return true;
+            return json;
         }
+        JSONObject params = new JSONObject();
+        params.put("all", sourceList);
         params.put("selected", selected);
+        JSONObject res = selectSource(params, user.getString("accessToken"));
+        if (res.getBooleanValue("status")) {
+            return res;
+        } else {
+            json.put("sessionMsg", res.getString("sessionMsg"));
+        }
+        return json;
+    }
+
+    private static JSONObject selectSource(JSONObject params, String accessToken) {
+        JSONObject json = new JSONObject();
+        json.put("status", false);
+        json.put("sessionMsg", "");
+        json.put("sourceList", new JSONArray());
         try {
-            JSONObject res = Clients.Bi.checkRelationSource(params.toJSONString());
+            JSONObject res = Clients.WebServer.checkRelationSource(params.toJSONString(), accessToken);
             SelectSourceResponse response = new SelectSourceResponse();
             if (res.getBooleanValue("success")) {
                 response.datas = JSONArray.parseArray(res.getString("tables"), SelectSourceData.class);
-                Common.send(session, response.response());
-                return true;
-            } else if (res.getInteger("errCode") == Clients.Bi.ERROR_CODE_11043) {// 无关联关系
+                JSONArray sourceList = new JSONArray();
+                response.datas.forEach(d -> sourceList.add(d.id));
+                json.put("status", true);
+                json.put("sessionMsg", response.response());
+                json.put("sourceList", sourceList);
+            } else if (res.getInteger("errCode") == Clients.WebServer.ERROR_CODE_11043) {// 无关联关系
                 String error = ErrorResponse.response(Constant.ErrorType.ERROR, res.getString("exception")).toJSONString();
-                Common.send(session, error);
-                return false;
+                json.put("sessionMsg", error);
             }
         } catch (Exception e) {
             logger.error(Common.printStacktrace(e));
+            json.put("sessionMsg", e.getMessage());
         }
-        return true;
+        return json;
     }
 
     private static JSONArray selectSource(JSONObject expression) {

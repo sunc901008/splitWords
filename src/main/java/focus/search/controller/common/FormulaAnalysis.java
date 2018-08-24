@@ -244,7 +244,8 @@ public class FormulaAnalysis {
         JSONArray instructions = InstructionBuild.build(focusPhrase, 1, amb, language, dateColumns);
         for (int i = 0; i < instructions.size(); i++) {
             JSONObject instruction = instructions.getJSONObject(i);
-            if (instruction.getString("instId").equals(Constant.InstIdType.ADD_EXPRESSION)) {
+            String instId = instruction.getString("instId");
+            if (Constant.InstIdType.ADD_EXPRESSION.equals(instId) || Constant.InstIdType.ADD_LOGICAL_FILTER.equals(instId)) {
                 JSONObject content = instruction.getJSONObject("expression");
                 return JSONObject.parseObject(content.toJSONString(), FormulaObj.class);
             }

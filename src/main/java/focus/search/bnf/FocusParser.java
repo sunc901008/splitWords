@@ -229,11 +229,11 @@ public class FocusParser implements Serializable {
         boolean isNumber = false;
         switch (focusToken.getType()) {
             case "integer":
-                key = Constant.REDIS_INTEGER_PREFIX;
+                key = String.format(Constant.REDIS_INTEGER_PREFIX, language);
                 isNumber = true;
                 break;
             case "double":
-                key = Constant.REDIS_DOUBLE_PREFIX;
+                key = String.format(Constant.REDIS_DOUBLE_PREFIX, language);
                 isNumber = true;
                 break;
             case "formulaName":
@@ -336,6 +336,11 @@ public class FocusParser implements Serializable {
                     if (phrase.size() < 2) {
                         continue;
                     }
+                    FocusNode tableNode = phrase.getFirstNode();
+                    tableNode.setBegin(focusToken.getStart());
+                    tableNode.setEnd(focusToken.getEnd());
+                    tableNode.setValue(word);
+                    phrase.replaceNode(0, tableNode);
                     String strPhrase = phrase.toJSON().toJSONString();
                     FocusNode colNode = phrase.getNodeNew(1);
                     String strNode = JSONObject.toJSONString(colNode, Constant.features);

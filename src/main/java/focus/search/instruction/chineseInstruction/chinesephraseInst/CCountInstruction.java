@@ -43,14 +43,9 @@ public class CCountInstruction {
 
         FocusPhrase numberPhrase = focusNodes.get(0).getChildren();
 
-        JSONObject expression = new JSONObject();
-        expression.put("name", "count");
-        expression.put("type", "function");
-        JSONArray args = new JSONArray();
+        json1.put("aggregation", Constant.AggregationType.COUNT);
 
-        args.add(NumberColInstruction.arg(numberPhrase, formulas));
-        expression.put("args", args);
-        json1.put("expression", expression);
+        json1.put("expression", NumberColInstruction.arg(numberPhrase, formulas));
         instructions.add(json1);
 
         datas.addToken(AnnotationToken.singleCol(numberPhrase, amb, formulas));

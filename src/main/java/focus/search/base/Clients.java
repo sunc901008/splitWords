@@ -61,6 +61,13 @@ public class Clients {
         private static final String GET_SOURCE = "getSource";
         private static final String QUERY = "query";
         private static final String CHECK_QUERY = "checkQuery";
+        private static final String CHECK_RELATION_SOURCE = "checkRelationSource";
+        public static final int ERROR_CODE_11043 = 11043;
+
+        public static JSONObject checkRelationSource(String params, String accessToken) throws FocusHttpException {
+            BasicHeader header = new BasicHeader("Access-Token", accessToken);
+            return post(baseUrl + CHECK_RELATION_SOURCE, params, Arrays.asList(header, baseHeader));
+        }
 
         public static JSONObject checkQuery(String params, String accessToken) throws FocusHttpException {
             BasicHeader header = new BasicHeader("Access-Token", accessToken);

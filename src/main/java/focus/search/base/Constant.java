@@ -34,8 +34,8 @@ public class Constant {
 
     public static final String MINUS = "-";
 
-    public static final String REDIS_INTEGER_PREFIX = "focus_integer";
-    public static final String REDIS_DOUBLE_PREFIX = "focus_double";
+    public static final String REDIS_INTEGER_PREFIX = "%s_focus_integer";
+    public static final String REDIS_DOUBLE_PREFIX = "%s_focus_double";
     public static final String REDIS_KEYWORD_PREFIX = "%s_focus_keyword_%s";
     public static final String REDIS_TABLE_PREFIX = "%s_focus_table";// language_focus_table
     public static final String REDIS_COLUMN_PREFIX = "%s_focus_column_%s";// 根据data type区分 language_focus_column_int
@@ -222,11 +222,11 @@ public class Constant {
             if ("<integer>".equals(keyword)) {
                 keyword = "1";
                 type = FNDType.INTEGER;
-                key = REDIS_INTEGER_PREFIX;
+                key = String.format(REDIS_INTEGER_PREFIX, language);
             } else if ("<double>".equals(keyword)) {
                 keyword = "1.0";
                 type = FNDType.DOUBLE;
-                key = REDIS_DOUBLE_PREFIX;
+                key = String.format(REDIS_DOUBLE_PREFIX, language);
             } else {// set rule into redis
                 List<BnfRule> rules = parser.parseRules(new FocusToken(keyword, "", 0, keyword.length()));
                 RedisUtils.set(String.format(REDIS_RULE_PREFIX, language, keyword), JSONArray.toJSONString(rules, features));
@@ -346,8 +346,8 @@ public class Constant {
 
     // column type
     public static final class ColumnType {
-        public static final String MEASURE = "measure";
-        public static final String ATTRIBUTE = "attribute";
+        public static final String MEASURE = "MEASURE";
+        public static final String ATTRIBUTE = "ATTRIBUTE";
     }
 
     // data type

@@ -1,5 +1,6 @@
 <bool-function-column> := <to_bool-function> |
                           <contains-function> |
+                          <bool-function> |
                           <and-function> |
                           <or-function> |
                           <isnull-function> |

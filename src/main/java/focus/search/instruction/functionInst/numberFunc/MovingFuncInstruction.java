@@ -169,7 +169,6 @@ public class MovingFuncInstruction {
             cases.add(String.format(example, value1, value2, value3, value4));
         }
 
-        cases.addAll(FormulaCase.buildCaseNumberCol(example, user));
         return cases;
     }
 }

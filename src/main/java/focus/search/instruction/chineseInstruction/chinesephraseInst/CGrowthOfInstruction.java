@@ -17,6 +17,7 @@ import java.util.List;
  * description:
  */
 //<growth-of> := 按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval> |
+//        按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval> <year-over-year>|
 //        <year-over-year> 按 <all-date-column> 计算的 <growth-of-measure> <growth-of-by-date-interval>;
 public class CGrowthOfInstruction {
 
@@ -32,7 +33,7 @@ public class CGrowthOfInstruction {
         boolean hasYearOverYear = false;
         int flag = 0;
         FocusNode keyword1 = focusNodes.get(flag++);//按
-        if ("<year-over-year>".equals(keyword1.getValue())) {
+        if ("<year-over-year>".equals(keyword1.getValue())) {//<year-over-year>
             AnnotationToken token1 = new AnnotationToken();
             FocusNode yearOverYear = keyword1.getChildren().getFirstNode();
             token1.addToken(yearOverYear.getValue());
@@ -110,12 +111,9 @@ public class CGrowthOfInstruction {
         json2.put("annotationId", annotationId);
         json2.put("instId", Constant.InstIdType.GROWTH_DIMENSION);
         json2.put("column", dateCol.getColumnId());
-        if (hasYearOverYear) {
-            json2.put("period", "year-over-year");
-        }
 
         //<growth-of-by-date-interval>
-        FocusPhrase dateInterval = focusNodes.get(flag).getChildren();
+        FocusPhrase dateInterval = focusNodes.get(flag++).getChildren();
         AnnotationToken token6 = new AnnotationToken();
         FocusNode interval = dateInterval.getFirstNode();
         token6.begin = interval.getBegin();
@@ -125,6 +123,22 @@ public class CGrowthOfInstruction {
         token6.value = interval.getValue();
         token6.type = "growthOfByDateInterval";
         datas.addToken(token6);
+
+        if (focusNodes.size() - 1 > flag) {//<year-over-year>
+            AnnotationToken token = new AnnotationToken();
+            FocusNode yearOverYear = focusNodes.get(flag).getChildren().getFirstNode();
+            token.addToken(yearOverYear.getValue());
+            token.value = yearOverYear.getValue();
+            token.type = "yearOverYear";
+            token.begin = yearOverYear.getBegin();
+            token.end = yearOverYear.getEnd();
+            datas.addToken(token);
+            hasYearOverYear = true;
+        }
+
+        if (hasYearOverYear) {
+            json2.put("period", "year-over-year");
+        }
         instructions.add(json2);
 
         JSONObject json3 = new JSONObject();
